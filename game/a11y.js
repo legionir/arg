@@ -1,5 +1,7 @@
 // دسترس‌پذیری دسکتاپ (0.57.0 — #۲۶ از FEATURES، الگوی CHG-045 مرجع).
-// کاتالوگ خالص بدون import: پالت‌های کمکی کوررنگی + مقیاس UI + remap کلید.
+import { t } from "./i18n.js";
+import { lazyTable } from "./lazy.js";
+// کاتالوگ خالص (فقط متن نمایشی از i18n): پالت‌های کمکی کوررنگی + مقیاس UI + remap کلید.
 // اعمال DOM (فیلتر SVG روی بوم‌ها، zoom روی #app، شنونده keydown) در main.js است؛
 // sim/ذخیره/هش هیچ‌چیز از این‌ها نمی‌دانند (UI-side کامل).
 
@@ -7,20 +9,20 @@
 // feColorMatrix که محور اشتباه‌شونده را جابه‌جا می‌کنند تا یگان قرمز/آبی از
 // زمینه سبز جدا بماند. هر سطر مجموع ≈۱ (حفظ روشنایی) — تست t_a11y_catalog.
 export const A11Y_PALETTES = {
-  off:    { name: "خاموش", matrix: null },
-  deutan: { name: "دوتان (سبز) — سبزها به فیروزه‌ای", matrix: [
+  off:    { get name() { return t("system.a11y.palette.off"); }, matrix: null },
+  deutan: { get name() { return t("system.a11y.palette.deutan"); }, matrix: [
     1, 0, 0, 0, 0,
     0, 0.6, 0.4, 0, 0,
     0, 0.3, 0.7, 0, 0,
     0, 0, 0, 1, 0,
   ] },
-  protan: { name: "پروتان (قرمز) — قرمزها به نارنجی", matrix: [
+  protan: { get name() { return t("system.a11y.palette.protan"); }, matrix: [
     0.8, 0.2, 0, 0, 0,
     0.1, 0.8, 0.1, 0, 0,
     0, 0, 1, 0, 0,
     0, 0, 0, 1, 0,
   ] },
-  tritan: { name: "تریتان (آبی) — آبی‌ها خنثی‌تر", matrix: [
+  tritan: { get name() { return t("system.a11y.palette.tritan"); }, matrix: [
     1, 0, 0, 0, 0,
     0, 1, 0, 0, 0,
     0.25, 0.25, 0.5, 0, 0,
@@ -34,7 +36,7 @@ export const A11Y_SCALES = [1, 1.25, 1.5];
 // کنش‌های قابل remap + پیش‌فرض‌ها (e.code — مستقل از چیدمان صفحه‌کلید).
 // Escape همیشه خلع می‌کند (fallback سخت) حتی اگر remap شود.
 export const KEY_ACTIONS = ["cancel", "pause", "mute"];
-export const KEY_ACTION_FA = { cancel: "خلع/لغو", pause: "توقف/ادامه", mute: "بی‌صدا/باصدا" };
+export const KEY_ACTION_FA = lazyTable({ cancel: "system.a11y.key.cancel", pause: "system.a11y.key.pause", mute: "system.a11y.key.mute" });
 export const DEFAULT_KEYS = { cancel: "Escape", pause: "KeyP", mute: "KeyM" };
 
 export function validPalette(id) {

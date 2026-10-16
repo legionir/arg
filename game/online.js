@@ -1,5 +1,6 @@
 // لایه آنلاین (0.23.0): شمار حاضران + تالار پیروزی مشترک + جشن پیروزی دیگران.
 // کاملاً افزودنی است: قطع‌بودن یا خطای سوکت هیچ اثری روی بازی تک‌نفره ندارد.
+import { t as tr } from "./i18n.js";
 import { getSocketMaker } from "./selfhost.js"; // بک‌اند: اول پلتفرم، وگرنه سرور شخصی (0.69.0)
 const LOBBY_POLL_MS = 20000;
 const MAX_BACKOFF_MS = 30000;
@@ -39,12 +40,12 @@ export function initOnline(ui) {
         if (box) {
           const list = (hall.data && hall.data.entries) || [];
           box.innerHTML = list.length
-            ? list.map((e, i) => `<div class="stat"><span>${esc(e.name)}</span><span>#${i + 1} — ${e.ticks} تیک</span></div>`).join("")
-            : `<div class="lbl">هنوز کسی پیروز نشده — اولین باش!</div>`;
+            ? list.map((e, i) => `<div class="stat"><span>${esc(e.name)}</span><span>${tr("system.online.hallRow", { rank: i + 1, n: Number(e.ticks) || 0 })}</span></div>`).join("")
+            : `<div class="lbl">${tr("system.online.hallEmpty")}</div>`;
         }
         const onRaw = await sock.rpc.online("");
         const on = JSON.parse(onRaw);
-        if (els.count) els.count.textContent = `(${(on.data && on.data.n) || 0} نفر)`;
+        if (els.count) els.count.textContent = tr("system.online.count", { n: (on.data && on.data.n) || 0 });
       } catch (e) { /* دفعه بعد */ }
     },
   };
@@ -90,7 +91,7 @@ export function initOnline(ui) {
     });
     s.addEventListener("message", (ev) => {
       if (typeof ev.data === "string" && ev.data.indexOf("V:") === 0) {
-        toast(`«${ev.data.slice(2)}» به تالار پیروزی پیوست!`);
+        toast(tr("system.online.joinedHall", { name: ev.data.slice(2) }));
         api.refresh();
       }
     });

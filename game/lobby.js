@@ -1,6 +1,7 @@
 // لابی رقابتی (0.24.0): سوکت جدا از online.js، فقط لابی + رله ورودی.
 // قطع‌بودن سوکت، تک‌نفره را لمس نمی‌کند.
 import { PROFILE_LOGOS } from "./profile.js";
+import { t as tr, getLang } from "./i18n.js";
 import { getSocketMaker } from "./selfhost.js"; // بک‌اند: اول پلتفرم، وگرنه سرور شخصی (0.69.0)
 
 const RECONNECT_MAX = 30000;
@@ -28,20 +29,20 @@ function escHtml(s) {
 // (برای خصوصی، فیلد رمز درون ردیف). خالص و تست‌پذیر.
 export function roomRowHTML(room) {
   const code = escHtml(room.code || "????");
-  const lock = room.priv ? "🔒 خصوصی" : "🔓 عمومی";
+  const lock = room.priv ? tr("system.lobby.private") : tr("system.lobby.public");
   const FA_D = "۰۱۲۳۴۵۶۷۸۹";
-  const fa = (n) => String(n).replace(/\d/g, (d) => FA_D[d]);
+  const fa = (n) => (getLang() === "fa" ? String(n).replace(/\d/g, (d) => FA_D[d]) : String(n));
   const count = `${fa(room.num || 0)}/${fa(room.max || 0)}`;
   const seed = fa(room.seed >>> 0);
   const pls = (room.players || []).map((p) =>
     `<span class="pl"><span class="rosterLogo">${PROFILE_LOGOS[(p.logo | 0)] || ""}</span>${escHtml(p.name || "?")}</span>`
   ).join(" ");
   const pwField = room.priv
-    ? `<input data-pwfor="${code}" maxlength="16" placeholder="رمز" autocomplete="off" type="password">`
+    ? `<input data-pwfor="${code}" maxlength="16" placeholder="${tr("system.lobby.passwordPlaceholder")}" autocomplete="off" type="password">`
     : "";
-  return `<div class="room" data-room="${code}"><div class="rhead"><b>${code}</b><span>${lock}</span><span>${count} نفر</span><span>سید ${seed}</span></div>` +
+  return `<div class="room" data-room="${code}"><div class="rhead"><b>${code}</b><span>${lock}</span><span>${tr("system.lobby.players", { n: room.max || 0, count })}</span><span>${tr("system.lobby.seed", { seed })}</span></div>` +
     `<div class="rplayers">${pls || '<span class="lbl">—</span>'}</div>` +
-    `<div class="opts">${pwField}<button data-joincode="${code}">پیوستن</button></div></div>`;
+    `<div class="opts">${pwField}<button data-joincode="${code}">${tr("system.lobby.join")}</button></div></div>`;
 }
 
 export function initMpLobby(ui, hooks) {

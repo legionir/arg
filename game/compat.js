@@ -1,24 +1,27 @@
 // ماتریس سازگاری (0.58.0 — #۲۷ از FEATURES، الگوی CHG-032…036 مرجع).
+import { t } from "./i18n.js";
+import { lazyString } from "./lazy.js";
 // probe خالص روی env تزریقی (تست با env قلابی) + liveEnv برای مرورگر واقعی.
 // sim/ذخیره/هش هیچ‌چیز از این‌ها نمی‌دانند (فقط گزارش).
 
 // required=true یعنی بدون آن بازی بالا نمی‌آید؛ false یعنی degrade شیک
 // (fallback) دارد و در probe گزارش می‌شود.
 export const COMPAT_ROWS = [
-  { key: "canvas", name: "بوم دوبعدی (رسم)", required: true },
-  { key: "localStorage", name: "حافظه محلی (ترجیحات)", required: true },
-  { key: "indexedDB", name: "ایندکس‌دی‌بی (ذخیره‌ها)", required: false },
-  { key: "audio", name: "وب‌آدیو (صدا)", required: false },
-  { key: "pointer", name: "رویدادهای اشاره (تاچ/پینچ)", required: false },
-  { key: "zoom", name: "مقیاس رابط (CSS zoom)", required: false },
-  { key: "offscreen", name: "بوم آفلاین", required: false },
-  { key: "worker", name: "ورکر وب", required: false },
+  { key: "canvas", get name() { return t("system.compat.canvas"); }, required: true },
+  { key: "localStorage", get name() { return t("system.compat.localStorage"); }, required: true },
+  { key: "indexedDB", get name() { return t("system.compat.indexedDB"); }, required: false },
+  { key: "audio", get name() { return t("system.compat.audio"); }, required: false },
+  { key: "pointer", get name() { return t("system.compat.pointer"); }, required: false },
+  { key: "zoom", get name() { return t("system.compat.zoom"); }, required: false },
+  { key: "offscreen", get name() { return t("system.compat.offscreen"); }, required: false },
+  { key: "worker", get name() { return t("system.compat.worker"); }, required: false },
 ];
 
 // خط پشتیبانی رسمی (0.61.0 — تصمیم کاربر: فقط Chrome و Firefox دسکتاپ؛
 // بقیه فرضی‌اند و Safari/iOS و موبایل تأیید نشده).
-export const SUPPORT_LINE =
-  "پشتیبانی رسمی: Chrome و Firefox دسکتاپ (دو نسخه آخر) — Safari/iOS و موبایل تأیید نشده‌اند.";
+// رشته‌مانند تنبل (toString/indexOf/... روی متن زبان فعلی)؛ supportLine() متن ساده می‌دهد.
+export const SUPPORT_LINE = lazyString(() => t("system.compat.supportLine"));
+export function supportLine() { return t("system.compat.supportLine"); }
 
 // env: آبجکت پرچم {canvas, localStorage, indexedDB, audio, pointer, zoom,
 // offscreen, worker} — کلید غایب = false. خالص.
