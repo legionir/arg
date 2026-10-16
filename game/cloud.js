@@ -1,4 +1,5 @@
 // ذخیره ابری (0.67.0 — انتخاب ۳-الف کاربر): ادامه بازی روی چند دستگاه.
+import { lazyTable } from "./lazy.js";
 import { getSocketMaker } from "./selfhost.js"; // بک‌اند: اول پلتفرم، وگرنه سرور شخصی (0.69.0)
 //
 // قرارداد:
@@ -13,25 +14,24 @@ export const CLOUD_KEY_MAX = 32;
 export const CLOUD_DATA_MAX = 32768; // سقف نویسه داده (آینه CLOUD_CHARS سرور)
 export const CLOUD_STORE_KEY = "scw.cloudkey";
 
-export const CLOUD_FA = {
-  BAD_KEY: "عبارت ابری باید ۴ تا ۳۲ نویسه باشد",
-  TOO_BIG: "ذخیره برای ابر بزرگ است",
-  EMPTY: "در ابر با این عبارت چیزی نیست",
-  FULL: "ابر پر است — بعداً دوباره بزن",
-  OFFLINE: "سرور در دسترس نیست — تک‌نفره ادامه دارد",
-  SLOW: "کمی صبر کن و دوباره بزن",
-  KEY: "کلید نامعتبر است",
-  BIG: "خطای بافر سرور — دوباره بزن",
-  BAD: "پاسخ نامعتبر سرور",
-  // کدهای سرور حروف‌کوچک‌اند (slow/bad/key/big/full/empty) — نگاشت مستقیم
-  // تا پیام فارسی نشان داده شود نه کد خام (یافته راستی‌آزمایی زنده 0.67.0).
-  slow: "کمی صبر کن و دوباره بزن",
-  key: "کلید نامعتبر است",
-  big: "خطای بافر سرور — دوباره بزن",
-  bad: "پاسخ نامعتبر سرور",
-  full: "ابر پر است — بعداً دوباره بزن",
-  empty: "در ابر با این عبارت چیزی نیست",
-};
+export const CLOUD_FA = lazyTable({
+  BAD_KEY: "system.cloud.BAD_KEY",
+  TOO_BIG: "system.cloud.TOO_BIG",
+  EMPTY: "system.cloud.EMPTY",
+  FULL: "system.cloud.FULL",
+  OFFLINE: "system.cloud.OFFLINE",
+  SLOW: "system.cloud.SLOW",
+  KEY: "system.cloud.KEY",
+  BIG: "system.cloud.BIG",
+  BAD: "system.cloud.BAD",
+  // کدهای سرور حروف‌کوچک‌اند (slow/bad/key/big/full/empty) — نگاشت مستقیم به همان پیام‌ها.
+  slow: "system.cloud.SLOW",
+  key: "system.cloud.KEY",
+  big: "system.cloud.BIG",
+  bad: "system.cloud.BAD",
+  full: "system.cloud.FULL",
+  empty: "system.cloud.EMPTY",
+});
 
 // هش FNV-1a روی واحدهای UTF-16 (آینه clKeyH سرور) — خالص و تست‌پذیر.
 export function cloudKeyHash(pass) {

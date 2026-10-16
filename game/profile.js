@@ -1,6 +1,8 @@
 // پروفایل بازیکن (0.27.0): نام جنگی + لوگو. در همین مرورگر ذخیره می‌شود
 // (localStorage) و در اتاق چندنفره برای همه نمایش داده می‌شود (همراه roster
 // سرور)؛ هر وقت از منو قابل ویرایش است.
+import { t as tr } from "./i18n.js";
+
 export const PROFILE_LOGOS = ["🦁", "🐺", "🦅", "🐉", "⚔️", "🛡️", "👑", "🐎", "🐻", "🦊", "🐯", "🦂"];
 export const PROFILE_KEY = "scw.profile";
 export const PROFILE_NAME_MAX = 12;
@@ -67,6 +69,6 @@ function esc(s) {
 // نشان بازیکن برای roster/تالار: لوگو + نام (نام escape می‌شود).
 export function profileBadgeHTML(p) {
   const logo = PROFILE_LOGOS[validLogo(p && p.logo) ?? 0] || "";
-  const name = esc(validProfileName(p && p.name) || "بی‌نام");
+  const name = esc(validProfileName(p && p.name) || tr("system.profile.anon"));
   return `<span class="pbadge"><span class="plogo">${logo}</span> ${name}</span>`;
 }

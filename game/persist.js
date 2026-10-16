@@ -7,6 +7,7 @@ import { CONFIG } from "./config.js";
 import { createState, occupyFootprint } from "./state.js";
 import { TAX, RATIONS, capFor } from "./economy.js";
 import { UNITS } from "./combat.js";
+import { lazyTable } from "./lazy.js";
 import { idbAvailable, idbSet, idbGet, idbDel } from "./idb.js";
 
 export const SCHEMA_VERSION = 2;
@@ -23,16 +24,10 @@ export class SaveError extends Error {
   }
 }
 
-export const SAVE_FA = {
-  INVALID_JSON: "داده خراب است (JSON نامعتبر)",
-  INVALID_SCHEMA: "ساختار ذخیره نامعتبر است",
-  FUTURE_VERSION: "ذخیره از نسخه جدیدتر است — قابل بارگذاری نیست",
-  UNSUPPORTED_VERSION: "نسخه ذخیره پشتیبانی نمی‌شود",
-  EMPTY: "ذخیره‌ای وجود ندارد",
-  QUOTA: "فضای ذخیره مرورگر کافی نیست",
-  DISABLED: "ذخیره‌سازی در این مرورگر ممکن نیست",
-  TOO_BIG: "ذخیره از سقف ۴MB بزرگ‌تر است",
-};
+// جدول پیام‌ها: getterهای زبان‌آگاه (کلید = کد خطا)؛ کد پایدار است، فقط متن نمایشی ترجمه می‌شود.
+export const SAVE_FA = lazyTable(Object.fromEntries(
+  ["INVALID_JSON", "INVALID_SCHEMA", "FUTURE_VERSION", "UNSUPPORTED_VERSION", "EMPTY", "QUOTA", "DISABLED", "TOO_BIG"]
+    .map((k) => [k, "system.save." + k])));
 
 export function serialize(state) {
   return {

@@ -10,6 +10,7 @@
 // validatePlayable با اجرای واقعیِ شروع بازی روی state موقت (placeKeep +
 // spawnLord + startAI) قابل‌بازی‌بودن را ثابت می‌کند — نه با حدس هندسی.
 import { CONFIG } from "./config.js";
+import { lazyTable } from "./lazy.js";
 import { makeTerrain, T_GRASS, T_WATER, T_ROCK } from "./terrain.js";
 import { createState } from "./state.js";
 import { placeKeep } from "./construction.js";
@@ -20,7 +21,7 @@ export const MAP_V = 1;
 export const MAP_NAME_MAX = 24;
 export const PATCH_CAP = 2048; // سقف وصله یکتا (نیمی از نقشه؛ ضد نفخ)
 export const CUSTOM_KEY = "scw.customMap"; // تنها اسلات محلی نقشه سفارشی
-export const TILE_NAMES = { [T_GRASS]: "چمن", [T_WATER]: "آب", [T_ROCK]: "سنگ" };
+export const TILE_NAMES = lazyTable({ [T_GRASS]: "system.map.tile.grass", [T_WATER]: "system.map.tile.water", [T_ROCK]: "system.map.tile.rock" });
 export const BRUSHES = [1, 2, 4, 8, 16, 32]; // اندازه قلم مربعی (پوشش «گرید ۸…۳۲»)
 
 function W() { return CONFIG.GRID_W; }
