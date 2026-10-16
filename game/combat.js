@@ -634,8 +634,10 @@ function acquire(u, state) {
     return best;
   }
   if (mp) {
-    // رقابتی: نزدیک‌ترین بنای/یگانِ مالکِ دیگر (موج خنثی نداریم).
-    let best = null, bd = Infinity;
+    // رقابتی: نزدیک‌ترین بنای/یگانِ مالکِ دیگر در برد aggro (موج خنثی نداریم).
+    // (0.70.2: قبلاً بی‌حد بود — هر یگان، از جمله ارباب، از لحظه اول تا آن سر نقشه به سمت نزدیک‌ترین
+    // دشمن می‌دوید و بازی ۴نفره بدون هیچ ورودی تا تیک ~۹۰۰ تمام می‌شد. حالا مثل سولو فقط دشمنِ نزدیک.)
+    let best = null, bd = def.aggro;
     for (const b of state.buildings) {
       if (b.destroyed) continue;
       if ((b.owner == null ? 0 : b.owner) === uow) continue;

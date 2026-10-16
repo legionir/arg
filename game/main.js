@@ -168,14 +168,37 @@ function boot() {
   const mpPending = new Map(); // seq -> msg (ترتیب اجرا)
   let mpNextSeq = 1;
   const mpHashes = new Map(); // "slot:tick" -> h (تشخیص desync)
+  const mpHashLog = []; // [[tick, hash]] هش‌های خودم هر ۱۰۰ تیک
   let mpDesync = null;
   const mpActive = () => !!mpSession;
   const mySlot = () => (mpSession ? mpSession.slot : 0);
   const myEcon = () => (mpSession ? state.mpres[mpSession.slot] : state);
   // در MP ورودی فقط ارسال می‌شود (اجرای هم‌زمان پس از echo با seq).
+  // صف خروجی: سرور هر اتصال را به ۳۰ ورودی در ۱۰ ثانیه محدود می‌کند و مازاد را بی‌صدا دور می‌ریزد
+  // (مثلاً خط دیوار ۳۲ تایلی). پس ورودی‌ها حداقل MP_SEND_GAP ms فاصله می‌گیرند (≤ ۲۵ در ۱۰ ثانیه؛
+  // ۵ باقی برای هش) و ترتیب حفظ می‌شود؛ ارسال ناموفق صادقانه اعلام می‌شود.
+  const MP_SEND_GAP = 400, MP_OUTBOX_MAX = 80;
+  const mpOutbox = [];
+  let mpLastSend = 0, mpPumpTimer = 0;
+  function mpPump() {
+    mpPumpTimer = 0;
+    if (!mpSession) { mpOutbox.length = 0; return; }
+    const wait = MP_SEND_GAP - (performance.now() - mpLastSend);
+    if (wait > 0) { mpPumpTimer = setTimeout(mpPump, wait); return; }
+    const m = mpOutbox.shift();
+    if (m) {
+      mpLastSend = performance.now();
+      Promise.resolve(lobby.send(m.kind, m.args)).then((seq) => {
+        if (seq == null && mpSession) { statusEl.textContent = t("main.mp.sendDropped"); }
+      }).catch(() => {});
+    }
+    if (mpOutbox.length) mpPumpTimer = setTimeout(mpPump, MP_SEND_GAP);
+  }
   function mpSend(kind, args) {
     if (!mpSession) return false;
-    try { lobby.send(kind, args); } catch (e) {}
+    if (mpOutbox.length >= MP_OUTBOX_MAX) { statusEl.textContent = t("main.mp.sendDropped"); return false; }
+    mpOutbox.push({ kind, args });
+    if (!mpPumpTimer) mpPump();
     refreshPanel();
     return true;
   }
@@ -438,7 +461,12 @@ function boot() {
         for (let i = 0; i < n; i++) { state.tick++; mpDrain(); stepEconomy(state); stepTraining(state, terrain); stepCombat(state, terrain); updateMpAlive(state); }
         setTick(state.tick);
         if (state.tick % 100 === 0 && state.tick > 0) {
-          try { lobby.send("hash", { h: stateHash(state), tick: state.tick }); } catch (e) {}
+          const hNow = stateHash(state);
+          mpHashLog.push([state.tick, hNow]); // سابقه هش‌ها: مقایسه با هش هم‌تیک همتاها + قلاب تست
+          if (mpHashLog.length > 400) mpHashLog.shift();
+          mpCheckHash(state.tick); // همتا ممکن است زودتر رسیده باشد
+          for (const k of mpHashes.keys()) { if ((k.split(":")[1] | 0) < state.tick - 2000) mpHashes.delete(k); }
+          try { lobby.send("hash", { h: hNow, tick: state.tick }); } catch (e) {}
           checkMpEnd();
         }
         refreshPanel();
@@ -501,14 +529,27 @@ function boot() {
     return u;
   }
 
+  // تشخیص desync: هش همتا برای تیک T با هش خودم در همان تیک مقایسه می‌شود (هر دو ترتیب رسیدن).
+  function mpCheckHash(tick) {
+    const mine = mpHashLog.find((e) => e[0] === tick);
+    if (!mine) return;
+    const mineStr = String(mine[1]);
+    for (let sl = 0; mpSession && sl < mpSession.num; sl++) {
+      if (sl === mpSession.slot) continue;
+      const th = mpHashes.get(sl + ":" + tick);
+      if (th !== undefined && String(th) !== mineStr && !mpDesync) {
+        mpDesync = tick + "/P" + (sl + 1);
+        state.events.push(t("main.battle.desync", { d: mpDesync }));
+      }
+    }
+  }
+
   function applyMpInput(m) {
     const slot = m.slot | 0, kind = m.kind, a = m.args || {};
     if (kind === "hash") {
       if (slot === (mpSession ? mpSession.slot : -1)) return;
-      const key = slot + ":" + (a.tick | 0);
-      mpHashes.set(key, String(a.h || ""));
-      const mine = stateHash(state);
-      // مقایسه با تأخیر: هش هم‌تیک خودم را وقتی به همان تیک رسیدم چک می‌کنم
+      mpHashes.set(slot + ":" + (a.tick | 0), String(a.h || ""));
+      mpCheckHash(a.tick | 0); // هش هم‌تیک خودم (اگر رسیده‌ام) با هش همتا
       return;
     }
     if (!mpSession || slot < 0 || slot >= mpSession.num) return;
@@ -653,6 +694,7 @@ function boot() {
     mpPending.clear();
     mpNextSeq = 1;
     mpHashes.clear();
+    mpHashLog.length = 0;
     mpDesync = null;
     cmdQueue = createQueue(); // در MP ورودی فقط از شبکه می‌آید
     clock.reset();
@@ -1437,7 +1479,12 @@ function boot() {
     }
     const def = selectedDef();
     if (!def) { updateHover(e.clientX, e.clientY); refreshPanel(); return; } // حالت خنثی: کلیک خالی کاری نمی‌کند
-    if (mpSession) { mpSend("place", { type: def.key, c: cell.c, r: cell.r }); sound.ack("place"); return; }
+    if (mpSession) {
+      // پیش‌اعتبارسنجی محلی (همان validate با مالک=اسلات من): رد = پیام + صدا و ورودی هدر نمی‌رود.
+      const pv = validate(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, cell.c, cell.r, def, mpSession.slot);
+      if (!pv.ok) { statusEl.textContent = REASON_FA[pv.reason] || pv.reason; sound.ack("deny"); return; }
+      mpSend("place", { type: def.key, c: cell.c, r: cell.r }); sound.ack("place"); return;
+    }
     playerCmd( { kind: "place", type: def.key, c: cell.c, r: cell.r }, state.tick);
     sound.ack("place");
     refreshPanel();
@@ -2849,6 +2896,9 @@ function boot() {
       active: () => !!mpSession,
       slot: () => (mpSession ? mpSession.slot : -1),
       hash: () => stateHash(state),
+      hashLog: () => mpHashLog.slice(),
+      peerHashes: () => [...mpHashes.entries()],
+      desync: () => mpDesync,
       startLocal: (num) => {
         // شروع محلی بدون سرور (تست determinism دو نمونه هم‌سان)
         const s = state.mapSeed >>> 0;

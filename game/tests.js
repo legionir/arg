@@ -5038,6 +5038,26 @@ function mpFresh(num) {
   return { W, H, terrain, state };
 }
 
+// 0.70.2: بدون هیچ ورودی، ۴ بازیکن نباید همدیگر را بی‌دخالت از بین ببرند (قبلاً ارباب‌ها از تیک ۰ می‌دویدند).
+function t_mp_no_rush() {
+  const { terrain, state } = mpFresh(4);
+  for (let i = 0; i < 1500; i++) {
+    state.tick++;
+    stepEconomy(state); stepTraining(state, terrain); stepCombat(state, terrain); updateMpAlive(state);
+  }
+  const lords = state.units.filter((u) => u.type === "lord" && !u.dead);
+  must(lords.length === 4, `هر ۴ ارباب باید زنده بمانند، ${lords.length}`);
+  must(state.mpres.every((p) => p.alive) && !state.mp.over, "هیچ بازیکنی بی‌ورودی حذف نمی‌شود");
+  const keeps = state.buildings.filter((b) => b.type === "keep");
+  must(keeps.length === 4 && keeps.every((b) => b.hp === b.maxHp), "ستادها دست‌نخورده");
+  // ارباب‌ها دور از خانه نرفته‌اند
+  for (const u of lords) {
+    const k = keeps.find((b) => b.owner === u.owner);
+    must(Math.abs(u.x - (k.c + 2)) + Math.abs(u.r - (k.r + 2)) < 12, `ارباب ${u.owner} از پایگاه دور شد`);
+  }
+  return { name: "بدون هجوم خودکار در MP", pass: true, detail: "۱۵۰۰ تیک، ۴ بازیکن" };
+}
+
 function t_mp_spawns() {
   const { state } = mpFresh(2);
   const keeps = state.buildings.filter((b) => b.type === "keep");
@@ -5136,5 +5156,5 @@ function t_mp_victory() {
 }
 
 function mpCases() {
-  return [t_mp_spawns, t_mp_econ_isolation, t_mp_combat_targets, t_mp_hash_deterministic, t_mp_victory];
+  return [t_mp_spawns, t_mp_econ_isolation, t_mp_combat_targets, t_mp_hash_deterministic, t_mp_victory, t_mp_no_rush];
 }
