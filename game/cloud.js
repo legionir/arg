@@ -1,4 +1,5 @@
 // ذخیره ابری (0.67.0 — انتخاب ۳-الف کاربر): ادامه بازی روی چند دستگاه.
+import { getSocketMaker } from "./selfhost.js"; // بک‌اند: اول پلتفرم، وگرنه سرور شخصی (0.69.0)
 //
 // قرارداد:
 // - کلید هر اسلات = عبارت ۴..۳۲ نویسه‌ای کاربر؛ فقط هش FNV-1a آن (هگز
@@ -101,12 +102,11 @@ export function initCloud() {
     });
   }
   function connect() {
-    let make = null;
-    try { make = typeof root !== "undefined" ? root.createServerSocket : null; } catch (e) { make = null; }
-    if (typeof make !== "function") return; // پلاگین نیست — آفلاینِ کامل
+    const make = getSocketMaker(); // اول پلتفرم، وگرنه سرور شخصی (0.69.0)
+    if (typeof make !== "function") return; // هیچ بک‌اندی نیست — آفلاینِ کامل
     const mySeq = ++seq;
     let s = null;
-    try { s = root.createServerSocket(); } catch (e) { schedule(); return; }
+    try { s = make(); } catch (e) { schedule(); return; }
     sock = s;
     s.addEventListener("open", () => {
       if (mySeq !== seq) { try { s.close(); } catch (e) {} return; }

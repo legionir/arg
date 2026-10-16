@@ -1,6 +1,7 @@
 // لابی رقابتی (0.24.0): سوکت جدا از online.js، فقط لابی + رله ورودی.
 // قطع‌بودن سوکت، تک‌نفره را لمس نمی‌کند.
 import { PROFILE_LOGOS } from "./profile.js";
+import { getSocketMaker } from "./selfhost.js"; // بک‌اند: اول پلتفرم، وگرنه سرور شخصی (0.69.0)
 
 const RECONNECT_MAX = 30000;
 
@@ -227,12 +228,11 @@ export function initMpLobby(ui, hooks) {
   }
 
   function connect() {
-    let make = null;
-    try { make = typeof root !== "undefined" ? root.createServerSocket : null; } catch (e) { make = null; }
+    const make = getSocketMaker(); // اول پلتفرم، وگرنه سرور شخصی (0.69.0)
     if (typeof make !== "function") return;
     const mySeq = ++seq;
     let s = null;
-    try { s = root.createServerSocket(); } catch (e) { schedule(); return; }
+    try { s = make(); } catch (e) { schedule(); return; }
     sock = s;
     s.addEventListener("open", () => {
       if (mySeq !== seq) { try { s.close(); } catch (e) {} return; }

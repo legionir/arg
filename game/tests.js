@@ -27,6 +27,7 @@ import { createQueue, enqueueCmd, queueLen, stepSim } from "./sim.js";
 import { queueHire, cancelTrain, stepTraining, barracksOf, trainTimeOf, TRAIN_FA } from "./train.js";
 import { MISSION_KINDS, MISSION_FA, validateMission, createRun, updateRun, MISSIONS } from "./missions.js";
 import { CLOUD_KEY_MIN, CLOUD_KEY_MAX, CLOUD_DATA_MAX, CLOUD_FA, cloudKeyHash, validCloudKey } from "./cloud.js";
+import { resolveSocketUrl } from "./selfhost.js";
 import { hasMarket, tradeQuote, applyTrade } from "./market.js";
 import { startAI, stepAI, aiRandAt, aiDifficulty, aiRaidPlan, aiPersonality, aiPersonalityName, AI_OWNER } from "./ai.js";
 import { drawMinimap, minimapCell, panForCell, MINIMAP_W, MINIMAP_H } from "./minimap.js";
@@ -4757,7 +4758,23 @@ function sysCases() {
   return [t_hire_reasons, t_terrain_deterministic, t_terrain_seed, t_map_seed_variety, t_map_quadrants_fair, t_profile_name_logo, t_profile_persist, t_mp_password_rules, t_room_row_html, t_wave_deterministic,
     t_render_roundtrip, t_render_flat, t_minimap_dots, t_minimap_click, t_tick_both_systems, t_balance_sources, t_balance_speed_order,
     t_select_toggle, t_select_prune, t_select_group, t_alarm_all, t_alarm_guard_resume,
-    t_mission_move, t_mission_reject, t_mission_cancel, t_mission_failed, t_mission_save];
+    t_mission_move, t_mission_reject, t_mission_cancel, t_mission_failed, t_mission_save,
+    t_selfhost_url];
+}
+
+// --- سرور شخصی (0.69.0): تقدم query بر stored بر پیش‌فرض همین‌هاست ---
+function t_selfhost_url() {
+  const R = (q, s, h, p) => resolveSocketUrl({ query: q, stored: s, host: h, proto: p });
+  must(R("wss://ex.com/sock", null, "h", "http") === "wss://ex.com/sock", "query کامل");
+  must(R("/s2", "wss://st.io/s", "h", "https") === "wss://h/s2", "query نسبی + تقدم بر stored");
+  must(R(null, "ws://127.0.0.1:8080/sock", "h", "http") === "ws://127.0.0.1:8080/sock", "stored کامل");
+  must(R(null, "  ", "h", "http") === "ws://h/sock", "stored خالی = پیش‌فرض");
+  must(R("nope", null, "h", "http") === "ws://h/sock", "query نامعتبر = پیش‌فرض");
+  must(R(null, null, "h", "http") === "ws://h/sock", "پیش‌فرض ws همین‌هاست");
+  must(R(null, null, "h:9", "https") === "wss://h:9/sock", "پیش‌فرض wss برای https");
+  must(R(null, null, "", "file") === null, "file بدون تنظیم = null (آفلاین)");
+  must(R(null, "wss://st.io/s", "", "file") === "wss://st.io/s", "file با stored");
+  return { name: "آدرس سرور شخصی", pass: true, detail: "تقدم query/stored/پیش‌فرض" };
 }
 
 // --- انتخاب گروهی (0.16.0) ---

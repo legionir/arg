@@ -1,5 +1,6 @@
 // لایه آنلاین (0.23.0): شمار حاضران + تالار پیروزی مشترک + جشن پیروزی دیگران.
 // کاملاً افزودنی است: قطع‌بودن یا خطای سوکت هیچ اثری روی بازی تک‌نفره ندارد.
+import { getSocketMaker } from "./selfhost.js"; // بک‌اند: اول پلتفرم، وگرنه سرور شخصی (0.69.0)
 const LOBBY_POLL_MS = 20000;
 const MAX_BACKOFF_MS = 30000;
 
@@ -74,12 +75,11 @@ export function initOnline(ui) {
     setTimeout(() => { if (!api.ready) connect(); }, wait);
   }
   function connect() {
-    let make = null;
-    try { make = typeof root !== "undefined" ? root.createServerSocket : null; } catch (e) { make = null; }
-    if (typeof make !== "function") return; // پلاگین نیست — آفلاینِ کامل
+    const make = getSocketMaker(); // اول پلتفرم، وگرنه سرور شخصی (0.69.0)
+    if (typeof make !== "function") return; // هیچ بک‌اندی نیست — آفلاینِ کامل
     const mySeq = ++seq;
     let s = null;
-    try { s = root.createServerSocket(); } catch (e) { schedule(backoff); return; }
+    try { s = make(); } catch (e) { schedule(backoff); return; }
     sock = s;
     s.addEventListener("open", () => {
       if (mySeq !== seq) { try { s.close(); } catch (e) {} return; }

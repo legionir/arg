@@ -1,0 +1,12 @@
+{
+  "name": "arg-stronghold-server",
+  "version": "0.69.0",
+  "description": "Standalone backend for the Arg stronghold game (static + halls/rooms/cloud socket)",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
