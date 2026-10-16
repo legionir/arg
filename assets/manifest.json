@@ -1,0 +1,662 @@
+{
+  "version": "0.11.0",
+  "notes": "validation.fileExists/dimensions/alpha/integrated توسط scratch/validate-assets.js به‌صورت ماشینی پر می‌شود؛ visualReviewPassed یعنی بازبینی چشمی واقعی انجام شده.",
+  "assets": [
+    {
+      "id": "terrain.grass-0",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/grass-0.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1027,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.grass-1",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/grass-1.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1190,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.grass-2",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/grass-2.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1180,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.grass-3",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/grass-3.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1397,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.grass-4",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/grass-4.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1341,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.grass-5",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/grass-5.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1444,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.water-0",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/water-0.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "2-frame loop (tick>>4)&1",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 955,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.water-1",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/water-1.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "2-frame loop (tick>>4)&1",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 939,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.rock-0",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/rock-0.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1222,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.rock-1",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/rock-1.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1387,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "terrain.rock-2",
+      "category": "terrain",
+      "status": "production-ready",
+      "source": "scratch/build-terrain.js",
+      "texture": "src/assets/terrain/rock-2.png",
+      "width": 72,
+      "height": 36,
+      "anchor": "tile-diamond",
+      "animation": "none",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1790,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "env.boulder-0",
+      "category": "environment",
+      "status": "production-ready",
+      "source": "scratch/build-decor.js",
+      "texture": "src/assets/environment/boulder-0.png",
+      "width": 44,
+      "height": 40,
+      "anchor": "ground-center",
+      "displaySize": "22x20@zoom1",
+      "placement": "rock tiles only, hash-gated (unwalkable, no occupancy lie)",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1281,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "env.boulder-1",
+      "category": "environment",
+      "status": "production-ready",
+      "source": "scratch/build-decor.js",
+      "texture": "src/assets/environment/boulder-1.png",
+      "width": 44,
+      "height": 40,
+      "anchor": "ground-center",
+      "displaySize": "22x20@zoom1",
+      "placement": "rock tiles only, hash-gated (unwalkable, no occupancy lie)",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1316,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "env.reeds-0",
+      "category": "environment",
+      "status": "production-ready",
+      "source": "scratch/build-decor.js",
+      "texture": "src/assets/environment/reeds-0.png",
+      "width": 24,
+      "height": 40,
+      "anchor": "ground-center",
+      "displaySize": "12x20@zoom1",
+      "placement": "shore water tiles only, hash-gated (unwalkable, no occupancy lie)",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1333,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "env.reeds-1",
+      "category": "environment",
+      "status": "production-ready",
+      "source": "scratch/build-decor.js",
+      "texture": "src/assets/environment/reeds-1.png",
+      "width": 24,
+      "height": 40,
+      "anchor": "ground-center",
+      "displaySize": "12x20@zoom1",
+      "placement": "shore water tiles only, hash-gated (unwalkable, no occupancy lie)",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1343,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "unit.soldier",
+      "category": "military_unit",
+      "status": "production-ready",
+      "source": "scratch/build-units.js",
+      "texture": "src/assets/units/soldier.png",
+      "width": 128,
+      "height": 160,
+      "frame": "32x32",
+      "anchor": "ground-contact (16,30)",
+      "directions": "E/S/W/N rows",
+      "animations": {
+        "idle": true,
+        "walk": "2-frame distance-driven",
+        "attack": "in-range pose",
+        "takeDamage": "white ring from flashTick",
+        "death": "corpse frame 10 ticks + dust puff"
+      },
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 3190,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "unit.swordsman",
+      "category": "military_unit",
+      "status": "production-ready",
+      "source": "scratch/build-units.js",
+      "texture": "src/assets/units/swordsman.png",
+      "width": 128,
+      "height": 160,
+      "frame": "32x32",
+      "anchor": "ground-contact (16,30)",
+      "directions": "E/S/W/N rows",
+      "animations": {
+        "idle": true,
+        "walk": "2-frame distance-driven",
+        "attack": "in-range pose",
+        "takeDamage": "white ring from flashTick",
+        "death": "corpse frame 10 ticks + dust puff"
+      },
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 2731,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "unit.archer",
+      "category": "military_unit",
+      "status": "production-ready",
+      "source": "scratch/build-units.js",
+      "texture": "src/assets/units/archer.png",
+      "width": 128,
+      "height": 160,
+      "frame": "32x32",
+      "anchor": "ground-contact (16,30)",
+      "directions": "E/S/W/N rows",
+      "animations": {
+        "idle": true,
+        "walk": "2-frame distance-driven",
+        "attack": "in-range pose",
+        "takeDamage": "white ring from flashTick",
+        "death": "corpse frame 10 ticks + dust puff"
+      },
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 3668,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "unit.bowman",
+      "category": "military_unit",
+      "status": "production-ready",
+      "source": "scratch/build-units.js",
+      "texture": "src/assets/units/bowman.png",
+      "width": 128,
+      "height": 160,
+      "frame": "32x32",
+      "anchor": "ground-contact (16,30)",
+      "directions": "E/S/W/N rows",
+      "palette": "player blue tunic #4d9de0 + navy hood #2e4a66, bow/quiver (distinct from orange enemy archer)",
+      "animations": {
+        "idle": true,
+        "walk": "2-frame distance-driven",
+        "attack": "in-range pose",
+        "takeDamage": "white ring from flashTick",
+        "death": "corpse frame 10 ticks + dust puff"
+      },
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 3664,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "unit.lord",
+      "category": "military_unit",
+      "status": "production-ready",
+      "source": "src/tools/build-lord.js",
+      "texture": "src/assets/units/lord.png",
+      "width": 128,
+      "height": 160,
+      "frame": "32x32",
+      "anchor": "ground-contact (16,30)",
+      "directions": "E/S/W/N rows",
+      "palette": "gold armor #d9a441 + red cape #b03a2e, crown with red jewel, sword (player side)",
+      "animations": {
+        "idle": true,
+        "walk": "2-frame distance-driven",
+        "attack": "in-range pose",
+        "takeDamage": "white ring from flashTick",
+        "death": "corpse frame 10 ticks + dust puff"
+      },
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 3109,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "res.wood",
+      "category": "resource_icon",
+      "status": "production-ready",
+      "source": "scratch/build-icons.js",
+      "texture": "src/assets/resources/wood.png",
+      "width": 24,
+      "height": 24,
+      "usedIn": "HUD resource panel",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 1094,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "res.food",
+      "category": "resource_icon",
+      "status": "production-ready",
+      "source": "scratch/build-icons.js",
+      "texture": "src/assets/resources/food.png",
+      "width": 24,
+      "height": 24,
+      "usedIn": "HUD resource panel",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 900,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "res.gold",
+      "category": "resource_icon",
+      "status": "production-ready",
+      "source": "scratch/build-icons.js",
+      "texture": "src/assets/resources/gold.png",
+      "width": 24,
+      "height": 24,
+      "usedIn": "HUD resource panel",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 955,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "res.stone",
+      "category": "resource_icon",
+      "status": "production-ready",
+      "source": "scratch/build-icons.js (stone variant, OffscreenCanvas)",
+      "texture": "inline src/game/icons.gen.js",
+      "width": 24,
+      "height": 24,
+      "usedIn": "HUD resource panel",
+      "validation": {
+        "visualReviewPassed": false,
+        "fileExists": true,
+        "bytes": 1303,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "res.wheat",
+      "category": "resource_icon",
+      "status": "production-ready",
+      "source": "execute_js wheat sheaf (OffscreenCanvas, 0.20.0)",
+      "texture": "inline src/game/icons.gen.js",
+      "width": 24,
+      "height": 24,
+      "usedIn": "HUD resource panel",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 940,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "res.hops",
+      "category": "resource_icon",
+      "status": "production-ready",
+      "source": "execute_js hop cone (OffscreenCanvas, 0.21.0)",
+      "texture": "inline src/game/icons.gen.js",
+      "width": 24,
+      "height": 24,
+      "usedIn": "HUD resource panel",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 646,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "res.beer",
+      "category": "resource_icon",
+      "status": "production-ready",
+      "source": "execute_js beer mug (OffscreenCanvas, 0.21.0)",
+      "texture": "inline src/game/icons.gen.js",
+      "width": 24,
+      "height": 24,
+      "usedIn": "HUD resource panel",
+      "validation": {
+        "visualReviewPassed": true,
+        "fileExists": true,
+        "bytes": 666,
+        "dimensionsValid": true,
+        "transparencyOk": true,
+        "integrated": true
+      }
+    },
+    {
+      "id": "building.hut",
+      "category": "building_vector_kit",
+      "status": "production-ready",
+      "source": "src/game/render.js drawHut",
+      "texture": null,
+      "note": "vector kit (zoom-crisp 0.3-3 + dynamic damage/gray/ghost overlays); same projection/anchor/palette rules",
+      "validation": {
+        "visualReviewPassed": true
+      }
+    },
+    {
+      "id": "building.woodcutter",
+      "category": "building_vector_kit",
+      "status": "production-ready",
+      "source": "src/game/render.js drawWoodcutter",
+      "texture": null,
+      "note": "vector kit; unstaffed gray-out + ! badge from real staffed flag",
+      "validation": {
+        "visualReviewPassed": true
+      }
+    },
+    {
+      "id": "building.farm",
+      "category": "building_vector_kit",
+      "status": "production-ready",
+      "source": "src/game/render.js drawFarm",
+      "texture": null,
+      "note": "vector kit; soil/furrow/crop/fence from footprint",
+      "validation": {
+        "visualReviewPassed": true
+      }
+    },
+    {
+      "id": "building.tower",
+      "category": "building_vector_kit",
+      "status": "production-ready",
+      "source": "src/game/render.js drawTower",
+      "texture": null,
+      "note": "vector kit; battlements/arrow-slit/courtyard/waving pennant",
+      "validation": {
+        "visualReviewPassed": true
+      }
+    },
+    {
+      "id": "fx.death-puff",
+      "category": "effect_procedural",
+      "status": "production-ready",
+      "source": "src/game/render.js drawPuffs",
+      "note": "pooled, event-driven (unit removal), 7 ticks",
+      "validation": {
+        "visualReviewPassed": true
+      }
+    },
+    {
+      "id": "fx.hit-flash",
+      "category": "effect_procedural",
+      "status": "production-ready",
+      "source": "src/game/render.js",
+      "note": "white ring from real flashTick, 3 ticks",
+      "validation": {
+        "visualReviewPassed": true
+      }
+    },
+    {
+      "id": "wall",
+      "category": "fortification_vector_kit",
+      "status": "production-ready",
+      "source": "src/game/render.js drawWall (0.9.0)",
+      "texture": null,
+      "note": "vector kit; neighbor-aware ridge links to wall/gate, crenellations on open front edges, damage wash"
+    },
+    {
+      "id": "gate",
+      "category": "fortification_vector_kit",
+      "status": "production-ready",
+      "source": "src/game/render.js drawGate (0.10.0)",
+      "texture": null,
+      "note": "vector kit; dark arch + stone frame + wooden lintel, roof links to adjacent rampart"
+    },
+    {
+      "id": "siege",
+      "category": "siege",
+      "status": "not-required",
+      "note": "no siege equipment in game"
+    },
+    {
+      "id": "civilian",
+      "category": "character",
+      "status": "not-required",
+      "note": "no world civilians (workers are abstract numbers); full catalog is soldier/swordsman/archer"
+    },
+    {
+      "id": "carried-goods",
+      "category": "resource",
+      "status": "not-required",
+      "note": "no carriers in game"
+    },
+    {
+      "id": "tree",
+      "category": "environment",
+      "status": "not-required",
+      "note": "decorative trees on buildable grass would lie about occupancy; reeds/boulders cover unwalkable tiles instead"
+    }
+  ]
+}
