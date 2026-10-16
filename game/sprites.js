@@ -13,9 +13,9 @@ const bad = new Set();
 
 // جدول inline: مسیر فایل → dataURL (بدون شبکه/CORS/taint)
 const INLINE = {};
-for (const k in TILE_DATA) INLINE[`src/assets/terrain/${k}.png`] = TILE_DATA[k];
-for (const k in UNIT_DATA) INLINE[`src/assets/units/${k}.png`] = UNIT_DATA[k];
-for (const k in DECOR_DATA) INLINE[`src/assets/environment/${k}.png`] = DECOR_DATA[k];
+for (const k in TILE_DATA) INLINE[`assets/terrain/${k}.png`] = TILE_DATA[k];
+for (const k in UNIT_DATA) INLINE[`assets/units/${k}.png`] = UNIT_DATA[k];
+for (const k in DECOR_DATA) INLINE[`assets/environment/${k}.png`] = DECOR_DATA[k];
 
 export function getSprite(path) {
   let e = cache.get(path);
@@ -49,5 +49,5 @@ export function spritesReady(paths) {
 
 // آیکون رابط کاربری: dataURL آماده (بدون شبکه) یا مسیر فایل
 export function iconSrc(key) {
-  return ICON_DATA[key] || `src/assets/resources/${key}.png`;
+  return ICON_DATA[key] || `assets/resources/${key}.png`;
 }

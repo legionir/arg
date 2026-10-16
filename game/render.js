@@ -136,7 +136,7 @@ export function createRenderer(canvas) {
 
   // دکور زمین (فایل؛ فقط روی تایل غیرقابل‌بازی تا با occupancy دروغ نگوید)
   function drawDecor(kind, variant, cx, cy, dw, dh) {
-    const img = getSprite(`src/assets/environment/${kind}-${variant}.png`);
+    const img = getSprite(`assets/environment/${kind}-${variant}.png`);
     if (!img) return;
     const w = dw * view.zoom, h = dh * view.zoom;
     ctx.drawImage(img, cx - w / 2, cy + 3 * view.zoom - h, w, h);
@@ -144,7 +144,7 @@ export function createRenderer(canvas) {
 
   // --- تایل‌های فایلی (§6): drawImage روی مرکز لوزی؛ fallback وکتوری ---
   function tileImage(kind, idx) {
-    return getSprite(`src/assets/terrain/${kind}-${idx}.png`);
+    return getSprite(`assets/terrain/${kind}-${idx}.png`);
   }
 
   function blitTile(img, pts) {
@@ -1678,7 +1678,7 @@ export function createRenderer(canvas) {
   function drawUnit(u, tick, det, state) {
     const def = UNITS[u.type];
     if (def.siege) { drawSiege(u, tick, det); return; } // ماشین‌ها وکتوری‌اند (0.46.0)
-    const sheet = getSprite(`src/assets/units/${u.type}.png`);
+    const sheet = getSprite(`assets/units/${u.type}.png`);
     if (!sheet) { drawUnitVector(u, tick, det); return; }
     const p = cs(u.x, u.r);
     const S = 30 * view.zoom;
@@ -1740,7 +1740,7 @@ export function createRenderer(canvas) {
     for (const c of corpses) {
       const age = tick - c.t0;
       if (age < 0 || age > 10) continue;
-      const sheet = getSprite(`src/assets/units/${c.type}.png`);
+      const sheet = getSprite(`assets/units/${c.type}.png`);
       if (!sheet) continue;
       const p = cs(c.x, c.r);
       const S = 30 * view.zoom;
@@ -2091,7 +2091,7 @@ export function createRenderer(canvas) {
     c2.ellipse(px, py + 1, S * 0.26, S * 0.11, 0, 0, Math.PI * 2);
     c2.fillStyle = "rgba(0,0,0,0.3)";
     c2.fill();
-    const sheet = getSprite(`src/assets/units/${type}.png`);
+    const sheet = getSprite(`assets/units/${type}.png`);
     if (sheet) {
       c2.drawImage(sheet, 0, 32, 32, 32, px - S / 2, py - S * (30 / 32), S, S);
     } else if (type === "ram" || type === "catapult") {

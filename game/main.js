@@ -2615,7 +2615,7 @@ function boot() {
   state.paused = true;
   showMenu();
   // نسخه انتشار از تنها منبع (فرایند انتشار را ببین)
-  fetch("src/VERSION").then((r) => r.text()).then((t) => {
+  fetch("VERSION").then((r) => r.text()).then((t) => {
     const v = t.trim();
     if (/^\d+\.\d+\.\d+$/.test(v)) $("verEl").textContent = v;
   }).catch(() => { /* پیش‌نمایش بدون service worker: نسخه نمایشی می‌ماند */ });
