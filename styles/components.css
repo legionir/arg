@@ -59,7 +59,7 @@ label.lbl { margin: 0; white-space: nowrap; }
 .ok, b.ok { color: var(--ok); } .bad, b.bad { color: var(--danger); }
 
 /* ---- Chip / resource pill ---- */
-.res { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-xs); padding: 0.25rem 0.75rem;
+.res { flex: 0 0 auto; display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-xs); padding: 0.25rem 0.75rem;
   background: var(--bg-3); border: 1px solid var(--line-1); border-radius: var(--r-pill); white-space: nowrap; }
 .res span { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-3); }
 .res span img { width: 1.1rem; height: 1.1rem; }
@@ -114,7 +114,7 @@ label.lbl { margin: 0; white-space: nowrap; }
 .modalOverlay { position: fixed; inset: 0; z-index: var(--z-modal); background: var(--scrim); backdrop-filter: blur(3px);
   display: flex; align-items: center; justify-content: center; padding: var(--sp-4); animation: fade var(--t-med) var(--ease); }
 .modalBox { position: relative; width: 32.5rem; max-width: 94vw; animation: rise var(--t-med) var(--ease); }
-.modalBox .card { margin: 0; max-height: 86dvh; overflow-y: auto; box-shadow: var(--shadow-3); padding-block-start: var(--sp-5); }
+.modalBox .card { margin: 0; max-height: 86dvh; overflow-y: auto; box-shadow: var(--shadow-3); padding-block-start: 2.75rem; }
 .modalClose { position: absolute; inset-block-start: var(--sp-2); inset-inline-start: var(--sp-2); z-index: 1;
   font-size: var(--fs-xs); padding: 0.1rem 0.6rem; min-height: 1.6rem; }
 

@@ -199,7 +199,7 @@ export default {
   "ui.help.compatChecking": "Checking device compatibility…",
   "ui.stats.title": "Stats",
   "ui.stats.popularity": "Popularity",
-  "ui.stats.freeWorkers": "Free workers",
+  "ui.stats.freeWorkers": "Workers",
   "ui.stats.placed": "Built",
   "ui.stats.rejected": "Rejected",
   "ui.stats.calm": "Calm…",

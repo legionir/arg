@@ -2681,7 +2681,7 @@ function boot() {
       el.innerHTML = t("main.compat.label") + " " +
         probed.map((r) => `${r.ok ? "✓" : "✗"} ${r.name}`).join(t("main.listSep")) +
         (compatBootable(probed) ? "" : ` — ${t("main.compat.missing")}`) +
-        " " + String(SUPPORT_LINE);
+        "<br>" + String(SUPPORT_LINE);
     }
   }
   paintCompat();

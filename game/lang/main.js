@@ -480,6 +480,6 @@ export default {
     "main.unknown": "?",
     "main.wall.line": "Wall line: <b>{len} tiles</b> ({ok} valid, max {max}) — release = build, Esc = cancel",
     "main.wave.noRoom": "No room for the enemy to enter!",
-    "main.workers": "{free} free / {workers} / cap {cap}",
+    "main.workers": "{free} free of {workers} · cap {cap}",
   },
 };
