@@ -2,8 +2,17 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ارگ — Stronghold Crusader Web</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f151c">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Arg — a browser-based medieval castle strategy game · ارگ — بازی استراتژی قلعه‌سازی در مرورگر">
+<title>ارگ — Arg</title>
+<link rel="preload" href="assets/fonts/vazirmatn-arabic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles/fonts.css">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/components.css">
+<link rel="stylesheet" href="styles/layout.css">
 <script type="text/x-server-plugin">
 // تالار پیروزی + لابی رقابتی (0.24.0) — سرور مرجع سبک، بدون شبیه‌سازی.
 // کل این اسکریپت عمومی است: هیچ رازی در آن نیست. همه ورودی‌ها اعتبارسنجی
@@ -633,7 +642,7 @@ self.rpc = {
 </script>
 </head>
 <body>
-<div dir="rtl" lang="fa" id="app">
+<div id="app">
   <!-- فیلترهای کمکی کوررنگی (0.57.0 — #۲۶): ماتریس‌های a11y.js روی بوم‌ها -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
@@ -642,202 +651,18 @@ self.rpc = {
       <filter id="a11y-tritan"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0.25 0.25 0.5 0 0  0 0 0 1 0"/></filter>
     </defs>
   </svg>
-  <style>
-    #app { font-family: Tahoma, sans-serif; background: #0c1117; color: #e8e8e8; min-height: 100dvh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
-    body { margin: 0; background: #0c1117; text-align: right; }
-    #topbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #131b24; border-bottom: 1px solid #2a3542; flex-wrap: wrap; }
-    #topbar h1 { font-size: 16px; margin: 0 0 0 auto; color: #f0c75e; }
-    #tickEl { background: #1d2836; border: 1px solid #33404f; border-radius: 6px; padding: 4px 12px; font-size: 13px; }
-    #resbar { display: flex; background: #131b24; border-bottom: 1px solid #2a3542; padding: 6px 12px; }
-    #resEl { display: flex; gap: 8px; overflow-x: auto; width: 100%; padding: 2px; }
-    button { font-family: inherit; background: #1d2836; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
-    button:hover { background: #26313f; }
-    button.sel { border-color: #f0c75e; color: #f0c75e; }
-    #layout { display: flex; gap: 10px; padding: 10px; flex: 1; min-height: 0; overflow: hidden; }
-    #boardWrap { position: relative; flex: 1; min-width: 0; min-height: 0; border: 1px solid #2a3542; border-radius: 8px; overflow: hidden; background: #10161d; }
-    #board { display: block; cursor: crosshair; }
-    #side { width: 250px; flex-shrink: 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-    .card { background: #131b24; border: 1px solid #2a3542; border-radius: 8px; padding: 10px 12px; }
-    .card h2 { font-size: 13px; margin: 0 0 8px; color: #9fb2c8; }
-    .card p { font-size: 12px; line-height: 1.9; margin: 0; color: #c6d2e0; }
-    #hutBtn, #towerBtn { width: 100%; margin-bottom: 6px; }
-    .pal { display: flex; flex-direction: column; gap: 8px; }
-    #buildBar { background: #131b24; border-top: 1px solid #2a3542; padding: 8px 12px 10px; flex-shrink: 0;
-      display: flex; gap: 10px; align-items: stretch; position: relative; }
-    #buildStats { width: 215px; flex: 0 0 auto; }
-    #buildStats .card { margin: 0; height: 100%; box-sizing: border-box; }
-    #minimapCard { text-align: center; }
-    #minimap { width: 150px; height: 150px; border: 1px solid #33404f; border-radius: 6px;
-      cursor: pointer; display: inline-block; background: #0c1117; touch-action: none; }
-    #buildScroll { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    #buildScroll h2 { font-size: 13px; margin: 0 0 8px; color: #9fb2c8; }
-    #buildBar #buildPal { flex-direction: row; overflow-x: auto; padding-bottom: 2px; }
-    #buildBar .bcard { width: 210px; flex: 0 0 auto; }
-    #mercsOverlay { position: absolute; inset: 0; z-index: 5; background: rgba(19, 27, 36, 0.97);
-      display: flex; align-items: center; gap: 10px; padding: 8px 12px; box-sizing: border-box; overflow-x: auto; }
-    #mercsOverlay[hidden] { display: none; }
-    #mercsTitle { font-size: 13px; color: #f0c75e; white-space: nowrap; }
-    #mercsOverlay #unitPal { flex-direction: row; flex: 1; min-width: 0; }
-    #mercsOverlay .bcard { width: 210px; flex: 0 0 auto; }
-    #trainQueueEl { display: flex; flex-direction: column; gap: 4px; min-width: 190px; flex: 0 0 auto; }
-    #trainQueueEl .trow { display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      background: #1d2836; border: 1px solid #33404f; border-radius: 6px; padding: 4px 8px; font-size: 12px; }
-    #trainQueueEl .trow b { color: #f0c75e; }
-    #trainQueueEl .trow button { padding: 2px 8px; font-size: 11px; }
-    #mercsClose { flex: 0 0 auto; }
-    #marketOverlay { position: absolute; inset: 0; z-index: 5; background: rgba(19, 27, 36, 0.97);
-      display: flex; align-items: center; gap: 10px; padding: 8px 12px; box-sizing: border-box; overflow-x: auto; }
-    #marketOverlay[hidden] { display: none; }
-    #marketTitle { font-size: 13px; color: #f0c75e; white-space: nowrap; }
-    #marketRows { display: flex; gap: 8px; flex: 1; min-width: 0; overflow-x: auto; }
-    #marketRows .mrow { display: flex; flex-direction: column; gap: 4px; align-items: stretch;
-      background: #1d2836; border: 1px solid #33404f; border-radius: 6px; padding: 6px 8px;
-      font-size: 12px; white-space: nowrap; flex: 0 0 auto; }
-    #marketRows .mname b { color: #f0c75e; }
-    #marketRows .mrate { font-size: 11px; color: #9fb2c8; }
-    #marketClose { flex: 0 0 auto; }
-    .bcard { display: flex; gap: 10px; align-items: center; width: 100%; box-sizing: border-box;
-      text-align: right; padding: 8px; margin: 0; background: #1d2836; }
-    .bcard:hover { background: #26313f; }
-    .bcard.sel { border-color: #f0c75e; }
-    .bcard.sel .bname { color: #f0c75e; }
-    .bcard.locked { opacity: 0.55; }
-    .bcard.locked .bname::after { content: " 🔒"; }
-    .bthumb { width: 64px; height: 56px; flex-shrink: 0; background: #0c1117;
-      border: 1px solid #33404f; border-radius: 6px; }
-    .binfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-    .bname { font-size: 13px; font-weight: bold; color: #e8e8e8; }
-    .bname i { font-style: normal; font-weight: normal; font-size: 11px; color: #9fb2c8; }
-    .bmeta { font-size: 11px; color: #9fb2c8; line-height: 1.7; }
-    .bcost { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; color: #f0c75e; }
-    .bcost span { display: inline-flex; align-items: center; gap: 4px; }
-    .bcost img { width: 16px; height: 16px; }
-    .bcost .free { color: #7fa88f; }
-    .res { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 3px 12px;
-      background: #1d2836; border: 1px solid #33404f; border-radius: 14px; white-space: nowrap; }
-    .res span { display: inline-flex; align-items: center; gap: 5px; color: #9fb2c8; }
-    .res span img { width: 16px; height: 16px; }
-    .res b { color: #f0c75e; }
-    .res b i { color: #7fa88f; font-style: normal; font-size: 11px; }
-    #testBadge { position: fixed; bottom: 44px; left: 12px; z-index: 10; font-size: 12px;
-      padding: 6px 12px; border-radius: 6px; border: 1px solid; max-width: 70vw; }
-    #testBadge.pass { background: #12351f; border-color: #2ecc71; color: #b9f0cd; }
-    #testBadge.fail { background: #3a1512; border-color: #e74c3c; color: #f5c9c4; }
-    #defeatBanner { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
-      background: rgba(5, 8, 12, 0.62); }
-    #defeatBanner[hidden] { display: none; }
-    #defeatBox { background: #1a1214; border: 2px solid #e74c3c; border-radius: 12px; padding: 26px 40px; text-align: center; }
-    #defeatBox h2 { margin: 0 0 8px; color: #e74c3c; font-size: 22px; }
-    #defeatBox p { margin: 0 0 16px; color: #e8d0cc; font-size: 14px; }
-    #defeatRestartBtn { font-size: 15px; padding: 8px 26px; }
-    #onlineToast { position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%); z-index: 15;
-      background: #141a10; border: 1px solid #f0c75e; color: #f0e6c8; border-radius: 8px;
-      padding: 8px 18px; font-size: 13px; max-width: 80vw; }
-    #onlineToast[hidden] { display: none; }
-    #replayBar { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 15;
-      background: #101418; border: 1px solid #4d9de0; color: #d8e8f5; border-radius: 8px;
-      padding: 6px 14px; font-size: 13px; display: flex; gap: 12px; align-items: center; max-width: 90vw; }
-    #replayBar[hidden] { display: none; }
-    #warNameInput { font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f;
-      border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box; text-align: center; }
-    #cloudKeyInput { font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f;
-      border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box; text-align: center; direction: ltr; }
-    #onlineCount { color: #2ecc71; font-size: 11px; }
-    #victoryBanner { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
-      background: rgba(5, 8, 12, 0.62); }
-    #victoryBanner[hidden] { display: none; }
-    #victoryBox { background: #141a10; border: 2px solid #f0c75e; border-radius: 12px; padding: 26px 40px; text-align: center; }
-    #victoryBox h2 { margin: 0 0 8px; color: #f0c75e; font-size: 22px; }
-    #victoryBox p { margin: 0 0 16px; color: #e8ddc0; font-size: 14px; }
-    #victoryRestartBtn { font-size: 15px; padding: 8px 26px; }
-    .stat { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; color: #9fb2c8; }
-    .lbl { font-size: 11px; color: #9fb2c8; margin: 8px 0 4px; }
-    .opts { display: flex; gap: 4px; }
-    .opts button { flex: 1; font-size: 11px; padding: 5px 2px; }
-    .popRow { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
-    #popEl.hi { color: #2ecc71; }
-    #popEl.me { color: #f0c75e; }
-    #popEl.lo { color: #e74c3c; }
-    #statusbar { display: flex; gap: 14px; align-items: center; padding: 8px 14px; background: #131b24; border-top: 1px solid #2a3542; font-size: 13px; flex-wrap: wrap; }
-    #statusEl b.ok { color: #2ecc71; }
-    #statusEl b.bad { color: #e74c3c; }
-    #fpsEl { color: #9fb2c8; font-size: 12px; }
-    #statusIcons { display: flex; gap: 6px; margin-right: auto; }
-    #statusIcons button { font-size: 16px; padding: 3px 10px; line-height: 1.5; }
-    #statusIcons button[hidden] { display: none; }
-    .modalOverlay { position: fixed; inset: 0; z-index: 40; background: rgba(5, 8, 12, 0.62);
-      display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
-    .modalOverlay[hidden] { display: none; }
-    .modalBox { position: relative; width: 520px; max-width: 94vw; }
-    .modalBox[hidden] { display: none; }
-    .modalBox .card { margin: 0; max-height: 86dvh; overflow-y: auto; }
-    .modalClose { position: absolute; top: 8px; left: 8px; font-size: 13px; padding: 2px 10px; z-index: 1; }
-    @media (max-width: 800px) {
-      #app { height: auto; overflow: visible; }
-      #layout { flex-direction: column; overflow: visible; }
-      #side { width: auto; overflow: visible; }
-      #boardWrap { min-height: 44vh; height: 44vh; flex: none; }
-      #buildStats { width: 150px; }
-    }
-    #menuScreen { position: fixed; inset: 0; z-index: 30; overflow-y: auto;
-      background: rgba(5, 8, 12, 0.94); display: flex; justify-content: center; align-items: flex-start; }
-    #menuScreen[hidden] { display: none; }
-    #menuBox { width: 560px; max-width: 94vw; margin: 26px 0 60px; display: flex; flex-direction: column; gap: 10px; }
-    #menuBox h1 { font-size: 20px; margin: 4px 0; color: #f0c75e; text-align: center; }
-    #menuBox .sub { font-size: 12px; color: #9fb2c8; text-align: center; margin: 0 0 6px; }
-    #menuMsgEl { text-align: center; min-height: 18px; }
-    #soloBtn { font-size: 16px; padding: 12px; background: #1f3a24; border-color: #2ecc71; }
-    #soloBtn:hover { background: #27492d; }
-    #menuCloseBtn { font-size: 14px; padding: 10px; }
-    #editorPanel { position: fixed; top: 52px; right: 8px; z-index: 26; width: 292px; max-width: 92vw;
-      max-height: calc(100vh - 120px); overflow-y: auto; background: rgba(13, 20, 28, 0.96);
-      border: 1px solid #33404f; border-radius: 10px; padding: 10px 12px;
-      display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
-    #editorPanel[hidden] { display: none; }
-    #editorPanel h2 { font-size: 15px; margin: 0; color: #f0c75e; text-align: center; }
-    #editorPanel .opts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-    #editorPanel .lbl { font-size: 12px; color: #9fb2c8; }
-    #editorPanel [data-etile].sel { border-color: #f0c75e; background: #2a2416; }
-    #editorPanel input, #editorPanel select, #editorPanel textarea { font-family: inherit; background: #0c1117;
-      color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 8px;
-      font-size: 12px; box-sizing: border-box; }
-    #editorPanel input { width: 100%; text-align: center; }
-    #editorPanel textarea { width: 100%; resize: vertical; direction: ltr; text-align: left; font-size: 11px; }
-    #editorPanel button { flex: 1 1 auto; }
-    #edStatusEl { min-height: 18px; text-align: center; }
-    #profileLogoGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 8px; }
-    #profileLogoGrid button { font-size: 22px; padding: 6px 2px; line-height: 1.2; }
-    #profileLogoGrid button.sel { border-color: #f0c75e; background: #2a2416; }
-    #profileNameInput { font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f;
-      border-radius: 6px; padding: 8px 10px; font-size: 14px; width: 100%; box-sizing: border-box; text-align: center; }
-    .pbadge { display: inline-flex; align-items: center; gap: 6px; }
-    .pbadge .plogo { font-size: 16px; }
-    #profileBadgeEl { background: #1d2836; border: 1px solid #33404f; border-radius: 6px;
-      padding: 4px 12px; font-size: 13px; cursor: pointer; }
-    #profileBadgeEl:hover { border-color: #f0c75e; }
-    .rosterLogo { font-size: 15px; margin-left: 6px; }
-    .room { background: #1d2836; border: 1px solid #33404f; border-radius: 8px;
-      padding: 8px 10px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
-    .room .rhead { display: flex; gap: 10px; align-items: center; font-size: 13px; flex-wrap: wrap; }
-    .room .rhead b { color: #f0c75e; font-size: 15px; }
-    .room .rhead span { color: #9fb2c8; font-size: 12px; }
-    .room .rplayers { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #c6d2e0; }
-    .room .rplayers .pl { display: inline-flex; align-items: center; }
-    .room input { font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f;
-      border-radius: 6px; padding: 5px 8px; font-size: 12px; flex: 1; min-width: 0; box-sizing: border-box; }
-  </style>
-
   <div id="topbar">
-    <h1>ارگ (Arg) — نسخه <span id="verEl">…</span></h1>
-    <span id="profileBadgeEl" title="ویرایش نام و لوگو">…</span>
-    <button id="menuBtn">منو</button>
+    <h1><span data-i18n="ui.brand">ارگ (Arg)</span><small><span data-i18n="ui.version">نسخه</span> <span id="verEl">…</span></small></h1>
+    <span id="profileBadgeEl" title="ویرایش نام و لوگو" data-i18n-title="ui.profile.edit">…</span>
+    <button id="menuBtn" data-i18n="ui.top.menu">منو</button>
     <span id="tickEl">تیک 0</span>
-    <button id="pauseBtn">توقف</button>
+    <button id="pauseBtn" data-i18n="ui.top.pause">توقف</button>
     <button id="speedBtn">سرعت 1x</button>
-    <button id="resetBtn">شروع دوباره</button>
-    <button id="waveBtn">موج دشمن</button>
-    <button data-fit>نمایش کل نقشه</button>
-    <button data-flat>نمای تخت</button>
+    <button id="resetBtn" data-i18n="ui.top.restart">شروع دوباره</button>
+    <button id="waveBtn" data-i18n="ui.top.wave">موج دشمن</button>
+    <button data-fit data-i18n="ui.top.fit">نمایش کل نقشه</button>
+    <button data-flat data-i18n="ui.top.flat">نمای تخت</button>
+    <div class="lang-switch" role="group" data-i18n-aria-label="ui.lang.label" aria-label="زبان"><button type="button" data-lang-set="fa" lang="fa">فارسی</button><button type="button" data-lang-set="en" lang="en">English</button></div>
   </div>
 
   <div id="resbar"><div id="resEl"></div></div>
@@ -846,64 +671,74 @@ self.rpc = {
     <div id="boardWrap"><canvas id="board"></canvas></div>
     <div id="side">
       <div class="card" id="minimapCard">
-        <h2>نقشه کوچک</h2>
+        <h2 data-i18n="ui.minimap.title">نقشه کوچک</h2>
         <canvas id="minimap" width="150" height="150"></canvas>
-        <div class="lbl">کلیک = پرش دوربین</div>
+        <div class="lbl" data-i18n="ui.minimap.hint">کلیک = پرش دوربین</div>
       </div>
       <div class="card" id="unitCard" hidden>
-        <h2>یگان منتخب</h2>
+        <h2 data-i18n="ui.unit.title">یگان منتخب</h2>
         <div class="popRow"><span id="unitNameEl">…</span><b id="unitHpEl">…</b></div>
-        <div class="lbl">موضع</div>
+        <div class="lbl" data-i18n="ui.unit.stance">موضع</div>
         <div class="opts">
-          <button id="stanceEngageBtn">تهاجمی</button><button id="stanceHoldBtn">دفاعی</button>
+          <button id="stanceEngageBtn" data-i18n="ui.unit.engage">تهاجمی</button><button id="stanceHoldBtn" data-i18n="ui.unit.hold">دفاعی</button>
         </div>
-        <div class="lbl">دستور</div>
+        <div class="lbl" data-i18n="ui.unit.order">دستور</div>
         <div class="opts">
-          <button id="attackMoveBtn">حمله‌در‌حرکت</button><button id="retreatBtn">عقب‌نشینی</button><button id="guardBtn">نگهبانی…</button><button id="garrisonBtn">مستقر 🏰</button><button id="deployBtn">استقرار 🏗</button>
+          <button id="attackMoveBtn" data-i18n="ui.unit.attackMove">حمله‌در‌حرکت</button><button id="retreatBtn" data-i18n="ui.unit.retreat">عقب‌نشینی</button><button id="guardBtn" data-i18n="ui.unit.guard">نگهبانی…</button><button id="garrisonBtn" data-i18n="ui.unit.garrison">مستقر 🏰</button><button id="deployBtn" data-i18n="ui.unit.deploy">استقرار 🏗</button>
         </div>
         <div class="lbl" id="unitOrderEl">…</div>
-        <p>کلیک روی نقشه با یگان منتخب = دستور حرکت؛ کلیک روی دشمن = حمله. دکمه «مستقر 🏰» یگان دوربرد منتخب (کماندار/زوبین‌دار/سواره) را برای استقرار در برج مسلح می‌کند — کلیک بعدی روی برج خودی = استقرار (تا ۴ مدافع، شلیک با برد بیشتر)؛ دستور حرکت به مستقر = خروج از برج. دکمه «استقرار 🏗» منجنیق منتخب را مستقر/جمع می‌کند (مستقر = شلیک، سیار = فقط حرکت). شیفت+کلیک روی سرباز: افزودن به انتخاب جمعی؛ شیفت+درگ: انتخاب باکسی همه یگان‌های خودی داخل مستطیل. وقتی یگانی منتخب است گوست ساخت پنهان است.</p>
+        <p data-i18n="ui.unit.hint">کلیک روی نقشه با یگان منتخب = دستور حرکت؛ کلیک روی دشمن = حمله. دکمه «مستقر 🏰» یگان دوربرد منتخب (کماندار/زوبین‌دار/سواره) را برای استقرار در برج مسلح می‌کند — کلیک بعدی روی برج خودی = استقرار (تا ۴ مدافع، شلیک با برد بیشتر)؛ دستور حرکت به مستقر = خروج از برج. دکمه «استقرار 🏗» منجنیق منتخب را مستقر/جمع می‌کند (مستقر = شلیک، سیار = فقط حرکت). شیفت+کلیک روی سرباز: افزودن به انتخاب جمعی؛ شیفت+درگ: انتخاب باکسی همه یگان‌های خودی داخل مستطیل. وقتی یگانی منتخب است گوست ساخت پنهان است.</p>
       </div>
       <div class="card" id="taxCard">
-        <h2>مالیات و جیره</h2>
-        <div class="lbl">مالیات (طلا از هر کارگر، هر ۵ ثانیه)</div>
+        <h2 data-i18n="ui.tax.title">مالیات و جیره</h2>
+        <div class="lbl" data-i18n="ui.tax.taxLabel">مالیات (طلا از هر کارگر، هر ۵ ثانیه)</div>
         <div class="opts">
-          <button data-tax="bribe">رشوه (پرداخت)</button><button data-tax="none">بدون</button><button data-tax="low">کم</button><button data-tax="normal">متوسط</button><button data-tax="high">سنگین</button>
+          <button data-tax="bribe" data-i18n="ui.tax.bribe">رشوه (پرداخت)</button><button data-tax="none" data-i18n="ui.common.none">بدون</button><button data-tax="low" data-i18n="ui.tax.low">کم</button><button data-tax="normal" data-i18n="ui.tax.normal">متوسط</button><button data-tax="high" data-i18n="ui.tax.high">سنگین</button>
         </div>
-        <div class="lbl">جیره غذا (مصرف ×، هر کارگر)</div>
+        <div class="lbl" data-i18n="ui.tax.rationLabel">جیره غذا (مصرف ×، هر کارگر)</div>
         <div class="opts">
-          <button data-rat="none">بدون</button><button data-rat="half">نصف</button><button data-rat="normal">کامل</button><button data-rat="double">مضاعف</button>
+          <button data-rat="none" data-i18n="ui.common.none">بدون</button><button data-rat="half" data-i18n="ui.tax.half">نصف</button><button data-rat="normal" data-i18n="ui.common.full">کامل</button><button data-rat="double" data-i18n="ui.tax.double">مضاعف</button>
         </div>
       </div>
       <div class="card" id="saveCard">
-        <h2>ذخیره</h2>
+        <h2 data-i18n="ui.save.title">ذخیره</h2>
         <div class="opts">
-          <button id="saveBtn">ذخیره دستی</button><button id="loadBtn">بارگذاری</button><button id="delBtn">حذف</button>
+          <button id="saveBtn" data-i18n="ui.save.manual">ذخیره دستی</button><button id="loadBtn" data-i18n="ui.save.load">بارگذاری</button><button id="delBtn" data-i18n="ui.save.delete">حذف</button>
         </div>
         <div class="lbl" id="saveStatus">…</div>
-        <h2>ابری ☁️ (چند دستگاه)</h2>
-        <div class="opts"><input id="cloudKeyInput" maxlength="32" placeholder="عبارت ابری (۴ تا ۳۲ نویسه)" autocomplete="off" type="password"></div>
+        <h2 data-i18n="ui.cloud.title">ابری ☁️ (چند دستگاه)</h2>
+        <div class="opts"><input class="input input-center input-ltr" id="cloudKeyInput" maxlength="32" placeholder="عبارت ابری (۴ تا ۳۲ نویسه)" data-i18n-placeholder="ui.cloud.keyPh" autocomplete="off" type="password"></div>
         <div class="opts">
-          <button id="cloudSaveBtn">ذخیره ابری</button><button id="cloudLoadBtn">بارگذاری ابری</button><button id="cloudDelBtn">حذف ابری</button>
+          <button id="cloudSaveBtn" data-i18n="ui.cloud.save">ذخیره ابری</button><button id="cloudLoadBtn" data-i18n="ui.cloud.load">بارگذاری ابری</button><button id="cloudDelBtn" data-i18n="ui.cloud.delete">حذف ابری</button>
         </div>
         <div class="lbl" id="cloudStatus">…</div>
-        <h2>ری‌پلی 📼</h2>
+        <h2 data-i18n="ui.replay.title">ری‌پلی 📼</h2>
         <div class="opts">
-          <button id="replaySaveBtn">ذخیره ری‌پلی</button><button id="replayWatchBtn">تماشا</button>
+          <button id="replaySaveBtn" data-i18n="ui.replay.save">ذخیره ری‌پلی</button><button id="replayWatchBtn" data-i18n="ui.replay.watch">تماشا</button>
         </div>
         <div class="lbl" id="replayStatus">…</div>
       </div>
       <div class="card" id="onlineCard" hidden>
-        <h2>آنلاین <span id="onlineCount"></span></h2>
-        <div class="lbl">تالار پیروزی (سریع‌ترین‌ها)</div>
+        <h2><span data-i18n="ui.online.title">آنلاین</span> <span id="onlineCount"></span></h2>
+        <div class="lbl" data-i18n="ui.online.hall">تالار پیروزی (سریع‌ترین‌ها)</div>
         <div id="hallEl"><div class="lbl">…</div></div>
       </div>
       <div class="card" id="helpCard">
-        <h2>راهنما</h2>
-        <div id="compatEl" class="lbl">در حال بررسی سازگاری دستگاه…</div>
-        <p>این پنجره و کارت‌های «ذخیره»، «آنلاین» و «مالیات و جیره» با آیکون‌های 💰 💾 ❓ 🌐 در انتهای چپ نوار پایین باز و بسته می‌شوند (کلیک بیرون یا Esc هم می‌بندد). زنگ خطر هم آیکون 🔔 در همان نوار، سمت راست 💾 است (کلیک بعدی روی نقشه = تجمع ارتش). برای استخدام مزدور، روی سربازخانه خودت کلیک کن تا نوار مزدورها روی نوار ساختمان باز شود.</p>
-        <p>اعتبارها: همه گرافیک (برداری) و صدا (سنتزشده) زمان‌اجرا در همین صفحه ساخته می‌شوند — اثر اورجینال، بدون فایل آماده و بدون دارایی بازی دیگری؛ میزبانی: Perchance. نام محصول: ارگ (Arg).</p>
-        <p>اول در صفحه منو نام و لوگوی خودت را انتخاب کن (ذخیره می‌شود و در اتاق چندنفره همه می‌بینند؛ هر وقت از منو قابل ویرایش است)، بعد تک‌نفره یا چندنفره را بزن. کارت «نقشه» در منوست: دیدن سید فعلی، ساخت نقشه کامل با سید دلخواه یا تصادفی — هر سید دریاچه، سنگ‌ها و پراکنده‌های خودش را می‌سازد و سید در ذخیره می‌ماند. کارت «نبرد چندنفره» هم در منوست: ساخت اتاق ۲ تا ۴ نفره با کد، پیوستن، «آماده» و شروع میزبان — فهرست «اتاق‌های باز» کد، عمومی/خصوصی🔒، ظرفیت، سید نقشه و بازیکنان حاضر هر اتاق را نشان می‌دهد و هر ۱۰ ثانیه تازه می‌شود؛ میزبان موقع ساخت سید نقشه می‌دهد (خالی = تصادفی سرور) و اگر رمز بگذارد اتاق خصوصی می‌شود و پیوستن فقط با همان رمز ممکن است — شروع هم‌زمان روی نقشه بزرگ و متقارن ۶۴×۶۴، هر کس قلعه خودش در یک گوشه (نقطه رنگی مالک بالای بنا/یگان)، برنده = آخرین قلعه زنده؛ در نبرد موج و ذخیره/توقف نیست و خروج حریف قلعه‌اش را ویران می‌کند. در بازی: کارت پالت: مسلح‌شدن برای ساخت/استخدام (کلیک دوباره روی کارت فعال، راست‌کلیک یا Esc = خلع و برگشت به فرمان) — کلیک روی سرباز خودی: انتخاب و دستور/موضع (شیفت+کلیک: انتخاب جمعی؛ شیفت+درگ: انتخاب باکسی؛ Ctrl+1/2/3: ذخیره گروه یگان‌های منتخب، 1/2/3: فراخوانی گروه) — کلیک روی دروازه: باز/بسته — درگ: جابه‌جایی نقشه (با دیوار مسلح: درگ = خط دیوار تا ۳۲ خانه، رها = ساخت زنجیره‌ای) — چرخ موس: زوم؛ کارت «دسترس‌پذیری» در منو: پالت کمکی کوررنگی، مقیاس رابط تا ۱۵۰٪ و تغییر کلیدهای خلع/توقف/صدا (پیش‌فرض P توقف و M صدا؛ Escape همیشه خلع)؛ لمس: پینچ (دو انگشت) = زوم، نگه‌داشتن یک انگشت = خلع مثل راست‌کلیک. سرباز، کماندار، نیزه‌دار، گرزدار، شوالیه، شمشیرزن صلیبی، زوبین‌دار، شمشیرزن عرب، قاتل و کماندار سواره فقط وقتی استخدام می‌شوند که سربازخانه سالم داشته باشی (ساختمان ۴×۳ با سقف سرخ در نوار ساختمانِ پایین صفحه؛ فقط یکی می‌شود ساخت؛ تا نسازی کارت مزدورها قفل 🔒 است و ویرانی‌اش دوباره قفل می‌کند). «بازار» (۲×۲ در نوار ساختمان) دروازه خرید و فروش منابع با واسطه طلاست: کلیک روی بازار خودت پنل معامله را باز می‌کند (بسته ۱۰تایی با نرخ روی هر ردیف؛ فروش همیشه ارزان‌تر از خرید است). سقف هر منبع محدود است (کنار هر منبع نوشته شده): هر «انبار» ۵۰۰ تا به سقف چوب/سنگ/طلا اضافه می‌کند و هر «انبار غذا» ۵۰۰ تا به سقف غذا/گندم/آرد/رازک/آبجو — هرچه بیشتر بسازی، سقف بیشتر؛ ویرانی انبار مازاد را می‌تراشد. یک حریف هم در گوشه مخالف نقشه قلعه می‌سازد (بناهایش نقطه قرمز دارند): اقتصاد می‌چرخاند و در سه نوبت یورش می‌فرستد (درجه سختی حریف را موقع «شروع تک‌نفره» در منو انتخاب می‌کنی: آسان/معمولی/سخت — در ذخیره و ری‌پلی هم می‌ماند). دکمه «🗺 نقشه‌ساز» در منو ویرایشگر زمین است: قلم چمن/آب/سنگ تا ۳۲×۳۲، پاک‌کن (برگشت به سید)، سید پایه، بررسی قابل‌بازی‌بودن، ذخیره محلی، خروجی/ورودی JSON و «آزمایش بازی» روی نقشه سفارشی. — ستادش را ویران کن تا نیروی تازه نسازد؛ پیروزی = نابودی همه دشمنان پس از موج پنجم (شامل نیروهای حریف). نقشه کوچک ۱۵۰×۱۵۰ در کارت آمار، کل نقشه را زنده نشان می‌دهد (آبی خودی، قرمز حریف، ستاره طلایی ستاد) و کلیک روی آن دوربین را به همان‌جا می‌برد. صدا کاملاً سنتزشده است (بدون فایل): با اولین کلیک روشن می‌شود — ساخت/اتمام/ویرانی، ضربه/مرگ نبرد و پیروزی/شکست هرکدام صدای خودشان را دارند و دکمه 🔊 در نوار پایین بی‌صدا/باصدا می‌کند (انتخاب در مرورگر می‌ماند). مزدورها برای استخدام ۱ سلاح هم می‌خواهند (پیاده شمشیر، دوربرد کمان): معدن آهن بساز و در زرادخانه/کمان‌سازی سلاح بساز — بدون سلاح کارت مزدور قفل است. هر برج سالم تا ۴ مدافع دوربرد می‌گیرد: یگان دوربرد را انتخاب کن، «مستقر 🏰» را بزن و روی برج خودت کلیک کن — مدافعان از بالای برج با برد بیشتر می‌زنند (نقطه‌های آبی روی برج؛ شمار در هاور) و با ویرانی برج آزاد می‌شوند. برای حمله به قلعه‌مآب، «دژکوب» (فقط ساختمان، ×۳) و «منجنیق» (برد ۱۰، حداقل ۳، با دکمه استقرار 🏗) را از نوار مزدورهای سربازخانه استخدام کن.</p>
+        <h2 data-i18n="ui.help.title">راهنما</h2>
+        <div id="compatEl" class="lbl" data-i18n="ui.help.compatChecking">در حال بررسی سازگاری دستگاه…</div>
+        <p data-i18n="ui.help.p1">این پنجره و کارت‌های «ذخیره»، «آنلاین» و «مالیات و جیره» با آیکون‌های 💰 💾 ❓ 🌐 در انتهای چپ نوار پایین باز و بسته می‌شوند (کلیک بیرون یا Esc هم می‌بندد). زنگ خطر هم آیکون 🔔 در همان نوار، سمت راست 💾 است (کلیک بعدی روی نقشه = تجمع ارتش). برای استخدام مزدور، روی سربازخانه خودت کلیک کن تا نوار مزدورها روی نوار ساختمان باز شود.</p>
+        <p data-i18n="ui.help.p2">اعتبارها: همه گرافیک (برداری) و صدا (سنتزشده) زمان‌اجرا در همین صفحه ساخته می‌شوند — اثر اورجینال، بدون فایل آماده و بدون دارایی بازی دیگری؛ میزبانی: Perchance. نام محصول: ارگ (Arg).</p>
+        <p data-i18n="ui.help.g1">اول در صفحه منو نام و لوگوی خودت را انتخاب کن (ذخیره می‌شود و در اتاق چندنفره همه می‌بینند؛ هر وقت از منو قابل ویرایش است)، بعد تک‌نفره یا چندنفره را بزن. کارت «نقشه» در منوست: دیدن سید فعلی، ساخت نقشه کامل با سید دلخواه یا تصادفی — هر سید دریاچه، سنگ‌ها و پراکنده‌های خودش را می‌سازد و سید در ذخیره می‌ماند.</p>
+        <p data-i18n="ui.help.g2">کارت «نبرد چندنفره» هم در منوست: ساخت اتاق ۲ تا ۴ نفره با کد، پیوستن، «آماده» و شروع میزبان — فهرست «اتاق‌های باز» کد، عمومی/خصوصی🔒، ظرفیت، سید نقشه و بازیکنان حاضر هر اتاق را نشان می‌دهد و هر ۱۰ ثانیه تازه می‌شود؛ میزبان موقع ساخت سید نقشه می‌دهد (خالی = تصادفی سرور) و اگر رمز بگذارد اتاق خصوصی می‌شود و پیوستن فقط با همان رمز ممکن است — شروع هم‌زمان روی نقشه بزرگ و متقارن ۶۴×۶۴، هر کس قلعه خودش در یک گوشه (نقطه رنگی مالک بالای بنا/یگان)، برنده = آخرین قلعه زنده؛ در نبرد موج و ذخیره/توقف نیست و خروج حریف قلعه‌اش را ویران می‌کند.</p>
+        <p data-i18n="ui.help.g3">در بازی: کارت پالت: مسلح‌شدن برای ساخت/استخدام (کلیک دوباره روی کارت فعال، راست‌کلیک یا Esc = خلع و برگشت به فرمان) — کلیک روی سرباز خودی: انتخاب و دستور/موضع (شیفت+کلیک: انتخاب جمعی؛ شیفت+درگ: انتخاب باکسی؛ Ctrl+1/2/3: ذخیره گروه یگان‌های منتخب، 1/2/3: فراخوانی گروه) — کلیک روی دروازه: باز/بسته — درگ: جابه‌جایی نقشه (با دیوار مسلح: درگ = خط دیوار تا ۳۲ خانه، رها = ساخت زنجیره‌ای) — چرخ موس: زوم؛ کارت «دسترس‌پذیری» در منو: پالت کمکی کوررنگی، مقیاس رابط تا ۱۵۰٪ و تغییر کلیدهای خلع/توقف/صدا (پیش‌فرض P توقف و M صدا؛ Escape همیشه خلع)؛ لمس: پینچ (دو انگشت) = زوم، نگه‌داشتن یک انگشت = خلع مثل راست‌کلیک.</p>
+        <p data-i18n="ui.help.g4">سرباز، کماندار، نیزه‌دار، گرزدار، شوالیه، شمشیرزن صلیبی، زوبین‌دار، شمشیرزن عرب، قاتل و کماندار سواره فقط وقتی استخدام می‌شوند که سربازخانه سالم داشته باشی (ساختمان ۴×۳ با سقف سرخ در نوار ساختمانِ پایین صفحه؛ فقط یکی می‌شود ساخت؛ تا نسازی کارت مزدورها قفل 🔒 است و ویرانی‌اش دوباره قفل می‌کند).</p>
+        <p data-i18n="ui.help.g5">«بازار» (۲×۲ در نوار ساختمان) دروازه خرید و فروش منابع با واسطه طلاست: کلیک روی بازار خودت پنل معامله را باز می‌کند (بسته ۱۰تایی با نرخ روی هر ردیف؛ فروش همیشه ارزان‌تر از خرید است).</p>
+        <p data-i18n="ui.help.g6">سقف هر منبع محدود است (کنار هر منبع نوشته شده): هر «انبار» ۵۰۰ تا به سقف چوب/سنگ/طلا اضافه می‌کند و هر «انبار غذا» ۵۰۰ تا به سقف غذا/گندم/آرد/رازک/آبجو — هرچه بیشتر بسازی، سقف بیشتر؛ ویرانی انبار مازاد را می‌تراشد.</p>
+        <p data-i18n="ui.help.g7">یک حریف هم در گوشه مخالف نقشه قلعه می‌سازد (بناهایش نقطه قرمز دارند): اقتصاد می‌چرخاند و در سه نوبت یورش می‌فرستد (درجه سختی حریف را موقع «شروع تک‌نفره» در منو انتخاب می‌کنی: آسان/معمولی/سخت — در ذخیره و ری‌پلی هم می‌ماند).</p>
+        <p data-i18n="ui.help.g8">دکمه «🗺 نقشه‌ساز» در منو ویرایشگر زمین است: قلم چمن/آب/سنگ تا ۳۲×۳۲، پاک‌کن (برگشت به سید)، سید پایه، بررسی قابل‌بازی‌بودن، ذخیره محلی، خروجی/ورودی JSON و «آزمایش بازی» روی نقشه سفارشی. — ستادش را ویران کن تا نیروی تازه نسازد؛ پیروزی = نابودی همه دشمنان پس از موج پنجم (شامل نیروهای حریف).</p>
+        <p data-i18n="ui.help.g9">نقشه کوچک ۱۵۰×۱۵۰ در کارت آمار، کل نقشه را زنده نشان می‌دهد (آبی خودی، قرمز حریف، ستاره طلایی ستاد) و کلیک روی آن دوربین را به همان‌جا می‌برد. صدا کاملاً سنتزشده است (بدون فایل): با اولین کلیک روشن می‌شود — ساخت/اتمام/ویرانی، ضربه/مرگ نبرد و پیروزی/شکست هرکدام صدای خودشان را دارند و دکمه 🔊 در نوار پایین بی‌صدا/باصدا می‌کند (انتخاب در مرورگر می‌ماند).</p>
+        <p data-i18n="ui.help.g10">مزدورها برای استخدام ۱ سلاح هم می‌خواهند (پیاده شمشیر، دوربرد کمان): معدن آهن بساز و در زرادخانه/کمان‌سازی سلاح بساز — بدون سلاح کارت مزدور قفل است.</p>
+        <p data-i18n="ui.help.g11">هر برج سالم تا ۴ مدافع دوربرد می‌گیرد: یگان دوربرد را انتخاب کن، «مستقر 🏰» را بزن و روی برج خودت کلیک کن — مدافعان از بالای برج با برد بیشتر می‌زنند (نقطه‌های آبی روی برج؛ شمار در هاور) و با ویرانی برج آزاد می‌شوند. برای حمله به قلعه‌مآب، «دژکوب» (فقط ساختمان، ×۳) و «منجنیق» (برد ۱۰، حداقل ۳، با دکمه استقرار 🏗) را از نوار مزدورهای سربازخانه استخدام کن.</p>
       </div>
     </div>
   </div>
@@ -911,42 +746,42 @@ self.rpc = {
   <div id="buildBar">
     <div id="buildStats">
       <div class="card">
-        <h2>آمار</h2>
-        <div class="popRow"><span>محبوبیت</span><b id="popEl" class="me">50 ●</b></div>
-        <div class="stat"><span>کارگر آزاد</span><span id="workersEl">4 / ۶</span></div>
-        <div class="stat"><span>ساخته‌شده</span><span id="placedEl">0</span></div>
-        <div class="stat"><span>ردشده</span><span id="rejectedEl">0</span></div>
-        <div class="lbl" id="battleEl">آرامش…</div>
+        <h2 data-i18n="ui.stats.title">آمار</h2>
+        <div class="popRow"><span data-i18n="ui.stats.popularity">محبوبیت</span><b id="popEl" class="me">50 ●</b></div>
+        <div class="stat"><span data-i18n="ui.stats.freeWorkers">کارگر آزاد</span><span id="workersEl">4 / ۶</span></div>
+        <div class="stat"><span data-i18n="ui.stats.placed">ساخته‌شده</span><span id="placedEl">0</span></div>
+        <div class="stat"><span data-i18n="ui.stats.rejected">ردشده</span><span id="rejectedEl">0</span></div>
+        <div class="lbl" id="battleEl" data-i18n="ui.stats.calm">آرامش…</div>
       </div>
     </div>
     <div id="buildScroll">
-      <h2>ساختمان</h2>
+      <h2 data-i18n="ui.build.title">ساختمان</h2>
       <div class="pal" id="buildPal"></div>
     </div>
     <div id="mercsOverlay" hidden>
-      <span id="mercsTitle">مزدورهای سربازخانه</span>
+      <span id="mercsTitle" data-i18n="ui.mercs.title">مزدورهای سربازخانه</span>
       <div class="pal" id="unitPal"></div>
       <div id="trainQueueEl"></div>
-      <button id="mercsClose" title="بستن">✕</button>
+      <button id="mercsClose" title="بستن" data-i18n-title="ui.common.close">✕</button>
     </div>
     <div id="marketOverlay" hidden>
-      <span id="marketTitle">بازار — بسته ۱۰تایی</span>
+      <span id="marketTitle" data-i18n="ui.market.title">بازار — بسته ۱۰تایی</span>
       <div id="marketRows"></div>
-      <button id="marketClose" title="بستن">✕</button>
+      <button id="marketClose" title="بستن" data-i18n-title="ui.common.close">✕</button>
     </div>
   </div>
 
   <div id="statusbar">
-    <span id="statusEl">نشانگر را روی نقشه ببر…</span>
+    <span id="statusEl" data-i18n="ui.status.hover">نشانگر را روی نقشه ببر…</span>
     <span id="fpsEl"></span>
     <span id="statusIcons">
-      <button id="taxIconBtn" title="مالیات و جیره" aria-label="مالیات و جیره">💰</button>
-      <button id="alarmBtn" title="زنگ خطر" aria-label="زنگ خطر">🔔</button>
-      <button id="demolishBtn" title="تخریب ساختمان" aria-label="تخریب ساختمان">🧨</button>
-      <button id="saveIconBtn" title="ذخیره" aria-label="ذخیره">💾</button>
-      <button id="soundIconBtn" title="باصدا — کلیک: بی‌صدا" aria-label="صدا">🔊</button>
-      <button id="helpIconBtn" title="راهنما" aria-label="راهنما">❓</button>
-      <button id="onlineIconBtn" title="آنلاین" aria-label="آنلاین" hidden>🌐</button>
+      <button id="taxIconBtn" title="مالیات و جیره" data-i18n-title="ui.tax.title" aria-label="مالیات و جیره" data-i18n-aria-label="ui.tax.title">💰</button>
+      <button id="alarmBtn" title="زنگ خطر" data-i18n-title="ui.alarm" aria-label="زنگ خطر" data-i18n-aria-label="ui.alarm">🔔</button>
+      <button id="demolishBtn" title="تخریب ساختمان" data-i18n-title="ui.demolish" aria-label="تخریب ساختمان" data-i18n-aria-label="ui.demolish">🧨</button>
+      <button id="saveIconBtn" title="ذخیره" data-i18n-title="ui.save.title" aria-label="ذخیره" data-i18n-aria-label="ui.save.title">💾</button>
+      <button id="soundIconBtn" title="باصدا — کلیک: بی‌صدا" data-i18n-title="ui.sound.onTip" aria-label="صدا" data-i18n-aria-label="ui.sound.label">🔊</button>
+      <button id="helpIconBtn" title="راهنما" data-i18n-title="ui.help.title" aria-label="راهنما" data-i18n-aria-label="ui.help.title">❓</button>
+      <button id="onlineIconBtn" title="آنلاین" data-i18n-title="ui.online.title" aria-label="آنلاین" data-i18n-aria-label="ui.online.title" hidden>🌐</button>
     </span>
   </div>
   <!-- مودال‌ها (0.31.0): کارت‌های ذخیره/راهنما/آنلاین در بوت (main.js) از پنل کناری به این جعبه‌ها منتقل می‌شوند -->
@@ -957,102 +792,107 @@ self.rpc = {
     <div class="modalBox" id="onlineModal" hidden><button class="modalClose" data-close>✕</button></div>
   </div>
   <div id="testBadge" hidden></div>
-  <div id="onlineToast" hidden></div>
+  <div id="onlineToast" role="status" aria-live="polite" hidden></div>
   <!-- بنر تماشای ری‌پلی (0.49.0): حالت watch-only — ورودی بسته، خروج به منو -->
   <div id="replayBar" hidden>
     <span id="replayBarTxt">📼</span>
-    <button id="replayExitBtn">خروج از تماشا</button>
+    <button id="replayExitBtn" data-i18n="ui.replay.exit">خروج از تماشا</button>
   </div>
   <div id="defeatBanner" hidden>
     <div id="defeatBox">
-      <h2>شکست!</h2>
-      <p>ستاد سقوط کرد — قلعه از دست رفت.</p>
-      <button id="defeatRestartBtn">شروع دوباره</button>
+      <h2 data-i18n="ui.defeat.title">شکست!</h2>
+      <p data-i18n="ui.defeat.text">ستاد سقوط کرد — قلعه از دست رفت.</p>
+      <button id="defeatRestartBtn" data-i18n="ui.top.restart">شروع دوباره</button>
     </div>
   </div>
   <div id="victoryBanner" hidden>
     <div id="victoryBox">
-      <h2>پیروزی!</h2>
-      <p>آخرین موج در هم شکست — قلعه پابرجاست.</p>
-      <button id="victoryRestartBtn">بازی دوباره</button>
+      <h2 data-i18n="ui.victory.title">پیروزی!</h2>
+      <p data-i18n="ui.victory.text">آخرین موج در هم شکست — قلعه پابرجاست.</p>
+      <button id="victoryRestartBtn" data-i18n="ui.victory.again">بازی دوباره</button>
     </div>
   </div>
   <div id="menuScreen">
     <div id="menuBox">
-      <h1>🏰 ارگ (Arg)</h1>
-      <p class="sub">اول خودت را معرفی کن، بعد تک‌نفره یا چندنفره را انتخاب کن.</p>
+      <div class="menu-head">
+      <div class="menu-lang lang-switch" role="group" data-i18n-aria-label="ui.lang.label" aria-label="زبان"><button type="button" data-lang-set="fa" lang="fa">فارسی</button><button type="button" data-lang-set="en" lang="en">English</button></div>
+      <h1><span aria-hidden="true">🏰</span> <span data-i18n="ui.brand">ارگ (Arg)</span></h1>
+      <p class="sub" data-i18n="ui.menu.sub">اول خودت را معرفی کن، بعد تک‌نفره یا چندنفره را انتخاب کن.</p>
+      </div>
       <div class="card">
-        <h2>نام و لوگوی تو (برای همه بازیکنان نمایش داده می‌شود)</h2>
-        <div class="opts"><input id="profileNameInput" maxlength="12" placeholder="نام جنگی" autocomplete="off"></div>
+        <h2 data-i18n="ui.profile.title">نام و لوگوی تو (برای همه بازیکنان نمایش داده می‌شود)</h2>
+        <div class="opts"><input class="input input-center" id="profileNameInput" maxlength="12" placeholder="نام جنگی" data-i18n-placeholder="ui.profile.namePh" autocomplete="off"></div>
         <div id="profileLogoGrid"></div>
-        <div class="lbl">ذخیره خودکار است — هر وقت از همین‌جا قابل ویرایش است.</div>
+        <div class="lbl" data-i18n="ui.profile.hint">ذخیره خودکار است — هر وقت از همین‌جا قابل ویرایش است.</div>
       </div>
-      <button id="soloBtn">⚔️ شروع تک‌نفره</button>
-      <div class="opts"><label class="lbl" for="diffSel">درجه سختی حریف:</label>
-        <select id="diffSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="easy">آسان — یورش دیرتر و کوچک‌تر، اقتصاد حریف کندتر</option><option value="normal">معمولی</option><option value="hard">سخت — یورش زودتر و بزرگ‌تر، اقتصاد حریف تندتر</option></select></div>
-      <div class="opts"><label class="lbl" for="persSel">شخصیت حریف:</label>
-        <select id="persSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="wolf">گرگ</option></select></div>
-      <button id="menuReplayBtn">📼 تماشای ری‌پلی ذخیره‌شده</button>
-      <button id="editorBtn">🗺 نقشه‌ساز</button>
+      <button id="soloBtn" data-i18n="ui.menu.solo">⚔️ شروع تک‌نفره</button>
+      <div class="field-row"><label class="lbl" for="diffSel" data-i18n="ui.menu.difficulty">درجه سختی حریف:</label>
+        <select id="diffSel" class="select"><option value="easy" data-i18n="ui.menu.diff.easy">آسان — یورش دیرتر و کوچک‌تر، اقتصاد حریف کندتر</option><option value="normal" data-i18n="ui.menu.diff.normal">معمولی</option><option value="hard" data-i18n="ui.menu.diff.hard">سخت — یورش زودتر و بزرگ‌تر، اقتصاد حریف تندتر</option></select></div>
+      <div class="field-row"><label class="lbl" for="persSel" data-i18n="ui.menu.personality">شخصیت حریف:</label>
+        <select id="persSel" class="select"><option value="wolf" data-i18n="ui.menu.pers.wolf">گرگ</option></select></div>
+      <button id="menuReplayBtn" data-i18n="ui.menu.replay">📼 تماشای ری‌پلی ذخیره‌شده</button>
+      <button id="editorBtn" data-i18n="ui.menu.editor">🗺 نقشه‌ساز</button>
       <div class="card">
-        <h2>دسترس‌پذیری</h2>
-        <div class="opts"><label class="lbl" for="a11yPalSel">پالت کمکی کوررنگی:</label>
-          <select id="a11yPalSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="off">خاموش</option></select></div>
-        <div class="opts"><label class="lbl" for="a11yScaleSel">مقیاس رابط:</label>
-          <select id="a11yScaleSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="1">۱۰۰٪</option><option value="1.25">۱۲۵٪</option><option value="1.5">۱۵۰٪</option></select></div>
-        <div class="opts"><label class="lbl" for="fidSel">کیفیت رسم:</label>
-          <select id="fidSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="full">کامل</option><option value="balanced">متعادل (بدون پاف)</option><option value="lite">سبک (حداقل جلوه)</option></select></div>
-        <div class="opts"><span class="lbl">کلیدها:</span>
+        <h2 data-i18n="ui.a11y.title">دسترس‌پذیری</h2>
+        <div class="field-row"><label class="lbl" for="a11yPalSel" data-i18n="ui.a11y.palette">پالت کمکی کوررنگی:</label>
+          <select id="a11yPalSel" class="select"><option value="off" data-i18n="ui.a11y.off">خاموش</option></select></div>
+        <div class="field-row"><label class="lbl" for="a11yScaleSel" data-i18n="ui.a11y.scale">مقیاس رابط:</label>
+          <select id="a11yScaleSel" class="select"><option value="1" data-i18n="ui.a11y.scale100">۱۰۰٪</option><option value="1.25" data-i18n="ui.a11y.scale125">۱۲۵٪</option><option value="1.5" data-i18n="ui.a11y.scale150">۱۵۰٪</option></select></div>
+        <div class="field-row"><label class="lbl" for="fidSel" data-i18n="ui.a11y.fidelity">کیفیت رسم:</label>
+          <select id="fidSel" class="select"><option value="full" data-i18n="ui.common.full">کامل</option><option value="balanced" data-i18n="ui.a11y.fid.balanced">متعادل (بدون پاف)</option><option value="lite" data-i18n="ui.a11y.fid.light">سبک (حداقل جلوه)</option></select></div>
+        <div class="field-row"><span class="lbl" data-i18n="ui.a11y.keys">کلیدها:</span>
           <button id="keyCancelBtn" data-keyact="cancel">خلع: …</button><button id="keyPauseBtn" data-keyact="pause">توقف: …</button><button id="keyMuteBtn" data-keyact="mute">صدا: …</button></div>
-        <div class="lbl">پالت‌ها کمکی‌اند (نه تشخیص پزشکی). Escape همیشه خلع می‌کند.</div>
+        <div class="lbl" data-i18n="ui.a11y.note">پالت‌ها کمکی‌اند (نه تشخیص پزشکی). Escape همیشه خلع می‌کند.</div>
       </div>
       <div class="card">
-        <h2>نقشه</h2>
-        <div class="lbl">سید نقشه فعلی: <b id="seedCurEl">…</b></div>
-        <div class="opts"><label class="lbl" for="mapSel">نقشه:</label>
-          <select id="mapSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="custom">سفارشی</option></select></div>
-        <div class="opts"><input id="seedInput" inputmode="numeric" placeholder="سید عددی" autocomplete="off" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;">
-          <button id="seedApplyBtn">ساخت با این سید</button><button id="seedRandomBtn">تصادفی</button></div>
-        <div class="lbl">هر سید یک نقشه یکتای کامل می‌سازد (دریاچه، سنگ‌ها و پراکنده‌ها)؛ در نبرد چندنفره سید میزبان برای همه است.</div>
+        <h2 data-i18n="ui.map.title">نقشه</h2>
+        <div class="lbl"><span data-i18n="ui.map.currentSeed">سید نقشه فعلی:</span> <b id="seedCurEl">…</b></div>
+        <div class="field-row"><label class="lbl" for="mapSel" data-i18n="ui.map.select">نقشه:</label>
+          <select id="mapSel" class="select"><option value="custom" data-i18n="ui.map.custom">سفارشی</option></select></div>
+        <div class="opts"><input class="input input-center" id="seedInput" inputmode="numeric" placeholder="سید عددی" data-i18n-placeholder="ui.map.seedPh" autocomplete="off">
+          <button id="seedApplyBtn" data-i18n="ui.map.apply">ساخت با این سید</button><button id="seedRandomBtn" data-i18n="ui.map.random">تصادفی</button></div>
+        <div class="lbl" data-i18n="ui.map.hint">هر سید یک نقشه یکتای کامل می‌سازد (دریاچه، سنگ‌ها و پراکنده‌ها)؛ در نبرد چندنفره سید میزبان برای همه است.</div>
       </div>
       <div class="card" id="mpCard">
-        <h2>نبرد چندنفره <span id="mpConn"></span></h2>
-        <div class="lbl">کد اتاق (۴ حرف لاتین) — بساز یا بپیوند، بعد «آماده»، بعد شروع میزبان. سید و رمز را موقع ساخت می‌دهی (رمز خالی = عمومی). شروع هم‌زمان؛ جوین وسط بازی نیست.</div>
-        <div class="opts"><input id="mpCodeInput" maxlength="4" placeholder="CODE" autocomplete="off" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;">
-          <select id="mpMaxSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="2">۲ نفر</option><option value="3">۳ نفر</option><option value="4">۴ نفر</option></select></div>
-        <div class="opts" style="margin-top:6px;"><input id="mpSeedInput" inputmode="numeric" placeholder="سید نقشه اتاق (خالی = تصادفی)" autocomplete="off" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;"></div>
-        <div class="opts" style="margin-top:6px;"><input id="mpPasswordInput" maxlength="16" placeholder="رمز اتاق (خالی = عمومی 🔓)" autocomplete="off" type="password" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;"></div>
-        <div class="opts" style="margin-top:6px;"><button id="mpCreateBtn">ساخت اتاق</button><button id="mpJoinBtn">پیوستن</button><button id="mpLeaveBtn">خروج</button></div>
-        <div class="opts" style="margin-top:6px;"><input id="mpJoinPasswordInput" maxlength="16" placeholder="رمز پیوستن (اگر اتاق خصوصی است)" autocomplete="off" type="password" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;"></div>
+        <h2><span data-i18n="ui.mp.title">نبرد چندنفره</span> <span id="mpConn"></span></h2>
+        <div class="lbl" data-i18n="ui.mp.hint">کد اتاق (۴ حرف لاتین) — بساز یا بپیوند، بعد «آماده»، بعد شروع میزبان. سید و رمز را موقع ساخت می‌دهی (رمز خالی = عمومی). شروع هم‌زمان؛ جوین وسط بازی نیست.</div>
+        <div class="opts"><input class="input input-center input-code" id="mpCodeInput" maxlength="4" placeholder="CODE" autocomplete="off">
+          <select id="mpMaxSel" class="select"><option value="2" data-i18n="ui.mp.max2">۲ نفر</option><option value="3" data-i18n="ui.mp.max3">۳ نفر</option><option value="4" data-i18n="ui.mp.max4">۴ نفر</option></select></div>
+        <div class="opts mt"><input class="input input-center" id="mpSeedInput" inputmode="numeric" placeholder="سید نقشه اتاق (خالی = تصادفی)" data-i18n-placeholder="ui.mp.seedPh" autocomplete="off"></div>
+        <div class="opts mt"><input class="input input-center" id="mpPasswordInput" maxlength="16" placeholder="رمز اتاق (خالی = عمومی 🔓)" data-i18n-placeholder="ui.mp.pwdPh" autocomplete="off" type="password"></div>
+        <div class="opts mt"><button id="mpCreateBtn" data-i18n="ui.mp.create">ساخت اتاق</button><button id="mpJoinBtn" data-i18n="ui.mp.join">پیوستن</button><button id="mpLeaveBtn" data-i18n="ui.mp.leave">خروج</button></div>
+        <div class="opts mt"><input class="input input-center" id="mpJoinPasswordInput" maxlength="16" placeholder="رمز پیوستن (اگر اتاق خصوصی است)" data-i18n-placeholder="ui.mp.joinPwdPh" autocomplete="off" type="password"></div>
         <div class="lbl" id="mpStatusEl">…</div>
         <div id="mpRosterEl"></div>
-        <div class="opts" style="margin-top:6px;"><button id="mpReadyBtn">آماده</button><button id="mpStartBtn">شروع (میزبان)</button><button id="mpListBtn">اتاق‌های باز</button></div>
+        <div class="opts mt"><button id="mpReadyBtn" data-i18n="ui.mp.ready">آماده</button><button id="mpStartBtn" data-i18n="ui.mp.start">شروع (میزبان)</button><button id="mpListBtn" data-i18n="ui.mp.list">اتاق‌های باز</button></div>
         <div id="mpListEl"></div>
       </div>
-      <div class="lbl" id="menuMsgEl"></div>
-      <button id="menuCloseBtn" hidden>بازگشت به بازی</button>
+      <div class="lbl" id="menuMsgEl" role="status" aria-live="polite"></div>
+      <button id="menuCloseBtn" hidden data-i18n="ui.menu.back">بازگشت به بازی</button>
     </div>
   </div>
   <div id="editorPanel" hidden>
-    <h2>🗺 نقشه‌ساز</h2>
-    <div class="lbl">روی نقشه بکش (درگ = قلم) — جابه‌جایی با نقشه کوچک + چرخ موس</div>
+    <h2 data-i18n="ui.menu.editor">🗺 نقشه‌ساز</h2>
+    <div class="lbl" data-i18n="ui.editor.hint">روی نقشه بکش (درگ = قلم) — جابه‌جایی با نقشه کوچک + چرخ موس</div>
     <div class="opts" id="edTileRow">
-      <button data-etile="0">🌱 چمن</button>
-      <button data-etile="1">🌊 آب</button>
-      <button data-etile="2">🪨 سنگ</button>
-      <button data-etile="erase">🧽 پاک‌کن</button>
+      <button data-etile="0" data-i18n="ui.editor.grass">🌱 چمن</button>
+      <button data-etile="1" data-i18n="ui.editor.water">🌊 آب</button>
+      <button data-etile="2" data-i18n="ui.editor.rock">🪨 سنگ</button>
+      <button data-etile="erase" data-i18n="ui.editor.erase">🧽 پاک‌کن</button>
     </div>
-    <div class="opts"><label class="lbl" for="edBrushSel">قلم:</label><select id="edBrushSel"></select></div>
-    <div class="opts"><input id="edNameInput" maxlength="24" placeholder="نام نقشه" autocomplete="off"></div>
-    <div class="opts"><input id="edSeedInput" inputmode="numeric" placeholder="سید پایه" autocomplete="off"></div>
-    <div class="opts"><button id="edSeedBtn">ساخت از سید</button><button id="edCheckBtn">بررسی قابل‌بازی‌بودن</button></div>
+    <div class="field-row"><label class="lbl" for="edBrushSel" data-i18n="ui.editor.brush">قلم:</label><select id="edBrushSel"></select></div>
+    <div class="opts"><input class="input input-center" id="edNameInput" maxlength="24" placeholder="نام نقشه" data-i18n-placeholder="ui.editor.namePh" autocomplete="off"></div>
+    <div class="opts"><input class="input input-center" id="edSeedInput" inputmode="numeric" placeholder="سید پایه" data-i18n-placeholder="ui.editor.seedPh" autocomplete="off"></div>
+    <div class="opts"><button id="edSeedBtn" data-i18n="ui.editor.fromSeed">ساخت از سید</button><button id="edCheckBtn" data-i18n="ui.editor.check">بررسی قابل‌بازی‌بودن</button></div>
     <div class="lbl" id="edStatusEl"></div>
-    <div class="opts"><button id="edPlayBtn">▶ آزمایش بازی</button><button id="edSaveBtn">💾 ذخیره</button></div>
-    <div class="opts"><button id="edClearBtn">پاک‌کردن وصله‌ها</button><button id="edExitBtn">خروج (Esc)</button></div>
-    <textarea id="edIOArea" rows="3" placeholder="خروجی/ورودی JSON نقشه"></textarea>
-    <div class="opts"><button id="edExportBtn">⬆ خروجی</button><button id="edImportBtn">⬇ ورودی</button></div>
+    <div class="opts"><button id="edPlayBtn" data-i18n="ui.editor.play">▶ آزمایش بازی</button><button id="edSaveBtn" data-i18n="ui.editor.save">💾 ذخیره</button></div>
+    <div class="opts"><button id="edClearBtn" data-i18n="ui.editor.clear">پاک‌کردن وصله‌ها</button><button id="edExitBtn" data-i18n="ui.editor.exit">خروج (Esc)</button></div>
+    <textarea class="input" id="edIOArea" rows="3" placeholder="خروجی/ورودی JSON نقشه" data-i18n-placeholder="ui.editor.jsonPh"></textarea>
+    <div class="opts"><button id="edExportBtn" data-i18n="ui.editor.export">⬆ خروجی</button><button id="edImportBtn" data-i18n="ui.editor.import">⬇ ورودی</button></div>
   </div>
 </div>
 <script type="module" src="game/main.js"></script>
+</body>
+</html>
 </body>
 </html>

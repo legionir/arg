@@ -1,0 +1,27 @@
+/* Arg — base: reset, typography, form controls, a11y */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg-0); color: var(--text-2);
+  font-family: var(--font-ui); font-size: var(--fs-md); line-height: var(--lh-base);
+  font-optical-sizing: auto; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+h1, h2, h3, p { margin: 0; }
+b, strong { font-weight: var(--fw-semibold); }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--gold-400); outline-offset: 2px; border-radius: var(--r-sm); }
+::selection { background: var(--gold-bg); color: var(--gold-300); }
+.latin, [dir="ltr"] { unicode-bidi: isolate; }
+/* Keep numeric runs stable and aligned in both scripts */
+.num, .res b, .stat span:last-child, #tickEl, #fpsEl { font-variant-numeric: tabular-nums; }
+
+/* Slim scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--line-3) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line-3); border-radius: var(--r-pill); }
+::-webkit-scrollbar-track { background: transparent; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

@@ -35,6 +35,7 @@ import {
   validatePlayable, namedMapByKey, mapNameFor, saveCustomSlot, loadCustomSlot,
 } from "./mapedit.js";
 import { iconSrc } from "./sprites.js";
+import { initI18n, t, onLangChange } from "./i18n.js";
 import { validateConfig } from "./schema.js";
 import {
   A11Y_PALETTES, A11Y_SCALES, KEY_ACTIONS, KEY_ACTION_FA, DEFAULT_KEYS,
@@ -54,6 +55,7 @@ import {
 function $(id) { return document.getElementById(id); }
 
 function boot() {
+  initI18n();
   const canvas = $("board");
   const tickEl = $("tickEl"), statusEl = $("statusEl"), resEl = $("resEl");
   const pauseBtn = $("pauseBtn"), speedBtn = $("speedBtn"), resetBtn = $("resetBtn");

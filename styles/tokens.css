@@ -1,0 +1,113 @@
+/* ============================================================
+   Arg — Design tokens
+   Single source of truth for color, type, space, radius,
+   elevation, motion and z-index. Components only use tokens.
+   ============================================================ */
+:root {
+  color-scheme: dark;
+
+  /* ---- Typography ---- */
+  --font-fa: "Vazirmatn Variable", Vazirmatn, "Noto Naskh Arabic", Tahoma, system-ui, sans-serif;
+  --font-en: "Inter Variable", Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-ui: var(--font-fa);
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --fs-2xs: 0.6875rem;  /* 11 */
+  --fs-xs:  0.75rem;    /* 12 */
+  --fs-sm:  0.8125rem;  /* 13 */
+  --fs-md:  0.875rem;   /* 14 */
+  --fs-lg:  1rem;       /* 16 */
+  --fs-xl:  1.25rem;    /* 20 */
+  --fs-2xl: 1.625rem;   /* 26 */
+  --lh-tight: 1.35;
+  --lh-base: 1.7;
+  --lh-loose: 1.95;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* ---- Surface scale (cool slate, elevation by lightness) ---- */
+  --bg-0: #0a0e13;      /* page / canvas wells */
+  --bg-1: #0f151c;      /* app background */
+  --bg-2: #141c25;      /* bars, cards */
+  --bg-3: #1b2531;      /* controls */
+  --bg-4: #243040;      /* hover */
+  --bg-5: #2d3b4e;      /* pressed */
+  --scrim: rgb(5 8 12 / 0.7);
+  --glass: rgb(15 21 28 / 0.94);
+
+  /* ---- Lines ---- */
+  --line-1: #222d3a;
+  --line-2: #2f3c4d;
+  --line-3: #41536a;
+
+  /* ---- Text ---- */
+  --text-1: #eef2f7;    /* primary */
+  --text-2: #c3cfdd;    /* body */
+  --text-3: #93a4b9;    /* secondary */
+  --text-4: #6b7c91;    /* disabled / hint */
+
+  /* ---- Brand + semantic ---- */
+  --gold-300: #f7dc8f;
+  --gold-400: #f0c75e;  /* brand accent */
+  --gold-500: #d9a93a;
+  --gold-bg: rgb(240 199 94 / 0.12);
+  --gold-line: rgb(240 199 94 / 0.55);
+  --ok:   #34d27b;
+  --ok-bg: rgb(52 210 123 / 0.12);
+  --ok-strong: #1f6b43;
+  --danger: #ef5b4c;
+  --danger-bg: rgb(239 91 76 / 0.12);
+  --danger-strong: #8a2a22;
+  --info: #5aa9f0;
+  --info-bg: rgb(90 169 240 / 0.12);
+  --warn: #f0a23a;
+
+  /* ---- Space (4px grid) ---- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+
+  /* ---- Radius ---- */
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-pill: 999px;
+
+  /* ---- Elevation ---- */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-2: 0 6px 18px rgb(0 0 0 / 0.4);
+  --shadow-3: 0 18px 48px rgb(0 0 0 / 0.55);
+  --ring: 0 0 0 2px var(--bg-1), 0 0 0 4px var(--gold-400);
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --t-fast: 120ms;
+  --t-med: 200ms;
+
+  /* ---- Layering ---- */
+  --z-overlay: 5;
+  --z-toast: 15;
+  --z-banner: 20;
+  --z-editor: 26;
+  --z-menu: 30;
+  --z-modal: 40;
+  --z-drag: 50;
+
+  /* ---- Layout ---- */
+  --side-w: 17rem;
+  --touch-min: 2.25rem;
+}
+
+:root[lang="en"] { --font-ui: var(--font-en); }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 0ms; --t-med: 0ms; }
+}
+@media (pointer: coarse) {
+  :root { --touch-min: 2.75rem; }
+}
