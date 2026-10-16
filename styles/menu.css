@@ -10,7 +10,8 @@
 #menuBackdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 #menuBackdrop svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 #menuBackdrop::after { content: ""; position: absolute; inset: 0;
-  background: radial-gradient(90% 70% at 50% 40%, rgb(7 11 18 / 0.15), rgb(7 11 18 / 0.78)); }
+  background: radial-gradient(34rem 18rem at 50% 15%, rgb(7 11 18 / 0.8), transparent 75%),
+    radial-gradient(90% 70% at 50% 40%, rgb(7 11 18 / 0.15), rgb(7 11 18 / 0.78)); }
 .bd-stars .tw { animation: twinkle 3.6s ease-in-out infinite; }
 .bd-stars .tw2 { animation-duration: 5.2s; animation-delay: -1.7s; }
 .bd-clouds .cl { animation: drift 90s linear infinite alternate; }
@@ -86,8 +87,9 @@
 .btn-cta { font-size: var(--fs-xl); font-weight: var(--fw-bold); padding: 1rem; min-height: 3.5rem; border-radius: var(--r-lg);
   background: linear-gradient(180deg, #2b9059, var(--ok-strong)); border-color: var(--ok); box-shadow: var(--shadow-2), 0 0 28px rgb(52 210 123 / 0.18); }
 .btn-cta:hover:not(:disabled) { background: linear-gradient(180deg, #33a566, #277f52); }
-#menuMsgEl { text-align: center; min-height: 1.4rem; margin-block-start: var(--sp-3); color: var(--text-2); }
-#menuMsgEl:empty { min-height: 0; margin: 0; }
+#menuMsgEl { position: sticky; inset-block-end: var(--sp-3); z-index: 2; text-align: center; margin-block-start: var(--sp-3); padding: var(--sp-2) var(--sp-4);
+  color: var(--text-1); background: var(--bg-2); border: 1px solid var(--gold-line); border-radius: var(--r-md); box-shadow: var(--shadow-2); animation: pageIn 200ms var(--ease) both; }
+#menuMsgEl:empty { display: none; }
 input.range { flex: 1; min-width: 0; accent-color: var(--gold-400); height: 1.6rem; cursor: pointer; background: transparent; }
 #soloBtn:focus-visible, .btn-cta:focus-visible { outline-offset: 3px; }
 
