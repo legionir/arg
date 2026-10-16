@@ -89,7 +89,7 @@ label.lbl { margin: 0; white-space: nowrap; }
 .bname { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-1); }
 .bname i { font-style: normal; font-weight: var(--fw-regular); font-size: var(--fs-2xs); color: var(--text-3); }
 .bmeta { font-size: var(--fs-2xs); color: var(--text-3); line-height: var(--lh-base); }
-.bcost { display: flex; gap: var(--sp-3); flex-wrap: wrap; font-size: var(--fs-xs); color: var(--gold-400); font-variant-numeric: tabular-nums; }
+.bcost { display: flex; gap: var(--sp-2) var(--sp-3); flex-wrap: wrap; font-size: var(--fs-xs); color: var(--gold-400); font-variant-numeric: tabular-nums; }
 .bcost span { display: inline-flex; align-items: center; gap: 0.25rem; }
 .bcost img { width: 1rem; height: 1rem; }
 .bcost .free { color: var(--ok); }

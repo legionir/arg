@@ -756,6 +756,11 @@ function boot() {
       defeatBanner.hidden = !state.defeated; // بنر شکست (0.19.0) — کل صفحه را می‌پوشاند
       victoryBanner.hidden = !state.victorious; // بنر پیروزی (0.22.0)
     }
+    // بنر تازه‌نمایان: فوکوس روی دکمه‌اش (یک‌بار؛ نه در هر refresh) تا صفحه‌کلید/صفحه‌خوان در بنر بیفتد
+    for (const [ban, btn] of [[defeatBanner, defeatRestartBtn], [victoryBanner, victoryRestartBtn]]) {
+      if (!ban.hidden && !ban.dataset.focused) { ban.dataset.focused = "1"; btn.focus({ preventScroll: true }); }
+      else if (ban.hidden && ban.dataset.focused) delete ban.dataset.focused;
+    }
     if (!mpSession) online.maybeReport(state); // ثبت پیروزی در تالار مشترک (0.23.0؛ فقط یک‌بار)
     pruneMercs(); // سربازخانه میزبان نوار مزدورها ویران شده؟ بستن خودکار
     pruneMarket(); // بازار میزبان پنل معامله ویران شده؟ بستن خودکار
@@ -1517,11 +1522,32 @@ function boot() {
   $("saveModal").appendChild($("saveCard"));
   $("helpModal").appendChild($("helpCard"));
   $("onlineModal").appendChild($("onlineCard"));
+  let modalOpener = null; // عنصری که مودال را باز کرد — با بستن فوکوس برمی‌گردد
   function openModal(key) {
+    if (modalOverlay.hidden) modalOpener = document.activeElement;
     for (const [k, el] of Object.entries(modals)) el.hidden = k !== key;
     modalOverlay.hidden = false;
+    const first = modals[key].querySelector(".modalClose");
+    if (first) first.focus({ preventScroll: true });
   }
-  function closeModal() { modalOverlay.hidden = true; }
+  function closeModal() {
+    if (modalOverlay.hidden) return;
+    modalOverlay.hidden = true;
+    const o = modalOpener; modalOpener = null;
+    if (o && typeof o.focus === "function" && document.contains(o)) o.focus({ preventScroll: true });
+  }
+  // تله فوکوس: Tab داخل مودال باز می‌چرخد (Esc از شنونده سراسری بالا می‌بندد)
+  modalOverlay.addEventListener("keydown", (e) => {
+    if (e.key !== "Tab" || modalOverlay.hidden) return;
+    const box = Object.values(modals).find((m) => !m.hidden);
+    if (!box) return;
+    const f = [...box.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")]
+      .filter((x) => !x.disabled && !x.hidden && x.offsetParent !== null);
+    if (!f.length) return;
+    const a = f[0], z = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
+    else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+  });
   function toggleModal(key) {
     if (!modalOverlay.hidden && !modals[key].hidden) closeModal();
     else openModal(key);

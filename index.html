@@ -669,7 +669,7 @@ self.rpc = {
   <div id="resbar"><div id="resEl"></div></div>
 
   <div id="layout">
-    <div id="boardWrap"><canvas id="board"></canvas></div>
+    <div id="boardWrap"><canvas id="board" role="img" aria-label="نقشه بازی" data-i18n-aria-label="ui.board.label"></canvas></div>
     <div id="side">
       <div class="card" id="minimapCard">
         <h2 data-i18n="ui.minimap.title">نقشه کوچک</h2>
@@ -787,10 +787,10 @@ self.rpc = {
   </div>
   <!-- مودال‌ها (0.31.0): کارت‌های ذخیره/راهنما/آنلاین در بوت (main.js) از پنل کناری به این جعبه‌ها منتقل می‌شوند -->
   <div class="modalOverlay" id="modalOverlay" hidden>
-    <div class="modalBox" id="taxModal" hidden><button class="modalClose" data-close>✕</button></div>
-    <div class="modalBox" id="saveModal" hidden><button class="modalClose" data-close>✕</button></div>
-    <div class="modalBox" id="helpModal" hidden><button class="modalClose" data-close>✕</button></div>
-    <div class="modalBox" id="onlineModal" hidden><button class="modalClose" data-close>✕</button></div>
+    <div class="modalBox" id="taxModal" role="dialog" aria-modal="true" aria-label="" data-i18n-aria-label="ui.tax.title" hidden><button class="modalClose" data-close aria-label="بستن" data-i18n-aria-label="ui.common.close">✕</button></div>
+    <div class="modalBox" id="saveModal" role="dialog" aria-modal="true" aria-label="" data-i18n-aria-label="ui.save.title" hidden><button class="modalClose" data-close aria-label="بستن" data-i18n-aria-label="ui.common.close">✕</button></div>
+    <div class="modalBox" id="helpModal" role="dialog" aria-modal="true" aria-label="" data-i18n-aria-label="ui.help.title" hidden><button class="modalClose" data-close aria-label="بستن" data-i18n-aria-label="ui.common.close">✕</button></div>
+    <div class="modalBox" id="onlineModal" role="dialog" aria-modal="true" aria-label="" data-i18n-aria-label="ui.online.title" hidden><button class="modalClose" data-close aria-label="بستن" data-i18n-aria-label="ui.common.close">✕</button></div>
   </div>
   <div id="testBadge" hidden></div>
   <div id="onlineToast" role="status" aria-live="polite" hidden></div>
@@ -799,16 +799,16 @@ self.rpc = {
     <span id="replayBarTxt">📼</span>
     <button id="replayExitBtn" data-i18n="ui.replay.exit">خروج از تماشا</button>
   </div>
-  <div id="defeatBanner" hidden>
+  <div id="defeatBanner" role="alertdialog" aria-modal="true" aria-labelledby="defeatTitle" hidden>
     <div id="defeatBox">
-      <h2 data-i18n="ui.defeat.title">شکست!</h2>
+      <h2 id="defeatTitle" data-i18n="ui.defeat.title">شکست!</h2>
       <p data-i18n="ui.defeat.text">ستاد سقوط کرد — قلعه از دست رفت.</p>
       <button id="defeatRestartBtn" data-i18n="ui.top.restart">شروع دوباره</button>
     </div>
   </div>
-  <div id="victoryBanner" hidden>
+  <div id="victoryBanner" role="alertdialog" aria-modal="true" aria-labelledby="victoryTitle" hidden>
     <div id="victoryBox">
-      <h2 data-i18n="ui.victory.title">پیروزی!</h2>
+      <h2 id="victoryTitle" data-i18n="ui.victory.title">پیروزی!</h2>
       <p data-i18n="ui.victory.text">آخرین موج در هم شکست — قلعه پابرجاست.</p>
       <button id="victoryRestartBtn" data-i18n="ui.victory.again">بازی دوباره</button>
     </div>
