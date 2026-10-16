@@ -1,6 +1,7 @@
 // آزمون‌های خودکار اقتصاد (ECON-001/002) — هدلس، هم‌زمان، زیر یک ثانیه.
 // اجرا: window.__slice01.runTests() یا ?test در URL.
 import { CONFIG } from "./config.js";
+import { withLang, getLang, setLang } from "./i18n.js";
 import { makeTerrain, terrainPins } from "./terrain.js";
 import { createState, occupyFootprint } from "./state.js";
 import { tryPlace, validate, placeKeep } from "./construction.js";
@@ -746,9 +747,10 @@ function t_save_progress() {
   return { name: "حفظ پیشرفت تولید", pass: true, detail: "progress=10" };
 }
 
+// آزمون‌ها متن فارسی مرجع را بررسی می‌کنند؛ پس همیشه با زبان fa اجرا می‌شوند (زبان کاربر دست‌نخورده می‌ماند).
 export function runAllTests() {
-  return [...econCases(), ...persistCases(), ...combatCases(), ...pathCases(),
-    ...constCases(), ...keepCases(), ...lordCases(), ...sysCases(), ...mpCases(), ...simCases(), ...aiCases(), ...wallCases(), ...soundCases(), ...mapeditCases(), ...gestureCases(), ...schemaCases(), ...a11yCases(), ...hardeningCases(), ...replayCases(), ...groupCases(), ...legalCases(), ...firstTenCases(), ...trainCases(), ...missionCases(), ...cloudCases()].map(runFn);
+  return withLang("fa", () => [...econCases(), ...persistCases(), ...combatCases(), ...pathCases(),
+    ...constCases(), ...keepCases(), ...lordCases(), ...sysCases(), ...mpCases(), ...simCases(), ...aiCases(), ...wallCases(), ...soundCases(), ...mapeditCases(), ...gestureCases(), ...schemaCases(), ...a11yCases(), ...hardeningCases(), ...replayCases(), ...groupCases(), ...legalCases(), ...firstTenCases(), ...trainCases(), ...missionCases(), ...cloudCases()].map(runFn));
 }
 
 // --- بک‌اند IndexedDB (0.55.0 — #۱۶ از FEATURES): فاز تست ناهمگام ---
@@ -758,6 +760,12 @@ export function runAllTests() {
 // لمس نمی‌شوند. بدون IDB در مرورگر، تست‌های IDB-خالص skip-pass می‌دهند و
 // fallback روی localStorage همان‌طور کامل اجرا می‌شود.
 export async function runIdbTests() {
+  const prev = getLang();
+  setLang("fa", { persist: false });
+  try { return await runIdbTestsFa(); } finally { setLang(prev, { persist: false }); }
+}
+
+async function runIdbTestsFa() {
   const out = [];
   for (const fn of idbCases()) {
     try {
