@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/components.css">
 <link rel="stylesheet" href="styles/layout.css">
+<link rel="stylesheet" href="styles/menu.css">
 <script type="text/x-server-plugin">
 // تالار پیروزی + لابی رقابتی (0.24.0) — سرور مرجع سبک، بدون شبیه‌سازی.
 // کل این اسکریپت عمومی است: هیچ رازی در آن نیست. همه ورودی‌ها اعتبارسنجی
@@ -644,6 +645,24 @@ self.rpc = {
 </head>
 <body>
 <div id="app">
+<svg id="iconSprite" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-sword" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4h-5.5L8 10.5l5.5 5.5L20 9.5z" fill="currentColor" fill-opacity=".18"/><path d="M6.5 12 12 17.5M5.3 18.7 3.5 20.5M7.2 16.8l-2.4 2.4"/></g></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c.4-3.4 2.9-5.2 6-5.2s5.6 1.8 6 5.2"/><circle cx="17.2" cy="9.2" r="2.5"/><path d="M16.5 14.4c2.6.1 4.3 1.6 4.7 4.4"/></g></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M4 4h13l3 3v13H4z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></g></symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="m10 9.5 5 2.5-5 2.5z" fill="currentColor"/></g></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></g></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.6-4 3.6-6 7.5-6s6.9 2 7.5 6"/></g></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></g></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.4a3 3 0 1 1 4.4 2.6c-.9.5-1.6 1-1.6 2.1M12 17.2v.1"/></g></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></g></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m14.5 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9.5 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></g></symbol>
+    <symbol id="i-castle" viewBox="0 0 32 32"><path d="M4 28V12h4v3h3v-3h2v-3h2v3h2v3h3v-3h4v16h-5v-6a2 2 0 0 0-4 0v6z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
   <!-- فیلترهای کمکی کوررنگی (0.57.0 — #۲۶): ماتریس‌های a11y.js روی بوم‌ها -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
@@ -814,37 +833,82 @@ self.rpc = {
     </div>
   </div>
   <div id="menuScreen">
-    <div id="menuBox">
-      <div class="menu-head">
-      <div class="menu-lang lang-switch" role="group" data-i18n-aria-label="ui.lang.label" aria-label="زبان"><button type="button" data-lang-set="fa" lang="fa">فارسی</button><button type="button" data-lang-set="en" lang="en">English</button></div>
-      <h1><span aria-hidden="true">🏰</span> <span data-i18n="ui.brand">ارگ (Arg)</span></h1>
-      <p class="sub" data-i18n="ui.menu.sub">اول خودت را معرفی کن، بعد تک‌نفره یا چندنفره را انتخاب کن.</p>
-      </div>
-      <div class="card">
-        <h2 data-i18n="ui.profile.title">نام و لوگوی تو (برای همه بازیکنان نمایش داده می‌شود)</h2>
-        <div class="opts"><input class="input input-center" id="profileNameInput" maxlength="12" placeholder="نام جنگی" data-i18n-placeholder="ui.profile.namePh" autocomplete="off"></div>
-        <div id="profileLogoGrid"></div>
-        <div class="lbl" data-i18n="ui.profile.hint">ذخیره خودکار است — هر وقت از همین‌جا قابل ویرایش است.</div>
-      </div>
-      <button id="soloBtn" data-i18n="ui.menu.solo">⚔️ شروع تک‌نفره</button>
+<div id="menuBackdrop" aria-hidden="true">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" focusable="false">
+    <defs>
+      <linearGradient id="bdSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070b12"/><stop offset=".55" stop-color="#121c2b"/><stop offset="1" stop-color="#2a2433"/></linearGradient>
+      <radialGradient id="bdMoon" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6d6" stop-opacity=".95"/><stop offset=".35" stop-color="#f7dc8f" stop-opacity=".35"/><stop offset="1" stop-color="#f7dc8f" stop-opacity="0"/></radialGradient>
+      <radialGradient id="bdGlow" cx=".5" cy="1" r=".8"><stop offset="0" stop-color="#f0a23a" stop-opacity=".35"/><stop offset="1" stop-color="#f0a23a" stop-opacity="0"/></radialGradient>
+      <linearGradient id="bdFog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f151c" stop-opacity="0"/><stop offset="1" stop-color="#0f151c" stop-opacity=".9"/></linearGradient>
+    </defs>
+    <rect width="1200" height="800" fill="url(#bdSky)"/>
+    <g class="bd-stars" fill="#eef2f7">
+      <circle cx="90" cy="70" r="1.4"/><circle cx="210" cy="140" r="1"/><circle cx="330" cy="60" r="1.6" class="tw"/><circle cx="450" cy="170" r="1"/><circle cx="560" cy="90" r="1.3" class="tw tw2"/><circle cx="680" cy="40" r="1"/><circle cx="800" cy="130" r="1.5" class="tw"/><circle cx="930" cy="75" r="1.1"/><circle cx="1040" cy="160" r="1.4" class="tw tw2"/><circle cx="1130" cy="55" r="1"/><circle cx="150" cy="250" r="1.1" class="tw"/><circle cx="390" cy="260" r="1"/><circle cx="760" cy="240" r="1.2" class="tw tw2"/><circle cx="1000" cy="270" r="1"/><circle cx="60" cy="180" r="1.2"/><circle cx="620" cy="200" r="1" class="tw"/>
+    </g>
+    <circle cx="930" cy="170" r="120" fill="url(#bdMoon)"/>
+    <circle cx="930" cy="170" r="34" fill="#fff3cf"/>
+    <circle cx="919" cy="161" r="34" fill="#121c2b" opacity=".18"/>
+    <g class="bd-clouds" fill="#1d2838" opacity=".7">
+      <g class="cl cl1"><ellipse cx="260" cy="230" rx="140" ry="16"/><ellipse cx="340" cy="218" rx="80" ry="13"/></g>
+      <g class="cl cl2"><ellipse cx="820" cy="320" rx="170" ry="18"/><ellipse cx="740" cy="308" rx="90" ry="12"/></g>
+    </g>
+    <path d="M0 520 L90 440 L170 490 L270 390 L380 480 L470 430 L560 500 L680 410 L790 485 L890 420 L1000 495 L1100 440 L1200 490 V800 H0Z" fill="#17202e"/>
+    <path d="M0 585 L120 520 L230 565 L350 505 L470 560 L600 515 L720 570 L850 520 L980 575 L1100 530 L1200 565 V800 H0Z" fill="#101823"/>
+    <ellipse cx="600" cy="700" rx="520" ry="220" fill="url(#bdGlow)"/>
+    <g id="bdCastle" fill="#0a0f16">
+      <rect x="380" y="560" width="440" height="140"/>
+      <path d="M380 560v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14h18v-14h14v14z"/>
+      <rect x="540" y="430" width="120" height="270"/>
+      <path d="M540 430v-18h16v18h16v-18h16v18h16v-18h16v18h16v-18h16v18z"/>
+      <path d="M520 430 600 340 680 430z"/>
+      <rect x="400" y="470" width="62" height="230"/><path d="M394 470 431 414 468 470z"/>
+      <rect x="738" y="470" width="62" height="230"/><path d="M732 470 769 414 806 470z"/>
+      <rect x="590" y="330" width="3" height="22" fill="#2a3446"/>
+      <path class="bd-flag" d="M593 332 640 342 593 354z" fill="#f0c75e"/>
+      <path d="M431 414v-26" stroke="#2a3446" stroke-width="3"/><path class="bd-flag" d="M431 388 462 396 431 404z" fill="#d9a93a"/>
+      <path d="M769 414v-26" stroke="#2a3446" stroke-width="3"/><path class="bd-flag" d="M769 388 800 396 769 404z" fill="#d9a93a"/>
+      <path d="M576 700v-52a24 24 0 0 1 48 0v52z" fill="#f0a23a" opacity=".5"/>
+    </g>
+    <g class="bd-windows" fill="#f7dc8f">
+      <rect class="wn" x="592" y="470" width="16" height="26" rx="8"/><rect class="wn wn2" x="592" y="530" width="16" height="26" rx="8"/>
+      <rect class="wn wn2" x="422" y="510" width="12" height="20" rx="6"/><rect class="wn" x="428" y="560" width="10" height="18" rx="5"/>
+      <rect class="wn" x="760" y="510" width="12" height="20" rx="6"/><rect class="wn wn2" x="766" y="560" width="10" height="18" rx="5"/>
+      <rect class="wn wn2" x="470" y="600" width="12" height="18" rx="6"/><rect class="wn" x="718" y="600" width="12" height="18" rx="6"/>
+    </g>
+    <path d="M0 700 Q300 668 600 690 T1200 680 V800 H0Z" fill="#070b11"/>
+    <rect y="500" width="1200" height="300" fill="url(#bdFog)"/>
+  </svg>
+</div>
+    <div id="menuBox" data-page="home">
+    <section class="menu-page" data-page="home" aria-label="" data-i18n-aria-label="ui.nav.home">
+      <header class="menu-hero">
+        <div class="menu-lang"><div class="lang-switch" role="group" data-i18n-aria-label="ui.lang.label" aria-label="زبان"><button type="button" data-lang-set="fa" lang="fa">فارسی</button><button type="button" data-lang-set="en" lang="en">English</button></div></div>
+        <svg class="hero-emblem" viewBox="0 0 96 96" aria-hidden="true"><defs><linearGradient id="emG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7dc8f"/><stop offset="1" stop-color="#d9a93a"/></linearGradient></defs><path d="M48 4 84 16v30c0 22-15 38-36 46C27 84 12 68 12 46V16z" fill="#141c25" stroke="url(#emG)" stroke-width="3"/><path d="M26 66V38h7v6h6v-6h4v-6h10v6h4v6h6v-6h7v28H58V55a10 10 0 0 0-20 0v11z" fill="url(#emG)"/></svg>
+        <h1 data-i18n="ui.brand">ارگ (Arg)</h1>
+        <p class="sub" data-i18n="ui.nav.tagline"></p>
+      </header>
+      <button type="button" class="profile-chip" id="profileChip" data-go="profile" title="" data-i18n-title="ui.profile.edit"><span id="profileChipBody"></span><svg class="nav-ic" aria-hidden="true"><use href="#i-user"/></svg></button>
+      <nav class="menu-nav" aria-label="" data-i18n-aria-label="ui.nav.home">
+        <button id="menuCloseBtn" type="button" class="nav-btn nav-primary" hidden><svg class="nav-ic" aria-hidden="true"><use href="#i-play"/></svg><span class="nav-tx"><b data-i18n="ui.menu.back">بازگشت به بازی</b><small data-i18n="ui.nav.continue.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <button type="button" class="nav-btn" id="navSolo" data-go="solo"><svg class="nav-ic" aria-hidden="true"><use href="#i-sword"/></svg><span class="nav-tx"><b data-i18n="ui.nav.solo"></b><small data-i18n="ui.nav.solo.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <button type="button" class="nav-btn" id="navMp" data-go="mp"><svg class="nav-ic" aria-hidden="true"><use href="#i-users"/></svg><span class="nav-tx"><b data-i18n="ui.nav.mp"></b><small data-i18n="ui.nav.mp.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <button type="button" class="nav-btn" id="navSave" data-proxy="saveIconBtn"><svg class="nav-ic" aria-hidden="true"><use href="#i-save"/></svg><span class="nav-tx"><b data-i18n="ui.nav.save"></b><small data-i18n="ui.nav.save.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <button id="menuReplayBtn" type="button" class="nav-btn"><svg class="nav-ic" aria-hidden="true"><use href="#i-replay"/></svg><span class="nav-tx"><b data-i18n="ui.nav.replay"></b><small data-i18n="ui.nav.replay.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <button id="editorBtn" type="button" class="nav-btn"><svg class="nav-ic" aria-hidden="true"><use href="#i-map"/></svg><span class="nav-tx"><b data-i18n="ui.nav.editor"></b><small data-i18n="ui.nav.editor.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <button type="button" class="nav-btn" id="navOnline" data-proxy="onlineIconBtn" hidden><svg class="nav-ic" aria-hidden="true"><use href="#i-globe"/></svg><span class="nav-tx"><b data-i18n="ui.nav.online"></b><small data-i18n="ui.nav.online.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <button type="button" class="nav-btn" id="navSettings" data-go="settings"><svg class="nav-ic" aria-hidden="true"><use href="#i-gear"/></svg><span class="nav-tx"><b data-i18n="ui.nav.settings"></b><small data-i18n="ui.nav.settings.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+        <button type="button" class="nav-btn" id="navHelp" data-proxy="helpIconBtn"><svg class="nav-ic" aria-hidden="true"><use href="#i-help"/></svg><span class="nav-tx"><b data-i18n="ui.nav.help"></b><small data-i18n="ui.nav.help.hint"></small></span><svg class="nav-chev" aria-hidden="true"><use href="#i-chevron"/></svg></button>
+      </nav>
+      <p class="menu-foot"><span data-i18n="ui.version">نسخه</span> <span id="menuVerEl"></span></p>
+    </section>
+    <section class="menu-page" data-page="solo" hidden aria-labelledby="mp-solo-t">
+      <header class="page-head"><button type="button" class="page-back" data-go="home" aria-label="" data-i18n-aria-label="ui.nav.back"><svg aria-hidden="true"><use href="#i-back"/></svg></button><h2 id="mp-solo-t" data-i18n="ui.nav.solo"></h2></header>
+      <div class="page-body">
+        <button id="soloBtn" type="button" class="btn-cta" data-i18n="ui.menu.solo">⚔️ شروع تک‌نفره</button>
       <div class="field-row"><label class="lbl" for="diffSel" data-i18n="ui.menu.difficulty">درجه سختی حریف:</label>
         <select id="diffSel" class="select"><option value="easy" data-i18n="ui.menu.diff.easy">آسان — یورش دیرتر و کوچک‌تر، اقتصاد حریف کندتر</option><option value="normal" data-i18n="ui.menu.diff.normal">معمولی</option><option value="hard" data-i18n="ui.menu.diff.hard">سخت — یورش زودتر و بزرگ‌تر، اقتصاد حریف تندتر</option></select></div>
       <div class="field-row"><label class="lbl" for="persSel" data-i18n="ui.menu.personality">شخصیت حریف:</label>
         <select id="persSel" class="select"><option value="wolf" data-i18n="ui.menu.pers.wolf">گرگ</option></select></div>
-      <button id="menuReplayBtn" data-i18n="ui.menu.replay">📼 تماشای ری‌پلی ذخیره‌شده</button>
-      <button id="editorBtn" data-i18n="ui.menu.editor">🗺 نقشه‌ساز</button>
-      <div class="card">
-        <h2 data-i18n="ui.a11y.title">دسترس‌پذیری</h2>
-        <div class="field-row"><label class="lbl" for="a11yPalSel" data-i18n="ui.a11y.palette">پالت کمکی کوررنگی:</label>
-          <select id="a11yPalSel" class="select"><option value="off" data-i18n="ui.a11y.off">خاموش</option></select></div>
-        <div class="field-row"><label class="lbl" for="a11yScaleSel" data-i18n="ui.a11y.scale">مقیاس رابط:</label>
-          <select id="a11yScaleSel" class="select"><option value="1" data-i18n="ui.a11y.scale100">۱۰۰٪</option><option value="1.25" data-i18n="ui.a11y.scale125">۱۲۵٪</option><option value="1.5" data-i18n="ui.a11y.scale150">۱۵۰٪</option></select></div>
-        <div class="field-row"><label class="lbl" for="fidSel" data-i18n="ui.a11y.fidelity">کیفیت رسم:</label>
-          <select id="fidSel" class="select"><option value="full" data-i18n="ui.common.full">کامل</option><option value="balanced" data-i18n="ui.a11y.fid.balanced">متعادل (بدون پاف)</option><option value="lite" data-i18n="ui.a11y.fid.light">سبک (حداقل جلوه)</option></select></div>
-        <div class="field-row"><span class="lbl" data-i18n="ui.a11y.keys">کلیدها:</span>
-          <button id="keyCancelBtn" data-keyact="cancel">خلع: …</button><button id="keyPauseBtn" data-keyact="pause">توقف: …</button><button id="keyMuteBtn" data-keyact="mute">صدا: …</button></div>
-        <div class="lbl" data-i18n="ui.a11y.note">پالت‌ها کمکی‌اند (نه تشخیص پزشکی). Escape همیشه خلع می‌کند.</div>
-      </div>
       <div class="card">
         <h2 data-i18n="ui.map.title">نقشه</h2>
         <div class="lbl"><span data-i18n="ui.map.currentSeed">سید نقشه فعلی:</span> <b id="seedCurEl">…</b></div>
@@ -854,6 +918,11 @@ self.rpc = {
           <button id="seedApplyBtn" data-i18n="ui.map.apply">ساخت با این سید</button><button id="seedRandomBtn" data-i18n="ui.map.random">تصادفی</button></div>
         <div class="lbl" data-i18n="ui.map.hint">هر سید یک نقشه یکتای کامل می‌سازد (دریاچه، سنگ‌ها و پراکنده‌ها)؛ در نبرد چندنفره سید میزبان برای همه است.</div>
       </div>
+      </div>
+    </section>
+    <section class="menu-page" data-page="mp" hidden aria-labelledby="mp-mp-t">
+      <header class="page-head"><button type="button" class="page-back" data-go="home" aria-label="" data-i18n-aria-label="ui.nav.back"><svg aria-hidden="true"><use href="#i-back"/></svg></button><h2 id="mp-mp-t" data-i18n="ui.nav.mp"></h2></header>
+      <div class="page-body">
       <div class="card" id="mpCard">
         <h2><span data-i18n="ui.mp.title">نبرد چندنفره</span> <span id="mpConn"></span></h2>
         <div class="lbl" data-i18n="ui.mp.hint">کد اتاق (۴ حرف لاتین) — بساز یا بپیوند، بعد «آماده»، بعد شروع میزبان. سید و رمز را موقع ساخت می‌دهی (رمز خالی = عمومی). شروع هم‌زمان؛ جوین وسط بازی نیست.</div>
@@ -868,8 +937,47 @@ self.rpc = {
         <div class="opts mt"><button id="mpReadyBtn" data-i18n="ui.mp.ready">آماده</button><button id="mpStartBtn" data-i18n="ui.mp.start">شروع (میزبان)</button><button id="mpListBtn" data-i18n="ui.mp.list">اتاق‌های باز</button></div>
         <div id="mpListEl"></div>
       </div>
+      </div>
+    </section>
+    <section class="menu-page" data-page="profile" hidden aria-labelledby="mp-profile-t">
+      <header class="page-head"><button type="button" class="page-back" data-go="home" aria-label="" data-i18n-aria-label="ui.nav.back"><svg aria-hidden="true"><use href="#i-back"/></svg></button><h2 id="mp-profile-t" data-i18n="ui.nav.profile"></h2></header>
+      <div class="page-body">
+      <div class="card">
+        <h2 data-i18n="ui.profile.title">نام و لوگوی تو (برای همه بازیکنان نمایش داده می‌شود)</h2>
+        <div class="opts"><input class="input input-center" id="profileNameInput" maxlength="12" placeholder="نام جنگی" data-i18n-placeholder="ui.profile.namePh" autocomplete="off"></div>
+        <div id="profileLogoGrid"></div>
+        <div class="lbl" data-i18n="ui.profile.hint">ذخیره خودکار است — هر وقت از همین‌جا قابل ویرایش است.</div>
+      </div>
+      </div>
+    </section>
+    <section class="menu-page" data-page="settings" hidden aria-labelledby="mp-settings-t">
+      <header class="page-head"><button type="button" class="page-back" data-go="home" aria-label="" data-i18n-aria-label="ui.nav.back"><svg aria-hidden="true"><use href="#i-back"/></svg></button><h2 id="mp-settings-t" data-i18n="ui.nav.settings"></h2></header>
+      <div class="page-body">
+      <div class="card">
+        <h2 data-i18n="ui.lang.label">زبان</h2>
+        <div class="opts"><div class="lang-switch" role="group" data-i18n-aria-label="ui.lang.label" aria-label="زبان"><button type="button" data-lang-set="fa" lang="fa">فارسی</button><button type="button" data-lang-set="en" lang="en">English</button></div></div>
+      </div>
+      <div class="card" id="soundCard">
+        <h2 data-i18n="ui.sound.title"></h2>
+        <div class="field-row"><label class="lbl" for="volMusic" data-i18n="ui.sound.music"></label><input id="volMusic" type="range" min="0" max="100" step="5" class="range"></div>
+        <div class="field-row"><label class="lbl" for="volSfx" data-i18n="ui.sound.sfx"></label><input id="volSfx" type="range" min="0" max="100" step="5" class="range"></div>
+        <div class="field-row"><span class="lbl" data-i18n="ui.sound.mute"></span><button id="volMute" type="button" aria-pressed="false"></button></div>
+      </div>
+      <div class="card">
+        <h2 data-i18n="ui.a11y.title">دسترس‌پذیری</h2>
+        <div class="field-row"><label class="lbl" for="a11yPalSel" data-i18n="ui.a11y.palette">پالت کمکی کوررنگی:</label>
+          <select id="a11yPalSel" class="select"><option value="off" data-i18n="ui.a11y.off">خاموش</option></select></div>
+        <div class="field-row"><label class="lbl" for="a11yScaleSel" data-i18n="ui.a11y.scale">مقیاس رابط:</label>
+          <select id="a11yScaleSel" class="select"><option value="1" data-i18n="ui.a11y.scale100">۱۰۰٪</option><option value="1.25" data-i18n="ui.a11y.scale125">۱۲۵٪</option><option value="1.5" data-i18n="ui.a11y.scale150">۱۵۰٪</option></select></div>
+        <div class="field-row"><label class="lbl" for="fidSel" data-i18n="ui.a11y.fidelity">کیفیت رسم:</label>
+          <select id="fidSel" class="select"><option value="full" data-i18n="ui.common.full">کامل</option><option value="balanced" data-i18n="ui.a11y.fid.balanced">متعادل (بدون پاف)</option><option value="lite" data-i18n="ui.a11y.fid.light">سبک (حداقل جلوه)</option></select></div>
+        <div class="field-row"><span class="lbl" data-i18n="ui.a11y.keys">کلیدها:</span>
+          <button id="keyCancelBtn" data-keyact="cancel">خلع: …</button><button id="keyPauseBtn" data-keyact="pause">توقف: …</button><button id="keyMuteBtn" data-keyact="mute">صدا: …</button></div>
+        <div class="lbl" data-i18n="ui.a11y.note">پالت‌ها کمکی‌اند (نه تشخیص پزشکی). Escape همیشه خلع می‌کند.</div>
+      </div>
+      </div>
+    </section>
       <div class="lbl" id="menuMsgEl" role="status" aria-live="polite"></div>
-      <button id="menuCloseBtn" hidden data-i18n="ui.menu.back">بازگشت به بازی</button>
     </div>
   </div>
   <div id="editorPanel" hidden>

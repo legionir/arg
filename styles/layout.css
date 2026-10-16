@@ -62,16 +62,11 @@ body { text-align: start; }
 #menuScreen { position: fixed; inset: 0; z-index: var(--z-menu); overflow-y: auto;
   background: radial-gradient(120% 80% at 50% 0%, rgb(40 52 70 / 0.55), transparent 60%), rgb(6 9 13 / 0.96);
   backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: flex-start; }
-#menuBox { width: 35rem; max-width: 94vw; margin: var(--sp-5) 0 3.5rem; display: flex; flex-direction: column; gap: var(--sp-3); }
-#menuBox .menu-head { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; position: relative; padding-block: var(--sp-2); }
-#menuBox .menu-lang { position: absolute; inset-block-start: 0; inset-inline-end: 0; }
+#menuBox { display: flex; flex-direction: column; }
 #menuBox h1 { font-size: var(--fs-2xl); font-weight: var(--fw-bold); margin: 0.25rem 0 0; color: var(--gold-400); text-align: center;
   text-shadow: 0 2px 18px rgb(240 199 94 / 0.25); }
 #menuBox .sub { font-size: var(--fs-sm); color: var(--text-3); text-align: center; margin: 0 0 var(--sp-1); }
 #menuMsgEl { text-align: center; min-height: 1.2rem; }
-#soloBtn { font-size: var(--fs-lg); padding: 0.85rem; background: var(--ok-strong); border-color: var(--ok); font-weight: var(--fw-bold); border-radius: var(--r-lg); box-shadow: var(--shadow-2); }
-#soloBtn:hover:not(:disabled) { background: #277f52; }
-#menuCloseBtn { font-size: var(--fs-md); padding: 0.65rem; }
 .field-row { display: flex; align-items: center; gap: var(--sp-3); }
 .field-row { gap: var(--sp-3); }
 .field-row + .field-row { margin-block-start: var(--sp-2); }
@@ -114,5 +109,4 @@ body { text-align: start; }
 }
 @media (max-width: 480px) {
   #statusbar { gap: var(--sp-2); }
-  #menuBox .menu-lang { position: static; align-self: flex-end; }
 }

@@ -23,6 +23,7 @@ import { createRenderer } from "./render.js";
 import { WALL_LINE_MAX, isLineDragType, wallLineTiles } from "./wallline.js";
 import { pinchDist, pinchZoom, LONG_PRESS_MS, LONG_PRESS_SLOP, longPressMoved, dragMovedFar, panForDrag } from "./gestures.js";
 import { createSoundManager, soundSnapshot } from "./sound.js";
+import { bindMenuNav } from "./menunav.js";
 import { hasMarket, tradeQuote, applyTrade, TRADE_FA } from "./market.js";
 import {
   REPLAY_CMD_CAP, createRecorder, recordCmd, validateReplayLog,
@@ -186,6 +187,8 @@ function boot() {
   function paintBadge() {
     const el = $("profileBadgeEl");
     if (el) el.innerHTML = profileBadgeHTML(profile);
+    const chip = $("profileChipBody");
+    if (chip) chip.innerHTML = profileBadgeHTML(profile);
   }
 
   const renderer = createRenderer(canvas);
@@ -1935,7 +1938,9 @@ function boot() {
   }
   const menuRelabelFns = []; // پر کردن‌های سلکت‌های منو که با تغییر زبان دوباره اجرا می‌شوند
   let menuStarted = false; // پس از نخستین شروع، «بازگشت به بازی» فعال می‌شود
+  let menuNavApi = null; // ناوبری چندصفحه‌ای منو (menunav.js) — پس از boot ساخته می‌شود
   function showMenu() {
+    if (menuNavApi) menuNavApi.reset(); // صفحه اول همیشه فقط فهرست دکمه‌هاست
     if (!mpSession) state.paused = true; // بازی پشت منو متوقف می‌ماند
     const ms = $("menuScreen");
     if (ms) ms.hidden = false;
@@ -2008,6 +2013,7 @@ function boot() {
     }
     syncProfileInput();
   })();
+  menuNavApi = bindMenuNav({ onPage: () => {} });
   (function wireMenu() {
     const solo = $("soloBtn"), close = $("menuCloseBtn"), mb = $("menuBtn"), badge = $("profileBadgeEl");
     const diffSel = $("diffSel");
@@ -2697,7 +2703,7 @@ function boot() {
   // نسخه انتشار از تنها منبع (فرایند انتشار را ببین)
   fetch("VERSION").then((r) => r.text()).then((txt) => {
     const v = txt.trim();
-    if (/^\d+\.\d+\.\d+$/.test(v)) $("verEl").textContent = v;
+    if (/^\d+\.\d+\.\d+$/.test(v)) { $("verEl").textContent = v; const mv = $("menuVerEl"); if (mv) mv.textContent = v; }
   }).catch(() => { /* پیش‌نمایش بدون service worker: نسخه نمایشی می‌ماند */ });
   // ماتریس سازگاری (0.58.0 — #۲۷): رندر در کارت راهنما + هشدار اگر required کم است.
   function paintCompat() {

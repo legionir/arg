@@ -24,7 +24,7 @@ The driver starts `server/server.mjs` on port 8099 (`--port N` to change), opens
 
 ## Gotchas
 - Always load through the server (or any static server) — ES modules do not work from `file://`.
-- The game starts behind the menu (`#menuScreen`, paused); use `--solo` to get into a game. Language: `?lang=fa|en` overrides the saved choice (`localStorage scw.lang`).
+- The game starts behind the menu (`#menuScreen`, paused) whose first page is only the list of section buttons (`#navSolo`, `#navMp`, …); use `--solo` to open Single-player and press Start, or `--page solo|mp|profile|settings` to screenshot a sub-page. Language: `?lang=fa|en` overrides the saved choice (`localStorage scw.lang`).
 - One `404` console error is expected: `assets/units/ram.png` does not exist (vector fallback is used). It is not a regression.
 - The test suite needs a browser (6+ tests use `document`/`localStorage`); under plain Node ~8 of 230 fail for that reason only. Use `driver.mjs tests`.
 - `game/*.gen.js` are generated inline assets — don't hand-edit. `server/game-logic.js` must stay a verbatim copy of the `<script type="text/x-server-plugin">` block in `index.html` (lines noted in its header).

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Headless driver for Arg (browser game). Starts server/server.mjs, drives Chromium via Playwright.
-//   node .claude/skills/run-arg/driver.mjs shot  [--lang fa|en] [--solo] [--wait 3000] [--w 1280] [--h 800] [--out file.png]
+//   node .claude/skills/run-arg/driver.mjs shot  [--lang fa|en] [--solo] [--page solo|mp|profile|settings] [--wait 3000] [--w 1280] [--h 800] [--out file.png]
 //   node .claude/skills/run-arg/driver.mjs tests [--lang fa|en]      # in-browser test suite (?test), prints badge text
 // Always prints console/page errors and exits non-zero on page errors.
 import { spawn } from "node:child_process";
@@ -47,7 +47,8 @@ try {
     const m = badge.match(/(\d+)\/(\d+)/);
     if (m && m[1] !== m[2]) code = 1;
   } else {
-    if (opt("solo", false)) { await page.click("#soloBtn"); await page.waitForSelector("#menuScreen", { state: "hidden" }); }
+    if (opt("page", false)) { await page.click(`#menuBox .nav-btn[data-go="${opt("page")}"]`); await page.waitForTimeout(500); }
+    if (opt("solo", false)) { await page.click("#navSolo"); await page.click("#soloBtn"); await page.waitForSelector("#menuScreen", { state: "hidden" }); }
     await page.waitForTimeout(+opt("wait", 1500));
   }
   await page.screenshot({ path: out });
