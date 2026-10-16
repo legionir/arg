@@ -794,9 +794,11 @@ function boot() {
       if (hk !== lastHintKey) {
         lastHintKey = hk;
         const hc = hb && palBtns.find((b) => b.dataset.b === hb);
-        if (hc && hc.scrollIntoView) {
+        const pal = $("buildPal");
+        if (hc && pal) { // فقط خود پالت افقی اسکرول می‌شود (scrollIntoView کل صفحه را در موبایل می‌پراند)
           const calm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-          hc.scrollIntoView({ block: "nearest", inline: "center", behavior: calm ? "auto" : "smooth" });
+          const cr = hc.getBoundingClientRect(), pr = pal.getBoundingClientRect();
+          pal.scrollBy({ left: (cr.left + cr.width / 2) - (pr.left + pr.width / 2), behavior: calm ? "auto" : "smooth" });
         }
       }
     }
@@ -2009,6 +2011,11 @@ function boot() {
     if (!mpSession && !state.defeated && !state.victorious) state.paused = false;
     renderer.resize();
     renderer.fit();
+    // شروع تازه تک‌نفره: دوربین روی قلعه خودت (ساختمان‌ها خوانا)؛ «نمایش کل نقشه» همان fit قبلی است.
+    if (!mpSession && state.tick < 5) {
+      const keep = state.buildings.find((b) => b.type === "keep" && (b.owner == null || b.owner === 0));
+      if (keep) renderer.focus(keep.c + keep.w / 2, keep.r + keep.h / 2, 1.8);
+    }
     menuMsg("");
     refreshPanel();
   }

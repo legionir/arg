@@ -3642,10 +3642,19 @@ function t_render_roundtrip() {
       const back = R.screenToCell(p.x, p.y);
       must(back.c === c && back.r === r, `رفت‌وبرگشت (${c},${r}) شد (${back.c},${back.r})`);
     }
+    // focus: خانه هدف دقیقاً وسط بوم می‌نشیند و زوم در بازه می‌ماند
+    const { W, H } = R.canvasSize();
+    for (const [c, r, m] of [[8, 3, 1.8], [CONFIG.GRID_W - 2, CONFIG.GRID_H - 2, 99], [0, 0, 0.01]]) {
+      R.focus(c, r, m);
+      const p = R.cellToScreen(c, r);
+      must(Math.abs(p.x - W / 2) < 0.5 && Math.abs(p.y - H / 2) < 0.5, `focus (${c},${r}) وسط نیست: ${p.x},${p.y}`);
+      must(R.view.zoom >= 0.3 && R.view.zoom <= 3, `زوم خارج از بازه: ${R.view.zoom}`);
+    }
+    R.fit();
   } finally {
     cv.remove();
   }
-  return { name: "رفت‌وبرگشت مختصات", pass: true, detail: "۵ خانه دقیق" };
+  return { name: "رفت‌وبرگشت مختصات", pass: true, detail: "۵ خانه دقیق + focus" };
 }
 
 function t_render_flat() {

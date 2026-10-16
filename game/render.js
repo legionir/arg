@@ -71,6 +71,17 @@ export function createRenderer(canvas) {
 
   function markDirty() { dirty = true; }
 
+  // مرکز کردن دوربین روی خانه (c,r) با ضریب زوم نسبت به «کل نقشه» (۰٫۳..۳ مثل چرخ موس).
+  function focus(c, r, mul) {
+    const z = Math.min(3, Math.max(0.3, baseZoom() * (mul || 1)));
+    view.zoom = z;
+    const hw = (CONFIG.TILE_W / 2) * z, hh = (CONFIG.TILE_H / 2) * z;
+    const mh = (CONFIG.GRID_W + CONFIG.GRID_H) * (CONFIG.TILE_H / 2) * z;
+    view.panX = -(c - r) * hw;
+    view.panY = H / 2 - (H - mh) / 2 - (c + r) * hh;
+    dirty = true;
+  }
+
   function origin() {
     const mh = (CONFIG.GRID_W + CONFIG.GRID_H) * (CONFIG.TILE_H / 2) * view.zoom;
     return { x: W / 2 + view.panX, y: (H - mh) / 2 + view.panY };
@@ -2188,7 +2199,7 @@ export function createRenderer(canvas) {
   }
 
   return {
-    view, resize, fit, markDirty, draw, cellToScreen, screenToCell,
+    view, resize, fit, focus, markDirty, draw, cellToScreen, screenToCell,
     thumbBuilding, thumbUnit,
     setFlat: (f) => { view.flat = !!f; },
     isFlat: () => view.flat,
