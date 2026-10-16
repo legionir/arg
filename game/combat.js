@@ -1,6 +1,8 @@
 // نبرد پایه (MIL-001) + مسیریابی A* (CORE-001، برش ششم).
 // حرکت: A* چهارجهته قطعی روی گرید؛ لغزش خطی فقط fallback است وقتی
 // هدف هیچ همسایه walkable ندارد یا مسیر ناممکن است. برخورد واحد-واحد نداریم.
+import { t as tr } from "./i18n.js";
+import { lazyTable } from "./lazytext.js";
 import { CONFIG } from "./config.js";
 import { T_GRASS } from "./terrain.js";
 import { underConstruction } from "./construction.js";
@@ -16,47 +18,47 @@ const HZ = 10; // گام منطق بر ثانیه
 // max(1, حمله − زره) در strike. همه armorها guess اند (زره‌پوش‌ها ۳،
 // پیاده متوسط ۱، سبک/دوربرد ۰؛ شمشیرزن دشمن ۱ تا TTK برج سر جایش بماند).
 export const UNITS = {
-  soldier:   { side: "player", name: "سرباز", hp: 60, armor: 1, dmg: 6, cd: 10, range: 1.3, speed: 3.0, aggro: 10,
+  soldier:   { side: "player", get name() { return tr("game.unit.soldier.name"); }, hp: 60, armor: 1, dmg: 6, cd: 10, range: 1.3, speed: 3.0, aggro: 10,
                cost: { food: 40, gold: 25 }, trainTicks: 50, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "swords" }, // پیش‌نیاز: سربازخانه سالم خودی (0.29.0)
   // کماندار خودی (0.11.0): دوربرد جناح بازیکن؛ مکانیک برد/aggro موجود بدون تغییر جواب می‌دهد.
   // اسمش با کماندار دشمن یکی است، ولی هاور رنگ جناح را نشان می‌دهد (ok/bad) + نوار HP سبز/قرمز.
   // (0.14.0): تند (Fast) و ارزان مثل Archer مرجع (۱۲ط + کمان؛ سربار غذا = نگهداری وب).
-  bowman:    { side: "player", name: "کماندار", hp: 40, armor: 0, dmg: 5, cd: 12, range: 5.5, speed: 3.4, aggro: 8,
+  bowman:    { side: "player", get name() { return tr("game.unit.bowman.name"); }, hp: 40, armor: 0, dmg: 5, cd: 12, range: 5.5, speed: 3.4, aggro: 8,
                cost: { food: 20, gold: 15 }, trainTicks: 40, color: "#4d9de0", source: "reference: stronghold-wiki/archer",
                requires: "barracks", requiresWeapon: "bows" }, // پیش‌نیاز: سربازخانه سالم خودی (0.30.0) — مثل سرباز
   // نیزه‌دار (0.35.0): پیاده ارزان با برد نیزه — نگه‌دار خط. همه guess.
-  spearman:   { side: "player", name: "نیزه‌دار", hp: 50, armor: 1, dmg: 4, cd: 10, range: 1.6, speed: 2.8, aggro: 10,
+  spearman:   { side: "player", get name() { return tr("game.unit.spearman.name"); }, hp: 50, armor: 1, dmg: 4, cd: 10, range: 1.6, speed: 2.8, aggro: 10,
                cost: { food: 25, gold: 10 }, trainTicks: 30, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "swords" },
   // گرزدار (0.35.0): سبک و تند با ضربه محکم نزدیک‌برد. همه guess.
-  maceman:    { side: "player", name: "گرزدار", hp: 45, armor: 0, dmg: 7, cd: 9, range: 1.2, speed: 3.6, aggro: 10,
+  maceman:    { side: "player", get name() { return tr("game.unit.maceman.name"); }, hp: 45, armor: 0, dmg: 7, cd: 9, range: 1.2, speed: 3.6, aggro: 10,
                cost: { food: 30, gold: 20 }, trainTicks: 30, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "swords" },
   // شوالیه (0.35.0): زرهی نخبه — تنومند و گران. همه guess.
-  knight:     { side: "player", name: "شوالیه", hp: 100, armor: 3, dmg: 10, cd: 10, range: 1.3, speed: 3.2, aggro: 10,
+  knight:     { side: "player", get name() { return tr("game.unit.knight.name"); }, hp: 100, armor: 3, dmg: 10, cd: 10, range: 1.3, speed: 3.2, aggro: 10,
                cost: { food: 60, gold: 50 }, trainTicks: 80, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "swords" },
   // موج دوم مزدورها (0.36.0) — از فهرست tier کاربر: A/B/S پیاده‌رو؛
   // ماشین‌های محاصره (منجنیق/دژکوب/برج) مکانیک جدا می‌خواهند و فعلاً بیرون‌اند. همه guess.
   // شمشیرزن صلیبی (A): لنگر دفاعی کُند — نگه‌دار خط و محافظ ارباب.
-  crusader:   { side: "player", name: "شمشیرزن صلیبی", hp: 110, armor: 3, dmg: 11, cd: 11, range: 1.3, speed: 2.4, aggro: 10,
+  crusader:   { side: "player", get name() { return tr("game.unit.crusader.name"); }, hp: 110, armor: 3, dmg: 11, cd: 11, range: 1.3, speed: 2.4, aggro: 10,
                cost: { food: 55, gold: 45 }, trainTicks: 80, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "swords" },
   // زوبین‌دار (B): دورزن پرآسیب مراحل پایانی — ریلود کُند (cd بالا).
-  crossbowman:{ side: "player", name: "زوبین‌دار", hp: 45, armor: 1, dmg: 11, cd: 18, range: 6.5, speed: 2.5, aggro: 8,
+  crossbowman:{ side: "player", get name() { return tr("game.unit.crossbowman.name"); }, hp: 45, armor: 1, dmg: 11, cd: 18, range: 6.5, speed: 2.5, aggro: 8,
                cost: { food: 35, gold: 30 }, trainTicks: 70, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "bows" },
   // شمشیرزن عرب (B): خط مقدم تند.
-  arabian:    { side: "player", name: "شمشیرزن عرب", hp: 70, armor: 1, dmg: 8, cd: 9, range: 1.3, speed: 4.0, aggro: 10,
+  arabian:    { side: "player", get name() { return tr("game.unit.arabian.name"); }, hp: 70, armor: 1, dmg: 8, cd: 9, range: 1.3, speed: 4.0, aggro: 10,
                cost: { food: 40, gold: 30 }, trainTicks: 50, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "swords" },
   // قاتل (A): تند و شکننده و کُشنده — پنهان‌کاری در این موتور ساده شده به سرعت+آسیب بالا.
-  assassin:   { side: "player", name: "قاتل", hp: 35, armor: 0, dmg: 13, cd: 8, range: 1.2, speed: 4.6, aggro: 10,
+  assassin:   { side: "player", get name() { return tr("game.unit.assassin.name"); }, hp: 35, armor: 0, dmg: 13, cd: 8, range: 1.2, speed: 4.6, aggro: 10,
                cost: { food: 30, gold: 40 }, trainTicks: 60, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "swords" },
   // کماندار سواره (S): سواره‌نظام تند و گران — ورق‌برگردان جنگ.
-  horseArcher:{ side: "player", name: "کماندار سواره", hp: 60, armor: 1, dmg: 9, cd: 12, range: 5.0, speed: 5.0, aggro: 8,
+  horseArcher:{ side: "player", get name() { return tr("game.unit.horseArcher.name"); }, hp: 60, armor: 1, dmg: 9, cd: 12, range: 5.0, speed: 5.0, aggro: 8,
                cost: { food: 70, gold: 80 }, trainTicks: 100, color: "#4d9de0", source: "guess",
                requires: "barracks", requiresWeapon: "bows" },
   // تجهیزات محاصره (0.46.0 — #۱۷ از FEATURES، شماره ۴ از NEXT-5): ماشین‌های
@@ -64,40 +66,31 @@ export const UNITS = {
   // می‌گیرد (×۳ ضد ساختمان، نصف ضد یگان)؛ منجنیق دوربرد با حداقل برد ۳ و
   // استقرار اجباری (سیار = حرکتِ بی‌شلیک؛ مستقر = سرعت ۰ + شلیک آزاد).
   // همه guess تا استخراج مرجع.
-  ram:      { side: "player", name: "دژکوب", hp: 150, armor: 2, dmg: 8, cd: 15, range: 1.2, speed: 1.0, aggro: 10,
+  ram:      { side: "player", get name() { return tr("game.unit.ram.name"); }, hp: 150, armor: 2, dmg: 8, cd: 15, range: 1.2, speed: 1.0, aggro: 10,
                cost: { food: 40, gold: 40 }, trainTicks: 120, color: "#8d7a5c", source: "guess",
                requires: "barracks", siege: true, bonusVsBld: 3, halfVsUnit: true },
-  catapult: { side: "player", name: "منجنیق", hp: 120, armor: 1, dmg: 5, cd: 40, range: 10, minRange: 3, speed: 1.0, aggro: 10,
+  catapult: { side: "player", get name() { return tr("game.unit.catapult.name"); }, hp: 120, armor: 1, dmg: 5, cd: 40, range: 10, minRange: 3, speed: 1.0, aggro: 10,
                cost: { food: 60, gold: 100 }, trainTicks: 150, color: "#7a5c3e", source: "guess",
                requires: "barracks", siege: true, bonusVsBld: 2, needsDeploy: true },
  // (0.14.0): تانک زرهی Very slow با HP بالا و آسیب High مثل Swordsman مرجع
   // (۴۰ط + شمشیر + زره؛ موج دشمن هزینه ندارد؛ cost فقط استخدام AI است در 0.42.0).
-  swordsman: { side: "enemy", name: "شمشیرزن", hp: 60, armor: 1, dmg: 7, cd: 10, range: 1.3, speed: 2.2, aggro: 99,
+  swordsman: { side: "enemy", get name() { return tr("game.unit.swordsman.name"); }, hp: 60, armor: 1, dmg: 7, cd: 10, range: 1.3, speed: 2.2, aggro: 99,
                cost: { food: 40, gold: 25 }, // فقط استخدام AI (0.42.0) — موج رایگان است
                color: "#e05c4d", source: "reference: stronghold-wiki/swordsman" },
   // (0.14.0): تند (Fast) و شکننده (Low) مثل Archer مرجع.
-  archer:    { side: "enemy", name: "کماندار", hp: 30, armor: 0, dmg: 4, cd: 15, range: 6.0, speed: 3.4, aggro: 99,
+  archer:    { side: "enemy", get name() { return tr("game.unit.archer.name"); }, hp: 30, armor: 0, dmg: 4, cd: 15, range: 6.0, speed: 3.4, aggro: 99,
                cost: { food: 20, gold: 15 }, // فقط استخدام AI (0.42.0) — موج رایگان است
                color: "#e09a4d", source: "reference: stronghold-wiki/archer" },
   // ارباب (0.22.0): یکتای جناح بازیکن — کنار ستاد می‌زید، مرگش = شکست.
   // تنومند ولی نه شکست‌ناپذیر (شمشیرزن‌وارِ تقویت‌شده)؛ استخدام ندارد (spawnLord).
-  lord:      { side: "player", name: "ارباب", hp: 150, armor: 2, dmg: 8, cd: 10, range: 1.3, speed: 2.6, aggro: 10,
+  lord:      { side: "player", get name() { return tr("game.unit.lord.name"); }, hp: 150, armor: 2, dmg: 8, cd: 10, range: 1.3, speed: 2.6, aggro: 10,
                noHire: true, color: "#f0c75e", source: "guess" },
 };
 
 // آخرین موج (0.22.0): نابودی همه دشمنان موج FINAL_WAVE به بعد = پیروزی.
 export const FINAL_WAVE = 5;
 
-export const HIRE_FA = {
-  OK: "معتبر",
-  OUT_OF_BOUNDS: "خارج از نقشه",
-  TERRAIN: "زمین نامناسب (آب/سنگ)",
-  OCCUPIED: "اشغال‌شده",
-  NO_BARRACKS: "اول سربازخانه بساز",
-  NEEDS_WEAPON: "نیاز به سلاح — زرادخانه/کمان‌سازی بساز",
-  INSUFFICIENT: "منابع ناکافی",
-  QUEUE_FULL: "صف آموزش پر است", // (0.65.0 — صف آموزش: سقف CONFIG.TRAIN.queueCap)
-};
+export const HIRE_FA = lazyTable("game.hire", ["OK", "OUT_OF_BOUNDS", "TERRAIN", "OCCUPIED", "NO_BARRACKS", "NEEDS_WEAPON", "INSUFFICIENT", "QUEUE_FULL"]);
 
 // پیش‌نیاز استخدام (0.29.0): ساختمانِ requires سالمِ همان مالک.
 // در سولو همه ساختمان‌ها خودی‌اند (owner ۰)؛ در MP فقط خودی شمرده می‌شود.
@@ -209,7 +202,7 @@ export function spawnWave(state, terrain, W, H) {
     const [x, r] = edge[(i * 7 + state.wave * 3) % edge.length];
     spawnUnit(state, i % 3 === 2 ? "archer" : "swordsman", x, r);
   }
-  pushEvent(state, `موج ${state.wave}: ${n} دشمن نزدیک می‌شود!`);
+  pushEvent(state, tr("game.ev.wave", { wave: state.wave, n: n }));
   return n;
 }
 
@@ -246,11 +239,7 @@ export function spawnLord(state, terrain, W, H, owner) {
   return { ok: false, reason: "TERRAIN" };
 }
 
-export const ORDER_FA = {
-  OK: "معتبر",
-  OUT_OF_BOUNDS: "خارج از نقشه",
-  NO_PATH: "مسیری نیست",
-};
+export const ORDER_FA = lazyTable("game.order", ["OK", "OUT_OF_BOUNDS", "NO_PATH"]);
 
 const ARRIVE_DIST = 0.4; // رسیدن به مرکز خانه هدف
 const ORDER_RETRIES = 1; // یک تلاش جایگزین، بعد ثبت شکست
@@ -260,9 +249,9 @@ const ORDER_RETRIES = 1; // یک تلاش جایگزین، بعد ثبت شکس�
 // فقط با مزاحمِ در شعاع پاسگاه، وگرنه بازگشت به خانه). دستورهای صریح در هر
 // سه موضع اجرا می‌شوند.
 export const STANCES = { ENGAGE: "engage", HOLD: "hold", GUARD: "guard" };
-export const STANCE_FA = { engage: "تهاجمی", hold: "دفاعی", guard: "نگهبانی" };
+export const STANCE_FA = lazyTable("game.stance", ["engage", "hold", "guard"]);
 export const ORDER_KINDS = ["move", "attackmove", "retreat"];
-export const ORDER_KIND_FA = { move: "حرکت", attackmove: "حمله‌در‌حرکت", retreat: "عقب‌نشینی" };
+export const ORDER_KIND_FA = lazyTable("game.orderKind", ["move", "attackmove", "retreat"]);
 // عقب‌نشینی: دور شدن از نزدیک‌ترین دشمن تا ۱۲ خانه یا ۶۰ تیک؛ با ضریب سرعت
 // فرار ۱٫۲۵ (سپر انداخته، سریع‌تر از تعقیب‌کننده پیاده). همه guess تا مرجع.
 const RETREAT_SIGHT = 12, RETREAT_TICKS = 60, RETREAT_MULT = 1.25;
@@ -310,7 +299,7 @@ export function setGuard(state, unit, building) {
   unit.targetKind = null;
   unit.targetId = null;
   unit.path = null;
-  pushEvent(state, `یگان ${unit.id} به نگهبانی ${CONFIG.BUILDINGS[post.type].name} گماشته شد`);
+  pushEvent(state, tr("game.ev.guard", { id: unit.id, building: CONFIG.BUILDINGS[post.type].name }));
   return { ok: true, reason: "OK" };
 }
 
@@ -321,15 +310,7 @@ export function setGuard(state, unit, building) {
 // عقب‌نشینی او را نادیده می‌گیرند) ولی با ویرانی/تخریب برج بیرون می‌پرد
 // (hp حفظ، موضع engage). این تصمیم در qa-plan ثبت شده (C-MIL-9).
 export const GARRISON_CAP = 4;
-export const GARRISON_FA = {
-  OK: "معتبر",
-  INVALID: "نامعتبر",
-  NOT_OWNED: "مال خودت نیست",
-  NOT_TOWER: "فقط برج گاریسون می‌گیرد",
-  NOT_RANGED: "فقط دوربرد (کماندار/زوبین‌دار/سواره)",
-  UNDER_CONSTRUCTION: "برج نیمه‌کاره است",
-  FULL: "گاریسون پر است (۴ نفر)",
-};
+export const GARRISON_FA = lazyTable("game.garrison", ["OK", "INVALID", "NOT_OWNED", "NOT_TOWER", "NOT_RANGED", "UNDER_CONSTRUCTION", "FULL"]);
 // دوربرد خودیِ قابل‌استقرار: جناح بازیکن، استخدام‌شونده، برد بالای ۲
 // (کماندار ۵٫۵، زوبین‌دار ۶٫۵، کماندار سواره ۵٫۰؛ ارباب و پیاده و ماشین
 // محاصره بیرون — منجنیق با برد ۱۰ ولی siege است).
@@ -366,7 +347,7 @@ export function garrisonUnit(state, unit, building) {
   unit.targetId = null;
   unit.path = null;
   post.garrison.push(unit.id);
-  pushEvent(state, `یگان ${unit.id} در برج مستقر شد (${post.garrison.length}/${GARRISON_CAP})`);
+  pushEvent(state, tr("game.ev.garrison", { id: unit.id, cur: post.garrison.length, cap: GARRISON_CAP }));
   return { ok: true, reason: "OK" };
 }
 
@@ -405,18 +386,14 @@ function releaseGarrison(state, b) {
     u.path = null;
     n++;
   }
-  if (n > 0) pushEvent(state, `مدافعان برج آزاد شدند (${n} نفر)`);
+  if (n > 0) pushEvent(state, tr("game.ev.garrisonFree", { count: n }));
   return n;
 }
 
 // استقرار منجنیق (0.46.0 — #۱۷): جمع/باز کردن — مستقر = سرعت ۰ + شلیک
 // آزاد، سیار = حرکتِ بی‌شلیک. دستور صریح (حرکت/عقب‌نشینی/نگهبانی/زنگ)
 // خودکار جمع می‌کند (الگوی خروج گاریسون 0.45.0).
-export const DEPLOY_FA = {
-  OK: "معتبر",
-  INVALID: "نامعتبر",
-  NOT_SIEGE: "قابل استقرار نیست (فقط منجنیق)",
-};
+export const DEPLOY_FA = lazyTable("game.deploy", ["OK", "INVALID", "NOT_SIEGE"]);
 
 export function deployUnit(state, unit) {
   if (!unit || unit.dead) return { ok: false, reason: "INVALID" };
@@ -428,7 +405,7 @@ export function deployUnit(state, unit) {
   unit.targetKind = null;
   unit.targetId = null;
   unit.path = null;
-  pushEvent(state, `منجنیق ${unit.deployed ? "مستقر" : "جمع"} شد`);
+  pushEvent(state, tr(unit.deployed ? "game.ev.deployOn" : "game.ev.deployOff"));
   return { ok: true, reason: "OK", deployed: unit.deployed };
 }
 
@@ -492,7 +469,7 @@ function failOrder(state, u, reason) {
   u.order = null;
   u.mission = "failed";
   u.path = null;
-  pushEvent(state, `مأموریت واحد ${u.id} شکست خورد (${ORDER_FA[reason] || reason})`);
+  pushEvent(state, tr("game.ev.orderFail", { id: u.id, reason: ORDER_FA[reason] || reason }));
 }
 
 // --- دروازه (0.10.0): گذرگاه خودی، سد دشمن ---
@@ -526,7 +503,7 @@ export function toggleGate(state, b) {
   for (const u of state.units) {
     if (u.side === "player" && !u.dead && (u.owner == null ? 0 : u.owner) === ow) u.path = null;
   }
-  pushEvent(state, `دروازه ${b.open ? "باز" : "بسته"} شد`);
+  pushEvent(state, tr(b.open ? "game.ev.gateOpen" : "game.ev.gateClosed"));
   return { ok: true, open: b.open };
 }
 
@@ -776,9 +753,9 @@ function strike(state, dmg, t) {
       if (t.u.type === "lord" && t.u.side === "player" && !mp && !state.defeated) {
         state.defeated = true;
         state.paused = true;
-        pushEvent(state, "ارباب کشته شد! شکست خوردی.");
+        pushEvent(state, tr("game.ev.lordDead"));
       } else if (mp && t.u.type === "lord") {
-        pushEvent(state, `ارباب بازیکن ${((t.u.owner == null ? 0 : t.u.owner) + 1)} کشته شد!`);
+        pushEvent(state, tr("game.ev.lordDeadMp", { p: ((t.u.owner == null ? 0 : t.u.owner) + 1) }));
       }
     }
     return;
@@ -799,16 +776,16 @@ function destroyBuilding(state, b) {
     for (let i = 0; i < b.w; i++) state.occ[(b.r + j) * W + (b.c + i)] = 0;
   }
   releaseGarrison(state, b); // مدافعان بیرون می‌پرند (0.45.0)
-  pushEvent(state, `${CONFIG.BUILDINGS[b.type].name} ویران شد!`);
+  pushEvent(state, tr("game.ev.destroyed", { building: CONFIG.BUILDINGS[b.type].name }));
   // سقوط ستاد = شکست (0.19.0): بازی متوقف می‌شود (بنر + شروع دوباره در main.js).
   // فقط ستاد خودی (0.42.0: ستاد AI شکست بازیکن نیست — خاموشی AI در ai.js است).
   // در MP حذف بازیکن در updateMpAlive است.
   if (b.type === "keep" && !mp && !state.defeated && (b.owner == null ? 0 : b.owner) === 0) {
     state.defeated = true;
     state.paused = true;
-    pushEvent(state, "ستاد سقوط کرد! شکست خوردی.");
+    pushEvent(state, tr("game.ev.keepFell"));
   } else if (mp && b.type === "keep") {
-    pushEvent(state, `ستاد بازیکن ${((b.owner == null ? 0 : b.owner) + 1)} سقوط کرد!`);
+    pushEvent(state, tr("game.ev.keepFellMp", { p: ((b.owner == null ? 0 : b.owner) + 1) }));
   }
 }
 
@@ -818,11 +795,7 @@ function destroyBuilding(state, b) {
 // (destroyBuilding) غرامت نمی‌دهد — فقط تخریب دستی.
 // پاسگاه‌های نگهبانیِ آن خودکار می‌افتند (guardPost ویران‌شده را null می‌کند)
 // و هدف‌گیری‌ها آن را نادیده می‌گیرند.
-export const DEMOLISH_FA = {
-  INVALID: "نامعتبر",
-  NOT_OWNED: "مال خودت نیست",
-  KEEP: "ستاد را نمی‌شود تخریب کرد",
-};
+export const DEMOLISH_FA = lazyTable("game.demolish", ["INVALID", "NOT_OWNED", "KEEP"]);
 
 // غرامت تخریب (ب-۱، خالص و تست‌پذیر): یک‌سوم هزینه ساخت هر منبع، کف.
 // هزینه ۲ (دیوار) → صفر؛ کلبه (۱۰چ) → ۳چ؛ برج (۲۰چ+۱۰ط+۱۰سنگ) → ۶چ+۳ط+۳سنگ.
@@ -868,7 +841,7 @@ export function demolishBuilding(state, b, owner) {
       for (const k of rkeys) res[k] = Math.min(capFor(state, k, ow), (res[k] || 0) + ref[k]);
     }
   }
-  pushEvent(state, `${CONFIG.BUILDINGS[b.type].name} تخریب شد.`);
+  pushEvent(state, tr("game.ev.demolished", { building: CONFIG.BUILDINGS[b.type].name }));
   return { ok: true, reason: "OK" };
 }
 
@@ -1013,7 +986,7 @@ function guardStep(state, terrain, W, H, u, def) {
   if (!post) {
     u.stance = STANCES.ENGAGE;
     u.guardBld = null;
-    pushEvent(state, `پاسگاه یگان ${u.id} از دست رفت — به حالت تهاجمی برگشت`);
+    pushEvent(state, tr("game.ev.guardLost", { id: u.id }));
     const t = resolveTarget(state, u);
     if (t) fightTarget(state, terrain, W, H, u, def, t);
     return;
@@ -1170,7 +1143,7 @@ export function stepCombat(state, terrain) {
       !state.units.some((u) => u.side === "enemy" && !u.dead)) {
     state.victorious = true;
     state.paused = true;
-    pushEvent(state, `آخرین موج در هم شکست! پیروزی از آن توست.`);
+    pushEvent(state, tr("game.ev.lastWave"));
   }
   for (const u of state.units) {
     if (u.targetKind === "unit" && !findUnit(state, u.targetId)) {

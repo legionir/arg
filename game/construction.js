@@ -1,5 +1,7 @@
 // اعتبارسنجی محل ساخت (CONST-001).
 // اولویت دلیل: خارج نقشه > زمین نامناسب > اشغال‌شده > اتصال/فاصله/یکتایی > منابع ناکافی.
+import { t } from "./i18n.js";
+import { lazyTable } from "./lazytext.js";
 import { CONFIG } from "./config.js";
 import { occupyFootprint } from "./state.js";
 import { T_GRASS } from "./terrain.js";
@@ -15,15 +17,7 @@ export const REASONS = {
   INSUFFICIENT: "INSUFFICIENT",
 };
 
-export const REASON_FA = {  OK: "معتبر",
-  OUT_OF_BOUNDS: "خارج از نقشه",
-  TERRAIN: "زمین نامناسب (آب/سنگ)",
-  OCCUPIED: "اشغال‌شده",
-  ANCHOR: "دیوار باید به ساختمان یا دیوار بچسبد (۴جهته)",
-  SPACING: "فاصله ناکافی از ساختمان هم‌نوع",
-  UNIQUE: "ساختمان یکتا — فقط یک نمونه",
-  INSUFFICIENT: "منابع ناکافی",
-};
+export const REASON_FA = lazyTable("game.reason", ["OK", "OUT_OF_BOUNDS", "TERRAIN", "OCCUPIED", "ANCHOR", "SPACING", "UNIQUE", "INSUFFICIENT"]);
 
 export function affordable(resources, cost) {  cost = cost || {};
   for (const k of Object.keys(cost)) {
