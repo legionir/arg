@@ -35,7 +35,7 @@ import {
   validatePlayable, namedMapByKey, mapNameFor, saveCustomSlot, loadCustomSlot,
 } from "./mapedit.js";
 import { iconSrc } from "./sprites.js";
-import { initI18n, t, onLangChange } from "./i18n.js";
+import { initI18n, t, onLangChange, getLang, hasKey } from "./i18n.js";
 import { validateConfig } from "./schema.js";
 import {
   A11Y_PALETTES, A11Y_SCALES, KEY_ACTIONS, KEY_ACTION_FA, DEFAULT_KEYS,
@@ -70,6 +70,7 @@ function boot() {
   const ratBtns = Array.from(document.querySelectorAll("[data-rat]"));
   // لایه آنلاین (0.23.0): افزودنی — قطعی‌اش تک‌نفره را لمس نمی‌کند.
   // نام از پروفایل منو می‌آید (0.27.0).
+  function setTick(n) { tickEl.textContent = t("main.tick", { n }); }
   const online = initOnline({
     card: $("onlineCard"), count: $("onlineCount"), hall: $("hallEl"),
     nameInput: $("profileNameInput"), toast: $("onlineToast"),
@@ -87,7 +88,7 @@ function boot() {
       for (const err of schemaErrors) console.error("[schema] " + err);
       testBadge.hidden = false;
       testBadge.className = "fail";
-      testBadge.textContent = `اسکیما: ${faNum(schemaErrors.length)} خطا (کنسول)`;
+      testBadge.textContent = t("main.schema.errors", { n: faNum(schemaErrors.length) });
     }
   }
 
@@ -177,7 +178,7 @@ function boot() {
     return true;
   }
   function warName() {
-    return profile.name || "بی‌نام";
+    return profile.name || t("main.name.anon");
   }
   function warLogo() {
     return profile.logo | 0;
@@ -199,64 +200,67 @@ function boot() {
   // پالت ساختمان/مزدور (0.23.2): کارت‌واره — تصویر + آیکون هزینه از داده‌ها.
   const FA_D = "۰۱۲۳۴۵۶۷۸۹";
   function faNum(n) {
+    if (getLang() !== "fa") return String(n);
     return String(n).replace(/\./g, "٫").replace(/\d/g, (d) => FA_D[d]);
   }
   function escName(s) {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
       .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
+  const okB = (s) => `<b class="ok">${s}</b>`;
+  const badB = (s) => `<b class="bad">${s}</b>`;
   function resName(key) {
     const r = CONFIG.RESOURCES.find((x) => x.key === key);
     return r ? r.name : key;
   }
   function costHTML(cost) {
     const ks = Object.keys(cost || {});
-    if (!ks.length) return `<span class="free">رایگان</span>`;
+    if (!ks.length) return `<span class="free">${t("main.cost.free")}</span>`;
     return ks.map((k) =>
       `<span><img src="${iconSrc(k)}" alt="${resName(k)}">${faNum(cost[k])}</span>`).join("");
   }
   function buildingMeta(key, def) {
     const parts = [];
     const rate = RATES[key];
-    if (rate && rate.workers) parts.push(`${faNum(rate.workers)} کارگر`);
-    if (def.buildTime > 0) parts.push(`ساخت ${faNum(Math.ceil(def.buildTime / 10))}ث`);
+    if (rate && rate.workers) parts.push(t("main.meta.workers", { n: rate.workers, num: faNum(rate.workers) }));
+    if (def.buildTime > 0) parts.push(t("main.meta.build", { n: faNum(Math.ceil(def.buildTime / 10)) }));
     if (rate && rate.produces && !rate.consumes) {
-      parts.push(`${resName(rate.produces)} ${faNum(Math.round((rate.amount * 600) / rate.everyTicks))}/دقیقه`);
+      parts.push(t("main.meta.perMin", { res: resName(rate.produces), n: faNum(Math.round((rate.amount * 600) / rate.everyTicks)) }));
     }
     if (rate && rate.consumes) {
       const ck = Object.keys(rate.consumes)[0];
-      parts.push(`${faNum(rate.consumes[ck])}${resName(ck)}←${faNum(rate.amount)}${resName(rate.produces)}`);
+      parts.push(t("main.meta.convert", { a: faNum(rate.consumes[ck]), r1: resName(ck), b: faNum(rate.amount), r2: resName(rate.produces) }));
     }
-    if (key === "hut") parts.push(`+${faNum(HUT_HOUSING)} مسکن`);
-    if (def.weapon) parts.push(`برد ${faNum(def.weapon.range)}`);
-    if (key === "tower") parts.push(`گاریسون ${faNum(GARRISON_CAP)} مدافع دوربرد`);
-    if (def.rules && def.rules.spacingFromSame) parts.push("فاصله از هم‌نوع");
-    if (def.rules && def.rules.anchorToAny) parts.push("بچسبد به بنا");
-    if (key === "gate") parts.push("باز/بسته با کلیک");
-    if (key === "inn") parts.push(`${faNum(1)}آبجو/${faNum(INN.beerEveryTicks)}تیک ← +${faNum(INN.popBonus)} محبوبیت`);
-    if (key === "barracks") { parts.push("پیش‌نیاز مزدورها"); parts.push("فقط یکی"); }
-    if (key === "market") { parts.push("خرید و فروش منابع"); parts.push("کلیک = پنل معامله"); }
-    if (key === "stockpile") parts.push("+۵۰۰ سقف چوب/سنگ/طلا");
-    if (key === "granary") parts.push("+۵۰۰ سقف غذا/گندم/آرد/رازک/آبجو");
+    if (key === "hut") parts.push(t("main.meta.housing", { n: faNum(HUT_HOUSING) }));
+    if (def.weapon) parts.push(t("main.meta.range", { n: faNum(def.weapon.range) }));
+    if (key === "tower") parts.push(t("main.meta.towerGarrison", { n: faNum(GARRISON_CAP) }));
+    if (def.rules && def.rules.spacingFromSame) parts.push(t("main.meta.spacing"));
+    if (def.rules && def.rules.anchorToAny) parts.push(t("main.meta.anchor"));
+    if (key === "gate") parts.push(t("main.meta.gate"));
+    if (key === "inn") parts.push(t("main.meta.inn", { one: faNum(1), ticks: faNum(INN.beerEveryTicks), pop: faNum(INN.popBonus) }));
+    if (key === "barracks") { parts.push(t("main.meta.barracksReq")); parts.push(t("main.meta.onlyOne")); }
+    if (key === "market") { parts.push(t("main.meta.marketTrade")); parts.push(t("main.meta.marketClick")); }
+    if (key === "stockpile") parts.push(t("main.meta.stockpile"));
+    if (key === "granary") parts.push(t("main.meta.granary"));
     return parts.join(" • ");
   }
   // برچسب منبع اعداد (0.41.0 — #۵ از FEATURES): مرجع استخراج‌شده یا حدس وب.
   function srcTag(def) {
     const s = (def && def.source) || "guess";
-    return s.startsWith("reference:") ? "مرجع" : "حدس";
+    return s.startsWith("reference:") ? t("main.src.ref") : t("main.src.guess");
   }
   function unitMeta(def) {
-    const parts = [`جان ${faNum(def.hp)}`];
-    parts.push(def.range > 2 ? `برد ${faNum(def.range)}` : `آسیب ${faNum(def.dmg)}`);
-    parts.push(`زره ${faNum(def.armor || 0)}`);
+    const parts = [t("main.meta.hp", { n: faNum(def.hp) })];
+    parts.push(def.range > 2 ? t("main.meta.range", { n: faNum(def.range) }) : t("main.meta.damage", { n: faNum(def.dmg) }));
+    parts.push(t("main.meta.armor", { n: faNum(def.armor || 0) }));
     parts.push(srcTag(def));
-    if (def.requiresWeapon === "swords") parts.push("+۱ شمشیر");
-    else if (def.requiresWeapon === "bows") parts.push("+۱ کمان");
-    if (def.trainTicks) parts.push(`آموزش ${faNum(Math.ceil(def.trainTicks / 10))} ثانیه`); // (0.65.0 — صف آموزش)
-    if (def.siege) parts.push(`×${faNum(def.bonusVsBld || 1)} ضد ساختمان`);
-    if (def.needsDeploy) parts.push("نیاز به استقرار");
-    if (def.minRange) parts.push(`حداقل برد ${faNum(def.minRange)}`);
-    if (def.requires === "barracks") parts.push("نیاز به سربازخانه");
+    if (def.requiresWeapon === "swords") parts.push(t("main.meta.sword"));
+    else if (def.requiresWeapon === "bows") parts.push(t("main.meta.bow"));
+    if (def.trainTicks) parts.push(t("main.meta.train", { n: faNum(Math.ceil(def.trainTicks / 10)) })); // (0.65.0 — صف آموزش)
+    if (def.siege) parts.push(t("main.meta.siege", { n: faNum(def.bonusVsBld || 1) }));
+    if (def.needsDeploy) parts.push(t("main.meta.needsDeploy"));
+    if (def.minRange) parts.push(t("main.meta.minRange", { n: faNum(def.minRange) }));
+    if (def.requires === "barracks") parts.push(t("main.meta.needsBarracks"));
     return parts.join(" • ");
   }
   const PALETTE = ["hut", "tower", "barracks", "market", "stockpile", "granary", "woodcutter", "quarry", "ironmine", "farm", "wheatfarm",
@@ -269,6 +273,29 @@ function boot() {
       renderer.thumbUnit(btn.dataset.u, btn.querySelector("canvas"));
     }
   }
+  function buildingInfoHTML(key, def) {
+    return `<span class="bname">${def.name} <i>${faNum(def.w)}×${faNum(def.h)}</i></span>` +
+      `<span class="bmeta">${buildingMeta(key, def)}</span>` +
+      `<span class="bcost">${costHTML(def.cost)}</span>`;
+  }
+  function unitInfoHTML(def) {
+    return `<span class="bname">${def.name}</span>` +
+      `<span class="bmeta">${unitMeta(def)}</span>` +
+      `<span class="bcost">${costHTML(def.cost)}</span>`;
+  }
+  // تغییر زبان: فقط متن کارت‌ها عوض می‌شود (گره‌ها و بوم‌ها می‌مانند).
+  function relabelPalette() {
+    for (const btn of document.querySelectorAll("#buildPal [data-b]")) {
+      const def = CONFIG.BUILDINGS[btn.dataset.b];
+      const info = btn.querySelector(".binfo");
+      if (def && info) info.innerHTML = buildingInfoHTML(btn.dataset.b, def);
+    }
+    for (const btn of document.querySelectorAll("#unitPal [data-u]")) {
+      const def = UNITS[btn.dataset.u];
+      const info = btn.querySelector(".binfo");
+      if (def && info) info.innerHTML = unitInfoHTML(def);
+    }
+  }
   function buildPalette() {
     const bp = $("buildPal"), up = $("unitPal");
     if (!bp || !up) return;
@@ -279,9 +306,7 @@ function boot() {
       const btn = document.createElement("button");
       btn.className = "bcard"; btn.dataset.b = key;
       btn.innerHTML = `<canvas class="bthumb" width="128" height="112"></canvas>` +
-        `<span class="binfo"><span class="bname">${def.name} <i>${faNum(def.w)}×${faNum(def.h)}</i></span>` +
-        `<span class="bmeta">${buildingMeta(key, def)}</span>` +
-        `<span class="bcost">${costHTML(def.cost)}</span></span>`;
+        `<span class="binfo">${buildingInfoHTML(key, def)}</span>`;
       bp.appendChild(btn);
     }
     for (const [key, def] of Object.entries(UNITS)) {
@@ -289,9 +314,7 @@ function boot() {
       const btn = document.createElement("button");
       btn.className = "bcard"; btn.dataset.u = key;
       btn.innerHTML = `<canvas class="bthumb" width="96" height="84"></canvas>` +
-        `<span class="binfo"><span class="bname">${def.name}</span>` +
-        `<span class="bmeta">${unitMeta(def)}</span>` +
-        `<span class="bcost">${costHTML(def.cost)}</span></span>`;
+        `<span class="binfo">${unitInfoHTML(def)}</span>`;
       up.appendChild(btn);
     }
     paintThumbs();
@@ -313,9 +336,9 @@ function boot() {
       const have = (ec.resources[k] || 0);
       const qb = tradeQuote(state, k, "buy", slot), qs = tradeQuote(state, k, "sell", slot);
       html += `<div class="mrow"><span class="mname">${resName(k)} <b>${faNum(have)}</b></span>` +
-        `<span class="mrate">خرید ${faNum(rate.buy)}ط • فروش ${faNum(rate.sell)}ط</span>` +
-        `<button data-trade="buy:${k}"${qb.ok ? "" : ` disabled title="${TRADE_FA[qb.reason] || qb.reason}"`}>${qb.ok ? `خرید ${faNum(qb.n)}` : "خرید"}</button>` +
-        `<button data-trade="sell:${k}"${qs.ok ? "" : ` disabled title="${TRADE_FA[qs.reason] || qs.reason}"`}>${qs.ok ? `فروش ${faNum(qs.n)}` : "فروش"}</button></div>`;
+        `<span class="mrate">${t("main.market.rate", { buy: faNum(rate.buy), sell: faNum(rate.sell) })}</span>` +
+        `<button data-trade="buy:${k}"${qb.ok ? "" : ` disabled title="${TRADE_FA[qb.reason] || qb.reason}"`}>${qb.ok ? t("main.market.buyN", { n: faNum(qb.n) }) : t("main.market.buy")}</button>` +
+        `<button data-trade="sell:${k}"${qs.ok ? "" : ` disabled title="${TRADE_FA[qs.reason] || qs.reason}"`}>${qs.ok ? t("main.market.sellN", { n: faNum(qs.n) }) : t("main.market.sell")}</button></div>`;
     }
     rows.innerHTML = html;
   }
@@ -327,14 +350,14 @@ function boot() {
     const b = state.buildings.find((x) => x.id === mercsFor);
     const q = b && !b.destroyed && Array.isArray(b.train) ? b.train : [];
     const cap = CONFIG.TRAIN.queueCap;
-    let html = `<div class="lbl">صف آموزش (${faNum(q.length)}/${faNum(cap)})</div>`;
+    let html = `<div class="lbl">${t("main.train.queue", { n: faNum(q.length), cap: faNum(cap) })}</div>`;
     q.forEach((e, i) => {
       const def = UNITS[e.type];
       const pct = Math.max(0, Math.min(100, Math.round(((e.total - e.left) / e.total) * 100)));
-      html += `<div class="trow"><span>${def ? escName(def.name) : e.type} <b>${faNum(pct)}٪</b></span>` +
-        `<button data-tcancel="${i}" title="لغو با بازپرداخت کامل">✕</button></div>`;
+      html += `<div class="trow"><span>${def ? escName(def.name) : e.type} <b>${t("main.pct", { n: faNum(pct) })}</b></span>` +
+        `<button data-tcancel="${i}" title="${t("main.train.cancelTip")}">✕</button></div>`;
     });
-    if (!q.length) html += `<div class="lbl">خالی — روی نقشه کلیک کن تا سفارش بدهی</div>`;
+    if (!q.length) html += `<div class="lbl">${t("main.train.empty")}</div>`;
     box.innerHTML = html;
   }
   const unitBtns = Array.from(document.querySelectorAll("[data-u]"));
@@ -393,7 +416,7 @@ function boot() {
     onTick: (n) => {
       if (mpSession) {
         for (let i = 0; i < n; i++) { state.tick++; mpDrain(); stepEconomy(state); stepTraining(state, terrain); stepCombat(state, terrain); updateMpAlive(state); }
-        tickEl.textContent = "تیک " + state.tick;
+        setTick(state.tick);
         if (state.tick % 100 === 0 && state.tick > 0) {
           try { lobby.send("hash", { h: stateHash(state), tick: state.tick }); } catch (e) {}
           checkMpEnd();
@@ -411,7 +434,7 @@ function boot() {
         }
       }
       stepSim(state, terrain, n, cmdQueue, { aiPaused: !$("menuScreen").hidden }); // گام یکپارچه + تخلیه صف فرمان (0.37.0؛ گیت AI پشت منو 0.68.0)
-      tickEl.textContent = "تیک " + state.tick;
+      setTick(state.tick);
       refreshPanel();
       if (replayWatch) {
         paintReplayBar();
@@ -430,8 +453,8 @@ function boot() {
         const tickNow = state.tick;
         saveSlot(SLOTS.auto, serializeJSON(state)).then((r) => {
           saveStatus.textContent = r.ok
-            ? `خودکار: تیک ${tickNow} (${r.bytes} بایت)`
-            : `خطای ذخیره خودکار: ${SAVE_FA[r.error] || r.error}`;
+            ? t("main.save.auto", { tick: tickNow, bytes: r.bytes })
+            : t("main.save.autoErr", { err: SAVE_FA[r.error] || r.error });
         });
       }
     },
@@ -557,7 +580,7 @@ function boot() {
     } else if (kind === "alarm") {
       if (!Number.isInteger(a.c) || !Number.isInteger(a.r)) return;
       const rs = alarmAll(state, a.c, a.r, slot);
-      if (rs.some((r) => r.ok)) state.events.push(`یورش بازیکن ${slot + 1}!`);
+      if (rs.some((r) => r.ok)) state.events.push(t("main.mp.raid", { n: slot + 1 }));
     }
   }
 
@@ -619,8 +642,8 @@ function boot() {
     pendingKind = null;
     selectedKey = null;
     selectedUnit = null;
-    tickEl.textContent = "تیک 0";
-    state.events.push(`نبرد ${sorted.length} نفره آغاز شد — ستاد و اربابت را نگه دار! (سید نقشه: ${s})`);
+    setTick(0);
+    state.events.push(t("main.mp.battleStart", { n: sorted.length, seed: s }));
     paintSeed();
     refreshPanel();
   }
@@ -639,13 +662,13 @@ function boot() {
         newGame();
         showMenu();
       },
-      onError: (msg) => { mpStatus(msg || "خطا"); },
+      onError: (msg) => { mpStatus(msg || t("main.err.generic")); },
       paint: () => paintMp(lobby),
       onStart: (room, seed) => {
         const myRoom = { code: room.code, slot: lobby.mySlot, players: room.players, max: room.max };
         startMpGame(myRoom, seed);
         hideMenu();
-        mpStatus(`شروع شد! تو بازیکن ${lobby.mySlot + 1} هستی. (سید نقشه: ${(seed >>> 0) || CONFIG.MAP_SEED})`);
+        mpStatus(t("main.mp.started", { n: lobby.mySlot + 1, seed: (seed >>> 0) || CONFIG.MAP_SEED }));
       },
       onInput: (m) => {
         if (!mpSession) return;
@@ -657,7 +680,7 @@ function boot() {
       },
       onPeerLeft: (slot) => {
         if (!mpSession) return;
-        state.events.push(`بازیکن ${slot + 1} رفت — قلعه‌اش ویران شد.`);
+        state.events.push(t("main.mp.peerLeft", { n: slot + 1 }));
         eliminateSlot(slot);
       },
     }
@@ -670,21 +693,21 @@ function boot() {
 
   function paintMp(api) {
     const conn = $("mpConn"), box = $("mpRosterEl"), list = $("mpListEl");
-    if (conn) conn.textContent = api.connected ? "(متصل)" : "(قطع)";
+    if (conn) conn.textContent = api.connected ? t("main.mp.connected") : t("main.mp.disconnected");
     if (!box) return;
     if (!api.room) {
-      box.innerHTML = `<div class="lbl">در اتاقی نیستی — بساز یا بپیوند.</div>`;
-      mpStatus(api.connected ? "آماده‌ای." : "در حال اتصال…");
+      box.innerHTML = `<div class="lbl">${t("main.mp.noRoom")}</div>`;
+      mpStatus(api.connected ? t("main.mp.idle") : t("main.mp.connecting"));
       return;
     }
     const r = api.room;
     const me = r.players.find((p) => p.slot === api.mySlot);
-    const lockTxt = r.priv ? " 🔒خصوصی" : " 🔓عمومی";
-    const seedTxt = (r.seed | 0) ? ` — سید ${r.seed >>> 0}` : "";
-    box.innerHTML = `<div class="lbl">کد: <b>${r.code}</b>${lockTxt}${seedTxt} — تو: بازیکن ${api.mySlot + 1}${r.started ? " — بازی شروع شده" : ""}</div>` +
-      r.players.map((p) => `<div class="stat"><span><span class="rosterLogo">${PROFILE_LOGOS[(p.logo | 0)] || ""}</span>${escName(p.name)} (بازیکن ${p.slot + 1})</span><span>${p.ready ? "آماده ✓" : "…"}</span></div>`).join("");
+    const lockTxt = r.priv ? ` 🔒${t("main.mp.private")}` : ` 🔓${t("main.mp.public")}`;
+    const seedTxt = (r.seed | 0) ? ` — ${t("main.mp.seed", { seed: r.seed >>> 0 })}` : "";
+    box.innerHTML = `<div class="lbl">${t("main.mp.code")} <b>${r.code}</b>${lockTxt}${seedTxt} — ${t("main.mp.youArePlayer", { n: api.mySlot + 1 })}${r.started ? ` — ${t("main.mp.inProgress")}` : ""}</div>` +
+      r.players.map((p) => `<div class="stat"><span><span class="rosterLogo">${PROFILE_LOGOS[(p.logo | 0)] || ""}</span>${escName(p.name)} (${t("main.mp.player", { n: p.slot + 1 })})</span><span>${p.ready ? t("main.mp.readyMark") : "…"}</span></div>`).join("");
     if (!r.started) {
-      mpStatus(!me ? "…" : me.ready ? "آماده‌ای — منتظر دیگران…" : "«آماده» را بزن.");
+      mpStatus(!me ? "…" : me.ready ? t("main.mp.waitOthers") : t("main.mp.pressReady"));
     }
     if (list && list.dataset && list.dataset.show === "1") void 0;
   }
@@ -703,9 +726,9 @@ function boot() {
     if (!mpSession || !state.mp) return "";
     return state.mpres.map((pl, i) => {
       const col = PLAYER_COLORS[i] || "#999";
-      const nm = escName((mpSession.names && mpSession.names[i]) || `بازیکن ${i + 1}`);
+      const nm = escName((mpSession.names && mpSession.names[i]) || t("main.mp.player", { n: i + 1 }));
       const logo = (mpSession.logos && PROFILE_LOGOS[mpSession.logos[i]]) || "";
-      const tag = i === mpSession.slot ? " (تو)" : "";
+      const tag = i === mpSession.slot ? ` ${t("main.mp.youTag")}` : "";
       const st = pl.alive === false ? "💀" : "●";
       return `<div class="res"><span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${col};"></i><span class="rosterLogo">${logo}</span> ${nm}${tag}</span><b>${st}</b></div>`;
     }).join("");
@@ -727,8 +750,8 @@ function boot() {
       }
       const vb = victoryBanner.querySelector("p");
       const db = defeatBanner.querySelector("p");
-      if (over && winner === me && vb) vb.textContent = `آخرین قلعه پابرجاست — تو برنده‌ای (بازیکن ${me + 1})!`;
-      if (over && alive === false && db) db.textContent = `قلعه‌ات سقوط کرد — بازیکن ${winner + 1} برد.`;
+      if (over && winner === me && vb) vb.textContent = t("main.mp.win", { n: me + 1 });
+      if (over && alive === false && db) db.textContent = t("main.mp.lose", { n: winner + 1 });
     } else {
       defeatBanner.hidden = !state.defeated; // بنر شکست (0.19.0) — کل صفحه را می‌پوشاند
       victoryBanner.hidden = !state.victorious; // بنر پیروزی (0.22.0)
@@ -760,8 +783,8 @@ function boot() {
     }
     for (const b of taxBtns) b.classList.toggle("sel", b.dataset.tax === ec.tax);
     for (const b of ratBtns) b.classList.toggle("sel", b.dataset.rat === ec.rations);
-    pauseBtn.textContent = mpSession ? "چندنفره (۱x)" : state.paused ? "ادامه" : "توقف";
-    speedBtn.textContent = mpSession ? "سرعت 1x 🔒" : "سرعت " + state.speed + "x";
+    pauseBtn.textContent = mpSession ? t("main.top.multi") : state.paused ? t("main.top.resume") : t("ui.top.pause");
+    speedBtn.textContent = mpSession ? t("main.top.speedLocked") : t("main.top.speed", { n: state.speed });
     pauseBtn.disabled = !!mpSession;
     speedBtn.disabled = !!mpSession;
     waveBtn.disabled = !!mpSession;
@@ -773,27 +796,27 @@ function boot() {
     }
     placedEl.textContent = state.placed;
     rejectedEl.textContent = state.rejected;
-    workersEl.textContent = `${ec.freeWorkers != null ? ec.freeWorkers : state.freeWorkers} آزاد / ${ec.workers} / سقف ${ec.workerCap != null ? ec.workerCap : state.workerCap}`;
+    workersEl.textContent = t("main.workers", { free: ec.freeWorkers != null ? ec.freeWorkers : state.freeWorkers, workers: ec.workers, cap: ec.workerCap != null ? ec.workerCap : state.workerCap });
     const p = ec.popularity;
-    popEl.textContent = `${p} ${ec.popDir > 0 ? "▲" : ec.popDir < 0 ? "▼" : "●"} (هدف ${popTarget(state, mpSession ? mpSession.slot : undefined)})`;
+    popEl.textContent = t("main.pop", { p, dir: ec.popDir > 0 ? "▲" : ec.popDir < 0 ? "▼" : "●", target: popTarget(state, mpSession ? mpSession.slot : undefined) });
     popEl.className = p >= 55 ? "hi" : p < 40 ? "lo" : "me";
     resEl.innerHTML = CONFIG.RESOURCES.map((r) => {
       const net = netPerMinute(state, r.key, mpSession ? mpSession.slot : undefined);
       const sign = net > 0 ? "+" : "";
       const have = mpSession ? state.mpres[mpSession.slot].resources[r.key] : state.resources[r.key];
-      return `<div class="res"><span><img src="${iconSrc(r.key)}" alt="" width="18" height="18" style="vertical-align:-4px"> ${r.name}</span><b>${have} / ${capFor(state, r.key, slot)} <i>(${sign}${net}/دقیقه)</i></b></div>`;
+      return `<div class="res"><span><img src="${iconSrc(r.key)}" alt="" width="18" height="18" style="vertical-align:-4px"> ${r.name}</span><b>${have} / ${capFor(state, r.key, slot)} <i>(${t("main.res.perMin", { v: sign + net })})</i></b></div>`;
     }).join("") + (mpSession ? mpRosterHTML() : "");
     if (mpSession && state.mp && state.mp.over) {
-      battleEl.textContent = state.mp.winner === mpSession.slot ? "بردی! 🏆" : "بازی تمام شد.";
+      battleEl.textContent = state.mp.winner === mpSession.slot ? t("main.battle.mpWon") : t("main.battle.mpOver");
     } else battleEl.textContent = state.defeated
-      ? "شکست! ستاد ویران شد — «شروع دوباره» بزن"
+      ? t("main.battle.defeat")
       : state.victorious
-      ? "پیروزی! آخرین موج در هم شکست — «بازی دوباره» بزن"
+      ? t("main.battle.victory")
       : (pendingKind === "alarm"
-        ? "کلیک بعدی: زنگ خطر — محل تجمع ارتش را بزن"
+        ? t("main.battle.alarm")
         : (pendingKind === "demolish"
-          ? "کلیک بعدی: تخریب — روی ساختمان خودت کلیک کن (ستاد نه؛ یک‌سوم هزینه برمی‌گردد)"
-          : (mpDesync ? `⚠ ناهمگامی: ${mpDesync}` : (state.events.length ? state.events[state.events.length - 1] : "آرامش…"))));
+          ? t("main.battle.demolish")
+          : (mpDesync ? t("main.battle.desync", { d: mpDesync }) : (state.events.length ? state.events[state.events.length - 1] : t("ui.stats.calm")))));
     alarmBtn.classList.toggle("sel", pendingKind === "alarm");
     demolishBtn.classList.toggle("sel", pendingKind === "demolish");
     // کارت یگان‌های منتخب (مرده/رفته → هرس خودکار با حفظ ترتیب)
@@ -806,11 +829,11 @@ function boot() {
     if (sel) {
       const udef = UNITS[sel.type];
       if (sels.length === 1) {
-        unitNameEl.textContent = `${udef.name} #${sel.id} — ${STANCE_FA[sel.stance] || sel.stance}`;
+        unitNameEl.textContent = t("main.unit.name", { name: udef.name, id: sel.id, stance: STANCE_FA[sel.stance] || sel.stance });
         unitHpEl.textContent = `${sel.hp}/${sel.maxHp}`;
       } else {
         const hpSum = sels.reduce((a, u) => a + u.hp, 0);
-        unitNameEl.textContent = `${sels.length} یگان منتخب`;
+        unitNameEl.textContent = t("main.unit.selected", { n: sels.length });
         unitHpEl.textContent = `Σ${hpSum}`;
       }
       stanceEngageBtn.classList.toggle("sel", sel.stance !== "hold" && sel.stance !== "guard");
@@ -827,18 +850,18 @@ function boot() {
       const activeOrders = sels.filter((u) => u.order && u.order.status === "active").length;
       unitOrderEl.textContent = activeOrders > 0
         ? (sels.length === 1
-          ? `مأموریت: ${ORDER_KIND_FA[sel.order.kind] || sel.order.kind} (${sel.mission})`
-          : `مأموریت فعال: ${activeOrders} از ${sels.length} یگان`)
-        : (pendingKind === "attackmove" ? "کلیک بعدی: حمله‌در‌حرکت"
-        : (pendingKind === "guard" ? "کلیک بعدی: نگهبانی — روی ساختمان کلیک کن"
-        : (pendingKind === "garrison" ? "کلیک بعدی: گاریسون — روی برج خودی کلیک کن"
-        : (sels.length > 1 ? `${sels.length} یگان — کلیک روی نقشه: دستور جمعی`
+          ? t("main.order.mission", { kind: ORDER_KIND_FA[sel.order.kind] || sel.order.kind, mission: sel.mission })
+          : t("main.order.activeOf", { a: activeOrders, n: sels.length }))
+        : (pendingKind === "attackmove" ? t("main.order.nextAttackMove")
+        : (pendingKind === "guard" ? t("main.order.nextGuard")
+        : (pendingKind === "garrison" ? t("main.order.nextGarrison")
+        : (sels.length > 1 ? t("main.order.group", { n: sels.length })
         : (udef.needsDeploy
-          ? (sel.deployed ? "منجنیق مستقر — شلیک آزاد (برد ۱۰، حداقل ۳)" : "منجنیق سیار — بدون شلیک؛ دکمه استقرار")
-        : (sel.garrisonTower != null ? "مستقر در برج 🏰 — کلیک روی نقشه: خروج و حرکت"
+          ? (sel.deployed ? t("main.order.deployed") : t("main.order.mobile"))
+        : (sel.garrisonTower != null ? t("main.order.inTower")
         : (sel.stance === "guard"
-          ? (post ? `نگهبانی از ${CONFIG.BUILDINGS[post.type].name}` : "پاسگاه از دست رفته")
-          : `وضعیت: ${sel.mission} — کلیک روی نقشه: حرکت`)))))));
+          ? (post ? t("main.order.guarding", { name: CONFIG.BUILDINGS[post.type].name }) : t("main.order.postLost"))
+          : t("main.order.status", { mission: sel.mission }))))))));
     }
   }
 
@@ -864,29 +887,29 @@ function boot() {
       const def = CONFIG.BUILDINGS[hit.type];
       const hpTxt = ` — ${hit.hp}/${hit.maxHp}`;
       if (hit.type === "gate" && !hit.destroyed) {
-        statusEl.innerHTML = `${def.name}${hpTxt} — ${hit.open === false ? '<b class="bad">بسته</b>' : '<b class="ok">باز</b>'} (کلیک: باز/بسته)`;
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${hit.open === false ? badB(t("main.hover.closed")) : okB(t("main.hover.open"))} ${t("main.hover.gateTip")}`;
       } else if (hit.type === "keep" && !hit.destroyed) {
-        statusEl.innerHTML = `${def.name}${hpTxt} — <b class="ok">+۸ مسکن؛ سقوطش = شکست</b>`;
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${okB(t("main.hover.keep"))}`;
       } else if (hit.type === "tower" && !hit.destroyed) {
         // گاریسون برج (0.45.0): شمار مدافعان روی هاور.
         const g = hit.garrison && hit.garrison.length ? hit.garrison.length : 0;
         const buildTxt = (hit.buildLeft || 0) > 0
-          ? ` — <b class="bad">در حال ساخت (${faNum(Math.ceil(hit.buildLeft / 10))} ثانیه)</b>`
+          ? ` — ${badB(t("main.hover.building", { n: faNum(Math.ceil(hit.buildLeft / 10)) }))}`
           : "";
-        statusEl.innerHTML = `${def.name}${hpTxt} — گاریسون ${faNum(g)}/${faNum(GARRISON_CAP)}${buildTxt}`;
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${t("main.hover.garrison", { g: faNum(g), cap: faNum(GARRISON_CAP) })}${buildTxt}`;
       } else if (hit.type === "inn" && !hit.destroyed) {
-        statusEl.innerHTML = `${def.name}${hpTxt} — ${hit.served ? '<b class="ok">سرو می‌کند (+۳ محبوبیت)</b>' : '<b class="bad">بدون آبجو — سروی نیست</b>'}`;
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${hit.served ? okB(t("main.hover.innServing")) : badB(t("main.hover.innDry"))}`;
       } else if (def.prod) {
         if ((hit.buildLeft || 0) > 0) {
-          statusEl.innerHTML = `${def.name}${hpTxt} — <b class="bad">در حال ساخت (${faNum(Math.ceil(hit.buildLeft / 10))} ثانیه)</b>`;
+          statusEl.innerHTML = `${def.name}${hpTxt} — ${badB(t("main.hover.building", { n: faNum(Math.ceil(hit.buildLeft / 10)) }))}`;
         } else statusEl.innerHTML = hit.staffed === false
-          ? `${def.name}${hpTxt} — <b class="bad">بدون کارگر، تولید متوقف</b>`
+          ? `${def.name}${hpTxt} — ${badB(t("main.hover.unstaffed"))}`
           : (hit.starved
-            ? `${def.name}${hpTxt} — <b class="bad">در انتظار ورودی (${escName(resName(Object.keys((RATES[hit.type] || {}).consumes || { "?": 0 })[0]))})</b>`
-            : `${def.name}${hpTxt} — <b class="ok">تولید فعال</b>`);
+            ? `${def.name}${hpTxt} — ${badB(t("main.hover.starved", { res: escName(resName(Object.keys((RATES[hit.type] || {}).consumes || { "?": 0 })[0])) }))}`
+            : `${def.name}${hpTxt} — ${okB(t("main.hover.producing"))}`);
       } else {
         statusEl.innerHTML = (hit.buildLeft || 0) > 0
-          ? `${def.name}${hpTxt} — <b class="bad">در حال ساخت (${faNum(Math.ceil(hit.buildLeft / 10))} ثانیه)</b>`
+          ? `${def.name}${hpTxt} — ${badB(t("main.hover.building", { n: faNum(Math.ceil(hit.buildLeft / 10)) }))}`
           : `${def.name}${hpTxt}`;
       }
       hover = { c: cell.c, r: cell.r, valid: true, reason: "OK", ghost: false };
@@ -895,15 +918,15 @@ function boot() {
     const hu = unitAt(cell.c, cell.r);
     if (hu) {
       const def = UNITS[hu.type];
-      const lordTag = hu.type === "lord" ? " — <b class=\"bad\">مرگش = شکست</b>" : "";
-      statusEl.innerHTML = `${def.name} — <b class="${hu.side === "player" ? "ok" : "bad"}">${hu.hp}/${hu.maxHp}</b> • زره ${faNum(def.armor || 0)} • ${srcTag(def)}${lordTag}`;
+      const lordTag = hu.type === "lord" ? ` — ${badB(t("main.hover.lordDeath"))}` : "";
+      statusEl.innerHTML = `${def.name} — <b class="${hu.side === "player" ? "ok" : "bad"}">${hu.hp}/${hu.maxHp}</b> • ${t("main.meta.armor", { n: faNum(def.armor || 0) })} • ${srcTag(def)}${lordTag}`;
       hover = { c: cell.c, r: cell.r, valid: true, reason: "OK", ghost: false };
       return;
     }
     const inMap = cell.c >= 0 && cell.r >= 0 && cell.c < CONFIG.GRID_W && cell.r < CONFIG.GRID_H;
     if (pendingKind === "alarm") {
       hover = { c: cell.c, r: cell.r, valid: true, reason: "OK", ghost: false };
-      statusEl.innerHTML = inMap ? `زنگ خطر — کلیک: تجمع ارتش در (${cell.c}، ${cell.r})` : `خارج از نقشه`;
+      statusEl.innerHTML = inMap ? t("main.hover.alarm", { c: cell.c, r: cell.r }) : t("main.hover.outOfMap");
       return;
     }
     if (selectedUnit) {
@@ -911,8 +934,8 @@ function boot() {
       hover = { c: cell.c, r: cell.r, valid: v.ok, reason: v.reason, ghost: true };
       const fa = HIRE_FA[v.reason] || v.reason;
       statusEl.innerHTML = inMap
-        ? `خانه (${cell.c}، ${cell.r}) — <b class="${v.ok ? "ok" : "bad"}">${fa}</b>`
-        : `خارج از نقشه — <b class="bad">${HIRE_FA.OUT_OF_BOUNDS}</b>`;
+        ? `${t("main.hover.cell", { c: cell.c, r: cell.r })} — <b class="${v.ok ? "ok" : "bad"}">${fa}</b>`
+        : `${t("main.hover.outOfMap")} — <b class="bad">${HIRE_FA.OUT_OF_BOUNDS}</b>`;
       return;
     }
     const def = selIds.length === 0 ? selectedDef() : null;
@@ -921,29 +944,29 @@ function boot() {
       hover = { c: cell.c, r: cell.r, valid: v.ok, reason: v.reason, ghost: true };
       const fa = REASON_FA[v.reason] || v.reason;
       statusEl.innerHTML = inMap
-        ? `خانه (${cell.c}، ${cell.r}) — <b class="${v.ok ? "ok" : "bad"}">${fa}</b>`
-        : `خارج از نقشه — <b class="bad">${HIRE_FA.OUT_OF_BOUNDS}</b>`;
+        ? `${t("main.hover.cell", { c: cell.c, r: cell.r })} — <b class="${v.ok ? "ok" : "bad"}">${fa}</b>`
+        : `${t("main.hover.outOfMap")} — <b class="bad">${HIRE_FA.OUT_OF_BOUNDS}</b>`;
       return;
     }
     // حالت فرمان/خنثی: گوست ساخت خاموش تا کلیکِ سرباز حس ساختمان ندهد
     hover = { c: cell.c, r: cell.r, valid: true, reason: "OK", ghost: false };
     if (!inMap) {
-      statusEl.innerHTML = `خارج از نقشه`;
+      statusEl.innerHTML = t("main.hover.outOfMap");
       return;
     }
     const sels = resolveSet(selIds, state.units);
     if (pendingKind === "attackmove" && sels.length) {
-      statusEl.innerHTML = `حمله‌در‌حرکت — کلیک: یورش به (${cell.c}، ${cell.r})`;
+      statusEl.innerHTML = t("main.hover.attackMove", { c: cell.c, r: cell.r });
     } else if (pendingKind === "guard" && sels.length) {
-      statusEl.innerHTML = `نگهبانی — روی ساختمان کلیک کن (نه زمین خالی)`;
+      statusEl.innerHTML = t("main.hover.guard");
     } else if (pendingKind === "garrison" && sels.length) {
-      statusEl.innerHTML = `گاریسون — روی برج خودی کلیک کن (نه زمین خالی)`;
+      statusEl.innerHTML = t("main.hover.garrisonPick");
     } else if (sels.length > 1) {
-      statusEl.innerHTML = `${faNum(sels.length)} یگان منتخب — کلیک: دستور جمعی به (${cell.c}، ${cell.r})`;
+      statusEl.innerHTML = t("main.hover.group", { num: faNum(sels.length), c: cell.c, r: cell.r });
     } else if (sels.length === 1) {
-      statusEl.innerHTML = `کلیک: حرکت یگان به (${cell.c}، ${cell.r}) — کلیک دشمن: حمله`;
+      statusEl.innerHTML = t("main.hover.move", { c: cell.c, r: cell.r });
     } else {
-      statusEl.innerHTML = `حالت انتخاب — کلیک سرباز: فرمان؛ شیفت+درگ: انتخاب باکسی؛ کارت پالت: مسلح‌شدن برای ساخت/استخدام`;
+      statusEl.innerHTML = t("main.hover.idle");
     }
   }
 
@@ -968,7 +991,7 @@ function boot() {
     longPressArmed = null;
     selectedUnit = null; selectedKey = null; pendingKind = null; clearWallLine();
     movedFar = true;
-    statusEl.textContent = "لمس طولانی: خلع شد (مثل راست‌کلیک)";
+    statusEl.textContent = t("main.touch.longPress");
     sound.ack("deny");
     refreshPanel();
   }
@@ -1142,7 +1165,7 @@ function boot() {
         panning = false;
         renderer.markDirty();
         const okN = wallLine.filter((t) => t.ok).length;
-        statusEl.innerHTML = `خط دیوار: <b>${faNum(wallLine.length)} خانه</b> (سالم ${faNum(okN)}، سقف ${faNum(WALL_LINE_MAX)}) — رها = ساخت، Esc = لغو`;
+        statusEl.innerHTML = t("main.wall.line", { len: faNum(wallLine.length), ok: faNum(okN), max: faNum(WALL_LINE_MAX) });
         return;
       }
       if (panning) {
@@ -1185,7 +1208,7 @@ function boot() {
     if (replayWatch) {
       hideBox();
       clearWallLine();
-      if (!wasPan) statusEl.textContent = "📼 حالت تماشا — ورودی بسته است (Esc = خروج)";
+      if (!wasPan) statusEl.textContent = t("main.replay.watchHint");
       return;
     }
     // پایان باکس (0.40.0): مستطیل فعال = انتخاب افزایشی خودی‌های داخل؛
@@ -1420,7 +1443,7 @@ function boot() {
   function paintKeyButtons() {
     for (const b of document.querySelectorAll("[data-keyact]")) {
       const a = b.dataset.keyact;
-      b.textContent = `${KEY_ACTION_FA[a] || a}: ${keyRecAction === a ? "کلید را بزن…" : keyMap[a]}`;
+      b.textContent = `${KEY_ACTION_FA[a] || a}: ${keyRecAction === a ? t("main.keys.press") : keyMap[a]}`;
     }
   }
   // Esc: لغو همه‌چیز — نوار مزدورها، مودال، انتخاب، حالت‌ها و ساختمان/استخدام مسلح.
@@ -1454,12 +1477,12 @@ function boot() {
       if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
         const ids = selUnits().map((u) => u.id);
-        if (!ids.length) { statusEl.textContent = "گروه ذخیره نشد — اول یگان انتخاب کن"; return; }
+        if (!ids.length) { statusEl.textContent = t("main.group.notSaved"); return; }
         ctrlGroups = saveGroup(ctrlGroups, slot, ids);
-        statusEl.textContent = `گروه ${slot} ذخیره شد (${ids.length} یگان)`;
+        statusEl.textContent = t("main.group.saved", { slot, n: ids.length });
       } else {
         const ids = recallGroup(ctrlGroups, slot, state.units);
-        if (!ids.length) { statusEl.textContent = `گروه ${slot} خالی است (Ctrl+${slot} ذخیره می‌کند)`; return; }
+        if (!ids.length) { statusEl.textContent = t("main.group.empty", { slot }); return; }
         const byId = new Map(state.units.map((u) => [u.id, u]));
         selIds = ids.filter((id) => {
           const u = byId.get(id);
@@ -1468,7 +1491,7 @@ function boot() {
           return true;
         });
         pendingKind = null;
-        statusEl.textContent = `گروه ${slot}: ${selIds.length} یگان`;
+        statusEl.textContent = t("main.group.recall", { slot, n: selIds.length });
         refreshPanel();
       }
     }
@@ -1511,7 +1534,7 @@ function boot() {
   const soundIconBtn = $("soundIconBtn");
   function paintSoundBtn() {
     soundIconBtn.textContent = sound.volumes.muted ? "🔇" : "🔊";
-    soundIconBtn.title = sound.volumes.muted ? "بی‌صدا — کلیک: روشن" : "باصدا — کلیک: بی‌صدا";
+    soundIconBtn.title = sound.volumes.muted ? t("main.sound.mutedTip") : t("ui.sound.onTip");
   }
   paintSoundBtn();
   soundIconBtn.addEventListener("click", () => {
@@ -1592,7 +1615,7 @@ function boot() {
   if (garrisonBtn) garrisonBtn.addEventListener("click", () => {
     const sels = selUnits();
     if (!sels.some((u) => u.garrisonTower == null && canGarrisonType(u.type))) {
-      statusEl.textContent = "استقرار: یک یگان دوربرد آزاد (کماندار/زوبین‌دار/سواره) انتخاب کن";
+      statusEl.textContent = t("main.garrison.pick");
       return;
     }
     pendingKind = pendingKind === "garrison" ? null : "garrison";
@@ -1622,7 +1645,7 @@ function boot() {
   waveBtn.addEventListener("click", () => {
     if (mpSession) return; // در نبرد رقابتی موج خنثی نداریم
     const n = spawnWave(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H);
-    if (n === 0) state.events.push("جایی برای ورود دشمن نیست!");
+    if (n === 0) state.events.push(t("main.wave.noRoom"));
     refreshPanel();
   });
   // زنگ خطر (0.17.0): تک‌بار و سراسری — کلیک بعدی روی نقشه = تجمع ارتش.
@@ -1723,7 +1746,7 @@ function boot() {
     hover = null;
     selIds = []; ctrlGroups = freshGroups();
     pendingKind = null;
-    tickEl.textContent = "تیک 0";
+    setTick(0);
     paintSeed();
     refreshPanel();
     paintReplayStatus();
@@ -1769,10 +1792,10 @@ function boot() {
       cmds: log.cmds.slice().sort((a, b) => a.t - b.t),
       i: 0,
       upto: Math.max(0, log.ticks | 0 || 0),
-      label: label || "ری‌پلی",
+      label: label || t("main.replay.label"),
     };
     hideMenu();
-    tickEl.textContent = "تیک 0";
+    setTick(0);
     paintSeed();
     refreshPanel();
     paintReplayBar();
@@ -1792,7 +1815,7 @@ function boot() {
     bar.hidden = false;
     const done = state.tick >= replayWatch.upto;
     const lbl = $("replayBarTxt");
-    if (lbl) lbl.textContent = `📼 ${replayWatch.label}: تیک ${faNum(state.tick)} از ${faNum(replayWatch.upto)}${done ? " — پایان" : ""} (ورودی بسته است؛ Esc = خروج)`;
+    if (lbl) lbl.textContent = t("main.replay.bar", { label: replayWatch.label, tick: faNum(state.tick), upto: faNum(replayWatch.upto), end: done ? t("main.replay.end") : "" });
   }
   function hideReplayBar() {
     replayWatch = null;
@@ -1819,11 +1842,11 @@ function boot() {
     hover = null;
     selIds = []; ctrlGroups = freshGroups();
     pendingKind = null;
-    tickEl.textContent = "تیک " + s.tick;
+    setTick(s.tick);
     paintSeed();
     refreshPanel();
     paintReplayStatus();
-    saveStatus.textContent = `${label}: تیک ${s.tick} (سید ${s.mapSeed >>> 0})`;
+    saveStatus.textContent = t("main.save.loadedInfo", { label, tick: s.tick, seed: s.mapSeed >>> 0 });
   }
 
   // ---- کارت نقشه: سید (0.26.0) ----
@@ -1840,7 +1863,7 @@ function boot() {
   function paintSeed() {
     const el = $("seedCurEl");
     if (el) el.textContent = state.mapName
-      ? `سید ${state.mapSeed >>> 0} • ${state.mapName}`
+      ? `${t("main.mp.seed", { seed: state.mapSeed >>> 0 })} • ${state.mapName}`
       : String(state.mapSeed >>> 0);
     const mpIn = $("mpSeedInput");
     if (mpIn && document.activeElement !== mpIn && !mpIn.value) mpIn.value = String(state.mapSeed >>> 0);
@@ -1861,20 +1884,20 @@ function boot() {
       if (ms) ms.value = "custom";
     };
     if (apply) apply.addEventListener("click", () => {
-      if (mpSession) { say("در نبرد سید عوض نمی‌شود"); return; }
+      if (mpSession) { say(t("main.seed.noMp")); return; }
       const s = parseSeed(inp && inp.value);
-      if (s == null) { say("سید باید عدد ۱ تا ۴۲۹۴۹۶۷۲۹۵ باشد"); return; }
+      if (s == null) { say(t("main.seed.invalid")); return; }
       toCustom();
       newGame(s);
-      say(`نقشه تازه با سید ${s} ساخته شد — «شروع تک‌نفره» را بزن`);
+      say(t("main.seed.created", { seed: s }));
     });
     if (rnd) rnd.addEventListener("click", () => {
-      if (mpSession) { say("در نبرد سید عوض نمی‌شود"); return; }
+      if (mpSession) { say(t("main.seed.noMp")); return; }
       const s = randomSeed();
       toCustom();
       newGame(s);
       if (inp) inp.value = "";
-      say(`نقشه تازه با سید ${s} ساخته شد — «شروع تک‌نفره» را بزن`);
+      say(t("main.seed.created", { seed: s }));
     });
     paintSeed();
   })();
@@ -1884,6 +1907,7 @@ function boot() {
     const el = $("menuMsgEl");
     if (el) el.textContent = m || "";
   }
+  const menuRelabelFns = []; // پر کردن‌های سلکت‌های منو که با تغییر زبان دوباره اجرا می‌شوند
   let menuStarted = false; // پس از نخستین شروع، «بازگشت به بازی» فعال می‌شود
   function showMenu() {
     if (!mpSession) state.paused = true; // بازی پشت منو متوقف می‌ماند
@@ -1925,7 +1949,7 @@ function boot() {
         const v = validProfileName(inp.value);
         if (v === null) {
           inp.value = profile.name;
-          menuMsg("نام باید ۱ تا ۱۲ نویسه (فارسی/لاتین/رقم/فاصله/خط) باشد");
+          menuMsg(t("main.profile.nameInvalid"));
           return;
         }
         const saved = saveProfile({ name: v, logo: profile.logo });
@@ -1944,7 +1968,7 @@ function boot() {
         const btn = document.createElement("button");
         btn.dataset.logo = i;
         btn.textContent = emoji;
-        btn.title = `لوگوی ${i + 1}`;
+        btn.title = t("main.profile.logoTitle", { n: i + 1 });
         btn.addEventListener("click", () => {
           const saved = saveProfile({ name: profile.name, logo: i });
           if (saved) {
@@ -1977,18 +2001,23 @@ function boot() {
     // سید + ماندگاری؛ شروع از ورودی خوانده می‌شود (نام در newGame از کاتالوگ).
     const mapSel = $("mapSel");
     if (mapSel) {
-      mapSel.innerHTML = "";
-      const oc = document.createElement("option");
-      oc.value = "custom";
-      oc.textContent = "سفارشی (سید دستی/تصادفی)";
-      mapSel.appendChild(oc);
-      for (const m of CONFIG.MAPS) {
-        const o = document.createElement("option");
-        o.value = m.key;
-        o.textContent = `${m.name} (سید ${m.seed})`;
-        mapSel.appendChild(o);
-      }
-      mapSel.value = soloMapKey;
+      const fillMapSel = () => {
+        const cur = mapSel.value || soloMapKey;
+        mapSel.innerHTML = "";
+        const oc = document.createElement("option");
+        oc.value = "custom";
+        oc.textContent = t("main.map.custom");
+        mapSel.appendChild(oc);
+        for (const m of CONFIG.MAPS) {
+          const o = document.createElement("option");
+          o.value = m.key;
+          o.textContent = t("main.map.option", { name: m.name, seed: m.seed });
+          mapSel.appendChild(o);
+        }
+        mapSel.value = cur;
+      };
+      fillMapSel();
+      menuRelabelFns.push(fillMapSel);
       const nm0 = namedMapByKey(soloMapKey);
       const inp0 = $("seedInput");
       if (nm0 && inp0 && !inp0.value) inp0.value = String(nm0.seed);
@@ -2003,14 +2032,19 @@ function boot() {
     // شخصیت حریف (0.56.0): گزینه‌ها از CONFIG ساخته می‌شوند؛ انتخاب = ماندگاری.
     const persSel = $("persSel");
     if (persSel) {
-      persSel.innerHTML = "";
-      for (const [key, p] of Object.entries(CONFIG.AI.personalities)) {
-        const o = document.createElement("option");
-        o.value = key;
-        o.textContent = `${p.name} — ${p.desc}`;
-        persSel.appendChild(o);
-      }
-      persSel.value = soloPersonality;
+      const fillPersSel = () => {
+        const cur = persSel.value || soloPersonality;
+        persSel.innerHTML = "";
+        for (const [key, p] of Object.entries(CONFIG.AI.personalities)) {
+          const o = document.createElement("option");
+          o.value = key;
+          o.textContent = `${p.name} — ${p.desc}`;
+          persSel.appendChild(o);
+        }
+        persSel.value = cur;
+      };
+      fillPersSel();
+      menuRelabelFns.push(fillPersSel);
       persSel.addEventListener("change", () => {
         if (CONFIG.AI.personalities[persSel.value]) {
           soloPersonality = persSel.value;
@@ -2023,14 +2057,19 @@ function boot() {
     // دسترس‌پذیری (0.57.0 — #۲۶): پالت/مقیاس/کلیدها — انتخاب = اعمال + ماندگاری.
     const palSel = $("a11yPalSel");
     if (palSel) {
-      palSel.innerHTML = "";
-      for (const [key, p] of Object.entries(A11Y_PALETTES)) {
-        const o = document.createElement("option");
-        o.value = key;
-        o.textContent = p.name;
-        palSel.appendChild(o);
-      }
-      palSel.value = a11yPalette;
+      const fillPalSel = () => {
+        const cur = palSel.value || a11yPalette;
+        palSel.innerHTML = "";
+        for (const [key, p] of Object.entries(A11Y_PALETTES)) {
+          const o = document.createElement("option");
+          o.value = key;
+          o.textContent = p.name;
+          palSel.appendChild(o);
+        }
+        palSel.value = cur;
+      };
+      fillPalSel();
+      menuRelabelFns.push(fillPalSel);
       palSel.addEventListener("change", () => {
         a11yPalette = validPalette(palSel.value);
         palSel.value = a11yPalette;
@@ -2065,7 +2104,7 @@ function boot() {
     }
     applyFidelity(fidelity, true);
     if (solo) solo.addEventListener("click", () => {
-      if (mpSession) { menuMsg("اول از اتاق چندنفره خارج شو"); return; }
+      if (mpSession) { menuMsg(t("main.menu.leaveRoomFirst")); return; }
       const inp = $("seedInput");
       const typed = inp && inp.value ? inp.value.trim() : "";
       const diff = diffSel && CONFIG.AI.difficulties[diffSel.value] ? diffSel.value : soloDiff;
@@ -2074,7 +2113,7 @@ function boot() {
       const named = ms ? namedMapByKey(ms.value) : null;
       if (typed) {
         const s = parseSeed(typed);
-        if (s == null) { menuMsg("سید باید عدد ۱ تا ۴۲۹۴۹۶۷۲۹۵ باشد"); return; }
+        if (s == null) { menuMsg(t("main.seed.invalid")); return; }
         newGame(s, diff, undefined, pers); // نام (کاتالوگ/خالی) در newGame حل می‌شود
       } else if (named) {
         newGame(named.seed, diff, undefined, pers);
@@ -2090,11 +2129,11 @@ function boot() {
     // تماشای ری‌پلی ذخیره‌شده از منو (0.49.0)
     const mrp = $("menuReplayBtn");
     if (mrp) mrp.addEventListener("click", () => {
-      if (mpSession) { menuMsg("اول از اتاق چندنفره خارج شو"); return; }
+      if (mpSession) { menuMsg(t("main.menu.leaveRoomFirst")); return; }
       const saved = loadReplaySlot();
-      if (!saved) { menuMsg("ری‌پلی ذخیره‌شده‌ای نیست — اول یک بازی تازه کن و از کارت ذخیره «ذخیره ری‌پلی» را بزن"); return; }
-      const r = startWatch(saved, "ری‌پلی ذخیره‌شده");
-      if (!r.ok) menuMsg("خطا: " + r.reason);
+      if (!saved) { menuMsg(t("main.replay.noSaved")); return; }
+      const r = startWatch(saved, t("main.replay.savedLabel"));
+      if (!r.ok) menuMsg(t("main.err.prefix", { msg: r.reason }));
     });
   })();
 
@@ -2102,43 +2141,43 @@ function boot() {
     if (mpSession) return; // در MP ذخیره نداریم
     const json = serializeJSON(state);
     const tickNow = state.tick;
-    saveStatus.textContent = "در حال ذخیره…";
+    saveStatus.textContent = t("main.save.saving");
     saveSlot(SLOTS.manual, json).then((r) => {
       saveStatus.textContent = r.ok
-        ? `دستی: تیک ${tickNow} (${r.bytes} بایت)`
-        : `خطا: ${SAVE_FA[r.error] || r.error}`;
+        ? t("main.save.manual", { tick: tickNow, bytes: r.bytes })
+        : t("main.err.prefix", { msg: SAVE_FA[r.error] || r.error });
     });
   });
   loadBtn.addEventListener("click", () => {
     if (mpSession) return;
-    saveStatus.textContent = "در حال بارگذاری…";
+    saveStatus.textContent = t("main.save.loading");
     loadSlot(SLOTS.manual).then((r) => {
       if (r.ok) {
         try {
-          applyLoaded(deserializeJSON(r.text), "دستی بارگذاری شد");
+          applyLoaded(deserializeJSON(r.text), t("main.save.manualLoaded"));
         } catch (e) {
-          saveStatus.textContent = `خطا: ${e instanceof SaveError ? SAVE_FA[e.code] : e}`;
+          saveStatus.textContent = t("main.err.prefix", { msg: e instanceof SaveError ? SAVE_FA[e.code] : e });
         }
         return;
       }
       // اگر دستی خالی است، خودکار را امتحان کن
       loadSlot(SLOTS.auto).then((a) => {
         if (!a.ok) {
-          saveStatus.textContent = `خطا: ${SAVE_FA[r.error] || r.error}`;
+          saveStatus.textContent = t("main.err.prefix", { msg: SAVE_FA[r.error] || r.error });
           return;
         }
         try {
-          applyLoaded(deserializeJSON(a.text), "خودکار بارگذاری شد");
+          applyLoaded(deserializeJSON(a.text), t("main.save.autoLoaded"));
         } catch (e) {
-          saveStatus.textContent = `خطا: ${e instanceof SaveError ? SAVE_FA[e.code] : e}`;
+          saveStatus.textContent = t("main.err.prefix", { msg: e instanceof SaveError ? SAVE_FA[e.code] : e });
         }
       });
     });
   });
   delBtn.addEventListener("click", () => {
-    saveStatus.textContent = "در حال حذف…";
+    saveStatus.textContent = t("main.save.deleting");
     deleteSlot(SLOTS.manual).then(() => deleteSlot(SLOTS.auto)).then(() => {
-      saveStatus.textContent = "ذخیره‌ها حذف شدند";
+      saveStatus.textContent = t("main.save.deleted");
     });
   });
   // ---- ذخیره ابری (0.67.0 — انتخاب ۳-الف): همان JSON محلی روی سرور، با عبارت کاربر ----
@@ -2159,68 +2198,68 @@ function boot() {
     if (mpSession) return; // در MP ابری نداریم
     const k = cloudKey();
     if (!validCloudKey(k)) { cloudSay(CLOUD_FA.BAD_KEY); return; }
-    cloudSay("در حال ذخیره ابری…");
+    cloudSay(t("main.cloud.saving"));
     const r = await cloud.save(k, serializeJSON(state));
-    cloudSay(r.ok ? `ابری ذخیره شد (تیک ${state.tick})` : `خطا: ${CLOUD_FA[r.error] || r.error}`);
+    cloudSay(r.ok ? t("main.cloud.saved", { tick: state.tick }) : t("main.err.prefix", { msg: CLOUD_FA[r.error] || r.error }));
   });
   $("cloudLoadBtn").addEventListener("click", async () => {
     if (mpSession) return;
     const k = cloudKey();
     if (!validCloudKey(k)) { cloudSay(CLOUD_FA.BAD_KEY); return; }
-    cloudSay("در حال بارگذاری ابری…");
+    cloudSay(t("main.cloud.loading"));
     const r = await cloud.load(k);
-    if (!r.ok) { cloudSay(`خطا: ${CLOUD_FA[r.error] || r.error}`); return; }
+    if (!r.ok) { cloudSay(t("main.err.prefix", { msg: CLOUD_FA[r.error] || r.error })); return; }
     try {
-      applyLoaded(deserializeJSON(r.text), "ابری بارگذاری شد");
-      cloudSay(`ابری بارگذاری شد (تیک ${state.tick})`);
+      applyLoaded(deserializeJSON(r.text), t("main.cloud.loadedLabel"));
+      cloudSay(t("main.cloud.loaded", { tick: state.tick }));
     } catch (e) {
-      cloudSay(`خطا: ${e instanceof SaveError ? SAVE_FA[e.code] : e}`);
+      cloudSay(t("main.err.prefix", { msg: e instanceof SaveError ? SAVE_FA[e.code] : e }));
     }
   });
   $("cloudDelBtn").addEventListener("click", async () => {
     if (mpSession) return;
     const k = cloudKey();
     if (!validCloudKey(k)) { cloudSay(CLOUD_FA.BAD_KEY); return; }
-    cloudSay("در حال حذف ابری…");
+    cloudSay(t("main.cloud.deleting"));
     const r = await cloud.del(k);
-    cloudSay(r.ok ? "ابری حذف شد" : `خطا: ${CLOUD_FA[r.error] || r.error}`);
+    cloudSay(r.ok ? t("main.cloud.deleted") : t("main.err.prefix", { msg: CLOUD_FA[r.error] || r.error }));
   });
   // ---- ری‌پلی: ذخیره/تماشا/تأیید (0.49.0 — #۲۱ از FEATURES، فقط سولو) ----
   const replayStatus = $("replayStatus");
   function paintReplayStatus() {
     if (!replayStatus) return;
-    if (mpSession) { replayStatus.textContent = "در چندنفره ری‌پلی نیست"; return; }
+    if (mpSession) { replayStatus.textContent = t("main.replay.noMp"); return; }
     const saved = loadReplaySlot();
-    const cur = recLog ? `${faNum(recLog.cmds.length)} فرمان` : "ندارد (بازی بارگذاری‌شده)";
-    replayStatus.textContent = `جاری: ${cur} — ذخیره‌شده: ${saved ? `${faNum(saved.cmds.length)} فرمان، تیک ${faNum(saved.ticks | 0)}${saved.verified ? " ✓" : ""}` : "ندارد"}`;
+    const cur = recLog ? t("main.replay.cmds", { n: recLog.cmds.length, num: faNum(recLog.cmds.length) }) : t("main.replay.noneLoaded");
+    replayStatus.textContent = t("main.replay.status", { cur, saved: saved ? t("main.replay.savedInfo", { n: saved.cmds.length, num: faNum(saved.cmds.length), tick: faNum(saved.ticks | 0), ok: saved.verified ? " ✓" : "" }) : t("main.replay.none") });
   }
   $("replaySaveBtn").addEventListener("click", () => {
     if (mpSession || replayWatch) return;
-    if (!recLog) { replayStatus.textContent = "ری‌پلی فقط برای بازی تازه است (بارگذاری‌شده ندارد)"; return; }
+    if (!recLog) { replayStatus.textContent = t("main.replay.freshOnly"); return; }
     const log = { ...replayLogOf(recLog, state.tick), hash: stateHash(state), verified: false };
-    replayStatus.textContent = `در حال تأیید ${faNum(log.cmds.length)} فرمان تا تیک ${faNum(log.ticks)}…`;
-    verifyReplayAsync(log, log.ticks, log.hash, (t, upto) => {
-      replayStatus.textContent = `در حال تأیید… تیک ${faNum(t)} از ${faNum(upto)}`;
+    replayStatus.textContent = t("main.replay.verifying", { n: log.cmds.length, num: faNum(log.cmds.length), tick: faNum(log.ticks) });
+    verifyReplayAsync(log, log.ticks, log.hash, (tk, upto) => {
+      replayStatus.textContent = t("main.replay.progress", { tick: faNum(tk), upto: faNum(upto) });
     }).then((r) => {
       log.verified = r.ok;
       if (r.ok) saveReplaySlot(log);
       replayStatus.textContent = r.ok
-        ? `ذخیره شد ✓ (هش یکسان تا تیک ${faNum(log.ticks)})`
-        : `تأیید نشد ✗ (${r.reason || "هش متفاوت"}) — ذخیره نشد`;
+        ? t("main.replay.verified", { tick: faNum(log.ticks) })
+        : t("main.replay.notVerified", { reason: r.reason || t("main.replay.hashDiff") });
       paintReplayStatus();
     });
   });
   $("replayWatchBtn").addEventListener("click", () => {
     if (mpSession || replayWatch) return;
     if (recLog && recLog.cmds.length) {
-      const r = startWatch(replayLogOf(recLog, state.tick), "بازی جاری");
-      if (!r.ok) replayStatus.textContent = `خطا: ${r.reason}`;
+      const r = startWatch(replayLogOf(recLog, state.tick), t("main.replay.current"));
+      if (!r.ok) replayStatus.textContent = t("main.err.prefix", { msg: r.reason });
       return;
     }
     const saved = loadReplaySlot();
-    if (!saved) { replayStatus.textContent = "ری‌پلی‌ای برای تماشا نیست (اول بازی تازه شروع کن)"; return; }
-    const r = startWatch(saved, "ری‌پلی ذخیره‌شده");
-    if (!r.ok) replayStatus.textContent = `خطا: ${r.reason}`;
+    if (!saved) { replayStatus.textContent = t("main.replay.noneToWatch"); return; }
+    const r = startWatch(saved, t("main.replay.savedLabel"));
+    if (!r.ok) replayStatus.textContent = t("main.err.prefix", { msg: r.reason });
   });
   $("replayExitBtn").addEventListener("click", () => exitWatch(true));
 
@@ -2228,8 +2267,13 @@ function boot() {
   // نقاشی مستقیم روی بوم اصلی با terrain موقت؛ بازی pause و ساختمان/یگان
   // مخفی‌اند (blankView)؛ ناوبری با نقشه کوچک + زوم. ورود/خروج همیشه از منو.
   let editor = null; // {doc, base, tile, brush, painting} یا null = بازی عادی
-  const ED_ERR_FA = { KEEP: "جایی برای ستاد بازیکن نیست", LORD: "جایی برای ارباب نیست",
-    AI: "ستاد حریف جا نمی‌شود", TERRAIN: "زمین خراب است" };
+  // جدول خطاها به‌صورت جست‌وجوی تنبل (در لحظه نمایش، با زبان فعلی).
+  const lazyTable = (prefix) => new Proxy({}, {
+    get: (_, k) => (typeof k === "string" && hasKey(prefix + k) ? t(prefix + k) : undefined),
+  });
+  const ED_ERR_FA = lazyTable("main.ed.err.");
+  const ED_DEFAULT_NAME = "نقشه سفارشی"; // مقدار ذخیره‌شده؛ فقط نمایش ترجمه می‌شود
+  const edShowName = (n) => (n === ED_DEFAULT_NAME ? t("main.ed.defaultName") : n);
   function blankView() {
     return { ...state, buildings: [], units: [], fx: [] };
   }
@@ -2240,7 +2284,7 @@ function boot() {
   function edCounts() {
     if (!editor) return;
     const n = patchCount(editor.doc);
-    edStatus(`«${editor.doc.name}» — سید ${faNum(editor.doc.seed)} — ${faNum(n)} وصله${n >= PATCH_CAP ? " (سقف!)" : ""}`);
+    edStatus(t("main.ed.counts", { name: edShowName(editor.doc.name), seed: faNum(editor.doc.seed), n: faNum(n), cap: n >= PATCH_CAP ? ` ${t("main.ed.capMark")}` : "" }));
   }
   function edRefreshTerrain() {
     terrain = applyPatches(editor.base, editor.doc.patches);
@@ -2258,12 +2302,12 @@ function boot() {
     const br = $("edBrushSel");
     if (br && document.activeElement !== br) br.value = String(editor.brush);
     const nm = $("edNameInput");
-    if (nm && document.activeElement !== nm) nm.value = editor.doc.name;
+    if (nm && document.activeElement !== nm) nm.value = edShowName(editor.doc.name);
     const sd = $("edSeedInput");
     if (sd && document.activeElement !== sd) sd.value = String(editor.doc.seed);
   }
   function openEditor() {
-    if (mpSession) { menuMsg("نقشه‌ساز در نبرد چندنفره نیست"); return; }
+    if (mpSession) { menuMsg(t("main.ed.noMp")); return; }
     if (replayWatch) exitWatch(true);
     if (editor) return;
     const saved = loadCustomSlot();
@@ -2306,22 +2350,22 @@ function boot() {
     const tile = editor.tile === "erase" ? null : editor.tile;
     const r = paintCells(editor.doc, editor.base, cell.c, cell.r, editor.brush, tile);
     if (r.painted) edRefreshTerrain();
-    if (r.capped) edStatus(`سقف ${faNum(PATCH_CAP)} وصله پر شد — اول جایی را پاک کن`);
+    if (r.capped) edStatus(t("main.ed.full", { cap: faNum(PATCH_CAP) }));
     else edCounts();
     return r.painted;
   }
   function edCheckPlayable() {
     const v = validatePlayable(editor.doc.seed, patchesList(editor.doc));
     edStatus(v.ok
-      ? "قابل‌بازی است ✓ (ستاد + ارباب + حریف می‌نشینند)"
-      : `قابل‌بازی نیست: ${ED_ERR_FA[v.reason] || v.reason}`);
+      ? t("main.ed.playable")
+      : t("main.ed.notPlayable", { reason: ED_ERR_FA[v.reason] || v.reason }));
     return v.ok;
   }
   function edReadName() {
     const nm = $("edNameInput");
     const clean = nm ? nm.value.trim().replace(/\s+/g, " ").slice(0, MAP_NAME_MAX) : "";
-    editor.doc.name = clean || "نقشه سفارشی";
-    if (nm) nm.value = editor.doc.name;
+    editor.doc.name = clean || ED_DEFAULT_NAME;
+    if (nm) nm.value = edShowName(editor.doc.name);
   }
   (function wireEditor() {
     const row = $("edTileRow");
@@ -2337,14 +2381,19 @@ function boot() {
     }
     const br = $("edBrushSel");
     if (br) {
-      br.innerHTML = "";
-      for (const s of BRUSHES) {
-        const o = document.createElement("option");
-        o.value = String(s);
-        o.textContent = s === 1 ? "۱ خانه" : `${faNum(s)}×${faNum(s)}`;
-        br.appendChild(o);
-      }
-      br.value = "4";
+      const fillBrushSel = () => {
+        const cur = br.value || "4";
+        br.innerHTML = "";
+        for (const s of BRUSHES) {
+          const o = document.createElement("option");
+          o.value = String(s);
+          o.textContent = s === 1 ? t("main.ed.brushOne") : `${faNum(s)}×${faNum(s)}`;
+          br.appendChild(o);
+        }
+        br.value = cur;
+      };
+      fillBrushSel();
+      menuRelabelFns.push(fillBrushSel);
       br.addEventListener("change", () => {
         if (!editor) return;
         const s = parseInt(br.value, 10);
@@ -2356,13 +2405,13 @@ function boot() {
       if (!editor) return;
       const inp = $("edSeedInput");
       const s = parseSeed(inp && inp.value);
-      if (s == null) { edStatus("سید پایه باید عدد ۱ تا ۴۲۹۴۹۶۷۲۹۵ باشد"); return; }
+      if (s == null) { edStatus(t("main.ed.seedInvalid")); return; }
       editor.doc.seed = s;
       editor.doc.patches = {}; // سید تازه = بوم تازه
       editor.base = baseTerrain(s);
       edRefreshTerrain();
       syncEditorPanel();
-      edStatus(`زمین سید ${faNum(s)} ساخته شد — وصله‌ها پاک شدند`);
+      edStatus(t("main.ed.seeded", { seed: faNum(s) }));
     });
     const chk = $("edCheckBtn");
     if (chk) chk.addEventListener("click", () => { if (editor) edCheckPlayable(); });
@@ -2379,8 +2428,8 @@ function boot() {
       edReadName();
       if (!edCheckPlayable()) return; // فقط قابل‌بازی ذخیره می‌شود
       edStatus(saveCustomSlot(editor.doc)
-        ? `ذخیره شد ✓ «${editor.doc.name}» (${faNum(patchCount(editor.doc))} وصله)`
-        : "خطا در ذخیره محلی");
+        ? t("main.ed.saved", { name: edShowName(editor.doc.name), n: faNum(patchCount(editor.doc)) })
+        : t("main.ed.saveFail"));
     });
     const exp = $("edExportBtn");
     if (exp) exp.addEventListener("click", () => {
@@ -2392,14 +2441,14 @@ function boot() {
         ta.select();
         try { document.execCommand("copy"); } catch (e) { /* مهم نیست */ }
       }
-      edStatus(`خروجی گرفته شد (${faNum(patchCount(editor.doc))} وصله) — در حافظه هم هست`);
+      edStatus(t("main.ed.exported", { n: faNum(patchCount(editor.doc)) }));
     });
     const imp = $("edImportBtn");
     if (imp) imp.addEventListener("click", () => {
       if (!editor) return;
       const ta = $("edIOArea");
       const r = importMapDoc(ta ? ta.value : "");
-      if (!r.ok) { edStatus(`ورودی نامعتبر: ${r.reason}`); return; }
+      if (!r.ok) { edStatus(t("main.ed.importBad", { reason: r.reason })); return; }
       editor.doc = r.doc;
       editor.base = baseTerrain(r.doc.seed);
       edRefreshTerrain();
@@ -2419,7 +2468,7 @@ function boot() {
     if (ex) ex.addEventListener("click", () => closeEditor(false));
     const mb = $("editorBtn");
     if (mb) mb.addEventListener("click", () => {
-      if (mpSession) { menuMsg("اول از اتاق چندنفره خارج شو"); return; }
+      if (mpSession) { menuMsg(t("main.menu.leaveRoomFirst")); return; }
       openEditor();
     });
   })();
@@ -2428,51 +2477,51 @@ function boot() {
   const mpCodeInput = $("mpCodeInput"), mpMaxSel = $("mpMaxSel");
   const mpCreateBtn = $("mpCreateBtn"), mpJoinBtn = $("mpJoinBtn"), mpLeaveBtn = $("mpLeaveBtn");
   const mpReadyBtn = $("mpReadyBtn"), mpStartBtn = $("mpStartBtn"), mpListBtn = $("mpListBtn");
-  const MP_ERR_FA = { bad: "درخواست بد", name: "نام جنگی نامعتبر", logo: "لوگوی نامعتبر", password: "رمز اشتباه یا نامعتبر (۱ تا ۱۶ نویسه)", max: "۲ تا ۴ نفر", nocode: "کد پیدا نشد", full: "اتاق پر است", started: "بازی شروع شده", inroom: "اول از اتاق فعلی خارج شو", noroom: "در اتاق نیستی", nohost: "فقط میزبان", few: "دست‌کم ۲ نفر", notready: "همه باید آماده باشند", slow: "کمی صبر کن", nostart: "هنوز شروع نشده", kind: "نوع ورودی بد", tick: "تیک بد", args: "آرگومان بد", big: "پیام بزرگ", seed: "سید نامعتبر" };
+  const MP_ERR_FA = lazyTable("main.mperr.");
   function mpCode() {
     return (mpCodeInput && mpCodeInput.value ? mpCodeInput.value : "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
   }
   if (mpCreateBtn) mpCreateBtn.addEventListener("click", async () => {
     try {
-      mpStatus("در حال ساخت…");
+      mpStatus(t("main.mp.creating"));
       const max = mpMaxSel ? parseInt(mpMaxSel.value, 10) : 2;
       const seedIn = $("mpSeedInput");
       const seedRaw = seedIn && seedIn.value ? seedIn.value.trim() : "";
       let seed = null;
       if (seedRaw) {
         seed = parseSeed(seedRaw);
-        if (seed == null) { mpStatus("خطا: سید نامعتبر"); return; }
+        if (seed == null) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA.seed })); return; }
       }
       const pwIn = $("mpPasswordInput");
       const pw = validRoomPassword(pwIn && pwIn.value);
-      if (pw === false) { mpStatus("خطا: " + MP_ERR_FA.password); return; }
+      if (pw === false) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA.password })); return; }
       await lobby.create(max >= 2 && max <= 4 ? max : 2, { password: pw, seed });
       if (mpCodeInput && lobby.room) mpCodeInput.value = lobby.room.code;
-      mpStatus(`اتاق ${lobby.room.code} ساخته شد${lobby.room.priv ? " 🔒خصوصی" : " 🔓عمومی"} (سید ${lobby.room.seed >>> 0}) — کد${lobby.room.priv ? " و رمز" : ""} را به حریف بده.`);
-    } catch (e) { mpStatus("خطا: " + (MP_ERR_FA[e.message] || e.message || "؟")); }
+      mpStatus(t("main.mp.created", { code: lobby.room.code, lock: lobby.room.priv ? ` 🔒${t("main.mp.private")}` : ` 🔓${t("main.mp.public")}`, seed: lobby.room.seed >>> 0, pw: lobby.room.priv ? ` ${t("main.mp.andPassword")}` : "" }));
+    } catch (e) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message || t("main.unknown") })); }
   });
   if (mpJoinBtn) mpJoinBtn.addEventListener("click", async () => {
     try {
       const code = mpCode();
-      if (code.length !== 4) { mpStatus("کد ۴ حرفی را بزن."); return; }
+      if (code.length !== 4) { mpStatus(t("main.mp.enterCode")); return; }
       const pwIn = $("mpJoinPasswordInput");
       const pw = validRoomPassword(pwIn && pwIn.value);
-      if (pw === false) { mpStatus("خطا: " + MP_ERR_FA.password); return; }
-      mpStatus("در حال پیوستن…");
+      if (pw === false) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA.password })); return; }
+      mpStatus(t("main.mp.joining"));
       await lobby.join(code, { password: pw });
-      mpStatus(`وارد ${code} شدی — «آماده» را بزن.`);
-    } catch (e) { mpStatus("خطا: " + (MP_ERR_FA[e.message] || e.message || "؟")); }
+      mpStatus(t("main.mp.joined", { code }));
+    } catch (e) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message || t("main.unknown") })); }
   });
   if (mpLeaveBtn) mpLeaveBtn.addEventListener("click", async () => {
-    try { await lobby.leave(); mpStatus("خارج شدی."); refreshRoomList(true); } catch (e) {}
+    try { await lobby.leave(); mpStatus(t("main.mp.left")); refreshRoomList(true); } catch (e) {}
   });
   if (mpReadyBtn) mpReadyBtn.addEventListener("click", async () => { try { await lobby.toggleReady(); } catch (e) {} });
   if (mpStartBtn) mpStartBtn.addEventListener("click", async () => {
     try {
-      mpStatus("در حال شروع…");
+      mpStatus(t("main.mp.starting"));
       await lobby.start(); // سید همان سیدِ زمان ساخت است
     }
-    catch (e) { mpStatus("خطا: " + (MP_ERR_FA[e.message] || e.message || "؟")); }
+    catch (e) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message || t("main.unknown") })); }
   });
   // فهرست اتاق‌های باز (0.28.0): کد + خصوصی/عمومی + ظرفیت + سید + بازیکنان حاضر.
   function paintRoomList(rooms, ownCode) {
@@ -2481,17 +2530,17 @@ function boot() {
     const others = (rooms || []).filter((rm) => rm.code !== ownCode);
     box.innerHTML = others.length
       ? others.map(roomRowHTML).join("")
-      : `<div class="lbl">اتاق بازی نیست — بساز.</div>`;
+      : `<div class="lbl">${t("main.mp.noRooms")}</div>`;
     box.querySelectorAll("[data-joincode]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const code = btn.dataset.joincode;
         const roomEl = btn.closest(".room");
         const pwIn = roomEl ? roomEl.querySelector("[data-pwfor]") : null;
         const pw = validRoomPassword(pwIn && pwIn.value);
-        if (pw === false) { mpStatus("خطا: " + MP_ERR_FA.password); return; }
+        if (pw === false) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA.password })); return; }
         if (mpCodeInput) mpCodeInput.value = code;
-        try { await lobby.join(code, { password: pw }); mpStatus("وارد شدی — «آماده» را بزن."); }
-        catch (e) { mpStatus("خطا: " + (MP_ERR_FA[e.message] || e.message || "؟")); }
+        try { await lobby.join(code, { password: pw }); mpStatus(t("main.mp.joinedShort")); }
+        catch (e) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message || t("main.unknown") })); }
       });
     });
   }
@@ -2520,9 +2569,12 @@ function boot() {
   document.querySelector("[data-fit]").addEventListener("click", () => renderer.fit());
   // نمای تخت (0.25.0): حذف ارتفاع ساختمان‌ها تا پشت‌شان دیده شود؛ در حافظه می‌ماند.
   const flatBtn = document.querySelector("[data-flat]");
+  function paintFlatBtn(f) {
+    if (flatBtn) flatBtn.textContent = f ? t("main.top.flat3d") : t("ui.top.flat");
+  }
   function applyFlat(f) {
     renderer.setFlat(f);
-    if (flatBtn) flatBtn.textContent = f ? "نمای سه‌بعدی" : "نمای تخت";
+    paintFlatBtn(f);
     try { localStorage.setItem("scw.flat", f ? "1" : "0"); } catch {}
   }
   if (flatBtn) {
@@ -2595,7 +2647,7 @@ function boot() {
     if (now - lastFpsT >= 500) {
       fps = Math.round((frames * 1000) / (now - lastFpsT));
       frames = 0; lastFpsT = now;
-      fpsEl.textContent = fps + " فریم/ثانیه" + (fidelityAuto ? ` (کیفیت خودکار: ${fidelity})` : "");
+      fpsEl.textContent = t("main.fps", { fps }) + (fidelityAuto ? ` ${t("main.fps.auto", { f: fidelity })}` : "");
       // افت خودکار کیفیت (0.58.0 — #۲۷): زیر ۲۰fps پله‌ای کم می‌کند (فقط پایین،
       // هرگز بالا)؛ انتخاب دستی کاربر لغوش می‌کند. sim دست‌نخورده می‌ماند.
       if (fps < 20 && $("menuScreen").hidden) {
@@ -2603,7 +2655,7 @@ function boot() {
         if (next) {
           fidelityAuto = true;
           applyFidelity(next, true);
-          statusEl.textContent = `fps پایین (${fps}) — کیفیت رسم خودکار کم شد (${next})`;
+          statusEl.textContent = t("main.fps.low", { fps, next });
         }
       }
     }
@@ -2611,36 +2663,61 @@ function boot() {
   }
 
   refreshPanel();
-  tickEl.textContent = "تیک 0";
+  setTick(0);
   assignStaff(state);
   // شروع پشت منوی انتخاب حالت (0.27.0): بازی متوقف تا تک‌نفره/چندنفره انتخاب شود.
   state.paused = true;
   showMenu();
   // نسخه انتشار از تنها منبع (فرایند انتشار را ببین)
-  fetch("VERSION").then((r) => r.text()).then((t) => {
-    const v = t.trim();
+  fetch("VERSION").then((r) => r.text()).then((txt) => {
+    const v = txt.trim();
     if (/^\d+\.\d+\.\d+$/.test(v)) $("verEl").textContent = v;
   }).catch(() => { /* پیش‌نمایش بدون service worker: نسخه نمایشی می‌ماند */ });
   // ماتریس سازگاری (0.58.0 — #۲۷): رندر در کارت راهنما + هشدار اگر required کم است.
-  {
+  function paintCompat() {
     const probed = probeCompat(liveEnv());
     const el = $("compatEl");
     if (el) {
-      el.innerHTML = "سازگاری دستگاه: " +
-        probed.map((r) => `${r.ok ? "✓" : "✗"} ${r.name}`).join("، ") +
-        (compatBootable(probed) ? "" : " — ⚠ برخی نیازهای پایه نیست!") +
-        " " + SUPPORT_LINE;
+      el.innerHTML = t("main.compat.label") + " " +
+        probed.map((r) => `${r.ok ? "✓" : "✗"} ${r.name}`).join(t("main.listSep")) +
+        (compatBootable(probed) ? "" : ` — ${t("main.compat.missing")}`) +
+        " " + String(SUPPORT_LINE);
     }
   }
+  paintCompat();
   // مهاجرت یک‌بار localStorage → IDB (0.55.0 — #۱۶) و پیام وضعیت اسلات‌ها.
   // ناهمگام است پس پیام «در حال بررسی…» اول می‌آید و نتیجه بعداً می‌نشیند.
-  saveStatus.textContent = "در حال بررسی ذخیره‌ها…";
+  saveStatus.textContent = t("main.save.checking");
   migrateToIdb().catch(() => ({ ok: false })).then(async () => {
     const info = await infoSlot(SLOTS.auto);
     const m = await infoSlot(SLOTS.manual);
-    if (m.exists) saveStatus.textContent = `ذخیره دستی تیک ${m.tick} موجود است (${m.bytes} بایت)`;
-    else if (info.exists) saveStatus.textContent = `ذخیره خودکار تیک ${info.tick} موجود است — «بارگذاری» بزن`;
-    else saveStatus.textContent = "ذخیره‌ای نیست — خودکار هر ۳۰ ثانیه";
+    if (m.exists) saveStatus.textContent = t("main.save.haveManual", { tick: m.tick, bytes: m.bytes });
+    else if (info.exists) saveStatus.textContent = t("main.save.haveAuto", { tick: info.tick });
+    else saveStatus.textContent = t("main.save.none");
+  });
+  // تغییر زبان: هرچه یک‌بار در بوت ساخته شده (پالت، سلکت‌ها، لوگوها…) دوباره برچسب می‌خورد
+  // و پنل‌های دوره‌ای تازه می‌شوند. فقط نمایش؛ state/sim دست‌نخورده.
+  onLangChange(() => {
+    relabelPalette();
+    for (const fn of menuRelabelFns) fn();
+    for (const btn of document.querySelectorAll("#profileLogoGrid [data-logo]")) {
+      btn.title = t("main.profile.logoTitle", { n: (btn.dataset.logo | 0) + 1 });
+    }
+    paintKeyButtons();
+    paintBadge();
+    paintSoundBtn();
+    paintFlatBtn(renderer.isFlat());
+    paintCompat();
+    setTick(state.tick);
+    paintSeed();
+    paintReplayStatus();
+    paintReplayBar();
+    paintMp(lobby);
+    paintMarket();
+    paintTrain();
+    if (editor) { syncEditorPanel(); edCounts(); }
+    if (online && typeof online.relabel === "function") online.relabel();
+    refreshPanel();
   });
   requestAnimationFrame(frame);
 
@@ -2660,8 +2737,8 @@ function boot() {
     const passed = results.filter((r) => r.pass).length;
     testBadge.hidden = false;
     testBadge.className = passed === results.length ? "pass" : "fail";
-    testBadge.textContent = `تست: ${passed}/${results.length} — ` +
-      results.map((r) => `${r.pass ? "✓" : "✗"} ${r.name}`).join("، ");
+    testBadge.textContent = t("main.tests.badge", { passed, total: results.length }) + " — " +
+      results.map((r) => `${r.pass ? "✓" : "✗"} ${r.name}`).join(t("main.listSep"));
   }
   if (/[?&]test\b/.test(location.search)) {
     setTimeout(showTests, 400);
@@ -2727,7 +2804,7 @@ function boot() {
     },
     ff: (n) => { // جلو بردن هم‌زمان (تست) — آینه حلقه اصلی
       stepSim(state, terrain, n, cmdQueue);
-      tickEl.textContent = "تیک " + state.tick;
+      setTick(state.tick);
       refreshPanel();
       return state.tick;
     },
@@ -2796,7 +2873,7 @@ function boot() {
     selectedIds: () => selIds.slice(), // مجموعه انتخاب (0.16.0)
     alarm: (c, r) => { // زنگ خطر — قلاب تست (0.17.0)
       const rs = alarmAll(state, c, r);
-      if (rs.some((r) => r.ok)) state.events.push(`زنگ خطر! تجمع در (${c}، ${r})`);
+      if (rs.some((r) => r.ok)) state.events.push(t("main.alarm.event", { c, r }));
       refreshPanel();
       return rs;
     },
