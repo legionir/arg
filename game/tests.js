@@ -62,6 +62,7 @@ import {
   validateMapDoc, normalizeMapDoc, exportMapDoc, importMapDoc,
   validatePlayable, namedMapByKey, mapNameFor, saveCustomSlot, loadCustomSlot,
 } from "./mapedit.js";
+import { createMenuNav, MENU_PAGES } from "./menunav.js";
 import { enableMp, mpClearSpawns, MP_SPAWN_ANCHOR, stateHash, updateMpAlive } from "./mp.js";
 import { placeKeepFor } from "./construction.js";
 import { validRoomPassword, roomRowHTML } from "./lobby.js";
@@ -3960,9 +3961,71 @@ function t_sound_mgr_nofail() {
   return { name: "خرابی صدا بازی را نمی‌شکند", pass: true, detail: "factory خراب + clamp + persist" };
 }
 
+
+// --- صدای رابط + موسیقی مولد (0.70.0) ---
+function t_sound_ui_music() {
+  const { ctx, calls } = stubCtx();
+  const mgr = createSoundManager({ ctxFactory: () => ctx });
+  mgr.ui("click"); mgr.tick(); // پیش از شروع بی‌اثر و بدون خطا
+  must(calls.tones === 0, "پیش از شروع نباید نوسان‌ساز بسازد");
+  must(mgr.ensureStarted(), "شروع باید موفق باشد");
+  const afterStart = calls.tones;
+  for (const k of ["click", "hover", "back", "open", "tick", "start"]) mgr.ui(k);
+  for (const k of ["place", "order", "deny", "coin", "alarm", "hire"]) mgr.ack(k);
+  must(calls.tones > afterStart + 10, `جلوه‌های رابط/بازی باید نوسان بسازند (${calls.tones - afterStart})`);
+  // هاور محدودکننده دارد: دو هاور هم‌زمان = یکی
+  const c1 = calls.tones; mgr.ui("hover"); mgr.ui("hover");
+  must(calls.tones - c1 <= 1, "هاور باید throttle شود");
+  // موسیقی: tick با ساعت ثابت فقط یک نت می‌زند، با پیشروی ساعت نت بعدی
+  const m0 = calls.tones; mgr.tick(); mgr.tick();
+  const first = calls.tones - m0;
+  ctx.currentTime += 60; mgr.tick();
+  must(calls.tones > m0 + first || first >= 1, "tick باید با پیشروی ساعت نت بزند");
+  mgr.setMood("menu"); mgr.setMood("game");
+  must(mgr.mood === "game", "حالت باید game شود");
+  mgr.setMood("بی‌معنی");
+  must(mgr.mood === "game", "حالت نامعتبر به game برمی‌گردد");
+  // شدت نبرد → طبل
+  mgr.setIntensity(1); ctx.currentTime += 5; const d0 = calls.tones; mgr.tick();
+  must(calls.tones > d0, "با شدت بالا باید ضربه طبل بیاید");
+  // سقف هم‌زمانی: انفجار جلوه‌ها بی‌پایان نوسان نمی‌سازد
+  const v0 = calls.tones; for (let i = 0; i < 200; i++) mgr.ack("place");
+  must(calls.tones - v0 < 200, "سقف voice باید جلوی انفجار را بگیرد");
+  mgr.setSuspended(true); mgr.setSuspended(false);
+  mgr.setMuted(true); const mm = calls.tones; ctx.currentTime += 60; mgr.tick();
+  must(calls.tones === mm, "در حالت بی‌صدا موسیقی زمان‌بندی نمی‌شود");
+  mgr.setMuted(false);
+  return { name: "صدای رابط و موسیقی مولد", pass: true, detail: "ui/ack/mood/drum/limit/mute" };
+}
+
+// --- ناوبری منوی اصلی (0.70.0): صفحه اول = فهرست؛ هر دکمه = بخش خودش ---
+function t_menu_nav() {
+  const nav = createMenuNav();
+  must(nav.current === "home" && nav.depth === 1, "شروع روی home");
+  must(nav.go("solo") === "solo" && nav.depth === 2, "رفتن به solo");
+  must(nav.go("solo") === "solo" && nav.depth === 2, "تکرار پشت‌سرهم پشته را بزرگ نمی‌کند");
+  must(nav.go("settings") === "settings" && nav.depth === 3, "عمق ۳");
+  must(nav.back() === "solo" && nav.back() === "home", "بازگشت پله‌ای");
+  must(nav.back() === "home" && nav.depth === 1, "بازگشت از home بی‌اثر");
+  must(nav.go("نامعتبر") === "home", "صفحه ناشناخته = home");
+  nav.go("mp"); nav.go("profile");
+  must(nav.go("home") === "home" && nav.depth === 1, "go(home) پشته را ریست می‌کند");
+  nav.go("mp"); must(nav.reset() === "home" && nav.current === "home", "reset");
+  must(MENU_PAGES.includes("home") && new Set(MENU_PAGES).size === MENU_PAGES.length, "فهرست صفحه‌ها یکتا");
+  // DOM زنده: هر صفحه‌ی فهرست‌شده یک section دارد و دکمه‌های صفحه اول به آن‌ها می‌روند
+  if (typeof document !== "undefined" && document.getElementById("menuBox")) {
+    const box = document.getElementById("menuBox");
+    for (const p of MENU_PAGES) must(box.querySelector(`.menu-page[data-page="${p}"]`), `section صفحه ${p} نیست`);
+    const goes = [...box.querySelectorAll('.menu-page[data-page="home"] [data-go]')].map((b) => b.dataset.go);
+    for (const g of goes) must(MENU_PAGES.includes(g), `data-go نامعتبر: ${g}`);
+    for (const id of ["soloBtn", "mpCard", "profileNameInput", "volMusic", "a11yPalSel"]) must(document.getElementById(id), `#${id} باید در منو باشد`);
+  }
+  return { name: "ناوبری منوی چندصفحه‌ای", pass: true, detail: "پشته + DOM" };
+}
+
 function soundCases() {
   return [t_sound_diff_bld, t_sound_diff_unit, t_sound_cap_walk,
-    t_sound_snapshot_live, t_sound_mgr_stub, t_sound_mgr_nofail];
+    t_sound_snapshot_live, t_sound_mgr_stub, t_sound_mgr_nofail, t_sound_ui_music, t_menu_nav];
 }
 
 // --- ری‌پلی از لاگ فرمان (0.49.0 — #۲۱ از FEATURES): ضبط + بازپخش قطعی + اعتبارسنجی ---

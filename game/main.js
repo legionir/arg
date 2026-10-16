@@ -413,6 +413,22 @@ function boot() {
   const sound = createSoundManager();
   let lastSoundSnap = null;
   document.addEventListener("pointerdown", () => sound.ensureStarted(), { capture: true });
+  document.addEventListener("keydown", () => sound.ensureStarted(), { capture: true });
+  // صداهای رابط (0.70.0): کلیک دکمه‌ها/انتخاب‌ها، هاور منو و کارت‌ها — کاملاً نمایشی.
+  document.addEventListener("click", (e) => {
+    const el = e.target && e.target.closest ? e.target.closest("button, select, [data-go], .bcard") : null;
+    if (!el || el.disabled || el.id === "volMusic" || el.id === "volSfx") return;
+    if (el.matches(".page-back, .modalClose, [data-close]")) sound.ui("back");
+    else if (el.matches("#soloBtn, #mpStartBtn, #defeatRestartBtn, #victoryRestartBtn")) sound.ui("start");
+    else if (el.matches(".nav-btn, #menuBtn, #saveIconBtn, #helpIconBtn, #onlineIconBtn, #taxIconBtn")) sound.ui("open");
+    else sound.ui("click");
+  }, { capture: true });
+  document.addEventListener("pointerover", (e) => {
+    const el = e.target && e.target.closest ? e.target.closest(".nav-btn, .bcard") : null;
+    if (el && !el.disabled && e.pointerType !== "touch") sound.ui("hover");
+  });
+  // تب پنهان = صدا متوقف (باتری/پس‌زمینه)؛ بازگشت = ادامه
+  document.addEventListener("visibilitychange", () => sound.setSuspended(document.hidden));
   const clock = createClock({
     hz: CONFIG.TICK_HZ,
     maxPerFrame: CONFIG.MAX_TICKS_PER_FRAME,
@@ -1263,19 +1279,19 @@ function boot() {
       // بازار خودی حین استخدام مسلح (0.64.0 — ب-۳): فقط پنل معامله toggle می‌شود.
       if (bHit && bHit.type === "market" && ownBld(bHit)) { toggleMarket(bHit.id); refreshPanel(); return; }
       if (bHit || uHit) return; // روی موجود: کاری نکن
-      if (mpSession) { mpSend("hire", { type: selectedUnit, c: cell.c, r: cell.r }); sound.ack("place"); return; }
+      if (mpSession) { mpSend("hire", { type: selectedUnit, c: cell.c, r: cell.r }); sound.ack("hire"); return; }
       playerCmd( { kind: "hire", type: selectedUnit, c: cell.c, r: cell.r }, state.tick);
-      sound.ack("place");
+      sound.ack("hire");
       refreshPanel();
       return;
     }
     // زنگ خطر (0.17.0): مسلح و سراسری — هر کلیک نقشه = تجمع ارتش در آن نقطه
     // (حتی روی ساختمان؛ مقصد ناممکن به همسایه باز حل می‌شود).
     if (pendingKind === "alarm") {
-      if (mpSession) { mpSend("alarm", { c: cell.c, r: cell.r }); pendingKind = null; sound.ack("order"); refreshPanel(); return; }
+      if (mpSession) { mpSend("alarm", { c: cell.c, r: cell.r }); pendingKind = null; sound.ack("alarm"); refreshPanel(); return; }
       playerCmd( { kind: "alarm", c: cell.c, r: cell.r }, state.tick);
       pendingKind = null;
-      sound.ack("order");
+      sound.ack("alarm");
       refreshPanel();
       return;
     }
@@ -1561,9 +1577,17 @@ function boot() {
   // صدا (0.48.0): دکمه بی‌صدا/باصدا با ماندگاری localStorage؛ شروع واقعی
   // AudioContext با اولین ژست (pointerdown سراسری) است، این دکمه فقط mute است.
   const soundIconBtn = $("soundIconBtn");
+  const volMusic = $("volMusic"), volSfx = $("volSfx"), volMute = $("volMute");
   function paintSoundBtn() {
     soundIconBtn.textContent = sound.volumes.muted ? "🔇" : "🔊";
     soundIconBtn.title = sound.volumes.muted ? t("main.sound.mutedTip") : t("ui.sound.onTip");
+    // کارت صدا در تنظیمات منو (0.70.0): همان ولوم‌های ماندگار
+    if (volMusic) volMusic.value = String(Math.round(sound.volumes.music * 100));
+    if (volSfx) volSfx.value = String(Math.round(sound.volumes.sfx * 100));
+    if (volMute) {
+      volMute.setAttribute("aria-pressed", sound.volumes.muted ? "true" : "false");
+      volMute.textContent = (sound.volumes.muted ? "🔇 " : "🔊 ") + t(sound.volumes.muted ? "ui.sound.stateOn" : "ui.sound.stateOff");
+    }
   }
   paintSoundBtn();
   soundIconBtn.addEventListener("click", () => {
@@ -1571,6 +1595,11 @@ function boot() {
     paintSoundBtn();
     sound.ack("place");
   });
+  if (volMusic) volMusic.addEventListener("input", () => sound.setMusic(volMusic.value / 100));
+  if (volSfx) {
+    volSfx.addEventListener("input", () => { sound.setSfx(volSfx.value / 100); sound.ui("tick"); });
+  }
+  if (volMute) volMute.addEventListener("click", () => { sound.setMuted(!sound.volumes.muted); paintSoundBtn(); });
   $("mercsClose").addEventListener("click", () => { hideMercs(); refreshPanel(); });
   // لغو سفارش آموزش (0.65.0): دکمه ✕ هر ردیف صف — بازپرداخت کامل با سقف.
   $("mercsOverlay").addEventListener("click", (e) => {
@@ -1591,9 +1620,9 @@ function boot() {
     if (replayWatch) return; // تماشا: معامله نیست (0.49.0)
     const parts = String(t.dataset.trade).split(":");
     const dir = parts[0], res = parts[1];
-    if (mpSession) { mpSend("trade", { res, dir }); sound.ack("place"); return; }
+    if (mpSession) { mpSend("trade", { res, dir }); sound.ack("coin"); return; }
     playerCmd({ kind: "trade", res, dir }, state.tick);
-    sound.ack("place");
+    sound.ack("coin");
     refreshPanel();
   });
   const onlineIconBtn = $("onlineIconBtn");
@@ -1941,6 +1970,7 @@ function boot() {
   let menuNavApi = null; // ناوبری چندصفحه‌ای منو (menunav.js) — پس از boot ساخته می‌شود
   function showMenu() {
     if (menuNavApi) menuNavApi.reset(); // صفحه اول همیشه فقط فهرست دکمه‌هاست
+    sound.setMood("menu");
     if (!mpSession) state.paused = true; // بازی پشت منو متوقف می‌ماند
     const ms = $("menuScreen");
     if (ms) ms.hidden = false;
@@ -1950,6 +1980,7 @@ function boot() {
     refreshPanel();
   }
   function hideMenu() {
+    sound.setMood("game");
     const ms = $("menuScreen");
     if (ms) ms.hidden = true;
     menuStarted = true;
@@ -2661,6 +2692,7 @@ function boot() {
   let lastFpsT = performance.now(), frames = 0, fps = 0;
   function frame(now) {
     clock.frame(now);
+    sound.tick(); // موسیقی مولد/طبل نبرد روی ساعت صوتی (ارزان؛ بدون ctx = هیچ)
     // ویرایشگر (0.51.0): فقط زمین موقت، بدون ساختمان/یگان/گوست/هاور.
     renderer.draw(editor ? blankView() : state, terrain,
       editor ? null : hover, editor ? null : ghostDef(),
