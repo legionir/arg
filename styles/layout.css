@@ -101,6 +101,16 @@ body { text-align: start; }
   .field-row { flex-wrap: wrap; }
   .field-row > .lbl { min-width: 0; flex-basis: 100%; }
 }
+@media (max-width: 800px) {
+  #topbar { gap: var(--sp-1); padding: 0.4rem var(--sp-3); }
+  #topbar button, #tickEl { font-size: var(--fs-xs); padding: 0.3rem 0.6rem; }
+  #minimapCard { display: flex; flex-direction: row; align-items: center; gap: var(--sp-3); text-align: start; }
+  #minimapCard h2 { margin: 0; }
+  #minimap { max-width: 110px; flex: 0 0 auto; }
+  #buildBar { flex-direction: column; }
+  #buildStats { width: auto; }
+  #buildStats .card { height: auto; }
+}
 @media (max-width: 480px) {
   #statusbar { gap: var(--sp-2); }
   #menuBox .menu-lang { position: static; align-self: flex-end; }
