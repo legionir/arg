@@ -137,7 +137,7 @@ export function createRenderer(canvas) {
   // دکور زمین (فایل؛ فقط روی تایل غیرقابل‌بازی تا با occupancy دروغ نگوید)
   function drawDecor(kind, variant, cx, cy, dw, dh) {
     const img = getSprite(`assets/environment/${kind}-${variant}.png`);
-    if (!img) return;
+    if (!img) { tIncomplete = true; return; }
     const w = dw * view.zoom, h = dh * view.zoom;
     ctx.drawImage(img, cx - w / 2, cy + 3 * view.zoom - h, w, h);
   }
@@ -1847,6 +1847,91 @@ export function createRenderer(canvas) {
     }
   }
 
+  // ---------- کش لایه زمین ----------
+  let tCache = null, tCacheKey = "", tIncomplete = false;
+
+  function terrainSig(terrain) {
+    let h = 17;
+    for (let i = 0; i < terrain.length; i++) h = (Math.imul(h, 31) + terrain[i] + 1) | 0;
+    return h;
+  }
+
+  function paintTerrain(state, terrain, gridStroke, det, GW, GH) {
+    waterList.length = 0;
+    for (let r = 0; r < GH; r++) {
+      for (let c = 0; c < GW; c++) {
+        const t = terrain[r * GW + c];
+        const pts = diamond(c, r);
+        const h = hash2(c, r);
+        if (t === T_WATER) {
+          const img = tileImage("water", (state.tick >> 4) & 1);
+          if (img) blitTile(img, pts);
+          else { tIncomplete = true; drawWater(pts, c, r, state.tick, det); }
+          waterList.push(c, r);
+        } else if (t === T_ROCK) {
+          const img = tileImage("rock", (h * 3) | 0);
+          if (img) blitTile(img, pts);
+          else { tIncomplete = true; drawRock(pts, c, r, det); }
+          // تخته‌سنگ: فقط روی سنگ (غیرقابل‌ساخت/غیرقابل‌عبور — بدون دروغ occupancy)
+          if (hash2(c * 3 + 1, r * 7) > 0.5) {
+            drawDecor("boulder", (h * 2) | 0, (pts[0].x + pts[2].x) / 2, (pts[0].y + pts[2].y) / 2, 22, 20);
+          }
+        } else {
+          // وزن‌دار: ۰-۳ رایج، ۴ (خشک) ~۱۰٪، ۵ (خاک+گل) ~۱۲٪ تا نقشه لکه‌لکه نشود
+          const r2 = (h * 7) % 1;
+          const gv = r2 > 0.9 ? 4 : r2 > 0.78 ? 5 : (h * 4) | 0;
+          const img = tileImage("grass", gv);
+          if (img) blitTile(img, pts);
+          else { tIncomplete = true; drawGrass(pts, c, r, det); }
+        }
+        poly(pts, null, gridStroke, 1);
+      }
+    }
+    // کف ساحل فقط روی آب‌ها (نه کل ۱۰۲۴ خانه) + نیزار لبه ساحل
+    for (let i = 0; i < waterList.length; i += 2) {
+      const c = waterList[i], r = waterList[i + 1];
+      const pts = diamond(c, r);
+      drawShore(pts, c, r, terrain, GW, GH);
+      // نیزار: آبِ مجاور چمن، ~۳۰٪ — روی آب غیرقابل‌عبور، بدون دروغ occupancy
+      if (hash2(c * 5 + 2, r * 3 + 4) > 0.7 &&
+          (tileAt(terrain, GW, GH, c, r - 1) === T_GRASS || tileAt(terrain, GW, GH, c, r + 1) === T_GRASS ||
+           tileAt(terrain, GW, GH, c - 1, r) === T_GRASS || tileAt(terrain, GW, GH, c + 1, r) === T_GRASS)) {
+        drawDecor("reeds", (hash2(c, r) * 2) | 0, (pts[0].x + pts[2].x) / 2, (pts[0].y + pts[2].y) / 2, 12, 20);
+      }
+    }
+  }
+
+  function drawTerrainLayer(state, terrain, gridStroke, det, GW, GH) {
+    const cv = ctx.canvas;
+    const key = [cv.width, cv.height, W, H, dpr, view.zoom, O.x, O.y, gridStroke, det ? 1 : 0, (state.tick >> 4) & 1,
+      GW, GH, terrainSig(terrain)].join("|");
+    if (tCache && tCacheKey === key && typeof tCache.width === "number") {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.drawImage(tCache, 0, 0);
+      ctx.restore();
+      return;
+    }
+    // ریسم روی بوم خارج‌صحنه (اگر پشتیبانی نشد، مستقیم روی بوم اصلی)
+    const main = ctx;
+    let off = null;
+    try {
+      off = tCache || document.createElement("canvas");
+      if (off.width !== cv.width || off.height !== cv.height) { off.width = cv.width; off.height = cv.height; }
+      const octx = off.getContext("2d");
+      if (!octx) off = null; else { ctx = octx; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    } catch (e) { off = null; }
+    tIncomplete = false;
+    try { paintTerrain(state, terrain, gridStroke, det, GW, GH); } finally { ctx = main; }
+    if (off) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.drawImage(off, 0, 0);
+      ctx.restore();
+      if (tIncomplete) { tCache = null; tCacheKey = ""; } else { tCache = off; tCacheKey = key; }
+    }
+  }
+
   // ---------- قاب اصلی ----------
 
   function draw(state, terrain, hover, selectedDef, selId, wallLine) {
@@ -1885,48 +1970,10 @@ export function createRenderer(canvas) {
     // در زوم دور خط گرید حذف می‌شود — هم نامرئی است هم هزاران stroke کم می‌شود.
     const placement = !!(selectedDef && hover && hover.ghost !== false);
     const gridStroke = placement ? "rgba(0,0,0,0.22)" : (view.zoom >= 0.5 ? "rgba(0,0,0,0.07)" : null);
-    waterList.length = 0;
-    for (let r = 0; r < GH; r++) {
-      for (let c = 0; c < GW; c++) {
-        const t = terrain[r * GW + c];
-        const pts = diamond(c, r);
-        const h = hash2(c, r);
-        if (t === T_WATER) {
-          const img = tileImage("water", (state.tick >> 4) & 1);
-          if (img) blitTile(img, pts);
-          else drawWater(pts, c, r, state.tick, det);
-          waterList.push(c, r);
-        } else if (t === T_ROCK) {
-          const img = tileImage("rock", (h * 3) | 0);
-          if (img) blitTile(img, pts);
-          else drawRock(pts, c, r, det);
-          // تخته‌سنگ: فقط روی سنگ (غیرقابل‌ساخت/غیرقابل‌عبور — بدون دروغ occupancy)
-          if (hash2(c * 3 + 1, r * 7) > 0.5) {
-            drawDecor("boulder", (h * 2) | 0, (pts[0].x + pts[2].x) / 2, (pts[0].y + pts[2].y) / 2, 22, 20);
-          }
-        } else {
-          // وزن‌دار: ۰-۳ رایج، ۴ (خشک) ~۱۰٪، ۵ (خاک+گل) ~۱۲٪ تا نقشه لکه‌لکه نشود
-          const r2 = (h * 7) % 1;
-          const gv = r2 > 0.9 ? 4 : r2 > 0.78 ? 5 : (h * 4) | 0;
-          const img = tileImage("grass", gv);
-          if (img) blitTile(img, pts);
-          else drawGrass(pts, c, r, det);
-        }
-        poly(pts, null, gridStroke, 1);
-      }
-    }
-    // کف ساحل فقط روی آب‌ها (نه کل ۱۰۲۴ خانه) + نیزار لبه ساحل
-    for (let i = 0; i < waterList.length; i += 2) {
-      const c = waterList[i], r = waterList[i + 1];
-      const pts = diamond(c, r);
-      drawShore(pts, c, r, terrain, GW, GH);
-      // نیزار: آبِ مجاور چمن، ~۳۰٪ — روی آب غیرقابل‌عبور، بدون دروغ occupancy
-      if (hash2(c * 5 + 2, r * 3 + 4) > 0.7 &&
-          (tileAt(terrain, GW, GH, c, r - 1) === T_GRASS || tileAt(terrain, GW, GH, c, r + 1) === T_GRASS ||
-           tileAt(terrain, GW, GH, c - 1, r) === T_GRASS || tileAt(terrain, GW, GH, c + 1, r) === T_GRASS)) {
-        drawDecor("reeds", (hash2(c, r) * 2) | 0, (pts[0].x + pts[2].x) / 2, (pts[0].y + pts[2].y) / 2, 12, 20);
-      }
-    }
+    // لایه زمین ایستا: با کلید (زمین/مبدأ/زوم/آب/گرید) روی بوم خارج‌صحنه کش می‌شود و
+    // در فریم‌های بی‌تغییر یک drawImage می‌شود (به‌جای ~۱۰هزار فراخوانی رسم در هر فریم).
+    // تا همه اسپرایت‌ها آماده نشده‌اند (یا fallback وکتوری فعال است) کش ثبت نمی‌شود.
+    drawTerrainLayer(state, terrain, gridStroke, det, GW, GH);
     // اجساد روی زمین (زیر ساختمان‌ها/واحدها)
     drawCorpses(state.tick);
     // اجساد/پاف‌ها از حذف واحدها بین فریم‌ها (قبل از مرتب‌سازی عمق)

@@ -29,7 +29,11 @@ export function getSprite(path) {
       }
     };
     if (INLINE[path] !== undefined) e2.img.src = INLINE[path];
-    else {
+    else if (/^assets\/(units|terrain|environment)\//.test(path)) {
+      // این پوشه‌ها کاملاً inline‌اند: مسیر ناموجود = fallback وکتوری بی‌درخواست شبکه (۴۰۴ بی‌جا نمی‌دهد)
+      bad.add(path);
+      console.warn("[assets] sprite missing, using vector fallback:", path);
+    } else {
       e2.img.crossOrigin = "anonymous";
       e2.img.src = path;
     }

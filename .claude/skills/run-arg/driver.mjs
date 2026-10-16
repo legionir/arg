@@ -41,7 +41,11 @@ try {
   await page.waitForSelector("#menuScreen");
   if (cmd === "tests") {
     await page.waitForSelector("#testBadge:not([hidden])", { timeout: 60000 });
-    console.log((await page.textContent("#testBadge")).split("،")[0].slice(0, 160) + " …");
+    await page.waitForFunction(() => document.body.dataset.testsDone === "1", null, { timeout: 60000 });
+    const badge = await page.textContent("#testBadge");
+    console.log(badge.split("،")[0].slice(0, 160) + " …");
+    const m = badge.match(/(\d+)\/(\d+)/);
+    if (m && m[1] !== m[2]) code = 1;
   } else {
     if (opt("solo", false)) { await page.click("#soloBtn"); await page.waitForSelector("#menuScreen", { state: "hidden" }); }
     await page.waitForTimeout(+opt("wait", 1500));

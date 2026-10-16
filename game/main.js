@@ -2730,7 +2730,9 @@ function boot() {
     runIdbTests().then((extra) => {
       paintTestResults(results.concat(extra));
       console.log("[tests-idb]", extra);
-    }).catch((e) => console.error("[tests-idb]", e));
+    }).catch((e) => console.error("[tests-idb]", e)).finally(() => {
+      document.body.dataset.testsDone = "1"; // سیگنال پایان فاز ناهمگام برای درایور/CI
+    });
     return results;
   }
   function paintTestResults(results) {
