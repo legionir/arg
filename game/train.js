@@ -13,19 +13,15 @@
 // - قطعیت: بدون RNG؛ ترتیب = id سربازخانه، بعد ترتیب صف. هش MP فقط صف‌های
 //   غیرخالی را mix می‌کند تا هش‌های پین رگرسیون ۸تایی دست‌نخورده بمانند.
 // - ذخیره: `train` اختیاری روی بنا (قدیمی = [])؛ ری‌پلی: خودکار (فرمان‌ها).
+import { t } from "./i18n.js";
+import { lazyTable } from "./lazytext.js";
 import { CONFIG } from "./config.js";
 import { UNITS, validateHire, spawnUnit } from "./combat.js";
 import { capFor } from "./economy.js";
 import { T_GRASS } from "./terrain.js";
 import { nearestWalkable } from "./pathfind.js";
 
-export const TRAIN_FA = {
-  OK: "معتبر",
-  QUEUE_FULL: "صف آموزش پر است",
-  NOT_OWNED: "سربازخانه خودت نیست",
-  BAD_QUEUE: "سفارش نامعتبر است",
-  NO_BARRACKS: "اول سربازخانه بساز",
-};
+export const TRAIN_FA = lazyTable("game.train", ["OK", "QUEUE_FULL", "NOT_OWNED", "BAD_QUEUE", "NO_BARRACKS"]);
 
 // مدت آموزش یک نوع (تیک). پیش‌فرض امن برای نوع‌های بی‌فیلد (دشمن/ارباب).
 export function trainTimeOf(type) {
@@ -156,7 +152,7 @@ export function stepTraining(state, terrain) {
         n++;
       }
       b.train.length = 0;
-      if (n > 0) state.events.push(`ویرانی سربازخانه — ${n} سفارش آموزش بازپرداخت شد`);
+      if (n > 0) state.events.push(t("game.ev.trainRefund", { count: n }));
       continue;
     }
     if (b.buildLeft > 0) continue; // نیمه‌کاره پیش نمی‌رود
@@ -181,7 +177,7 @@ export function stepTraining(state, terrain) {
             (res[def.requiresWeapon] || 0) + 1);
         }
       }
-      state.events.push(`تحویل ${UNITS[head.type] ? UNITS[head.type].name : head.type} ناممکن بود — هزینه برگشت`);
+      state.events.push(t("game.ev.trainFail", { unit: UNITS[head.type] ? UNITS[head.type].name : head.type }));
       continue;
     }
     spawnUnit(state, head.type, spot[0] + 0.5, spot[1] + 0.5, owner);

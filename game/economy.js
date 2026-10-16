@@ -1,5 +1,6 @@
 // اقتصاد v1: تولید + مالیات + جیره + محبوبیت + مهاجرت (ECON-001/002).
 // همه ضرایب placeholder اند (source: guess) — استخراج مرجع در src/research/popularity-extraction.md.
+import { t } from "./i18n.js";
 import { CONFIG } from "./config.js";
 import { underConstruction } from "./construction.js";
 
@@ -19,19 +20,19 @@ export const INN = { beerEveryTicks: 50, popBonus: 3, source: "guess" };
 // مالیات: درآمد طلا به ازای هر کارگر استخر، هر ۵۰ تیک. همه guess تا استخراج مرجع.
 // رشوه (0.14.0): سطح منفی — پرداخت طلا برای محبوبیت (مثل Tax مرجع).
 export const TAX = {
-  bribe:  { goldPerWorker: -1, pop: 5,  name: "رشوه", source: "reference: stronghold-wiki/tax" },
-  none:   { goldPerWorker: 0, pop: 2,  name: "بدون مالیات", source: "guess" },
-  low:    { goldPerWorker: 1, pop: 0,  name: "کم", source: "guess" },
-  normal: { goldPerWorker: 2, pop: -2, name: "متوسط", source: "guess" },
-  high:   { goldPerWorker: 4, pop: -5, name: "سنگین", source: "guess" },
+  bribe:  { goldPerWorker: -1, pop: 5,  get name() { return t("game.tax.bribe"); }, source: "reference: stronghold-wiki/tax" },
+  none:   { goldPerWorker: 0, pop: 2,  get name() { return t("game.tax.none"); }, source: "guess" },
+  low:    { goldPerWorker: 1, pop: 0,  get name() { return t("game.tax.low"); }, source: "guess" },
+  normal: { goldPerWorker: 2, pop: -2, get name() { return t("game.tax.normal"); }, source: "guess" },
+  high:   { goldPerWorker: 4, pop: -5, get name() { return t("game.tax.high"); }, source: "guess" },
 };
 
 // جیره: مضرب مصرف غذا (foodNum/۲) + اثر محبوبیت. همه guess تا استخراج مرجع.
 export const RATIONS = {
-  none:   { foodNum: 0, pop: -4, name: "بدون جیره", source: "guess" },
-  half:   { foodNum: 1, pop: -1, name: "نصف جیره", source: "guess" },
-  normal: { foodNum: 2, pop: 1,  name: "جیره کامل", source: "guess" },
-  double: { foodNum: 4, pop: 3,  name: "جیره مضاعف", source: "guess" },
+  none:   { foodNum: 0, pop: -4, get name() { return t("game.ration.none"); }, source: "guess" },
+  half:   { foodNum: 1, pop: -1, get name() { return t("game.ration.half"); }, source: "guess" },
+  normal: { foodNum: 2, pop: 1,  get name() { return t("game.ration.normal"); }, source: "guess" },
+  double: { foodNum: 4, pop: 3,  get name() { return t("game.ration.double"); }, source: "guess" },
 };
 
 export const EAT_THRESHOLD = 400; // = ۲۰۰ تیک × ۲؛ انباشت‌گر صحیح برای قطعیت

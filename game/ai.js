@@ -9,6 +9,7 @@
 // (نابودی همه دشمنان) دست‌یافتنی بماند؛ سقوط ستاد AI = خاموشی کامل.
 // قطعیت: بدون Math.random — تنها تصادف aiRand(seed,tick,salt) است که تابعی از
 // اعداد ذخیره‌شونده است، پس save/load دنباله را نمی‌شکند.
+import { t } from "./i18n.js";
 import { CONFIG } from "./config.js";
 import { T_GRASS } from "./terrain.js";
 import { tryPlace, validate, placeKeepFor } from "./construction.js";
@@ -81,7 +82,7 @@ export function startAI(state, terrain, W, H, diff, personality) {
   ai.dormant = false;
   ai.difficulty = CONFIG.AI.difficulties[diff] ? diff : "normal";
   ai.personality = CONFIG.AI.personalities[personality] ? personality : CONFIG.AI.defaultPersonality;
-  state.events.push(`حریف (${aiPersonalityName(ai)}، درجه ${CONFIG.AI.diffNames[ai.difficulty]}) در گوشه نقشه مستقر شد! (نقطه قرمز)`);
+  state.events.push(t("game.ev.aiSetup", { personality: aiPersonalityName(ai), difficulty: CONFIG.AI.diffNames[ai.difficulty] }));
   return { ok: true, reason: "OK" };
 }
 
@@ -238,7 +239,7 @@ function aiRaid(state, terrain, W, H) {
     orderAttackMove(state, h.unit, tc, tr);
   }
   if (hired > 0) {
-    state.events.push(`یورش حریف! ${hired} مهاجم به سمت قلعه می‌آیند.`);
+    state.events.push(t("game.ev.aiRaid", { hired: hired }));
   }
   ai.raidsSent++;
 }
@@ -253,7 +254,7 @@ export function stepAI(state, terrain) {
   const keep = state.buildings.find((b) => b.id === ai.keepId && !b.destroyed);
   if (!keep) {
     ai.dormant = true;
-    state.events.push("ستاد حریف ویران شد! حریف دیگر نیروی تازه نمی‌سازد.");
+    state.events.push(t("game.ev.aiKeepDown"));
     return;
   }
   if (state.tick < ai.nextThink) return;

@@ -9,6 +9,7 @@
 // - اعتبارسنجی سنگین در اجرا (applyCmd) انجام می‌شود، نه در enqueue؛
 //   پس خرج دوباره (double-spend) ممکن نیست.
 // - path واحدها عمداً در هش نیست (گذراست و پس از load بازمحاسبه می‌شود).
+import { t } from "./i18n.js";
 import { CONFIG } from "./config.js";
 import { tryPlace } from "./construction.js";
 import { stepEconomy, assignStaff, TAX, RATIONS } from "./economy.js";
@@ -240,7 +241,7 @@ export function applyCmd(state, terrain, cmd) {
       if (!isInt(cmd.c) || !isInt(cmd.r)) return { ok: false, reason: "INVALID" };
       const rs = alarmAll(state, cmd.c, cmd.r, mp ? owner : undefined);
       if (!mp && rs.some((r) => r.ok)) {
-        state.events.push(`زنگ خطر! تجمع در (${cmd.c}، ${cmd.r})`);
+        state.events.push(t("game.ev.alarm", { c: cmd.c, r: cmd.r }));
       }
       return { ok: true, reason: "OK", results: rs };
     }

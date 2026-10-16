@@ -9,20 +9,13 @@
 // - قطعی و صحیح: فقط ریاضی صحیح روی منابع؛ هش جدا نمی‌خواهد (منابع از قبل
 //   در stateHash‌اند)؛ ذخیره جدا نمی‌خواهد (فیلد تازه‌ای نیست)؛ AI معامله
 //   نمی‌کند (فقط بازیکن — تصمیم ثبت‌شده).
+import { t } from "./i18n.js";
+import { lazyTable } from "./lazytext.js";
 import { CONFIG } from "./config.js";
 import { capFor } from "./economy.js";
 import { underConstruction } from "./construction.js";
 
-export const TRADE_FA = {
-  INVALID: "نامعتبر",
-  NOT_OWNED: "مال خودت نیست",
-  NO_MARKET: "اول بازار بساز",
-  UNDER_CONSTRUCTION: "بازار نیمه‌کاره است",
-  NO_GOLD: "طلای کافی نداری",
-  NO_STOCK: "منبع کافی نداری",
-  NO_SPACE: "انبار جا ندارد",
-  UNKNOWN: "منبع قابل‌معامله نیست",
-};
+export const TRADE_FA = lazyTable("game.trade", ["INVALID", "NOT_OWNED", "NO_MARKET", "UNDER_CONSTRUCTION", "NO_GOLD", "NO_STOCK", "NO_SPACE", "UNKNOWN"]);
 
 function tradeRes(state, owner) {
   const mp = state.mp && state.mp.enabled;
