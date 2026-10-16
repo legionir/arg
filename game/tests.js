@@ -63,6 +63,7 @@ import {
   validatePlayable, namedMapByKey, mapNameFor, saveCustomSlot, loadCustomSlot,
 } from "./mapedit.js";
 import { createMenuNav, MENU_PAGES } from "./menunav.js";
+import { nextHint, HINT_STEPS } from "./hints.js";
 import { enableMp, mpClearSpawns, MP_SPAWN_ANCHOR, stateHash, updateMpAlive } from "./mp.js";
 import { placeKeepFor } from "./construction.js";
 import { validRoomPassword, roomRowHTML } from "./lobby.js";
@@ -4023,9 +4024,30 @@ function t_menu_nav() {
   return { name: "ناوبری منوی چندصفحه‌ای", pass: true, detail: "پشته + DOM" };
 }
 
+// --- راهنمای هدف بعدی (0.70.0): ترتیب نقاط عطف + نادیده‌گرفتن نیمه‌کاره/ویران/حریف ---
+function t_hints() {
+  const B = (type, extra) => Object.assign({ type, owner: 0, buildLeft: 0, destroyed: false }, extra || {});
+  must(nextHint({ buildings: [], units: [] }) === "ui.hint.woodcutter", "شروع = چوب‌بری");
+  let st = { buildings: [B("woodcutter")], units: [] };
+  must(nextHint(st) === "ui.hint.farm", "بعد مزرعه");
+  st.buildings.push(B("farm"), B("hut"));
+  must(nextHint(st) === "ui.hint.hut", "یک کلبه کافی نیست");
+  st.buildings.push(B("hut"), B("quarry", { buildLeft: 5 }));
+  must(nextHint(st) === "ui.hint.quarry", "معدن نیمه‌کاره حساب نمی‌شود");
+  st.buildings[st.buildings.length - 1].buildLeft = 0;
+  st.buildings.push(B("tower", { destroyed: true }), B("tower", { owner: 9 }));
+  must(nextHint(st) === "ui.hint.tower", "برج ویران/حریف حساب نمی‌شود");
+  st.buildings.push(B("tower"), B("tower"), B("barracks"));
+  must(nextHint(st) === "ui.hint.hire", "سربازخانه هست، سرباز نیست");
+  st.units.push({ type: "soldier", owner: 0, dead: false }, { type: "lord", owner: 0, dead: false });
+  must(nextHint(st) === null, "همه نقاط عطف = بدون راهنما");
+  must(HINT_STEPS.length === 7 && new Set(HINT_STEPS.map((x) => x.key)).size === 7, "گام‌های یکتا");
+  return { name: "راهنمای هدف بعدی", pass: true, detail: "ترتیب + فیلتر" };
+}
+
 function soundCases() {
   return [t_sound_diff_bld, t_sound_diff_unit, t_sound_cap_walk,
-    t_sound_snapshot_live, t_sound_mgr_stub, t_sound_mgr_nofail, t_sound_ui_music, t_menu_nav];
+    t_sound_snapshot_live, t_sound_mgr_stub, t_sound_mgr_nofail, t_sound_ui_music, t_menu_nav, t_hints];
 }
 
 // --- ری‌پلی از لاگ فرمان (0.49.0 — #۲۱ از FEATURES): ضبط + بازپخش قطعی + اعتبارسنجی ---

@@ -115,7 +115,7 @@ label.lbl { margin: 0; white-space: nowrap; }
 #profileLogoGrid button { font-size: 1.4rem; padding: 0.4rem 0; line-height: 1.2; }
 
 /* ---- Modal ---- */
-.modalOverlay { position: fixed; inset: 0; z-index: var(--z-modal); background: var(--scrim); backdrop-filter: blur(3px);
+.modalOverlay { position: fixed; inset: 0; z-index: var(--z-modal); background: rgb(5 8 12 / 0.8);
   display: flex; align-items: center; justify-content: center; padding: var(--sp-4); animation: fade var(--t-med) var(--ease); }
 .modalBox { position: relative; width: 32.5rem; max-width: 94vw; animation: rise var(--t-med) var(--ease); }
 .modalBox .card { margin: 0; max-height: 86dvh; overflow-y: auto; box-shadow: var(--shadow-3); padding-block-start: 2.75rem; }
@@ -136,7 +136,7 @@ label.lbl { margin: 0; white-space: nowrap; }
 #testBadge.pass { background: #0f2a1b; border-color: var(--ok); color: #bdf2d3; }
 #testBadge.fail { background: #2e1210; border-color: var(--danger); color: #f6cbc6; }
 #defeatBanner, #victoryBanner { position: fixed; inset: 0; z-index: var(--z-banner); display: flex; align-items: center; justify-content: center;
-  background: var(--scrim); backdrop-filter: blur(3px); animation: fade var(--t-med) var(--ease); }
+  background: rgb(5 8 12 / 0.8); animation: fade var(--t-med) var(--ease); }
 #defeatBox, #victoryBox { border-radius: var(--r-lg); padding: var(--sp-5) var(--sp-6); text-align: center; box-shadow: var(--shadow-3); animation: rise var(--t-med) var(--ease); }
 #defeatBox { background: #1a1214; border: 2px solid var(--danger); }
 #victoryBox { background: #15190f; border: 2px solid var(--gold-400); }
@@ -148,3 +148,21 @@ label.lbl { margin: 0; white-space: nowrap; }
 
 @keyframes fade { from { opacity: 0; } }
 @keyframes rise { from { opacity: 0; transform: translateY(8px) scale(0.985); } }
+
+/* ---- Help card ---- */
+.help-h { font-size: var(--fs-xs); font-weight: var(--fw-semibold); letter-spacing: 0.02em; color: var(--text-3); margin-block: var(--sp-2); }
+.help-keys { margin: 0 0 var(--sp-3); display: grid; gap: var(--sp-2); }
+.help-keys > div { display: grid; grid-template-columns: 7.5rem 1fr; gap: var(--sp-3); align-items: baseline; padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-3); border: 1px solid var(--line-1); border-radius: var(--r-md); }
+.help-keys dt { font-size: var(--fs-xs); font-weight: var(--fw-semibold); color: var(--gold-400); }
+.help-keys dd { margin: 0; font-size: var(--fs-xs); color: var(--text-2); line-height: var(--lh-base); }
+.help-more { border-top: 1px solid var(--line-1); padding-top: var(--sp-2); }
+.help-more > summary { cursor: pointer; font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-1); padding-block: var(--sp-2); list-style-position: inside; }
+.help-more > summary:focus-visible { outline: 2px solid var(--gold-400); outline-offset: 2px; }
+.help-more > p { max-width: 62ch; }
+@media (max-width: 480px) { .help-keys > div { grid-template-columns: 1fr; gap: 0.1rem; } }
+
+/* ---- Onboarding hint ---- */
+.hint { margin-block-start: var(--sp-2); padding: var(--sp-2) var(--sp-3); font-size: var(--fs-xs); line-height: var(--lh-base); color: var(--gold-300);
+  background: var(--gold-bg); border: 1px solid var(--gold-line); border-radius: var(--r-md); }
+.hint b { color: var(--gold-400); }

@@ -2138,7 +2138,7 @@ export function createRenderer(canvas) {
     c2.ellipse(px, py + 1, S * 0.26, S * 0.11, 0, 0, Math.PI * 2);
     c2.fillStyle = "rgba(0,0,0,0.3)";
     c2.fill();
-    const sheet = getSprite(`assets/units/${type}.png`);
+    const sheet = def.siege ? null : getSprite(`assets/units/${type}.png`); // ماشین‌های محاصره وکتوری‌اند (بدون شیت)
     if (sheet) {
       c2.drawImage(sheet, 0, 32, 32, 32, px - S / 2, py - S * (30 / 32), S, S);
     } else if (type === "ram" || type === "catapult") {

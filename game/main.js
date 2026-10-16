@@ -24,6 +24,7 @@ import { WALL_LINE_MAX, isLineDragType, wallLineTiles } from "./wallline.js";
 import { pinchDist, pinchZoom, LONG_PRESS_MS, LONG_PRESS_SLOP, longPressMoved, dragMovedFar, panForDrag } from "./gestures.js";
 import { createSoundManager, soundSnapshot } from "./sound.js";
 import { bindMenuNav } from "./menunav.js";
+import { nextHint } from "./hints.js";
 import { hasMarket, tradeQuote, applyTrade, TRADE_FA } from "./market.js";
 import {
   REPLAY_CMD_CAP, createRecorder, recordCmd, validateReplayLog,
@@ -779,6 +780,13 @@ function boot() {
     for (const [ban, btn] of [[defeatBanner, defeatRestartBtn], [victoryBanner, victoryRestartBtn]]) {
       if (!ban.hidden && !ban.dataset.focused) { ban.dataset.focused = "1"; btn.focus({ preventScroll: true }); }
       else if (ban.hidden && ban.dataset.focused) delete ban.dataset.focused;
+    }
+    // هدف بعدی (onboarding): فقط سولوی زنده؛ با رسیدن به همه نقاط عطف پنهان می‌شود.
+    const hintEl = $("hintEl");
+    if (hintEl) {
+      const hk = (mpSession || replayWatch || state.defeated || state.victorious) ? null : nextHint(state);
+      if (hk) { const txt = t("ui.hint.prefix") + " " + t(hk); if (hintEl.textContent !== txt) hintEl.textContent = txt; }
+      hintEl.hidden = !hk;
     }
     if (!mpSession) online.maybeReport(state); // ثبت پیروزی در تالار مشترک (0.23.0؛ فقط یک‌بار)
     pruneMercs(); // سربازخانه میزبان نوار مزدورها ویران شده؟ بستن خودکار
@@ -2689,7 +2697,7 @@ function boot() {
     });
   }
 
-  let lastFpsT = performance.now(), frames = 0, fps = 0;
+  let lastFpsT = performance.now(), frames = 0, fps = 0, lowFpsStreak = 0;
   function frame(now) {
     clock.frame(now);
     sound.tick(); // موسیقی مولد/طبل نبرد روی ساعت صوتی (ارزان؛ بدون ctx = هیچ)
@@ -2714,7 +2722,10 @@ function boot() {
       fpsEl.textContent = t("main.fps", { fps }) + (fidelityAuto ? ` ${t("main.fps.auto", { f: fidelity })}` : "");
       // افت خودکار کیفیت (0.58.0 — #۲۷): زیر ۲۰fps پله‌ای کم می‌کند (فقط پایین،
       // هرگز بالا)؛ انتخاب دستی کاربر لغوش می‌کند. sim دست‌نخورده می‌ماند.
-      if (fps < 20 && $("menuScreen").hidden) {
+      // نمونه‌های پیاپی (۴×۵۰۰ms) لازم است: افت لحظه‌ای (تب/مودال/بارگذاری) کیفیت را برای همیشه نمی‌کاهد.
+      lowFpsStreak = (fps < 20 && $("menuScreen").hidden && !document.hidden) ? lowFpsStreak + 1 : 0;
+      if (lowFpsStreak >= 4) {
+        lowFpsStreak = 0;
         const next = fidelity === "full" ? "balanced" : fidelity === "balanced" ? "lite" : null;
         if (next) {
           fidelityAuto = true;
