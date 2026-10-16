@@ -1,0 +1,1048 @@
+<script type="text/x-server-plugin">
+// تالار پیروزی + لابی رقابتی (0.24.0) — سرور مرجع سبک، بدون شبیه‌سازی.
+// کل این اسکریپت عمومی است: هیچ رازی در آن نیست. همه ورودی‌ها اعتبارسنجی
+// می‌شوند. سرور بازی را اجرا نمی‌کند؛ فقط ورودی‌ها را شماره‌دار (seq) و پخش
+// می‌کند (lockstep سبک: اجرا سر execTick روی کلاینت).
+// چیدمان state (LE) نسخه ۴:
+// [0]=نسخه(۴) [1]=شمار تالار(۰..۲۰) + ۲۰ رکورد ۳۳ بایتی از آفست ۲ (مثل قبل).
+// اتاق‌ها از آفست ۶۶۴: ۳۲ اتاق ۱۳۶ بایتی (نسخه ۴: رمز + سیدِ زمان ساخت).
+// هر اتاق: ۰..۳ کد ASCII چهارحرفی (۰=خالی) +۴ حداکثر(۲..۴) +۵ تعداد +۶ شروع‌شده
+// +۷ میزبان +۸..۱۱ seq بعدی +۱۲..۱۵ seed (زمان ساخت؛ خالی=تصادفی سرور)
+// +۱۶ پرچم (بیت۰=خصوصی) +۱۷..۲۰ هش رمز +۲۱..۲۳ رزرو +۲۴..۱۳۵ چهار اسلات ۲۸ بایتی:
+// هر اسلات: +۰ هست +۱ آماده +۲ طول‌نام +۳..۲۶ نام ۱۲ واحد UTF-16 +۲۷ لوگو (۰..۱۱).
+// رمز هرگز plaintext نگه داشته نمی‌شود — فقط هش FNV-1a (رمز + "|" + کد).
+var HALL_VERSION = 1;
+var STATE_VERSION = 4;
+var OFF_ROOMS = 664;
+var ROOMS_MAX = 32;
+var ROOM_SIZE = 136;
+var MP_MAX = 4;
+var MP_CODE_ALPHA = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+var HALL_MAX = 20;
+var NAME_MAX = 12;
+var PWD_MAX = 16; // سقف طول رمز اتاق (نویسه JS)
+var LOGOS_MAX = 12; // تعداد لوگوی پروفایل (آینه PROFILE_LOGOS در profile.js)
+var ENTRY_SIZE = 33;
+var OFF_COUNT = 1;
+var OFF_ENTRIES = 2;
+
+function hRdU32(o) { return (state[o] | (state[o + 1] << 8) | (state[o + 2] << 16) | (state[o + 3] << 24)) >>> 0; }
+function hWrU32(o, v) { state[o] = v & 255; state[o + 1] = (v >>> 8) & 255; state[o + 2] = (v >>> 16) & 255; state[o + 3] = (v >>> 24) & 255; }
+function hRdU16(o) { return state[o] | (state[o + 1] << 8); }
+function hWrU16(o, v) { state[o] = v & 255; state[o + 1] = (v >>> 8) & 255; }
+function hEntryOff(i) { return OFF_ENTRIES + i * ENTRY_SIZE; }
+function hGetCount() { var c = state[OFF_COUNT]; return c <= HALL_MAX ? c : HALL_MAX; }
+function hReadName(o, n) { var s = ""; for (var k = 0; k < n; k++) s += String.fromCharCode(hRdU16(o + 9 + k * 2)); return s; }
+function hCopyEntry(dst, src) {
+  var a = hEntryOff(dst), b = hEntryOff(src);
+  for (var k = 0; k < ENTRY_SIZE; k++) state[a + k] = state[b + k];
+}
+function hWriteEntry(i, ticks, at, name) {
+  var o = hEntryOff(i);
+  hWrU32(o, ticks); hWrU32(o + 4, at);
+  var n = name.length < NAME_MAX ? name.length : NAME_MAX;
+  state[o + 8] = n;
+  for (var k = 0; k < NAME_MAX; k++) hWrU16(o + 9 + k * 2, k < n ? name.charCodeAt(k) & 65535 : 0);
+}
+function hHallData() {
+  var c = hGetCount(), out = [];
+  for (var i = 0; i < c; i++) {
+    var o = hEntryOff(i), n = state[o + 8];
+    if (n > NAME_MAX) n = NAME_MAX;
+    out.push({ name: hReadName(o, n), ticks: hRdU32(o), at: hRdU32(o + 4) });
+  }
+  return { entries: out };
+}
+function hOk(data) { return JSON.stringify({ ok: true, data: data }); }
+function hErr(code) { return JSON.stringify({ ok: false, err: code }); }
+// نام جنگی: ۱..۱۲ نویسه — حروف فارسی/عربی، لاتین، رقم، فاصله، خط تیره/زیرین، نیم‌فاصله.
+function hValidName(s) {
+  if (typeof s !== "string") return null;
+  var t = s.trim();
+  if (t.length < 1 || t.length > NAME_MAX) return null;
+  for (var i = 0; i < t.length; i++) {
+    var c = t.charCodeAt(i);
+    var ok = c === 32 || c === 45 || c === 95 || c === 0x200C || c === 0x200D ||
+      (c >= 48 && c <= 57) || (c >= 65 && c <= 90) || (c >= 97 && c <= 122) ||
+      (c >= 0x0600 && c <= 0x06FF);
+    if (!ok) return null;
+  }
+  return t;
+}
+
+// محدودکننده‌های زودگذر (با hibernation پاک می‌شوند — سقف‌های state پابرجاست).
+var hLastSubmit = new Map(); // conn.id -> ms
+var hNetSubs = new Map();    // net[3] -> [ms,...] (ساعت اخیر)
+function hNetAllow(g, now) {
+  var arr = hNetSubs.get(g) || [], fresh = [];
+  for (var i = 0; i < arr.length; i++) if (now - arr[i] < 3600000) fresh.push(arr[i]);
+  if (fresh.length >= 10) return false;
+  fresh.push(now);
+  hNetSubs.set(g, fresh);
+  if (hNetSubs.size > 5000) hNetSubs.clear();
+  return true;
+}
+
+// ---- مهاجرت به نسخه ۴: تالار حفظ می‌شود، اتاق‌ها صفر می‌شوند ----
+if (state[0] !== STATE_VERSION) {
+  if (state[0] === HALL_VERSION || state[0] === 2 || state[0] === 3) {
+    var _i;
+    for (_i = OFF_ROOMS; _i < OFF_ROOMS + ROOMS_MAX * ROOM_SIZE; _i++) state[_i] = 0;
+    state[0] = STATE_VERSION;
+  } else {
+    state[0] = STATE_VERSION; state[OFF_COUNT] = 0;
+    var _j;
+    for (_j = OFF_ROOMS; _j < OFF_ROOMS + ROOMS_MAX * ROOM_SIZE; _j++) state[_j] = 0;
+  }
+}
+
+// ---- اتاق‌های رقابتی (فقط لابی + ترتیب ورودی، بدون شبیه‌سازی) ----
+var mpConn = new Map(); // conn.id -> {room, slot}
+var mpCreateAt = new Map(); // conn.id -> ms (سقف ساخت)
+var mpJoinAt = new Map(); // conn.id -> ms (سقف پیوستن — ضد حدس رمز)
+var mpInputAt = new Map(); // conn.id -> [ms,...] (سقف ورودی)
+
+function mpROff(i) { return OFF_ROOMS + i * ROOM_SIZE; }
+function mpSOff(i, s) { return OFF_ROOMS + i * ROOM_SIZE + 24 + s * 28; }
+function mpRdU32(o) { return (state[o] | (state[o + 1] << 8) | (state[o + 2] << 16) | (state[o + 3] << 24)) >>> 0; }
+function mpWrU32(o, v) { state[o] = v & 255; state[o + 1] = (v >>> 8) & 255; state[o + 2] = (v >>> 16) & 255; state[o + 3] = (v >>> 24) & 255; }
+function mpRdU16(o) { return state[o] | (state[o + 1] << 8); }
+function mpWrU16(o, v) { state[o] = v & 255; state[o + 1] = (v >>> 8) & 255; }
+function mpRoomEmpty(i) {
+  var o = mpROff(i);
+  return state[o] === 0 && state[o + 1] === 0 && state[o + 2] === 0 && state[o + 3] === 0;
+}
+function mpRoomCode(i) {
+  var o = mpROff(i);
+  return String.fromCharCode(state[o], state[o + 1], state[o + 2], state[o + 3]);
+}
+function mpValidCode(s) {
+  if (typeof s !== "string" || s.length !== 4) return false;
+  for (var k = 0; k < 4; k++) if (MP_CODE_ALPHA.indexOf(s.charAt(k)) < 0) return false;
+  return true;
+}
+function mpFindRoom(code) {
+  for (var i = 0; i < ROOMS_MAX; i++) {
+    if (mpRoomEmpty(i)) continue;
+    if (mpRoomCode(i) === code) return i;
+  }
+  return -1;
+}
+function mpFreeRoom() {
+  for (var i = 0; i < ROOMS_MAX; i++) if (mpRoomEmpty(i)) return i;
+  return -1;
+}
+function mpReadName(i, s) {
+  var o = mpSOff(i, s), n = state[o + 2];
+  if (n > NAME_MAX) n = NAME_MAX;
+  var out = "";
+  for (var k = 0; k < n; k++) out += String.fromCharCode(mpRdU16(o + 3 + k * 2));
+  return out;
+}
+function mpWriteName(i, s, name) {
+  var o = mpSOff(i, s);
+  var n = name.length < NAME_MAX ? name.length : NAME_MAX;
+  state[o + 2] = n;
+  for (var k = 0; k < NAME_MAX; k++) mpWrU16(o + 3 + k * 2, k < n ? name.charCodeAt(k) & 65535 : 0);
+}
+function mpValidLogo(v) {
+  return typeof v === "number" && v === Math.floor(v) && v >= 0 && v < LOGOS_MAX ? v : null;
+}
+function mpReadLogo(i, s) {
+  var v = state[mpSOff(i, s) + 27];
+  return v < LOGOS_MAX ? v : 0;
+}
+function mpWriteLogo(i, s, logo) {
+  state[mpSOff(i, s) + 27] = logo;
+}
+// رمز اتاق (0.28.0): خالی/فقط‌فاصله = عمومی (null)؛ وگرنه ۱..۱۶ نویسه بدون
+// کنترلی؛ خروجی false یعنی نامعتبر. هش FNV-1a روی (رمز + "|" + کد) با نمک کد.
+function mpValidPassword(pw) {
+  if (pw === undefined || pw === null) return null;
+  if (typeof pw !== "string") return false;
+  var t = pw.trim();
+  if (t.length === 0) return null;
+  if (t.length > PWD_MAX) return false;
+  for (var i = 0; i < t.length; i++) {
+    var c = t.charCodeAt(i);
+    if (c < 32 || c === 127) return false;
+  }
+  return t;
+}
+function mpPwdHash(pw, code) {
+  var h = 2166136261 >>> 0;
+  var s = pw + "|" + code;
+  for (var i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i) & 65535;
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h >>> 0;
+}
+function mpIsPrivate(i) {
+  return (state[mpROff(i) + 16] & 1) === 1;
+}
+function mpCheckPassword(i, pw) {
+  var o = mpROff(i);
+  var want = (state[o + 16] & 1) === 1;
+  if (!want) return true;
+  if (typeof pw !== "string") return false;
+  var t = pw.trim();
+  if (!t) return false;
+  return mpPwdHash(t, mpRoomCode(i)) === mpRdU32(o + 17);
+}
+function mpCount(i) {
+  var n = 0;
+  for (var s = 0; s < MP_MAX; s++) if (state[mpSOff(i, s)] === 1) n++;
+  return n;
+}
+function mpFreeSlot(i) {
+  for (var s = 0; s < MP_MAX; s++) if (state[mpSOff(i, s)] !== 1) return s;
+  return -1;
+}
+function mpRoster(i) {
+  var o = mpROff(i), out = [];
+  for (var s = 0; s < MP_MAX; s++) {
+    var so = mpSOff(i, s);
+    if (state[so] !== 1) continue;
+    out.push({ slot: s, name: mpReadName(i, s), logo: mpReadLogo(i, s), ready: state[so + 1] === 1 });
+  }
+  return { code: mpRoomCode(i), max: state[o + 4], num: state[o + 5], started: state[o + 6] === 1, host: state[o + 7], seq: mpRdU32(o + 8), seed: mpRdU32(o + 12), priv: (state[o + 16] & 1) === 1, players: out };
+}
+function mpTopic(i) { return "mp-" + mpRoomCode(i); }
+function mpPublishRoster(i) {
+  try { pubsub.publish(mpTopic(i), JSON.stringify({ t: "roster", r: mpRoster(i) })); } catch (e) {}
+}
+function mpClearSlot(i, s) {
+  var so = mpSOff(i, s), k;
+  state[so] = 0; state[so + 1] = 0; state[so + 2] = 0; state[so + 27] = 0;
+  for (k = 0; k < NAME_MAX; k++) mpWrU16(so + 3 + k * 2, 0);
+}
+function mpFreeIfEmpty(i) {
+  var o = mpROff(i);
+  if (state[o + 6] === 1) return; // شروع‌شده را نگه دار (نتیجه بازی)
+  if (mpCount(i) > 0) return;
+  state[o] = 0; state[o + 1] = 0; state[o + 2] = 0; state[o + 3] = 0;
+}
+function mpGenCode() {
+  for (var t = 0; t < 30; t++) {
+    var c = "";
+    for (var k = 0; k < 4; k++) c += MP_CODE_ALPHA.charAt((Math.random() * MP_CODE_ALPHA.length) | 0);
+    if (mpFindRoom(c) < 0) return c;
+  }
+  return null;
+}
+function mpGenSeed() {
+  var s = (Date.now() ^ ((Math.random() * 4294967296) >>> 0)) >>> 0;
+  return s === 0 ? 1337 : s;
+}
+function mpInputAllow(id, now) {
+  var arr = mpInputAt.get(id) || [], fresh = [], k;
+  for (k = 0; k < arr.length; k++) if (now - arr[k] < 10000) fresh.push(arr[k]);
+  if (fresh.length >= 30) return false;
+  fresh.push(now);
+  mpInputAt.set(id, fresh);
+  if (mpInputAt.size > 20000) mpInputAt.clear();
+  return true;
+}
+var MP_KINDS = { place: 1, hire: 1, order: 1, retreat: 1, stance: 1, guard: 1, garrison: 1, deploy: 1, gate: 1, tax: 1, rations: 1, alarm: 1, trade: 1, trainCancel: 1, hash: 1 };
+function mpRemoveConn(conn) {
+  var m = mpConn.get(conn.id);
+  hLastSubmit.delete(conn.id);
+  mpInputAt.delete(conn.id);
+  mpCreateAt.delete(conn.id);
+  mpJoinAt.delete(conn.id);
+  if (!m) return;
+  mpConn.delete(conn.id);
+  var i = mpFindRoom(m.code);
+  if (i < 0) return;
+  var so = mpSOff(i, m.slot);
+  if (state[so] === 1) {
+    mpClearSlot(i, m.slot);
+    var o = mpROff(i);
+    state[o + 5] = mpCount(i);
+    if (state[o + 7] === m.slot) {
+      var ns = -1, s;
+      for (s = 0; s < MP_MAX; s++) if (state[mpSOff(i, s)] === 1) { ns = s; break; }
+      state[o + 7] = ns < 0 ? 255 : ns;
+    }
+    try { conn.unsubscribe(mpTopic(i)); } catch (e) {}
+    if (state[o + 6] === 1) {
+      try { pubsub.publish(mpTopic(i), JSON.stringify({ t: "left", slot: m.slot })); } catch (e) {}
+      if (mpCount(i) === 0) { var oo = mpROff(i); state[oo] = 0; state[oo + 1] = 0; state[oo + 2] = 0; state[oo + 3] = 0; }
+    } else {
+      mpFreeIfEmpty(i);
+      mpPublishRoster(i);
+    }
+  }
+}
+
+// ---- ذخیره ابری (0.67.0 — انتخاب ۳-الف کاربر): ۱۶ ورودی ۶۴KB پس از اتاق‌ها ----
+// هر ورودی ۶۵۵۴۸ بایت: [0..3]=هش کلید u32 (۰=خالی) + [4..7]=طول (واحد UTF-16) +
+// [8..11]=زمان unix + [12..65547]=داده (هر نویسه ۲ بایت LE). کلید = هش FNV-1a
+// عبارت کاربر که کلاینت هگز ۸نویسه‌ای می‌فرستد — سرور عبارت را هرگز نمی‌بیند.
+// هر کس عبارت را بداند می‌خواند/می‌نویسد (امنیت در حد «رمز اتاق»).
+var OFF_CLOUD = OFF_ROOMS + ROOMS_MAX * ROOM_SIZE;
+var CLOUD_MAX = 16;
+var CLOUD_DATA = 65536; // بایت داده هر ورودی
+var CLOUD_SIZE = 12 + CLOUD_DATA;
+var CLOUD_CHARS = 32768; // سقف نویسه داده (آینه کلاینت)
+var mpCloudAt = new Map(); // conn.id -> [ms,...] (سقف ذخیره: ۶ در ۱۰ ثانیه)
+function clOff(i) { return OFF_CLOUD + i * CLOUD_SIZE; }
+function clGetU32(o) { return (state[o] | (state[o + 1] << 8) | (state[o + 2] << 16) | (state[o + 3] << 24)) >>> 0; }
+function clSetU32(o, v) { state[o] = v & 255; state[o + 1] = (v >>> 8) & 255; state[o + 2] = (v >>> 16) & 255; state[o + 3] = (v >>> 24) & 255; }
+function clHash(i) { return clGetU32(clOff(i)); }
+function clLen(i) { return clGetU32(clOff(i) + 4); }
+function clAt(i) { return clGetU32(clOff(i) + 8); }
+function clRead(i) {
+  var n = clLen(i), o = clOff(i) + 12, s = "";
+  if (n < 1 || n > CLOUD_CHARS) return null;
+  for (var k = 0; k < n; k++) s += String.fromCharCode(state[o + k * 2] | (state[o + k * 2 + 1] << 8));
+  return s;
+}
+function clWrite(i, data) {
+  var o = clOff(i) + 12;
+  for (var k = 0; k < data.length; k++) {
+    var c = data.charCodeAt(k);
+    state[o + k * 2] = c & 255; state[o + k * 2 + 1] = (c >>> 8) & 255;
+  }
+}
+function clValidKey(k) { return typeof k === "string" && /^[0-9a-f]{8}$/.test(k); }
+function clKeyH(k) { var h = parseInt(k, 16) >>> 0; return h === 0 ? 1 : h; } // ۰ یعنی خالی
+function clFind(h) { for (var i = 0; i < CLOUD_MAX; i++) if (clHash(i) === h) return i; return -1; }
+function clFree() { for (var i = 0; i < CLOUD_MAX; i++) if (clHash(i) === 0) return i; return -1; }
+function clAllow(id, now) {
+  var arr = mpCloudAt.get(id) || [], fresh = [], k;
+  for (k = 0; k < arr.length; k++) if (now - arr[k] < 10000) fresh.push(arr[k]);
+  if (fresh.length >= 6) return false;
+  fresh.push(now);
+  mpCloudAt.set(id, fresh);
+  if (mpCloudAt.size > 20000) mpCloudAt.clear();
+  return true;
+}
+
+self.onopen = function (ev) { ev.conn.subscribe("lobby"); };
+self.onclose = function (ev) { mpRemoveConn(ev.conn); mpCloudAt.delete(ev.conn.id); };
+self.onmessage = function (ev) { /* پیام خام نداریم — فقط RPC */ };
+self.rpc = {
+  // تابلوی رکوردها (مرتب صعودی بر پایه تیک).
+  hall: function () { return hOk(hHallData()); },
+  // شمار حاضران (مشترکان lobby).
+  online: function () { return hOk({ n: pubsub.numSubscribers("lobby") }); },
+  // ثبت پیروزی: {name, ticks} — اعتبارسنجی کامل + محدودیت نرخ.
+  submit: function (ev, data) {
+    var now = Date.now(), conn = ev.conn;
+    var last = hLastSubmit.get(conn.id) || 0;
+    if (now - last < 10000) return hErr("slow");
+    var msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object") return hErr("bad");
+    var name = hValidName(msg.name);
+    if (name === null) return hErr("name");
+    var ticks = msg.ticks;
+    if (typeof ticks !== "number" || ticks !== Math.floor(ticks) || ticks < 200 || ticks > 20000000) return hErr("ticks");
+    if (!hNetAllow(conn.net[3], now)) return hErr("slow");
+    hLastSubmit.set(conn.id, now);
+    if (hLastSubmit.size > 20000) hLastSubmit.clear();
+    var c = hGetCount(), pos = c, i;
+    for (i = 0; i < c; i++) { if (ticks < hRdU32(hEntryOff(i))) { pos = i; break; } }
+    if (pos < HALL_MAX) {
+      var top = c < HALL_MAX ? c : HALL_MAX - 1;
+      for (i = top; i > pos; i--) hCopyEntry(i, i - 1);
+      hWriteEntry(pos, ticks, Math.floor(now / 1000), name);
+      if (c < HALL_MAX) state[OFF_COUNT] = c + 1;
+    }
+    pubsub.publish("lobby", "V:" + name);
+    return hOk("ok");
+  },
+  // ساخت اتاق رقابتی: {name, max, logo?, password?, seed?} -> {code, slot, seed, priv}
+  // password خالی = عمومی؛ seed خالی = تصادفی سرور (همان لحظه ساخته و ذخیره می‌شود).
+  mpCreate: function (ev, data) {
+    var now = Date.now(), conn = ev.conn;
+    var last = mpCreateAt.get(conn.id) || 0;
+    if (now - last < 3000) return hErr("slow");
+    var msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object") return hErr("bad");
+    var name = hValidName(msg.name);
+    if (name === null) return hErr("name");
+    var logo = msg.logo === undefined ? 0 : mpValidLogo(msg.logo);
+    if (logo === null) return hErr("logo");
+    var max = msg.max;
+    if (typeof max !== "number" || max !== Math.floor(max) || max < 2 || max > MP_MAX) return hErr("max");
+    var pw = mpValidPassword(msg.password);
+    if (pw === false) return hErr("password");
+    var seed = mpGenSeed();
+    if (msg.seed !== undefined && msg.seed !== null && msg.seed !== "") {
+      var req = typeof msg.seed === "number" ? msg.seed : parseInt(msg.seed, 10);
+      if (req !== Math.floor(req) || req < 1 || req > 4294967295) return hErr("seed");
+      seed = req >>> 0;
+      if (seed === 0) seed = 1337;
+    }
+    if (mpConn.has(conn.id)) return hErr("inroom");
+    var i = mpFreeRoom();
+    if (i < 0) return hErr("full");
+    var code = mpGenCode();
+    if (!code) return hErr("full");
+    mpCreateAt.set(conn.id, now);
+    var o = mpROff(i), k;
+    state[o] = code.charCodeAt(0); state[o + 1] = code.charCodeAt(1);
+    state[o + 2] = code.charCodeAt(2); state[o + 3] = code.charCodeAt(3);
+    state[o + 4] = max; state[o + 5] = 1; state[o + 6] = 0; state[o + 7] = 0;
+    mpWrU32(o + 8, 1); mpWrU32(o + 12, seed);
+    state[o + 16] = pw === null ? 0 : 1;
+    if (pw === null) { mpWrU32(o + 17, 0); } else { mpWrU32(o + 17, mpPwdHash(pw, code)); }
+    state[o + 21] = 0; state[o + 22] = 0; state[o + 23] = 0;
+    for (k = 0; k < MP_MAX; k++) mpClearSlot(i, k);
+    var so = mpSOff(i, 0);
+    state[so] = 1; state[so + 1] = 0;
+    mpWriteName(i, 0, name);
+    mpWriteLogo(i, 0, logo);
+    conn.subscribe(mpTopic(i));
+    mpConn.set(conn.id, { code: code, room: i, slot: 0 });
+    mpPublishRoster(i);
+    return hOk({ code: code, slot: 0, seed: seed, priv: pw !== null });
+  },
+  // پیوستن: {code, name, logo?, password?} -> {slot}
+  mpJoin: function (ev, data) {
+    var now = Date.now(), conn = ev.conn, msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object") return hErr("bad");
+    var lastJ = mpJoinAt.get(conn.id) || 0;
+    if (now - lastJ < 1500) return hErr("slow");
+    if (!mpValidCode(msg.code)) return hErr("nocode");
+    var name = hValidName(msg.name);
+    if (name === null) return hErr("name");
+    var logo = msg.logo === undefined ? 0 : mpValidLogo(msg.logo);
+    if (logo === null) return hErr("logo");
+    if (mpConn.has(conn.id)) return hErr("inroom");
+    var i = mpFindRoom(msg.code);
+    if (i < 0) return hErr("nocode");
+    var o = mpROff(i);
+    if (state[o + 6] === 1) return hErr("started");
+    if (!mpCheckPassword(i, msg.password)) { mpJoinAt.set(conn.id, now); return hErr("password"); }
+    var s = mpFreeSlot(i);
+    if (s < 0 || mpCount(i) >= state[o + 4]) return hErr("full");
+    mpJoinAt.set(conn.id, now);
+    var so = mpSOff(i, s);
+    state[so] = 1; state[so + 1] = 0;
+    mpWriteName(i, s, name);
+    mpWriteLogo(i, s, logo);
+    state[o + 5] = mpCount(i);
+    conn.subscribe(mpTopic(i));
+    mpConn.set(conn.id, { code: msg.code, room: i, slot: s });
+    mpPublishRoster(i);
+    return hOk({ slot: s, r: mpRoster(i) });
+  },
+  // آماده: {code, ready}
+  mpReady: function (ev, data) {
+    var conn = ev.conn, msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object") return hErr("bad");
+    var m = mpConn.get(conn.id);
+    if (!m || m.code !== msg.code) return hErr("noroom");
+    var i = mpFindRoom(msg.code);
+    if (i < 0) return hErr("nocode");
+    var o = mpROff(i);
+    if (state[o + 6] === 1) return hErr("started");
+    var so = mpSOff(i, m.slot);
+    if (state[so] !== 1) return hErr("noroom");
+    state[so + 1] = msg.ready ? 1 : 0;
+    mpPublishRoster(i);
+    return hOk("ok");
+  },
+  // ویرایش پروفایل در لابی: {code, name?, logo?} — همه حاضرین roster تازه می‌گیرند.
+  mpProfile: function (ev, data) {
+    var conn = ev.conn, msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object") return hErr("bad");
+    var m = mpConn.get(conn.id);
+    if (!m || m.code !== msg.code) return hErr("noroom");
+    var i = mpFindRoom(msg.code);
+    if (i < 0) return hErr("nocode");
+    var so = mpSOff(i, m.slot);
+    if (state[so] !== 1) return hErr("noroom");
+    var changed = false;
+    if (msg.name !== undefined) {
+      var name = hValidName(msg.name);
+      if (name === null) return hErr("name");
+      mpWriteName(i, m.slot, name);
+      changed = true;
+    }
+    if (msg.logo !== undefined) {
+      var logo = mpValidLogo(msg.logo);
+      if (logo === null) return hErr("logo");
+      mpWriteLogo(i, m.slot, logo);
+      changed = true;
+    }
+    if (!changed) return hErr("bad");
+    mpPublishRoster(i);
+    return hOk("ok");
+  },
+  // شروع (فقط میزبان): {code} — همه حاضر آماده + دست‌کم ۲ نفر.
+  // سید همان سیدِ زمان ساخت است (در فهرست اتاق‌ها دیده می‌شود).
+  mpStart: function (ev, data) {
+    var conn = ev.conn, msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object") return hErr("bad");
+    var m = mpConn.get(conn.id);
+    if (!m || m.code !== msg.code) return hErr("noroom");
+    var i = mpFindRoom(msg.code);
+    if (i < 0) return hErr("nocode");
+    var o = mpROff(i);
+    if (state[o + 6] === 1) return hErr("started");
+    if (state[o + 7] !== m.slot) return hErr("nohost");
+    var n = mpCount(i), s;
+    if (n < 2) return hErr("few");
+    for (s = 0; s < MP_MAX; s++) {
+      var so = mpSOff(i, s);
+      if (state[so] === 1 && state[so + 1] !== 1) return hErr("notready");
+    }
+    var seed = mpRdU32(o + 12);
+    if (seed === 0) { seed = mpGenSeed(); mpWrU32(o + 12, seed); }
+    state[o + 6] = 1;
+    mpWrU32(o + 8, 1);
+    var r = mpRoster(i);
+    try { pubsub.publish(mpTopic(i), JSON.stringify({ t: "start", seed: seed, r: r })); } catch (e) {}
+    return hOk({ seed: seed });
+  },
+  // ورودی نوبتی: {code, kind, args, tick} -> {seq}
+  mpInput: function (ev, data) {
+    var now = Date.now(), conn = ev.conn;
+    if (typeof data !== "string" || data.length > 2000) return hErr("bad");
+    var msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object") return hErr("bad");
+    var m = mpConn.get(conn.id);
+    if (!m || m.code !== msg.code) return hErr("noroom");
+    var i = mpFindRoom(msg.code);
+    if (i < 0) return hErr("nocode");
+    var o = mpROff(i);
+    if (state[o + 6] !== 1) return hErr("nostart");
+    var so = mpSOff(i, m.slot);
+    if (state[so] !== 1) return hErr("noroom");
+    if (!MP_KINDS[msg.kind]) return hErr("kind");
+    if (typeof msg.tick !== "number" || msg.tick !== Math.floor(msg.tick) || msg.tick < 0 || msg.tick > 20000000) return hErr("tick");
+    if (msg.args !== undefined && (typeof msg.args !== "object" || msg.args === null)) return hErr("args");
+    if (!mpInputAllow(conn.id, now)) return hErr("slow");
+    var seq = mpRdU32(o + 8);
+    if (seq >= 2000000000) return hErr("full");
+    mpWrU32(o + 8, seq + 1);
+    try { pubsub.publish(mpTopic(i), JSON.stringify({ t: "inp", seq: seq, slot: m.slot, kind: msg.kind, args: msg.args || {}, tick: msg.tick })); } catch (e) { return hErr("big"); }
+    return hOk({ seq: seq });
+  },
+  // وضعیت اتاق: {code}
+  mpRoom: function (ev, data) {
+    var msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object" || !mpValidCode(msg.code)) return hErr("nocode");
+    var i = mpFindRoom(msg.code);
+    if (i < 0) return hErr("nocode");
+    return hOk(mpRoster(i));
+  },
+  // فهرست اتاق‌های باز (حداکثر ۲۰): کد، ظرفیت، سید، عمومی/خصوصی + بازیکنان حاضر.
+  mpList: function () {
+    var out = [], i;
+    for (i = 0; i < ROOMS_MAX && out.length < 20; i++) {
+      if (mpRoomEmpty(i)) continue;
+      var o = mpROff(i);
+      if (state[o + 6] === 1) continue;
+      var n = mpCount(i);
+      if (n >= state[o + 4]) continue;
+      var r = mpRoster(i);
+      out.push({ code: r.code, num: r.num, max: r.max, seed: r.seed, priv: r.priv, players: r.players });
+    }
+    return hOk({ rooms: out });
+  },
+  // ذخیره ابری (0.67.0): {k: هش‌هگز ۸نویسه‌ای, data: رشته JSON} -> {at}
+  // سقف: ۶ ذخیره در ۱۰ ثانیه هر اتصال؛ داده ۲..۳۲۷۶۸ نویسه؛ ۱۶ ورودی مشترک.
+  // خوانش مجدد پس از نوشتن (بافر کوچک‌تر از انتظار = خطای صادقانه big).
+  cloudSave: function (ev, data) {
+    var now = Date.now(), conn = ev.conn;
+    if (!clAllow(conn.id, now)) return hErr("slow");
+    var msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object") return hErr("bad");
+    if (!clValidKey(msg.k)) return hErr("key");
+    if (typeof msg.data !== "string" || msg.data.length < 2 || msg.data.length > CLOUD_CHARS) return hErr("big");
+    var h = clKeyH(msg.k), i = clFind(h);
+    if (i < 0) { i = clFree(); if (i < 0) return hErr("full"); }
+    clSetU32(clOff(i), h); clSetU32(clOff(i) + 4, msg.data.length);
+    clSetU32(clOff(i) + 8, Math.floor(now / 1000));
+    clWrite(i, msg.data);
+    if (clRead(i) !== msg.data) { clSetU32(clOff(i), 0); clSetU32(clOff(i) + 4, 0); return hErr("big"); }
+    return hOk({ at: clAt(i) });
+  },
+  // بارخوانی ابری: {k} -> {data, at} یا empty.
+  cloudLoad: function (ev, data) {
+    var msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object" || !clValidKey(msg.k)) return hErr("key");
+    var i = clFind(clKeyH(msg.k));
+    if (i < 0) return hErr("empty");
+    var s = clRead(i);
+    if (s === null) return hErr("bad");
+    return hOk({ data: s, at: clAt(i) });
+  },
+  // حذف ابری: {k} -> ok (نبودن هم ok است).
+  cloudDelete: function (ev, data) {
+    var msg = null;
+    try { msg = JSON.parse(data); } catch (e) { return hErr("bad"); }
+    if (!msg || typeof msg !== "object" || !clValidKey(msg.k)) return hErr("key");
+    var i = clFind(clKeyH(msg.k));
+    if (i >= 0) { clSetU32(clOff(i), 0); clSetU32(clOff(i) + 4, 0); }
+    return hOk("ok");
+  },
+  // خروج
+  mpLeave: function (ev, data) {
+    var conn = ev.conn, msg = null;
+    try { msg = JSON.parse(data || "{}"); } catch (e) { msg = {}; }
+    var m = mpConn.get(conn.id);
+    if (!m) return hOk("ok");
+    var i = mpFindRoom(m.code);
+    mpConn.delete(conn.id);
+    if (i >= 0) {
+      var so = mpSOff(i, m.slot);
+      if (state[so] === 1) {
+        mpClearSlot(i, m.slot);
+        var o = mpROff(i);
+        state[o + 5] = mpCount(i);
+        if (state[o + 7] === m.slot) {
+          var ns = -1, s;
+          for (s = 0; s < MP_MAX; s++) if (state[mpSOff(i, s)] === 1) { ns = s; break; }
+          state[o + 7] = ns < 0 ? 255 : ns;
+        }
+        if (state[o + 6] === 1) {
+          try { pubsub.publish(mpTopic(i), JSON.stringify({ t: "left", slot: m.slot })); } catch (e) {}
+          if (mpCount(i) === 0) { state[o] = 0; state[o + 1] = 0; state[o + 2] = 0; state[o + 3] = 0; }
+        } else {
+          mpFreeIfEmpty(i);
+          mpPublishRoster(i);
+        }
+      }
+      try { conn.unsubscribe(mpTopic(i)); } catch (e) {}
+    }
+    return hOk("ok");
+  }
+};
+</script>
+<div dir="rtl" lang="fa" id="app">
+  <!-- فیلترهای کمکی کوررنگی (0.57.0 — #۲۶): ماتریس‌های a11y.js روی بوم‌ها -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="a11y-deutan"><feColorMatrix type="matrix" values="1 0 0 0 0  0 0.6 0.4 0 0  0 0.3 0.7 0 0  0 0 0 1 0"/></filter>
+      <filter id="a11y-protan"><feColorMatrix type="matrix" values="0.8 0.2 0 0 0  0.1 0.8 0.1 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+      <filter id="a11y-tritan"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0.25 0.25 0.5 0 0  0 0 0 1 0"/></filter>
+    </defs>
+  </svg>
+  <style>
+    #app { font-family: Tahoma, sans-serif; background: #0c1117; color: #e8e8e8; min-height: 100dvh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+    body { margin: 0; background: #0c1117; text-align: right; }
+    #topbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #131b24; border-bottom: 1px solid #2a3542; flex-wrap: wrap; }
+    #topbar h1 { font-size: 16px; margin: 0 0 0 auto; color: #f0c75e; }
+    #tickEl { background: #1d2836; border: 1px solid #33404f; border-radius: 6px; padding: 4px 12px; font-size: 13px; }
+    #resbar { display: flex; background: #131b24; border-bottom: 1px solid #2a3542; padding: 6px 12px; }
+    #resEl { display: flex; gap: 8px; overflow-x: auto; width: 100%; padding: 2px; }
+    button { font-family: inherit; background: #1d2836; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+    button:hover { background: #26313f; }
+    button.sel { border-color: #f0c75e; color: #f0c75e; }
+    #layout { display: flex; gap: 10px; padding: 10px; flex: 1; min-height: 0; overflow: hidden; }
+    #boardWrap { position: relative; flex: 1; min-width: 0; min-height: 0; border: 1px solid #2a3542; border-radius: 8px; overflow: hidden; background: #10161d; }
+    #board { display: block; cursor: crosshair; }
+    #side { width: 250px; flex-shrink: 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .card { background: #131b24; border: 1px solid #2a3542; border-radius: 8px; padding: 10px 12px; }
+    .card h2 { font-size: 13px; margin: 0 0 8px; color: #9fb2c8; }
+    .card p { font-size: 12px; line-height: 1.9; margin: 0; color: #c6d2e0; }
+    #hutBtn, #towerBtn { width: 100%; margin-bottom: 6px; }
+    .pal { display: flex; flex-direction: column; gap: 8px; }
+    #buildBar { background: #131b24; border-top: 1px solid #2a3542; padding: 8px 12px 10px; flex-shrink: 0;
+      display: flex; gap: 10px; align-items: stretch; position: relative; }
+    #buildStats { width: 215px; flex: 0 0 auto; }
+    #buildStats .card { margin: 0; height: 100%; box-sizing: border-box; }
+    #minimapCard { text-align: center; }
+    #minimap { width: 150px; height: 150px; border: 1px solid #33404f; border-radius: 6px;
+      cursor: pointer; display: inline-block; background: #0c1117; touch-action: none; }
+    #buildScroll { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    #buildScroll h2 { font-size: 13px; margin: 0 0 8px; color: #9fb2c8; }
+    #buildBar #buildPal { flex-direction: row; overflow-x: auto; padding-bottom: 2px; }
+    #buildBar .bcard { width: 210px; flex: 0 0 auto; }
+    #mercsOverlay { position: absolute; inset: 0; z-index: 5; background: rgba(19, 27, 36, 0.97);
+      display: flex; align-items: center; gap: 10px; padding: 8px 12px; box-sizing: border-box; overflow-x: auto; }
+    #mercsOverlay[hidden] { display: none; }
+    #mercsTitle { font-size: 13px; color: #f0c75e; white-space: nowrap; }
+    #mercsOverlay #unitPal { flex-direction: row; flex: 1; min-width: 0; }
+    #mercsOverlay .bcard { width: 210px; flex: 0 0 auto; }
+    #trainQueueEl { display: flex; flex-direction: column; gap: 4px; min-width: 190px; flex: 0 0 auto; }
+    #trainQueueEl .trow { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      background: #1d2836; border: 1px solid #33404f; border-radius: 6px; padding: 4px 8px; font-size: 12px; }
+    #trainQueueEl .trow b { color: #f0c75e; }
+    #trainQueueEl .trow button { padding: 2px 8px; font-size: 11px; }
+    #mercsClose { flex: 0 0 auto; }
+    #marketOverlay { position: absolute; inset: 0; z-index: 5; background: rgba(19, 27, 36, 0.97);
+      display: flex; align-items: center; gap: 10px; padding: 8px 12px; box-sizing: border-box; overflow-x: auto; }
+    #marketOverlay[hidden] { display: none; }
+    #marketTitle { font-size: 13px; color: #f0c75e; white-space: nowrap; }
+    #marketRows { display: flex; gap: 8px; flex: 1; min-width: 0; overflow-x: auto; }
+    #marketRows .mrow { display: flex; flex-direction: column; gap: 4px; align-items: stretch;
+      background: #1d2836; border: 1px solid #33404f; border-radius: 6px; padding: 6px 8px;
+      font-size: 12px; white-space: nowrap; flex: 0 0 auto; }
+    #marketRows .mname b { color: #f0c75e; }
+    #marketRows .mrate { font-size: 11px; color: #9fb2c8; }
+    #marketClose { flex: 0 0 auto; }
+    .bcard { display: flex; gap: 10px; align-items: center; width: 100%; box-sizing: border-box;
+      text-align: right; padding: 8px; margin: 0; background: #1d2836; }
+    .bcard:hover { background: #26313f; }
+    .bcard.sel { border-color: #f0c75e; }
+    .bcard.sel .bname { color: #f0c75e; }
+    .bcard.locked { opacity: 0.55; }
+    .bcard.locked .bname::after { content: " 🔒"; }
+    .bthumb { width: 64px; height: 56px; flex-shrink: 0; background: #0c1117;
+      border: 1px solid #33404f; border-radius: 6px; }
+    .binfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .bname { font-size: 13px; font-weight: bold; color: #e8e8e8; }
+    .bname i { font-style: normal; font-weight: normal; font-size: 11px; color: #9fb2c8; }
+    .bmeta { font-size: 11px; color: #9fb2c8; line-height: 1.7; }
+    .bcost { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; color: #f0c75e; }
+    .bcost span { display: inline-flex; align-items: center; gap: 4px; }
+    .bcost img { width: 16px; height: 16px; }
+    .bcost .free { color: #7fa88f; }
+    .res { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 3px 12px;
+      background: #1d2836; border: 1px solid #33404f; border-radius: 14px; white-space: nowrap; }
+    .res span { display: inline-flex; align-items: center; gap: 5px; color: #9fb2c8; }
+    .res span img { width: 16px; height: 16px; }
+    .res b { color: #f0c75e; }
+    .res b i { color: #7fa88f; font-style: normal; font-size: 11px; }
+    #testBadge { position: fixed; bottom: 44px; left: 12px; z-index: 10; font-size: 12px;
+      padding: 6px 12px; border-radius: 6px; border: 1px solid; max-width: 70vw; }
+    #testBadge.pass { background: #12351f; border-color: #2ecc71; color: #b9f0cd; }
+    #testBadge.fail { background: #3a1512; border-color: #e74c3c; color: #f5c9c4; }
+    #defeatBanner { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+      background: rgba(5, 8, 12, 0.62); }
+    #defeatBanner[hidden] { display: none; }
+    #defeatBox { background: #1a1214; border: 2px solid #e74c3c; border-radius: 12px; padding: 26px 40px; text-align: center; }
+    #defeatBox h2 { margin: 0 0 8px; color: #e74c3c; font-size: 22px; }
+    #defeatBox p { margin: 0 0 16px; color: #e8d0cc; font-size: 14px; }
+    #defeatRestartBtn { font-size: 15px; padding: 8px 26px; }
+    #onlineToast { position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%); z-index: 15;
+      background: #141a10; border: 1px solid #f0c75e; color: #f0e6c8; border-radius: 8px;
+      padding: 8px 18px; font-size: 13px; max-width: 80vw; }
+    #onlineToast[hidden] { display: none; }
+    #replayBar { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 15;
+      background: #101418; border: 1px solid #4d9de0; color: #d8e8f5; border-radius: 8px;
+      padding: 6px 14px; font-size: 13px; display: flex; gap: 12px; align-items: center; max-width: 90vw; }
+    #replayBar[hidden] { display: none; }
+    #warNameInput { font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f;
+      border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box; text-align: center; }
+    #cloudKeyInput { font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f;
+      border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box; text-align: center; direction: ltr; }
+    #onlineCount { color: #2ecc71; font-size: 11px; }
+    #victoryBanner { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center;
+      background: rgba(5, 8, 12, 0.62); }
+    #victoryBanner[hidden] { display: none; }
+    #victoryBox { background: #141a10; border: 2px solid #f0c75e; border-radius: 12px; padding: 26px 40px; text-align: center; }
+    #victoryBox h2 { margin: 0 0 8px; color: #f0c75e; font-size: 22px; }
+    #victoryBox p { margin: 0 0 16px; color: #e8ddc0; font-size: 14px; }
+    #victoryRestartBtn { font-size: 15px; padding: 8px 26px; }
+    .stat { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; color: #9fb2c8; }
+    .lbl { font-size: 11px; color: #9fb2c8; margin: 8px 0 4px; }
+    .opts { display: flex; gap: 4px; }
+    .opts button { flex: 1; font-size: 11px; padding: 5px 2px; }
+    .popRow { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    #popEl.hi { color: #2ecc71; }
+    #popEl.me { color: #f0c75e; }
+    #popEl.lo { color: #e74c3c; }
+    #statusbar { display: flex; gap: 14px; align-items: center; padding: 8px 14px; background: #131b24; border-top: 1px solid #2a3542; font-size: 13px; flex-wrap: wrap; }
+    #statusEl b.ok { color: #2ecc71; }
+    #statusEl b.bad { color: #e74c3c; }
+    #fpsEl { color: #9fb2c8; font-size: 12px; }
+    #statusIcons { display: flex; gap: 6px; margin-right: auto; }
+    #statusIcons button { font-size: 16px; padding: 3px 10px; line-height: 1.5; }
+    #statusIcons button[hidden] { display: none; }
+    .modalOverlay { position: fixed; inset: 0; z-index: 40; background: rgba(5, 8, 12, 0.62);
+      display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+    .modalOverlay[hidden] { display: none; }
+    .modalBox { position: relative; width: 520px; max-width: 94vw; }
+    .modalBox[hidden] { display: none; }
+    .modalBox .card { margin: 0; max-height: 86dvh; overflow-y: auto; }
+    .modalClose { position: absolute; top: 8px; left: 8px; font-size: 13px; padding: 2px 10px; z-index: 1; }
+    @media (max-width: 800px) {
+      #app { height: auto; overflow: visible; }
+      #layout { flex-direction: column; overflow: visible; }
+      #side { width: auto; overflow: visible; }
+      #boardWrap { min-height: 44vh; height: 44vh; flex: none; }
+      #buildStats { width: 150px; }
+    }
+    #menuScreen { position: fixed; inset: 0; z-index: 30; overflow-y: auto;
+      background: rgba(5, 8, 12, 0.94); display: flex; justify-content: center; align-items: flex-start; }
+    #menuScreen[hidden] { display: none; }
+    #menuBox { width: 560px; max-width: 94vw; margin: 26px 0 60px; display: flex; flex-direction: column; gap: 10px; }
+    #menuBox h1 { font-size: 20px; margin: 4px 0; color: #f0c75e; text-align: center; }
+    #menuBox .sub { font-size: 12px; color: #9fb2c8; text-align: center; margin: 0 0 6px; }
+    #menuMsgEl { text-align: center; min-height: 18px; }
+    #soloBtn { font-size: 16px; padding: 12px; background: #1f3a24; border-color: #2ecc71; }
+    #soloBtn:hover { background: #27492d; }
+    #menuCloseBtn { font-size: 14px; padding: 10px; }
+    #editorPanel { position: fixed; top: 52px; right: 8px; z-index: 26; width: 292px; max-width: 92vw;
+      max-height: calc(100vh - 120px); overflow-y: auto; background: rgba(13, 20, 28, 0.96);
+      border: 1px solid #33404f; border-radius: 10px; padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+    #editorPanel[hidden] { display: none; }
+    #editorPanel h2 { font-size: 15px; margin: 0; color: #f0c75e; text-align: center; }
+    #editorPanel .opts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    #editorPanel .lbl { font-size: 12px; color: #9fb2c8; }
+    #editorPanel [data-etile].sel { border-color: #f0c75e; background: #2a2416; }
+    #editorPanel input, #editorPanel select, #editorPanel textarea { font-family: inherit; background: #0c1117;
+      color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 8px;
+      font-size: 12px; box-sizing: border-box; }
+    #editorPanel input { width: 100%; text-align: center; }
+    #editorPanel textarea { width: 100%; resize: vertical; direction: ltr; text-align: left; font-size: 11px; }
+    #editorPanel button { flex: 1 1 auto; }
+    #edStatusEl { min-height: 18px; text-align: center; }
+    #profileLogoGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 8px; }
+    #profileLogoGrid button { font-size: 22px; padding: 6px 2px; line-height: 1.2; }
+    #profileLogoGrid button.sel { border-color: #f0c75e; background: #2a2416; }
+    #profileNameInput { font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f;
+      border-radius: 6px; padding: 8px 10px; font-size: 14px; width: 100%; box-sizing: border-box; text-align: center; }
+    .pbadge { display: inline-flex; align-items: center; gap: 6px; }
+    .pbadge .plogo { font-size: 16px; }
+    #profileBadgeEl { background: #1d2836; border: 1px solid #33404f; border-radius: 6px;
+      padding: 4px 12px; font-size: 13px; cursor: pointer; }
+    #profileBadgeEl:hover { border-color: #f0c75e; }
+    .rosterLogo { font-size: 15px; margin-left: 6px; }
+    .room { background: #1d2836; border: 1px solid #33404f; border-radius: 8px;
+      padding: 8px 10px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .room .rhead { display: flex; gap: 10px; align-items: center; font-size: 13px; flex-wrap: wrap; }
+    .room .rhead b { color: #f0c75e; font-size: 15px; }
+    .room .rhead span { color: #9fb2c8; font-size: 12px; }
+    .room .rplayers { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #c6d2e0; }
+    .room .rplayers .pl { display: inline-flex; align-items: center; }
+    .room input { font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f;
+      border-radius: 6px; padding: 5px 8px; font-size: 12px; flex: 1; min-width: 0; box-sizing: border-box; }
+  </style>
+
+  <div id="topbar">
+    <h1>ارگ (Arg) — نسخه <span id="verEl">…</span></h1>
+    <span id="profileBadgeEl" title="ویرایش نام و لوگو">…</span>
+    <button id="menuBtn">منو</button>
+    <span id="tickEl">تیک 0</span>
+    <button id="pauseBtn">توقف</button>
+    <button id="speedBtn">سرعت 1x</button>
+    <button id="resetBtn">شروع دوباره</button>
+    <button id="waveBtn">موج دشمن</button>
+    <button data-fit>نمایش کل نقشه</button>
+    <button data-flat>نمای تخت</button>
+  </div>
+
+  <div id="resbar"><div id="resEl"></div></div>
+
+  <div id="layout">
+    <div id="boardWrap"><canvas id="board"></canvas></div>
+    <div id="side">
+      <div class="card" id="minimapCard">
+        <h2>نقشه کوچک</h2>
+        <canvas id="minimap" width="150" height="150"></canvas>
+        <div class="lbl">کلیک = پرش دوربین</div>
+      </div>
+      <div class="card" id="unitCard" hidden>
+        <h2>یگان منتخب</h2>
+        <div class="popRow"><span id="unitNameEl">…</span><b id="unitHpEl">…</b></div>
+        <div class="lbl">موضع</div>
+        <div class="opts">
+          <button id="stanceEngageBtn">تهاجمی</button><button id="stanceHoldBtn">دفاعی</button>
+        </div>
+        <div class="lbl">دستور</div>
+        <div class="opts">
+          <button id="attackMoveBtn">حمله‌در‌حرکت</button><button id="retreatBtn">عقب‌نشینی</button><button id="guardBtn">نگهبانی…</button><button id="garrisonBtn">مستقر 🏰</button><button id="deployBtn">استقرار 🏗</button>
+        </div>
+        <div class="lbl" id="unitOrderEl">…</div>
+        <p>کلیک روی نقشه با یگان منتخب = دستور حرکت؛ کلیک روی دشمن = حمله. دکمه «مستقر 🏰» یگان دوربرد منتخب (کماندار/زوبین‌دار/سواره) را برای استقرار در برج مسلح می‌کند — کلیک بعدی روی برج خودی = استقرار (تا ۴ مدافع، شلیک با برد بیشتر)؛ دستور حرکت به مستقر = خروج از برج. دکمه «استقرار 🏗» منجنیق منتخب را مستقر/جمع می‌کند (مستقر = شلیک، سیار = فقط حرکت). شیفت+کلیک روی سرباز: افزودن به انتخاب جمعی؛ شیفت+درگ: انتخاب باکسی همه یگان‌های خودی داخل مستطیل. وقتی یگانی منتخب است گوست ساخت پنهان است.</p>
+      </div>
+      <div class="card" id="taxCard">
+        <h2>مالیات و جیره</h2>
+        <div class="lbl">مالیات (طلا از هر کارگر، هر ۵ ثانیه)</div>
+        <div class="opts">
+          <button data-tax="bribe">رشوه (پرداخت)</button><button data-tax="none">بدون</button><button data-tax="low">کم</button><button data-tax="normal">متوسط</button><button data-tax="high">سنگین</button>
+        </div>
+        <div class="lbl">جیره غذا (مصرف ×، هر کارگر)</div>
+        <div class="opts">
+          <button data-rat="none">بدون</button><button data-rat="half">نصف</button><button data-rat="normal">کامل</button><button data-rat="double">مضاعف</button>
+        </div>
+      </div>
+      <div class="card" id="saveCard">
+        <h2>ذخیره</h2>
+        <div class="opts">
+          <button id="saveBtn">ذخیره دستی</button><button id="loadBtn">بارگذاری</button><button id="delBtn">حذف</button>
+        </div>
+        <div class="lbl" id="saveStatus">…</div>
+        <h2>ابری ☁️ (چند دستگاه)</h2>
+        <div class="opts"><input id="cloudKeyInput" maxlength="32" placeholder="عبارت ابری (۴ تا ۳۲ نویسه)" autocomplete="off" type="password"></div>
+        <div class="opts">
+          <button id="cloudSaveBtn">ذخیره ابری</button><button id="cloudLoadBtn">بارگذاری ابری</button><button id="cloudDelBtn">حذف ابری</button>
+        </div>
+        <div class="lbl" id="cloudStatus">…</div>
+        <h2>ری‌پلی 📼</h2>
+        <div class="opts">
+          <button id="replaySaveBtn">ذخیره ری‌پلی</button><button id="replayWatchBtn">تماشا</button>
+        </div>
+        <div class="lbl" id="replayStatus">…</div>
+      </div>
+      <div class="card" id="onlineCard" hidden>
+        <h2>آنلاین <span id="onlineCount"></span></h2>
+        <div class="lbl">تالار پیروزی (سریع‌ترین‌ها)</div>
+        <div id="hallEl"><div class="lbl">…</div></div>
+      </div>
+      <div class="card" id="helpCard">
+        <h2>راهنما</h2>
+        <div id="compatEl" class="lbl">در حال بررسی سازگاری دستگاه…</div>
+        <p>این پنجره و کارت‌های «ذخیره»، «آنلاین» و «مالیات و جیره» با آیکون‌های 💰 💾 ❓ 🌐 در انتهای چپ نوار پایین باز و بسته می‌شوند (کلیک بیرون یا Esc هم می‌بندد). زنگ خطر هم آیکون 🔔 در همان نوار، سمت راست 💾 است (کلیک بعدی روی نقشه = تجمع ارتش). برای استخدام مزدور، روی سربازخانه خودت کلیک کن تا نوار مزدورها روی نوار ساختمان باز شود.</p>
+        <p>اعتبارها: همه گرافیک (برداری) و صدا (سنتزشده) زمان‌اجرا در همین صفحه ساخته می‌شوند — اثر اورجینال، بدون فایل آماده و بدون دارایی بازی دیگری؛ میزبانی: Perchance. نام محصول: ارگ (Arg).</p>
+        <p>اول در صفحه منو نام و لوگوی خودت را انتخاب کن (ذخیره می‌شود و در اتاق چندنفره همه می‌بینند؛ هر وقت از منو قابل ویرایش است)، بعد تک‌نفره یا چندنفره را بزن. کارت «نقشه» در منوست: دیدن سید فعلی، ساخت نقشه کامل با سید دلخواه یا تصادفی — هر سید دریاچه، سنگ‌ها و پراکنده‌های خودش را می‌سازد و سید در ذخیره می‌ماند. کارت «نبرد چندنفره» هم در منوست: ساخت اتاق ۲ تا ۴ نفره با کد، پیوستن، «آماده» و شروع میزبان — فهرست «اتاق‌های باز» کد، عمومی/خصوصی🔒، ظرفیت، سید نقشه و بازیکنان حاضر هر اتاق را نشان می‌دهد و هر ۱۰ ثانیه تازه می‌شود؛ میزبان موقع ساخت سید نقشه می‌دهد (خالی = تصادفی سرور) و اگر رمز بگذارد اتاق خصوصی می‌شود و پیوستن فقط با همان رمز ممکن است — شروع هم‌زمان روی نقشه بزرگ و متقارن ۶۴×۶۴، هر کس قلعه خودش در یک گوشه (نقطه رنگی مالک بالای بنا/یگان)، برنده = آخرین قلعه زنده؛ در نبرد موج و ذخیره/توقف نیست و خروج حریف قلعه‌اش را ویران می‌کند. در بازی: کارت پالت: مسلح‌شدن برای ساخت/استخدام (کلیک دوباره روی کارت فعال، راست‌کلیک یا Esc = خلع و برگشت به فرمان) — کلیک روی سرباز خودی: انتخاب و دستور/موضع (شیفت+کلیک: انتخاب جمعی؛ شیفت+درگ: انتخاب باکسی؛ Ctrl+1/2/3: ذخیره گروه یگان‌های منتخب، 1/2/3: فراخوانی گروه) — کلیک روی دروازه: باز/بسته — درگ: جابه‌جایی نقشه (با دیوار مسلح: درگ = خط دیوار تا ۳۲ خانه، رها = ساخت زنجیره‌ای) — چرخ موس: زوم؛ کارت «دسترس‌پذیری» در منو: پالت کمکی کوررنگی، مقیاس رابط تا ۱۵۰٪ و تغییر کلیدهای خلع/توقف/صدا (پیش‌فرض P توقف و M صدا؛ Escape همیشه خلع)؛ لمس: پینچ (دو انگشت) = زوم، نگه‌داشتن یک انگشت = خلع مثل راست‌کلیک. سرباز، کماندار، نیزه‌دار، گرزدار، شوالیه، شمشیرزن صلیبی، زوبین‌دار، شمشیرزن عرب، قاتل و کماندار سواره فقط وقتی استخدام می‌شوند که سربازخانه سالم داشته باشی (ساختمان ۴×۳ با سقف سرخ در نوار ساختمانِ پایین صفحه؛ فقط یکی می‌شود ساخت؛ تا نسازی کارت مزدورها قفل 🔒 است و ویرانی‌اش دوباره قفل می‌کند). «بازار» (۲×۲ در نوار ساختمان) دروازه خرید و فروش منابع با واسطه طلاست: کلیک روی بازار خودت پنل معامله را باز می‌کند (بسته ۱۰تایی با نرخ روی هر ردیف؛ فروش همیشه ارزان‌تر از خرید است). سقف هر منبع محدود است (کنار هر منبع نوشته شده): هر «انبار» ۵۰۰ تا به سقف چوب/سنگ/طلا اضافه می‌کند و هر «انبار غذا» ۵۰۰ تا به سقف غذا/گندم/آرد/رازک/آبجو — هرچه بیشتر بسازی، سقف بیشتر؛ ویرانی انبار مازاد را می‌تراشد. یک حریف هم در گوشه مخالف نقشه قلعه می‌سازد (بناهایش نقطه قرمز دارند): اقتصاد می‌چرخاند و در سه نوبت یورش می‌فرستد (درجه سختی حریف را موقع «شروع تک‌نفره» در منو انتخاب می‌کنی: آسان/معمولی/سخت — در ذخیره و ری‌پلی هم می‌ماند). دکمه «🗺 نقشه‌ساز» در منو ویرایشگر زمین است: قلم چمن/آب/سنگ تا ۳۲×۳۲، پاک‌کن (برگشت به سید)، سید پایه، بررسی قابل‌بازی‌بودن، ذخیره محلی، خروجی/ورودی JSON و «آزمایش بازی» روی نقشه سفارشی. — ستادش را ویران کن تا نیروی تازه نسازد؛ پیروزی = نابودی همه دشمنان پس از موج پنجم (شامل نیروهای حریف). نقشه کوچک ۱۵۰×۱۵۰ در کارت آمار، کل نقشه را زنده نشان می‌دهد (آبی خودی، قرمز حریف، ستاره طلایی ستاد) و کلیک روی آن دوربین را به همان‌جا می‌برد. صدا کاملاً سنتزشده است (بدون فایل): با اولین کلیک روشن می‌شود — ساخت/اتمام/ویرانی، ضربه/مرگ نبرد و پیروزی/شکست هرکدام صدای خودشان را دارند و دکمه 🔊 در نوار پایین بی‌صدا/باصدا می‌کند (انتخاب در مرورگر می‌ماند). مزدورها برای استخدام ۱ سلاح هم می‌خواهند (پیاده شمشیر، دوربرد کمان): معدن آهن بساز و در زرادخانه/کمان‌سازی سلاح بساز — بدون سلاح کارت مزدور قفل است. هر برج سالم تا ۴ مدافع دوربرد می‌گیرد: یگان دوربرد را انتخاب کن، «مستقر 🏰» را بزن و روی برج خودت کلیک کن — مدافعان از بالای برج با برد بیشتر می‌زنند (نقطه‌های آبی روی برج؛ شمار در هاور) و با ویرانی برج آزاد می‌شوند. برای حمله به قلعه‌مآب، «دژکوب» (فقط ساختمان، ×۳) و «منجنیق» (برد ۱۰، حداقل ۳، با دکمه استقرار 🏗) را از نوار مزدورهای سربازخانه استخدام کن.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="buildBar">
+    <div id="buildStats">
+      <div class="card">
+        <h2>آمار</h2>
+        <div class="popRow"><span>محبوبیت</span><b id="popEl" class="me">50 ●</b></div>
+        <div class="stat"><span>کارگر آزاد</span><span id="workersEl">4 / ۶</span></div>
+        <div class="stat"><span>ساخته‌شده</span><span id="placedEl">0</span></div>
+        <div class="stat"><span>ردشده</span><span id="rejectedEl">0</span></div>
+        <div class="lbl" id="battleEl">آرامش…</div>
+      </div>
+    </div>
+    <div id="buildScroll">
+      <h2>ساختمان</h2>
+      <div class="pal" id="buildPal"></div>
+    </div>
+    <div id="mercsOverlay" hidden>
+      <span id="mercsTitle">مزدورهای سربازخانه</span>
+      <div class="pal" id="unitPal"></div>
+      <div id="trainQueueEl"></div>
+      <button id="mercsClose" title="بستن">✕</button>
+    </div>
+    <div id="marketOverlay" hidden>
+      <span id="marketTitle">بازار — بسته ۱۰تایی</span>
+      <div id="marketRows"></div>
+      <button id="marketClose" title="بستن">✕</button>
+    </div>
+  </div>
+
+  <div id="statusbar">
+    <span id="statusEl">نشانگر را روی نقشه ببر…</span>
+    <span id="fpsEl"></span>
+    <span id="statusIcons">
+      <button id="taxIconBtn" title="مالیات و جیره" aria-label="مالیات و جیره">💰</button>
+      <button id="alarmBtn" title="زنگ خطر" aria-label="زنگ خطر">🔔</button>
+      <button id="demolishBtn" title="تخریب ساختمان" aria-label="تخریب ساختمان">🧨</button>
+      <button id="saveIconBtn" title="ذخیره" aria-label="ذخیره">💾</button>
+      <button id="soundIconBtn" title="باصدا — کلیک: بی‌صدا" aria-label="صدا">🔊</button>
+      <button id="helpIconBtn" title="راهنما" aria-label="راهنما">❓</button>
+      <button id="onlineIconBtn" title="آنلاین" aria-label="آنلاین" hidden>🌐</button>
+    </span>
+  </div>
+  <!-- مودال‌ها (0.31.0): کارت‌های ذخیره/راهنما/آنلاین در بوت (main.js) از پنل کناری به این جعبه‌ها منتقل می‌شوند -->
+  <div class="modalOverlay" id="modalOverlay" hidden>
+    <div class="modalBox" id="taxModal" hidden><button class="modalClose" data-close>✕</button></div>
+    <div class="modalBox" id="saveModal" hidden><button class="modalClose" data-close>✕</button></div>
+    <div class="modalBox" id="helpModal" hidden><button class="modalClose" data-close>✕</button></div>
+    <div class="modalBox" id="onlineModal" hidden><button class="modalClose" data-close>✕</button></div>
+  </div>
+  <div id="testBadge" hidden></div>
+  <div id="onlineToast" hidden></div>
+  <!-- بنر تماشای ری‌پلی (0.49.0): حالت watch-only — ورودی بسته، خروج به منو -->
+  <div id="replayBar" hidden>
+    <span id="replayBarTxt">📼</span>
+    <button id="replayExitBtn">خروج از تماشا</button>
+  </div>
+  <div id="defeatBanner" hidden>
+    <div id="defeatBox">
+      <h2>شکست!</h2>
+      <p>ستاد سقوط کرد — قلعه از دست رفت.</p>
+      <button id="defeatRestartBtn">شروع دوباره</button>
+    </div>
+  </div>
+  <div id="victoryBanner" hidden>
+    <div id="victoryBox">
+      <h2>پیروزی!</h2>
+      <p>آخرین موج در هم شکست — قلعه پابرجاست.</p>
+      <button id="victoryRestartBtn">بازی دوباره</button>
+    </div>
+  </div>
+  <div id="menuScreen">
+    <div id="menuBox">
+      <h1>🏰 ارگ (Arg)</h1>
+      <p class="sub">اول خودت را معرفی کن، بعد تک‌نفره یا چندنفره را انتخاب کن.</p>
+      <div class="card">
+        <h2>نام و لوگوی تو (برای همه بازیکنان نمایش داده می‌شود)</h2>
+        <div class="opts"><input id="profileNameInput" maxlength="12" placeholder="نام جنگی" autocomplete="off"></div>
+        <div id="profileLogoGrid"></div>
+        <div class="lbl">ذخیره خودکار است — هر وقت از همین‌جا قابل ویرایش است.</div>
+      </div>
+      <button id="soloBtn">⚔️ شروع تک‌نفره</button>
+      <div class="opts"><label class="lbl" for="diffSel">درجه سختی حریف:</label>
+        <select id="diffSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="easy">آسان — یورش دیرتر و کوچک‌تر، اقتصاد حریف کندتر</option><option value="normal">معمولی</option><option value="hard">سخت — یورش زودتر و بزرگ‌تر، اقتصاد حریف تندتر</option></select></div>
+      <div class="opts"><label class="lbl" for="persSel">شخصیت حریف:</label>
+        <select id="persSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="wolf">گرگ</option></select></div>
+      <button id="menuReplayBtn">📼 تماشای ری‌پلی ذخیره‌شده</button>
+      <button id="editorBtn">🗺 نقشه‌ساز</button>
+      <div class="card">
+        <h2>دسترس‌پذیری</h2>
+        <div class="opts"><label class="lbl" for="a11yPalSel">پالت کمکی کوررنگی:</label>
+          <select id="a11yPalSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="off">خاموش</option></select></div>
+        <div class="opts"><label class="lbl" for="a11yScaleSel">مقیاس رابط:</label>
+          <select id="a11yScaleSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="1">۱۰۰٪</option><option value="1.25">۱۲۵٪</option><option value="1.5">۱۵۰٪</option></select></div>
+        <div class="opts"><label class="lbl" for="fidSel">کیفیت رسم:</label>
+          <select id="fidSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="full">کامل</option><option value="balanced">متعادل (بدون پاف)</option><option value="lite">سبک (حداقل جلوه)</option></select></div>
+        <div class="opts"><span class="lbl">کلیدها:</span>
+          <button id="keyCancelBtn" data-keyact="cancel">خلع: …</button><button id="keyPauseBtn" data-keyact="pause">توقف: …</button><button id="keyMuteBtn" data-keyact="mute">صدا: …</button></div>
+        <div class="lbl">پالت‌ها کمکی‌اند (نه تشخیص پزشکی). Escape همیشه خلع می‌کند.</div>
+      </div>
+      <div class="card">
+        <h2>نقشه</h2>
+        <div class="lbl">سید نقشه فعلی: <b id="seedCurEl">…</b></div>
+        <div class="opts"><label class="lbl" for="mapSel">نقشه:</label>
+          <select id="mapSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="custom">سفارشی</option></select></div>
+        <div class="opts"><input id="seedInput" inputmode="numeric" placeholder="سید عددی" autocomplete="off" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;">
+          <button id="seedApplyBtn">ساخت با این سید</button><button id="seedRandomBtn">تصادفی</button></div>
+        <div class="lbl">هر سید یک نقشه یکتای کامل می‌سازد (دریاچه، سنگ‌ها و پراکنده‌ها)؛ در نبرد چندنفره سید میزبان برای همه است.</div>
+      </div>
+      <div class="card" id="mpCard">
+        <h2>نبرد چندنفره <span id="mpConn"></span></h2>
+        <div class="lbl">کد اتاق (۴ حرف لاتین) — بساز یا بپیوند، بعد «آماده»، بعد شروع میزبان. سید و رمز را موقع ساخت می‌دهی (رمز خالی = عمومی). شروع هم‌زمان؛ جوین وسط بازی نیست.</div>
+        <div class="opts"><input id="mpCodeInput" maxlength="4" placeholder="CODE" autocomplete="off" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;">
+          <select id="mpMaxSel" style="font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px;"><option value="2">۲ نفر</option><option value="3">۳ نفر</option><option value="4">۴ نفر</option></select></div>
+        <div class="opts" style="margin-top:6px;"><input id="mpSeedInput" inputmode="numeric" placeholder="سید نقشه اتاق (خالی = تصادفی)" autocomplete="off" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;"></div>
+        <div class="opts" style="margin-top:6px;"><input id="mpPasswordInput" maxlength="16" placeholder="رمز اتاق (خالی = عمومی 🔓)" autocomplete="off" type="password" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;"></div>
+        <div class="opts" style="margin-top:6px;"><button id="mpCreateBtn">ساخت اتاق</button><button id="mpJoinBtn">پیوستن</button><button id="mpLeaveBtn">خروج</button></div>
+        <div class="opts" style="margin-top:6px;"><input id="mpJoinPasswordInput" maxlength="16" placeholder="رمز پیوستن (اگر اتاق خصوصی است)" autocomplete="off" type="password" style="text-align:center; font-family: inherit; background: #0c1117; color: #e8e8e8; border: 1px solid #33404f; border-radius: 6px; padding: 6px 10px; font-size: 13px; width: 100%; box-sizing: border-box;"></div>
+        <div class="lbl" id="mpStatusEl">…</div>
+        <div id="mpRosterEl"></div>
+        <div class="opts" style="margin-top:6px;"><button id="mpReadyBtn">آماده</button><button id="mpStartBtn">شروع (میزبان)</button><button id="mpListBtn">اتاق‌های باز</button></div>
+        <div id="mpListEl"></div>
+      </div>
+      <div class="lbl" id="menuMsgEl"></div>
+      <button id="menuCloseBtn" hidden>بازگشت به بازی</button>
+    </div>
+  </div>
+  <div id="editorPanel" hidden>
+    <h2>🗺 نقشه‌ساز</h2>
+    <div class="lbl">روی نقشه بکش (درگ = قلم) — جابه‌جایی با نقشه کوچک + چرخ موس</div>
+    <div class="opts" id="edTileRow">
+      <button data-etile="0">🌱 چمن</button>
+      <button data-etile="1">🌊 آب</button>
+      <button data-etile="2">🪨 سنگ</button>
+      <button data-etile="erase">🧽 پاک‌کن</button>
+    </div>
+    <div class="opts"><label class="lbl" for="edBrushSel">قلم:</label><select id="edBrushSel"></select></div>
+    <div class="opts"><input id="edNameInput" maxlength="24" placeholder="نام نقشه" autocomplete="off"></div>
+    <div class="opts"><input id="edSeedInput" inputmode="numeric" placeholder="سید پایه" autocomplete="off"></div>
+    <div class="opts"><button id="edSeedBtn">ساخت از سید</button><button id="edCheckBtn">بررسی قابل‌بازی‌بودن</button></div>
+    <div class="lbl" id="edStatusEl"></div>
+    <div class="opts"><button id="edPlayBtn">▶ آزمایش بازی</button><button id="edSaveBtn">💾 ذخیره</button></div>
+    <div class="opts"><button id="edClearBtn">پاک‌کردن وصله‌ها</button><button id="edExitBtn">خروج (Esc)</button></div>
+    <textarea id="edIOArea" rows="3" placeholder="خروجی/ورودی JSON نقشه"></textarea>
+    <div class="opts"><button id="edExportBtn">⬆ خروجی</button><button id="edImportBtn">⬇ ورودی</button></div>
+  </div>
+</div>
+<script type="module" src="src/game/main.js"></script>
