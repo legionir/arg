@@ -55,7 +55,9 @@ body { text-align: start; }
 #statusEl b.ok { color: var(--ok); } #statusEl b.bad { color: var(--danger); }
 #fpsEl { color: var(--text-4); font-size: var(--fs-xs); }
 #statusIcons { display: flex; gap: var(--sp-1); margin-inline-start: auto; }
-#statusIcons button { font-size: 1.05rem; padding: 0.15rem 0.6rem; line-height: 1.5; background: transparent; border-color: transparent; }
+#statusIcons button { padding: 0.25rem 0.55rem; background: transparent; border-color: transparent; display: inline-grid; place-items: center; color: var(--text-2); }
+.sb-ic { width: 1.25rem; height: 1.25rem; display: block; }
+#statusIcons button.sel { color: var(--gold-400); }
 #statusIcons button:hover:not(:disabled) { background: var(--bg-3); border-color: var(--line-2); }
 
 /* ---- Menu screen ---- */

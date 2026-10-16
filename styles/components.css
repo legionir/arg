@@ -162,7 +162,11 @@ label.lbl { margin: 0; white-space: nowrap; }
 .help-more > p { max-width: 62ch; }
 @media (max-width: 480px) { .help-keys > div { grid-template-columns: 1fr; gap: 0.1rem; } }
 
-/* ---- Onboarding hint ---- */
-.hint { margin-block-start: var(--sp-2); padding: var(--sp-2) var(--sp-3); font-size: var(--fs-xs); line-height: var(--lh-base); color: var(--gold-300);
-  background: var(--gold-bg); border: 1px solid var(--gold-line); border-radius: var(--r-md); }
-.hint b { color: var(--gold-400); }
+/* ---- Onboarding hint (one line in the build-bar heading row: never shifts the layout) ---- */
+.build-head { display: flex; align-items: center; gap: var(--sp-3); min-height: 1.9rem; margin-block-end: var(--sp-1); }
+.build-head h2 { margin: 0; flex: 0 0 auto; }
+.hint { flex: 1; min-width: 0; padding: 0.15rem var(--sp-3); font-size: var(--fs-xs); line-height: var(--lh-tight); color: var(--gold-300);
+  background: var(--gold-bg); border: 1px solid var(--gold-line); border-radius: var(--r-pill); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bcard.hinted { border-color: var(--gold-400); animation: hintPulse 1.8s ease-in-out infinite; }
+@keyframes hintPulse { 50% { box-shadow: 0 0 0 3px var(--gold-bg), 0 0 16px rgb(240 199 94 / 0.35); } }
+@media (prefers-reduced-motion: reduce) { .bcard.hinted { animation: none; box-shadow: 0 0 0 2px var(--gold-line); } }

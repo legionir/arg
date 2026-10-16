@@ -63,7 +63,7 @@ import {
   validatePlayable, namedMapByKey, mapNameFor, saveCustomSlot, loadCustomSlot,
 } from "./mapedit.js";
 import { createMenuNav, MENU_PAGES } from "./menunav.js";
-import { nextHint, HINT_STEPS } from "./hints.js";
+import { nextHint, HINT_STEPS, hintBuilding } from "./hints.js";
 import { enableMp, mpClearSpawns, MP_SPAWN_ANCHOR, stateHash, updateMpAlive } from "./mp.js";
 import { placeKeepFor } from "./construction.js";
 import { validRoomPassword, roomRowHTML } from "./lobby.js";
@@ -4041,6 +4041,7 @@ function t_hints() {
   must(nextHint(st) === "ui.hint.hire", "سربازخانه هست، سرباز نیست");
   st.units.push({ type: "soldier", owner: 0, dead: false }, { type: "lord", owner: 0, dead: false });
   must(nextHint(st) === null, "همه نقاط عطف = بدون راهنما");
+  must(hintBuilding("ui.hint.woodcutter") === "woodcutter" && hintBuilding("ui.hint.hire") === null && hintBuilding(null) === null, "نگاشت راهنما به کارت ساختمان");
   must(HINT_STEPS.length === 7 && new Set(HINT_STEPS.map((x) => x.key)).size === 7, "گام‌های یکتا");
   return { name: "راهنمای هدف بعدی", pass: true, detail: "ترتیب + فیلتر" };
 }

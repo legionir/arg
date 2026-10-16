@@ -24,7 +24,7 @@ import { WALL_LINE_MAX, isLineDragType, wallLineTiles } from "./wallline.js";
 import { pinchDist, pinchZoom, LONG_PRESS_MS, LONG_PRESS_SLOP, longPressMoved, dragMovedFar, panForDrag } from "./gestures.js";
 import { createSoundManager, soundSnapshot } from "./sound.js";
 import { bindMenuNav } from "./menunav.js";
-import { nextHint } from "./hints.js";
+import { nextHint, hintBuilding } from "./hints.js";
 import { hasMarket, tradeQuote, applyTrade, TRADE_FA } from "./market.js";
 import {
   REPLAY_CMD_CAP, createRecorder, recordCmd, validateReplayLog,
@@ -754,6 +754,7 @@ function boot() {
     }).join("");
   }
 
+  let lastHintKey = null;
   function refreshPanel() {
     // بنرهای solo + بنر MP (برنده/بازیکن حذف‌شده).
     if (mpSession && state.mp && state.mp.enabled) {
@@ -784,9 +785,20 @@ function boot() {
     // هدف بعدی (onboarding): فقط سولوی زنده؛ با رسیدن به همه نقاط عطف پنهان می‌شود.
     const hintEl = $("hintEl");
     if (hintEl) {
-      const hk = (mpSession || replayWatch || state.defeated || state.victorious) ? null : nextHint(state);
-      if (hk) { const txt = t("ui.hint.prefix") + " " + t(hk); if (hintEl.textContent !== txt) hintEl.textContent = txt; }
+      const hk = (mpSession || replayWatch || editor || state.defeated || state.victorious) ? null : nextHint(state);
+      if (hk) { const txt = t("ui.hint.prefix") + " " + t(hk); if (hintEl.textContent !== txt) { hintEl.textContent = txt; hintEl.title = txt; } }
       hintEl.hidden = !hk;
+      // کارت ساختمانِ مورد اشاره هایلایت می‌شود و (یک‌بار به‌ازای هر راهنما) به دید می‌آید.
+      const hb = hintBuilding(hk);
+      for (const b of palBtns) b.classList.toggle("hinted", !!hb && b.dataset.b === hb);
+      if (hk !== lastHintKey) {
+        lastHintKey = hk;
+        const hc = hb && palBtns.find((b) => b.dataset.b === hb);
+        if (hc && hc.scrollIntoView) {
+          const calm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+          hc.scrollIntoView({ block: "nearest", inline: "center", behavior: calm ? "auto" : "smooth" });
+        }
+      }
     }
     if (!mpSession) online.maybeReport(state); // ثبت پیروزی در تالار مشترک (0.23.0؛ فقط یک‌بار)
     pruneMercs(); // سربازخانه میزبان نوار مزدورها ویران شده؟ بستن خودکار
@@ -1587,7 +1599,7 @@ function boot() {
   const soundIconBtn = $("soundIconBtn");
   const volMusic = $("volMusic"), volSfx = $("volSfx"), volMute = $("volMute");
   function paintSoundBtn() {
-    soundIconBtn.textContent = sound.volumes.muted ? "🔇" : "🔊";
+    soundIconBtn.innerHTML = `<svg class="sb-ic" aria-hidden="true"><use href="#i-${sound.volumes.muted ? "mute" : "sound"}"/></svg>`;
     soundIconBtn.title = sound.volumes.muted ? t("main.sound.mutedTip") : t("ui.sound.onTip");
     // کارت صدا در تنظیمات منو (0.70.0): همان ولوم‌های ماندگار
     if (volMusic) volMusic.value = String(Math.round(sound.volumes.music * 100));

@@ -28,3 +28,9 @@ export function nextHint(state) {
   for (const s of HINT_STEPS) if (!s.have(c)) return "ui.hint." + s.key;
   return null;
 }
+
+// کارت ساختمانی که هر راهنما اشاره می‌کند (برای هایلایت پالت)؛ null = راهنمای غیرساختمانی.
+const HINT_BUILDING = { woodcutter: "woodcutter", farm: "farm", hut: "hut", quarry: "quarry", tower: "tower", barracks: "barracks" };
+export function hintBuilding(hintKey) {
+  return hintKey ? (HINT_BUILDING[String(hintKey).replace("ui.hint.", "")] || null) : null;
+}
