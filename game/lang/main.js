@@ -3,15 +3,15 @@ export default {
   fa: {
     "main.alarm.event": "زنگ خطر! تجمع در ({c}، {r})",
     "main.battle.alarm": "کلیک بعدی: زنگ خطر — محل تجمع ارتش را بزن",
-    "main.battle.defeat": "شکست! ستاد ویران شد — «شروع دوباره» بزن",
-    "main.battle.demolish": "کلیک بعدی: تخریب — روی ساختمان خودت کلیک کن (ستاد نه؛ یک‌سوم هزینه برمی‌گردد)",
+    "main.battle.defeat": "شکست! ارگ ویران شد — «شروع دوباره» بزن",
+    "main.battle.demolish": "کلیک بعدی: تخریب — روی ساختمان خودت کلیک کن (ارگ نه؛ یک‌سوم هزینه برمی‌گردد)",
     "main.battle.repair": "کلیک بعدی: تعمیر — روی ساختمان آسیب‌دیده خودت کلیک کن (هزینه سنگ/چوب متناسب با آسیب)",
     "main.battle.desync": "⚠ ناهمگامی: {d}",
     "main.battle.mpOver": "بازی تمام شد.",
     "main.battle.mpWon": "بردی! 🏆",
     "main.battle.peace": "🕊️ صلح: {s} ثانیه تا پایان (حمله و سربازگیری بسته)",
     "main.wave.timeline": "خط موج‌ها: {done}/{total} تمام — جاری: {cur}",
-    "main.clock.title": "زمان مأموریت (از شروع Keep+انبار غذا)",
+    "main.clock.title": "زمان مأموریت (از شروع Citadel+انبار غذا)",
     "main.battle.victory": "پیروزی! آخرین موج در هم شکست — «بازی دوباره» بزن",
     "main.cloud.deleted": "ابری حذف شد",
     "main.cloud.deleting": "در حال حذف ابری…",
@@ -27,8 +27,8 @@ export default {
     "main.ed.capMark": "(سقف!)",
     "main.ed.counts": "«{name}» — سید {seed} — {n} وصله{cap}",
     "main.ed.defaultName": "نقشه سفارشی",
-    "main.ed.err.AI": "ستاد حریف جا نمی‌شود",
-    "main.ed.err.KEEP": "جایی برای ستاد بازیکن نیست",
+    "main.ed.err.AI": "ارگ حریف جا نمی‌شود",
+    "main.ed.err.KEEP": "جایی برای ارگ بازیکن نیست",
     "main.ed.err.LORD": "جایی برای ارباب نیست",
     "main.ed.err.TERRAIN": "زمین خراب است",
     "main.ed.exported": "خروجی گرفته شد ({n} وصله) — در حافظه هم هست",
@@ -36,7 +36,7 @@ export default {
     "main.ed.importBad": "ورودی نامعتبر: {reason}",
     "main.ed.noMp": "نقشه‌ساز در نبرد چندنفره نیست",
     "main.ed.notPlayable": "قابل‌بازی نیست: {reason}",
-    "main.ed.playable": "قابل‌بازی است ✓ (ستاد + ارباب + حریف می‌نشینند)",
+    "main.ed.playable": "قابل‌بازی است ✓ (ارگ + ارباب + حریف می‌نشینند)",
     "main.ed.saveFail": "خطا در ذخیره محلی",
     "main.ed.saved": "ذخیره شد ✓ «{name}» ({n} وصله)",
     "main.ed.seedInvalid": "سید پایه باید عدد ۱ تا ۴۲۹۴۹۶۷۲۹۵ باشد",
@@ -81,7 +81,7 @@ export default {
     "main.hover.group": "{num} یگان منتخب — کلیک: دستور جمعی به ({c}، {r})",
     "main.hover.guard": "نگهبانی — روی ساختمان کلیک کن (نه زمین خالی)",
     "main.hover.idle": "حالت انتخاب — کلیک سرباز: فرمان؛ شیفت+درگ: انتخاب باکسی؛ کارت پالت: مسلح‌شدن برای ساخت/استخدام",
-    "main.hover.innDry": "بدون آبجو — سروی نیست",
+    "main.hover.innDry": "بدون شربت — سروی نیست",
     "main.hover.innServing": "سرو می‌کند (+۳ محبوبیت)",
     "main.hover.keep": "+۸ مسکن؛ سقوطش = شکست",
     "main.hover.ident": "هویت: {name}",
@@ -117,13 +117,13 @@ export default {
     "main.meta.convert": "{a}{r1}←{b}{r2}",
     "main.meta.damage": "آسیب {n}",
     "main.meta.gate": "باز/بسته با کلیک",
-    "main.meta.granary": "+۵۰۰ سقف غذا/گندم/آرد/رازک/آبجو",
+    "main.meta.granary": "+۵۰۰ سقف غذا/گندم/آرد/انار/شربت",
     "main.food.on": "روشن",
     "main.food.off": "خاموش",
     "main.food.tip": "کلیک = توقف/شروع مصرف {name}",
     "main.meta.housing": "+{n} مسکن",
     "main.meta.hp": "جان {n}",
-    "main.meta.inn": "{one}آبجو/{ticks}تیک ← +{pop} محبوبیت • {keepers} مهماندار",
+    "main.meta.inn": "{one}شربت/{ticks}تیک ← +{pop} محبوبیت • {keepers} مهماندار",
     "main.meta.religion": "تبرک {n} نفر • {keepers} کشیش",
     "main.meta.fearGood": "چیز خوب +{n} (محبوبیت/روحیه ↑، کار ↓)",
     "main.meta.fearBad": "چیز بد −{n} (کار ↑، محبوبیت/روحیه ↓)",
@@ -136,7 +136,7 @@ export default {
     "main.meta.mercpost": "استخدام مزدور با فقط طلا",
     "main.meta.guild": "استخدام طلایی انجمن", // (0.167.0 — §9.3)
     "main.meta.guildunit": "انجمن: فقط {n} طلا", // (0.167.0 — §9.3)
-    "main.meta.stable": "ظرفیت {n} اسب • هر شوالیه یک اسب", // (0.168.0)
+    "main.meta.stable": "ظرفیت {n} اسب • هر سوار زره‌پوش یک اسب", // (0.168.0)
     "main.meta.horse": "نیازمند اسب (اصطبل)", // (0.168.0)
     "main.meta.value": "ارزش: {n} طلا", // (0.178.0 — بند 869)
     "main.meta.needsDeploy": "نیاز به استقرار",
@@ -170,7 +170,7 @@ export default {
     "main.scribe.perMin": "درآمد/دقیقه",
     "main.scribe.pop": "اثر محبوبیت",
     "main.scribe.sec.fear": "ترس",
-    "main.scribe.sec.inn": "میخانه",
+    "main.scribe.sec.inn": "کاروانسرا",
     "main.scribe.sec.popularity": "محبوبیت",
     "main.scribe.sec.rations": "جیره",
     "main.scribe.sec.religion": "مذهب",
@@ -191,7 +191,7 @@ export default {
     "main.scribe.merit.lord": "ارباب",
     "main.scribe.merit.you": "شما",
     "main.mp.andPassword": "و رمز",
-    "main.mp.battleStart": "نبرد {n} نفره آغاز شد — ستاد و اربابت را نگه دار! (سید نقشه: {seed})",
+    "main.mp.battleStart": "نبرد {n} نفره آغاز شد — ارگ و اربابت را نگه دار! (سید نقشه: {seed})",
     "main.mp.code": "کد:",
     "main.mp.connected": "(متصل)",
     "main.mp.connecting": "در حال اتصال…",
@@ -281,7 +281,7 @@ export default {
     "main.order.status": "وضعیت: {mission} — کلیک روی نقشه: حرکت",
     "main.pct": "{n}٪",
     "main.policy.ratTip": "{name} — مصرف غذا ×{mult}، محبوبیت {pop}",
-    "main.policy.summary": "مالیات {tax} ({gold} طلا/کارگر، {tpop}) • خزانه {trGold} ({trRate}/دقیقه) • جیره {rat} (×{mult}، {rpop}) • غذا {types} نوع ({fpop}) • {stock} واحد (~{lasts} دقیقه) • میخانه {winn}/{tinn} ({bar} بشکه، پوشش {cov}٪، {ibonus}، {drunk} مست) • مذهب {blw}/{blt} (تبرک {blcov}٪، {blbonus}) • ترس {flv} (↑{fup} ↓{fdn}) • مصرف {meter}",
+    "main.policy.summary": "مالیات {tax} ({gold} طلا/کارگر، {tpop}) • خزانه {trGold} ({trRate}/دقیقه) • جیره {rat} (×{mult}، {rpop}) • غذا {types} نوع ({fpop}) • {stock} واحد (~{lasts} دقیقه) • کاروانسرا {winn}/{tinn} ({bar} بشکه، پوشش {cov}٪، {ibonus}، {drunk} مست) • مذهب {blw}/{blt} (تبرک {blcov}٪، {blbonus}) • ترس {flv} (↑{fup} ↓{fdn}) • مصرف {meter}",
     "main.policy.taxTip": "{name} — {gold} طلا/کارگر هر ۵ ثانیه، محبوبیت {pop}",
     "main.pop": "{p} {dir} (هدف {target})",
     "main.camp.line": "🔥 {pct}٪ {dir} • {waiting} بیکار",
@@ -374,14 +374,14 @@ export default {
     "main.alarm.event": "Alarm! Rally at ({c}, {r})",
     "main.battle.alarm": "Next click: alarm — pick the army rally point",
     "main.battle.defeat": "Defeat! Your keep is destroyed — press “Restart”",
-    "main.battle.demolish": "Next click: demolish — click one of your buildings (not the keep; a third of the cost is refunded)",
+    "main.battle.demolish": "Next click: demolish — click one of your buildings (not the citadel; a third of the cost is refunded)",
     "main.battle.repair": "Next click: repair — click one of your damaged buildings (stone/wood cost scales with damage)",
     "main.battle.desync": "⚠ Out of sync: {d}",
     "main.battle.mpOver": "Game over.",
     "main.battle.mpWon": "You won! 🏆",
     "main.battle.peace": "🕊️ Peace: {s}s left (no attacks, no training)",
     "main.wave.timeline": "Wave timeline: {done}/{total} done — current: {cur}",
-    "main.clock.title": "Mission time (since Keep+granary)",
+    "main.clock.title": "Mission time (since Citadel+granary)",
     "main.battle.victory": "Victory! The last wave is broken — press “Play again”",
     "main.cloud.deleted": "Deleted from cloud",
     "main.cloud.deleting": "Deleting from cloud…",
@@ -451,7 +451,7 @@ export default {
     "main.hover.group": "{num} units selected — click: group order to ({c}, {r})",
     "main.hover.guard": "Guard — click a building (not empty ground)",
     "main.hover.idle": "Select mode — click a soldier: command; Shift+drag: box select; palette card: arm for building/hiring",
-    "main.hover.innDry": "No ale — not serving",
+    "main.hover.innDry": "No sharbat — not serving",
     "main.hover.innServing": "Serving (+3 popularity)",
     "main.hover.keep": "+8 housing; its fall = defeat",
     "main.hover.ident": "Identity: {name}",
@@ -487,13 +487,13 @@ export default {
     "main.meta.convert": "{a} {r1} → {b} {r2}",
     "main.meta.damage": "Damage {n}",
     "main.meta.gate": "Click to open/close",
-    "main.meta.granary": "+500 cap: food/wheat/flour/hops/ale",
+    "main.meta.granary": "+500 cap: food/wheat/flour/pomegranates/sharbat",
     "main.food.on": "on",
     "main.food.off": "off",
     "main.food.tip": "click = stop/resume {name}",
     "main.meta.housing": "+{n} housing",
     "main.meta.hp": "HP {n}",
-    "main.meta.inn": "{one} beer/{ticks} ticks → +{pop} popularity • {keepers} keeper",
+    "main.meta.inn": "{one} sharbat/{ticks} ticks → +{pop} popularity • {keepers} keeper",
     "main.meta.religion": "Blesses {n} • {keepers} priest",
     "main.meta.fearGood": "Good thing +{n} (popularity/morale ↑, work ↓)",
     "main.meta.fearBad": "Bad thing −{n} (work ↑, popularity/morale ↓)",
@@ -540,7 +540,7 @@ export default {
     "main.scribe.perMin": "Income/min",
     "main.scribe.pop": "Popularity effect",
     "main.scribe.sec.fear": "Fear",
-    "main.scribe.sec.inn": "Inn",
+    "main.scribe.sec.inn": "Caravanserai",
     "main.scribe.sec.popularity": "Popularity",
     "main.scribe.sec.rations": "Rations",
     "main.scribe.sec.religion": "Religion",
@@ -561,7 +561,7 @@ export default {
     "main.scribe.merit.lord": "Lord",
     "main.scribe.merit.you": "You",
     "main.mp.andPassword": "and password",
-    "main.mp.battleStart": "{n}-player battle begins — defend your keep and your lord! (map seed: {seed})",
+    "main.mp.battleStart": "{n}-player battle begins — defend your citadel and your lord! (map seed: {seed})",
     "main.mp.code": "Code:",
     "main.mp.connected": "(connected)",
     "main.mp.connecting": "Connecting…",
@@ -651,7 +651,7 @@ export default {
     "main.order.status": "Status: {mission} — click the map: move",
     "main.pct": "{n}%",
     "main.policy.ratTip": "{name} — food use ×{mult}, popularity {pop}",
-    "main.policy.summary": "Tax {tax} ({gold} gold/worker, {tpop}) • Treasury {trGold} ({trRate}/min) • Rations {rat} (×{mult}, {rpop}) • Food {types} types ({fpop}) • {stock} units (~{lasts} min) • Inn {winn}/{tinn} ({bar} barrels, {cov}% coverage, {ibonus}, {drunk} drunkards) • Faith {blw}/{blt} ({blcov}% blessed, {blbonus}) • Fear {flv} (↑{fup} ↓{fdn}) • Use {meter}",
+    "main.policy.summary": "Tax {tax} ({gold} gold/worker, {tpop}) • Treasury {trGold} ({trRate}/min) • Rations {rat} (×{mult}, {rpop}) • Food {types} types ({fpop}) • {stock} units (~{lasts} min) • Caravanserai {winn}/{tinn} ({bar} barrels, {cov}% coverage, {ibonus}, {drunk} drunkards) • Faith {blw}/{blt} ({blcov}% blessed, {blbonus}) • Fear {flv} (↑{fup} ↓{fdn}) • Use {meter}",
     "main.policy.taxTip": "{name} — {gold} gold/worker every 5s, popularity {pop}",
     "main.pop": "{p} {dir} (target {target})",
     "main.camp.line": "🔥 {pct}% {dir} • {waiting} idle",

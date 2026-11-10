@@ -284,26 +284,26 @@ function t_horsearcher() {
 // صلاح‌الدین (0.151.0 — §۱۸.۵): هفتمین شخصیت حریف — یورش زودتر و ۴نفره با
 // زوج بیابان (کماندار عرب + فلاخن‌انداز)؛ شاخه troops ژنریک است (بدون تغییر sim).
 function t_saladin() {
-  must(aiRaidPlan({ personality: "saladin" }, 0).at === 1350, "صلاح‌الدین زودرس (۱۳۵۰)");
-  must(aiRaidPlan({ personality: "saladin" }, 0).n === 4, "صلاح‌الدین ۴نفره");
-  const P = aiPersonality({ personality: "saladin" });
+  must(aiRaidPlan({ personality: "azarm" }, 0).at === 1350, "صلاح‌الدین زودرس (۱۳۵۰)");
+  must(aiRaidPlan({ personality: "azarm" }, 0).n === 4, "صلاح‌الدین ۴نفره");
+  const P = aiPersonality({ personality: "azarm" });
   must(P && P.troops && P.troops.ranged === "arabianBow" && P.troops.melee === "slinger", "زوج بیابان یورش");
   const seen = new Set();
   for (let i = 0; i < 61; i++) {
-    const tp = aiRaidUnitType({ personality: "saladin", seed: 777 }, 1350, 0, i);
+    const tp = aiRaidUnitType({ personality: "azarm", seed: 777 }, 1350, 0, i);
     must(tp === "arabianBow" || tp === "slinger", `یورش صلاح‌الدین فقط زوج بیابان است، شد ${tp}`);
     seen.add(tp);
   }
   must(seen.size === 2, "هر دو نوع بیابان باید بیایند");
-  const { state } = aiFreshPers("saladin");
-  must(state.ai.personality === "saladin", "شخصیت صلاح‌الدین ثبت شود");
-  must(aiPersonalityName(state.ai) === "صلاح‌الدین", "نام فارسی صلاح‌الدین");
+  const { state } = aiFreshPers("azarm");
+  must(state.ai.personality === "azarm", "شخصیت صلاح‌الدین ثبت شود");
+  must(aiPersonalityName(state.ai) === "آذرم شب‌تاز", "نام فارسی صلاح‌الدین");
   withLang("en", () => {
-    must(aiPersonalityName(state.ai) === "Saladin", "نام en صلاح‌الدین");
+    must(aiPersonalityName(state.ai) === "Azarm Night-Raider", "نام en صلاح‌الدین");
   });
   const loaded = deserializeJSON(serializeJSON(state));
-  must(loaded.ai.personality === "saladin", "صلاح‌الدین در ذخیره بماند");
-  must(validateReplayLog({ v: REPLAY_V, seed: 1, pers: "saladin", cmds: [], ticks: 10 }).ok, "ری‌پلی با صلاح‌الدین قبول شود");
+  must(loaded.ai.personality === "azarm", "صلاح‌الدین در ذخیره بماند");
+  must(validateReplayLog({ v: REPLAY_V, seed: 1, pers: "azarm", cmds: [], ticks: 10 }).ok, "ری‌پلی با صلاح‌الدین قبول شود");
   return { name: "صلاح‌الدین", pass: true, detail: "یورش ۴نفره + زوج بیابان + سازگاری" };
 }
 export { troopsCases };

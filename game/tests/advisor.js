@@ -584,7 +584,7 @@ function t_merit_rows() {
       { id: 4, type: "slave", side: "enemy", owner: 9, dead: false },
     ],
     resources: { gold: 120 },
-    ai: { active: true, personality: "rat", resources: { gold: 40 } },
+    ai: { active: true, personality: "kahbod", resources: { gold: 40 } },
     defeated: false,
   };
   const rows = meritRows(solo);
@@ -734,7 +734,7 @@ function t_merit_power() {
       { id: 3, type: "lord", side: "player", dead: false },
     ],
     resources: { gold: 10 },
-    ai: { active: true, personality: "rat", resources: { gold: 5 } },
+    ai: { active: true, personality: "kahbod", resources: { gold: 5 } },
     defeated: false,
   });
   must(rows[0].power === 124 && rows[1].power === 0, "بازیکن ۲×۵۷+۱۰(زره ارباب)=۱۲۴، بی‌یگان AI = ۰");

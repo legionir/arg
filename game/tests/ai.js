@@ -249,12 +249,12 @@ export function aiCases() {
 
 function t_ai_personality_default() {
   const a = aiFresh();
-  must(a.state.ai.personality === "wolf", `پیش‌فرض باید گرگ باشد، هست ${a.state.ai.personality}`);
-  must(aiPersonalityName(a.state.ai) === "گرگ", "نام فارسی گرگ");
+  must(a.state.ai.personality === "artan", `پیش‌فرض باید گرگ باشد، هست ${a.state.ai.personality}`);
+  must(aiPersonalityName(a.state.ai) === "آرتان مرزبان", "نام فارسی گرگ");
   const b = aiFreshPers("bogus");
-  must(b.state.ai.personality === "wolf", "شخصیت نامعتبر باید گرگ شود");
-  const c = aiFreshPers("lion");
-  must(c.state.ai.personality === "lion", "شیر باید ثبت شود");
+  must(b.state.ai.personality === "artan", "شخصیت نامعتبر باید گرگ شود");
+  const c = aiFreshPers("sepehrdad");
+  must(c.state.ai.personality === "sepehrdad", "شیر باید ثبت شود");
   must(aiPersonality(null).raidAtMul === 1 && aiPersonality(null).raidSizeAdd === 0, "ai خالی = گرگ خنثی");
   const p = aiRaidPlan(a.state.ai, 0);
   must(p.at === 1500 && p.n === 3, `گرگ باید جدول پایه را نگه دارد، شد ${p.at}/${p.n}`);
@@ -263,35 +263,35 @@ function t_ai_personality_default() {
 
 function t_ai_personality_plan() {
   const at = (pers, i) => aiRaidPlan({ personality: pers }, i);
-  must(at("wolf", 0).at === 1500 && at("wolf", 0).n === 3, "گرگ = جدول پایه");
-  must(at("rat", 0).at === 2100 && at("rat", 0).n === 2, "موش: دیر و ریز");
-  must(at("rat", 2).at === 5320 && at("rat", 2).n === 4, "موش: یورش سوم");
-  must(at("snake", 0).at === 1200 && at("snake", 0).n === 3, "مار: زودرس");
-  must(at("pig", 0).at === 1800 && at("pig", 0).n === 4, "خوک: دیر ولی سنگین");
-  must(at("lion", 0).at === 1200 && at("lion", 0).n === 5, "شیر: زود و بزرگ");
-  must(at("lion", 2).at === 3040 && at("lion", 2).n === 7, "شیر: یورش سوم");
-  const combo = aiRaidPlan({ difficulty: "hard", personality: "lion" }, 0);
+  must(at("artan", 0).at === 1500 && at("artan", 0).n === 3, "گرگ = جدول پایه");
+  must(at("kahbod", 0).at === 2100 && at("kahbod", 0).n === 2, "موش: دیر و ریز");
+  must(at("kahbod", 2).at === 5320 && at("kahbod", 2).n === 4, "موش: یورش سوم");
+  must(at("tirazheh", 0).at === 1200 && at("tirazheh", 0).n === 3, "مار: زودرس");
+  must(at("farrokhan", 0).at === 1800 && at("farrokhan", 0).n === 4, "خوک: دیر ولی سنگین");
+  must(at("sepehrdad", 0).at === 1200 && at("sepehrdad", 0).n === 5, "شیر: زود و بزرگ");
+  must(at("sepehrdad", 2).at === 3040 && at("sepehrdad", 2).n === 7, "شیر: یورش سوم");
+  const combo = aiRaidPlan({ difficulty: "hard", personality: "sepehrdad" }, 0);
   must(combo.at === 840 && combo.n === 7, `سخت×شیر باید ترکیب شود، شد ${combo.at}/${combo.n}`);
-  must(aiPersonality({ personality: "pig" }).goldMul === 1.5, "طلای خوک ۱٫۵×");
-  must(aiPersonality({ personality: "rat" }).workerEveryMul === 1.5, "کارگر موش کندتر");
-  must(aiPersonality({ personality: "snake" }).archerP === 0.55, "کماندار مار ۵۵٪");
-  must(at("arabLord", 0).at === 1500 && at("arabLord", 0).n === 3, "ارباب عرب = جدول پایه (همان اندازه)");
-  must(at("saladin", 0).at === 1350 && at("saladin", 0).n === 4, "صلاح‌الدین: زودتر و ۴نفره");
-  const stp = aiPersonality({ personality: "saladin" });
+  must(aiPersonality({ personality: "farrokhan" }).goldMul === 1.5, "طلای خوک ۱٫۵×");
+  must(aiPersonality({ personality: "kahbod" }).workerEveryMul === 1.5, "کارگر موش کندتر");
+  must(aiPersonality({ personality: "tirazheh" }).archerP === 0.55, "کماندار مار ۵۵٪");
+  must(at("hamun", 0).at === 1500 && at("hamun", 0).n === 3, "ارباب عرب = جدول پایه (همان اندازه)");
+  must(at("azarm", 0).at === 1350 && at("azarm", 0).n === 4, "صلاح‌الدین: زودتر و ۴نفره");
+  const stp = aiPersonality({ personality: "azarm" });
   must(stp.troops && stp.troops.ranged === "arabianBow" && stp.troops.melee === "slinger", "زوج بیابان صلاح‌الدین");
-  const atp = aiPersonality({ personality: "arabLord" });
+  const atp = aiPersonality({ personality: "hamun" });
   must(atp.troops && atp.troops.ranged === "arabianBow" && atp.troops.melee === "slave", "زوج عربی یورش");
-  must(aiRaidPlan({ personality: "rat" }, 9) === null, "اندیس ناموجود = null");
+  must(aiRaidPlan({ personality: "kahbod" }, 9) === null, "اندیس ناموجود = null");
   return { name: "جدول شخصیت‌ها", pass: true, detail: "زمان/اندازه/اقتصاد هر ۷ پروفایل" };
 }
 
 function t_ai_personality_save() {
-  const { state } = aiFreshPers("lion");
+  const { state } = aiFreshPers("sepehrdad");
   const loaded = deserializeJSON(serializeJSON(state));
-  must(loaded.ai.personality === "lion", "شخصیت باید در ذخیره بماند");
+  must(loaded.ai.personality === "sepehrdad", "شخصیت باید در ذخیره بماند");
   const old = JSON.parse(serializeJSON(state));
   delete old.ai.personality;
-  must(deserializeJSON(JSON.stringify(old)).ai.personality === "wolf", "ذخیره قدیمی = گرگ");
+  must(deserializeJSON(JSON.stringify(old)).ai.personality === "artan", "ذخیره قدیمی = گرگ");
   const bad = JSON.parse(serializeJSON(state));
   bad.ai.personality = "dragon";
   let threw = false;
@@ -301,14 +301,14 @@ function t_ai_personality_save() {
 }
 
 function t_ai_personality_replay() {
-  const good = { v: REPLAY_V, seed: 123, pers: "snake", cmds: [{ t: 0, cmd: { kind: "tax", v: "none" } }], ticks: 10 };
+  const good = { v: REPLAY_V, seed: 123, pers: "tirazheh", cmds: [{ t: 0, cmd: { kind: "tax", v: "none" } }], ticks: 10 };
   must(validateReplayLog(good).ok, "لاگ با شخصیت باید قبول شود");
   must(!validateReplayLog({ ...good, pers: "dragon" }).ok, "شخصیت نامعتبر باید رد شود");
   const h0 = runReplay({ v: REPLAY_V, seed: 321, cmds: [], ticks: 2000 }, 2000).hash;
-  const hW = runReplay({ v: REPLAY_V, seed: 321, pers: "wolf", cmds: [], ticks: 2000 }, 2000).hash;
+  const hW = runReplay({ v: REPLAY_V, seed: 321, pers: "artan", cmds: [], ticks: 2000 }, 2000).hash;
   must(h0 === hW, "لاگ قدیمی (بی‌شخصیت) باید همان گرگ باشد");
-  const hL = runReplay({ v: REPLAY_V, seed: 321, pers: "lion", cmds: [], ticks: 2000 }, 2000).hash;
-  const hL2 = runReplay({ v: REPLAY_V, seed: 321, pers: "lion", cmds: [], ticks: 2000 }, 2000).hash;
+  const hL = runReplay({ v: REPLAY_V, seed: 321, pers: "sepehrdad", cmds: [], ticks: 2000 }, 2000).hash;
+  const hL2 = runReplay({ v: REPLAY_V, seed: 321, pers: "sepehrdad", cmds: [], ticks: 2000 }, 2000).hash;
   must(hL === hL2, "بازپخش شیر باید قطعی باشد");
   must(hL !== hW, "شیر باید از گرگ متفاوت باشد (یورش ۱۲۰۰)");
   return { name: "ری‌پلی شخصیت", pass: true, detail: "سازگاری + قطعیت + تفاوت" };

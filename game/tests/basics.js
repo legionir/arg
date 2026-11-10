@@ -1,11 +1,14 @@
 // سوئیت‌های پایه (0.237.0 — C-CLN-7): استخراج مکانیکی از game/tests.js — بدون تغییر منطق.
-import { CONFIG } from "../config.js";
+import { CONFIG, canonPersonality } from "../config.js";
 import { UNITS } from "../combat.js";
 import { TUNING } from "../data.js";
 import { validateConfig } from "../schema.js";
 import { GROUP_SLOTS, freshGroups, groupIndex, saveGroup, recallGroup } from "../groups.js";
 import { groupCentroid } from "../selection.js";
-import { BANNED_NAMES, scanBanned, scanContent } from "../legal.js";
+import { BANNED_NAMES, scanBanned, scanContent, scanForeign, scanPacks } from "../legal.js";
+import LANG_PACKS from "../lang/index.js";
+import { MISSIONS } from "../missions.js";
+import { PROFILE_LORDS } from "../profile.js";
 import { runFirstTenScenario } from "../firstten.js";
 import { must } from "./fixtures.js";
 
@@ -61,7 +64,7 @@ function t_group_centroid() {
 
 // --- اسکن حقوقی (0.60.0 — رتبه ۲ SOURCE-REVIEW) ---
 export function legalCases() {
-  return [t_legal_scanner, t_legal_content];
+  return [t_legal_scanner, t_legal_content, t_legal_original];
 }
 
 // اسکنر: هر ۸ شناسه (با حروف بزرگ هم) گرفته می‌شوند؛ موارد مجاز رد می‌شوند.
@@ -86,6 +89,20 @@ function t_legal_content() {
   must(r.checked > 30, `باید ده‌ها رشته خوانده شود، شد ${r.checked}`);
   must(r.hits.length === 0, `محتوا باید پاک باشد: ${r.hits.join(",")}`);
   return { name: "پاکی محتوای بازی", pass: true, detail: `${r.checked} رشته، صفر برخورد` };
+}
+
+// هویت اورجینال (0.277.0): هیچ نام شخصیت/روایت بازی دیگری در بسته‌های زبان، مأموریت‌ها یا فهرست پرتره‌ها نیست.
+function t_legal_original() {
+  must(canonPersonality("wolf") === "artan" && canonPersonality("artan") === "artan" && canonPersonality(undefined) === undefined, "نگاشت شناسه قدیمی شخصیت");
+  must(scanForeign("Saladin's Assault").length === 1 && scanForeign("شبیخون آذرم").length === 0, "اسکنر شخصیت‌ها");
+  const extra = [];
+  for (const m of MISSIONS) extra.push(m.key, m.name, m.nameEn, m.brief, m.briefEn);
+  for (const l of PROFILE_LORDS) extra.push(l.file, l.name);
+  for (const k of Object.keys(CONFIG.AI.personalities)) extra.push(k);
+  const r = scanPacks(LANG_PACKS, extra);
+  must(r.checked > 500, `باید صدها رشته خوانده شود، شد ${r.checked}`);
+  must(r.hits.length === 0, `متن بازی باید اورجینال باشد: ${r.hits.join(",")}`);
+  return { name: "هویت اورجینال", pass: true, detail: `${r.checked} رشته، صفر برخورد` };
 }
 
 // --- سناریوی ۱۰ دقیقه اول (0.61.0 — تصمیم کاربر ۳-ب) ---

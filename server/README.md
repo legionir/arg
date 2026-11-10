@@ -40,7 +40,7 @@ node server.mjs    # http://<IP>:8080/
 ```ini
 # /etc/systemd/system/arg-server.service
 [Unit]
-Description=Arg stronghold game server
+Description=Arg citadel-building game server
 After=network.target
 
 [Service]

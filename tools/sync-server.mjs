@@ -12,7 +12,7 @@ const ROOT_HTML = path.resolve(HERE, "..", "..", "..", "index.html");
 const GAME_LOGIC = path.resolve(HERE, "..", "server", "game-logic.js");
 
 const src = fs.readFileSync(SRC_HTML, "utf8");
-const root = fs.readFileSync(ROOT_HTML, "utf8");
+const root = fs.existsSync(ROOT_HTML) ? fs.readFileSync(ROOT_HTML, "utf8") : null; // مخزن مستقل: آینه ریشه ندارد
 const logic = fs.readFileSync(GAME_LOGIC, "utf8");
 
 const rep = checkMirrors(src, root, logic);
@@ -25,8 +25,8 @@ if (process.argv.includes("--check")) {
   process.exit(1);
 }
 const ext = extractBlock(src);
-const meta = { srcPath: "src/arg/index.html", startLine: ext.startLine, endLine: ext.endLine, stateSize: 17833432 };
+const meta = { srcPath: "index.html", startLine: ext.startLine, endLine: ext.endLine, stateSize: 17833432 };
 fs.writeFileSync(GAME_LOGIC, buildGameLogic(ext.block, meta));
-fs.writeFileSync(ROOT_HTML, buildRootDoc(root, ext.block));
+if (root != null) fs.writeFileSync(ROOT_HTML, buildRootDoc(root, ext.block));
 console.log(`[sync-server] wrote game-logic.js + root mirror (block lines ${meta.startLine}-${meta.endLine})`);
 for (const p of rep.problems) console.log("[sync-server] fixed: " + p);

@@ -135,7 +135,7 @@ function t_keep_defeat() {
   must(!state.buildings.some((b) => b.type === "keep"), "ستاد باید ویران شود");
   must(state.defeated === true, "سقوط ستاد باید شکست باشد");
   must(state.paused === true, "شکست باید بازی را متوقف کند");
-  must(state.events.some((e) => e.includes("ستاد سقوط کرد")), "رویداد سقوط باید ثبت شود");
+  must(state.events.some((e) => e.includes("ارگ سقوط کرد")), "رویداد سقوط باید ثبت شود");
   return { name: "سقوط ستاد = شکست", pass: true, detail: `ویرانی در ${t} تیک + توقف` };
 }
 

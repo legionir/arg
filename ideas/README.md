@@ -1,4 +1,4 @@
-# ایده‌ها — Stronghold: Crusader Web
+# ایده‌ها — ارگ (Arg)
 
 > مخزن فرصت‌های توسعه. تعریف فیلدها و اصول در `src/idea-bank-spec.md`.
 > ثبت سریع با `src/idea-template.md`.

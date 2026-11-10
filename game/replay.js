@@ -7,7 +7,7 @@
 // پس «ضبط» یعنی سید + [{t, cmd}] و «بازپخش» یعنی بازسازی همان بازی.
 // recorder گذراست (با newGame ساخته، با load دور انداخته می‌شود)؛ ذخیره‌شده
 // فقط یک اسلات localStorage است. sim هیچ‌چیز از ری‌پلی نمی‌داند.
-import { CONFIG } from "./config.js";
+import { CONFIG, canonPersonality } from "./config.js";
 import { makeTerrain } from "./terrain.js";
 import { createState } from "./state.js";
 import { t } from "./i18n.js";
@@ -53,6 +53,7 @@ export function validateReplayLog(o) {
     return { ok: false, reason: "BAD_DIFF" };
   }
   // شخصیت حریف (0.56.0، اختیاری → گرگ؛ لاگ قدیمی ندارد).
+  if (o.pers !== undefined) o.pers = canonPersonality(o.pers);
   if (o.pers !== undefined && (typeof o.pers !== "string" || !CONFIG.AI.personalities[o.pers])) {
     return { ok: false, reason: "BAD_PERS" };
   }

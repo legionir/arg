@@ -159,7 +159,7 @@ export const REGRESSIONS = [
       const { state, terrain, W, H } = w;
       placeKeep(state, terrain, W, H);
       spawnLord(state, terrain, W, H);
-      const r = startAI(state, terrain, W, H, "normal", "wolf");
+      const r = startAI(state, terrain, W, H, "normal", "artan");
       if (!r.ok) throw new Error("regression: شروع AI نشد " + r.reason);
     },
   },
@@ -225,7 +225,7 @@ const FUZZ_PATHS = [
   (d) => { if (Array.isArray(d.units)) d.units.push({ id: 999, type: "dragon", x: 0, r: 0, hp: 1, cooldown: 0, targetKind: null, targetId: null }); },
   (d) => { if (Array.isArray(d.units) && d.units[0]) d.units[0].order = { kind: "teleport", c: 0, r: 0, status: "active", retries: 0, elapsed: 0 }; },
   (d) => { d.ai = { active: "yes" }; },
-  (d) => { d.ai = { active: true, seed: 1, resources: {}, workers: 0, workerCap: 0, buildIdx: 0, raidsSent: 0, nextThink: 0, baseC: 0, baseR: 0, phase: "warp", keepId: null, dormant: false, difficulty: "normal", personality: "wolf" }; },
+  (d) => { d.ai = { active: true, seed: 1, resources: {}, workers: 0, workerCap: 0, buildIdx: 0, raidsSent: 0, nextThink: 0, baseC: 0, baseR: 0, phase: "warp", keepId: null, dormant: false, difficulty: "normal", personality: "artan" }; },
   (d) => { d.v = 999; },
   (d) => { d.v = "2"; },
   (d) => { delete d.v; },

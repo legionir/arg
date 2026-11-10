@@ -297,7 +297,7 @@ function t_sim_full_mirror() {
     spawnUnit(state, "swordsman", 12.5, 5.5);
     placeKeep(state, terrain, W, H);
     spawnLord(state, terrain, W, H);
-    startAI(state, terrain, W, H, "normal", "wolf");
+    startAI(state, terrain, W, H, "normal", "artan");
     for (const b of state.buildings) b.buildLeft = 0;
     return { state, terrain };
   };
@@ -331,7 +331,7 @@ function t_sim_deterministic_mixed() {
     state.mapSeed = 777;
     placeKeep(state, terrain, W, H);
     spawnLord(state, terrain, W, H);
-    startAI(state, terrain, W, H, "easy", "wolf");
+    startAI(state, terrain, W, H, "easy", "artan");
     const q = createQueue();
     const at = (c) => enqueueCmd(q, c, state.tick);
     must(at({ kind: "place", type: "woodcutter", c: 1, r: 1 }).ok, "صف: چوب‌بری");

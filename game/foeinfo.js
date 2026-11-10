@@ -10,7 +10,7 @@ import { lordPortraitSrc, validLogo } from "./profile.js";
 import { faNum } from "./format.js";
 
 export const PERSONALITY_LORD = {
-  wolf: 28, rat: 19, snake: 23, pig: 18, lion: 5, arabLord: 11, saladin: 6,
+  artan: 0, kahbod: 1, tirazheh: 2, farrokhan: 3, sepehrdad: 4, hamun: 5, azarm: 6,
 };
 
 // رشته کاروان در هر دو زبان (رویدادها با زبانِ لحظه push ذخیره می‌شوند؛
@@ -39,7 +39,7 @@ export function foeKingFor(state, mpSession, owner) {
     const k = state.ai.personality && CONFIG.AI.personalities[state.ai.personality]
       ? state.ai.personality : CONFIG.AI.defaultPersonality;
     const p = CONFIG.AI.personalities[k];
-    const logo = PERSONALITY_LORD[k] != null ? PERSONALITY_LORD[k] : 28;
+    const logo = PERSONALITY_LORD[k] != null ? PERSONALITY_LORD[k] : 0;
     return { kind: "ai", name: aiPersonalityName(state.ai), desc: p ? p.desc : "", logo };
   }
   return null;

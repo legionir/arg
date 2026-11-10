@@ -10,21 +10,21 @@ function foeCases() {
 }
 
 function t_foe_ai_king() {
-  const { state } = aiFreshPers("rat");
+  const { state } = aiFreshPers("kahbod");
   const k = foeKingFor(state, null, 9);
   must(k && k.kind === "ai", "مالک ۹ سولو = پادشاه AI");
-  must(k.name === CONFIG.AI.personalities.rat.name, "نام موش");
-  must(k.logo === PERSONALITY_LORD.rat, "پرتره موش از نگاشت");
+  must(k.name === CONFIG.AI.personalities.kahbod.name, "نام موش");
+  must(k.logo === PERSONALITY_LORD.kahbod, "پرتره موش از نگاشت");
   must(typeof k.desc === "string" && k.desc.length > 0, "شرح شخصیت");
   return { name: "پادشاه AI موش", pass: true, detail: "ow=9 rat" };
 }
 
 function t_foe_ai_fallback() {
-  const { state } = aiFreshPers("wolf");
+  const { state } = aiFreshPers("artan");
   state.ai.personality = "nope";
   const k = foeKingFor(state, null, 9);
-  must(k && k.name === CONFIG.AI.personalities.wolf.name, "شخصیت نامعتبر = گرگ خنثی");
-  must(k.logo === PERSONALITY_LORD.wolf, "پرتره گرگ");
+  must(k && k.name === CONFIG.AI.personalities.artan.name, "شخصیت نامعتبر = گرگ خنثی");
+  must(k.logo === PERSONALITY_LORD.artan, "پرتره گرگ");
   return { name: "پادشاه AI پیش‌فرض", pass: true, detail: "گرگ خنثی" };
 }
 
@@ -41,19 +41,19 @@ function t_foe_mp_king() {
 function t_foe_none() {
   const { state } = fresh();
   must(foeKingFor(state, null, 0) === null, "مالک ۰ سولو پادشاه نیست (موج)");
-  must((() => { const k = foeKingFor(state, null, 9); return k && k.name === CONFIG.AI.personalities.wolf.name; })(), "مالک ۹ سولو = گرگ پیش‌فرض");
+  must((() => { const k = foeKingFor(state, null, 9); return k && k.name === CONFIG.AI.personalities.artan.name; })(), "مالک ۹ سولو = گرگ پیش‌فرض");
   must(foePanelData(state, null, null) === null, "foe خالی = null");
   must(foePanelData(state, null, { kind: "unit", id: 424242 }) === null, "آیتم رفته = null");
   return { name: "بی‌پادشاه", pass: true, detail: "موج/خالی" };
 }
 
 function t_foe_panel_unit() {
-  const { state } = aiFreshPers("saladin");
+  const { state } = aiFreshPers("azarm");
   const u = { id: 501, type: "swordsman", side: "enemy", owner: 9, dead: false, hp: 40, maxHp: 50, stance: "engage", x: 5, r: 5 };
   state.units.push(u);
   const d = foePanelData(state, null, { kind: "unit", id: 501 });
-  must(d && d.title === CONFIG.AI.personalities.saladin.name, "عنوان = نام صلاح‌الدین");
-  must(d.logoSrc.indexOf("Saladin.png") >= 0, "پرتره صلاح‌الدین");
+  must(d && d.title === CONFIG.AI.personalities.azarm.name, "عنوان = نام صلاح‌الدین");
+  must(d.logoSrc.indexOf("azarm.svg") >= 0, "پرتره صلاح‌الدین");
   must(d.itemName.indexOf(UNITS.swordsman.name) >= 0, "نام یگان در آیتم");
   must(d.hpText.indexOf("۴۰") >= 0 || d.hpText.indexOf("40") >= 0, "جان ۴۰/۵۰");
   u.dead = true;

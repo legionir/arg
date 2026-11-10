@@ -229,12 +229,12 @@ function t_profile_lords() {
   const files = PROFILE_LORDS.map((l) => l.file);
   must(new Set(files).size === 29, "فایل‌های پرتره یکتا هستند");
   for (const l of PROFILE_LORDS) {
-    must(/^[A-Za-z-]+\.png$/.test(l.file), "فایل پرتره انگلیسی است: " + l.file);
+    must(/^[a-z]+\.svg$/.test(l.file), "فایل پرتره انگلیسی است: " + l.file);
     must(validProfileName(l.name) !== null, "نام لرد باید نام معتبر باشد: " + l.name);
   }
   must(lordName(0) === PROFILE_LORDS[0].name && lordName(99) === "", "نام لرد/نامعتبر");
-  must(lordPortraitSrc(0) === "src/arg/assets/lords/" + PROFILE_LORDS[0].file, "مسیر پرتره از ریشه ژنراتور است");
-  must(lordPortraitSrc(28).indexOf("src/arg/assets/lords/") === 0, "آخرین پرتره هم مسیر درست دارد");
+  must(lordPortraitSrc(0) === "assets/portraits/" + PROFILE_LORDS[0].file, "مسیر پرتره از ریشه ژنراتور است");
+  must(lordPortraitSrc(28).indexOf("assets/portraits/") === 0, "آخرین پرتره هم مسیر درست دارد");
   must(lordPortraitSrc(29) === "" && lordPortraitSrc(-1) === "", "پرتره نامعتبر خالی است");
   must(lordPortraitHTML(5).indexOf("<img") === 0, "پرتره معتبر تگ img می‌دهد");
   must(lordPortraitHTML(99) === "", "پرتره نامعتبر تهی است");
@@ -301,7 +301,7 @@ function t_room_row_html() {
   must(priv.indexOf("<img src=x>") < 0, "نام مخرب نباید خام بیاید");
   must(priv.indexOf("&lt;img src=x&gt;") >= 0, "نام مخرب باید escape شود");
   must(priv.indexOf("data-pwfor") >= 0, "اتاق خصوصی فیلد رمز می‌خواهد");
-  must(priv.indexOf("lords/") < 0, "لوگوی نامعتبر نباید پرتره بدهد");
+  must(priv.indexOf("portraits/") < 0, "لوگوی نامعتبر نباید پرتره بدهد");
   return { name: "ردیف فهرست اتاق", pass: true, detail: "عمومی/خصوصی + escape" };
 }
 

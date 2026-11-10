@@ -1300,7 +1300,7 @@ function t_gametype_row89() {
   const s = BALANCE.economy.starting;
   must(s.normal.troops === "5 archer + 7 spearman", "پیاده‌نظام Normal ‏۵+۷");
   must(s.crusader.troops === "40 archer + 10 swordsman + 4 knight", "سپاه Crusader");
-  must(s.arabLord.troops === "5 arabianBow + 7 slave", "معادل عربی ‏۵+۷");
+  must(s.hamun.troops === "5 arabianBow + 7 slave", "معادل عربی ‏۵+۷");
   const cr = IDENTITIES.crusader.troops, ar = IDENTITIES.arab.troops;
   must(cr[0][0] === "bowman" && cr[0][1] === 5 && cr[1][0] === "soldier" && cr[1][1] === 7, "هویت crusader همان ‏۵+۷ است");
   must(ar[0][0] === "arabianBow" && ar[0][1] === 5 && ar[1][0] === "slave" && ar[1][1] === 7, "هویت arab همان ‏۵+۷ است");
@@ -1888,7 +1888,7 @@ function t_allyaireq_row737() {
   const h = liveRowHTML(room, false);
   must(h.includes(">a<") && h.includes(">b<"), "نام بازیکنان انسانی هست");
   must(!/CPU/i.test(h), "سپر CPU نیست");
-  for (const p of ["wolf", "saladin"]) {
+  for (const p of ["artan", "azarm"]) {
     const P = aiPersonality({ personality: p });
     must(!("diplomacy" in P) && !("tribute" in P) && !("ally" in P) && !("acceptRequest" in P), "شخصیت " + p + " دیپلماسی ندارد");
   }
@@ -1999,7 +1999,7 @@ function t_popcap10k_row770() {
 // هیچ‌کدام پرچم extreme/warchest/new ندارند. خالص و هدلس.
 function t_extai8_row771() {
   const keys = Object.keys(CONFIG.AI.personalities).sort();
-  must(JSON.stringify(keys) === JSON.stringify(["arabLord", "lion", "pig", "rat", "saladin", "snake", "wolf"]), "شخصیت‌ها همان ۷ هستند، شد " + keys.join(","));
+  must(JSON.stringify(keys) === JSON.stringify(["artan", "azarm", "farrokhan", "hamun", "kahbod", "sepehrdad", "tirazheh"]), "شخصیت‌ها همان ۷ هستند، شد " + keys.join(","));
   for (const k of keys) {
     const P = CONFIG.AI.personalities[k];
     must(!("extreme" in P) && !("warchest" in P) && !("isNew" in P) && !("extremeOnly" in P), "شخصیت " + k + " پرچم Extreme ندارد");
@@ -2117,7 +2117,7 @@ function t_calltoarms_row92() {
 // state. خالص و هدلس.
 function t_saladinconq_row93() {
   must(validIdentity("arab") === "arab", "هویت عرب تک‌بازی هست");
-  must(aiPersonality({ personality: "saladin" }) === CONFIG.AI.personalities.saladin, "صلاح‌الدین شخصیت تک‌بازی است");
+  must(aiPersonality({ personality: "azarm" }) === CONFIG.AI.personalities.azarm, "صلاح‌الدین شخصیت تک‌بازی است");
   must(MISSIONS.length === 6, "کمپین ۶ مأموریت است (صلاح‌الدین: شخصیت + مأموریت)");
   const st = createState();
   for (const k of ["saladinsConquest", "arabCampaign", "commandArabs", "campaign"]) {
@@ -2166,7 +2166,7 @@ function t_antiturtle_row1191() {
   state.mapSeed = CONFIG.MAP_SEED;
   must(placeKeep(state, terrain, W, H).ok, "ستاد بازیکن");
   must(spawnLord(state, terrain, W, H).ok, "ارباب بازیکن");
-  must(startAI(state, terrain, W, H, "normal", "wolf").ok, "شروع AI");
+  must(startAI(state, terrain, W, H, "normal", "artan").ok, "شروع AI");
   for (const b of state.buildings) b.buildLeft = 0;
   const g0 = grassNear(terrain, state.occ, W, H, W - 10, H - 10);
   must(!!g0, "جای یگان AI هست");
@@ -2196,11 +2196,11 @@ function t_antiturtle_row1191() {
 // شخصیت‌ها، نه گونه trade در queueOrder (ارجاع 735). خالص و هدلس.
 function t_allytrade_row1192() {
   const f = fresh();
-  startAI(f.state, f.terrain, f.W, f.H, "normal", "wolf");
+  startAI(f.state, f.terrain, f.W, f.H, "normal", "artan");
   for (const k of ["trade", "diplomacy", "tribute", "sendGoods", "requestGoods", "allyTrade", "acceptTrade", "tradeCond"]) {
     must(f.state.ai[k] === undefined, "AI نباید " + k + " داشته باشد");
   }
-  for (const p of ["wolf", "saladin"]) {
+  for (const p of ["artan", "azarm"]) {
     const P = aiPersonality({ personality: p });
     must(!("trade" in P) && !("sendGoods" in P) && !("requestGoods" in P), "شخصیت " + p + " تجارت ندارد");
   }
@@ -2426,7 +2426,7 @@ function t_exmapmaker_row758() {
 // ارجاع به t_extai8_row771 (0.206.0). خالص و هدلس.
 function t_extai8b_row746() {
   const keys = Object.keys(CONFIG.AI.personalities).sort();
-  must(JSON.stringify(keys) === JSON.stringify(["arabLord", "lion", "pig", "rat", "saladin", "snake", "wolf"]), "شخصیت‌ها همان ۷ هستند، شد " + keys.join(","));
+  must(JSON.stringify(keys) === JSON.stringify(["artan", "azarm", "farrokhan", "hamun", "kahbod", "sepehrdad", "tirazheh"]), "شخصیت‌ها همان ۷ هستند، شد " + keys.join(","));
   for (const k of keys) {
     const P = CONFIG.AI.personalities[k];
     must(!("extreme" in P) && !("warchest" in P) && !("isNew" in P) && !("extremeOnly" in P), "شخصیت " + k + " پرچم Extreme ندارد");
@@ -2466,7 +2466,7 @@ function t_spatial_row1205() {
   }
   must(placeKeep(f.state, f.terrain, f.W, f.H).ok, "ستاد بازیکن");
   must(spawnLord(f.state, f.terrain, f.W, f.H).ok, "ارباب بازیکن");
-  must(startAI(f.state, f.terrain, f.W, f.H, "normal", "wolf").ok, "شروع AI");
+  must(startAI(f.state, f.terrain, f.W, f.H, "normal", "artan").ok, "شروع AI");
   for (const b of f.state.buildings) b.buildLeft = 0;
   const g0 = grassNear(f.terrain, f.state.occ, f.W, f.H, f.W - 10, f.H - 10);
   must(!!g0, "جای یگان AI هست");
@@ -2599,8 +2599,8 @@ function aiLongRun(diff, pers) {
 // بی-throw + بی‌قفل: تیک جلو می‌رود و AI پیشرفت می‌کند (یورش/ساخت/تغییر
 // فاز). بدون کد محصول (فقط تست).
 function t_aivsai_row1254() {
-  const r1 = aiLongRun("normal", "wolf");
-  const r2 = aiLongRun("hard", "rat");
+  const r1 = aiLongRun("normal", "artan");
+  const r2 = aiLongRun("hard", "kahbod");
   must(r1.tick === 1200 && r2.tick === 1200, "تیک‌ها جلو رفتند");
   must(r1.prog, "گرگ پیشرفت کرد (یورش/ساخت/فاز)");
   must(r2.prog, "موش پیشرفت کرد (یورش/ساخت/فاز)");
@@ -2730,16 +2730,16 @@ function t_aistyles_row87() {
   const keys = Object.keys(CONFIG.AI.personalities).sort();
   must(keys.length === 7, "۷ شخصیت است، شد " + keys.length);
   must(new Set(keys.map(personalitySig)).size === 7, "امضای هر ۷ یکتاست");
-  const wolf = aiRaidPlan({ difficulty: "normal", personality: "wolf" }, 0);
-  const rat = aiRaidPlan({ difficulty: "normal", personality: "rat" }, 0);
+  const wolf = aiRaidPlan({ difficulty: "normal", personality: "artan" }, 0);
+  const rat = aiRaidPlan({ difficulty: "normal", personality: "kahbod" }, 0);
   must(wolf.at !== rat.at && wolf.n !== rat.n, "زمان‌بندی/اندازه یورش گرگ/موش فرق دارد");
   const unitsFor = (pers) => {
     const out = new Set();
     for (let i = 0; i < 60; i++) out.add(aiRaidUnitType({ seed: 4242, difficulty: "normal", personality: pers }, 100, 0, i));
     return [...out].sort();
   };
-  must(JSON.stringify(unitsFor("saladin")) === JSON.stringify(["arabianBow", "slinger"]), "صلاح‌الدین نیروی عرب می‌فرستد");
-  must(JSON.stringify(unitsFor("wolf")) === JSON.stringify(["archer", "swordsman"]), "گرگ نیروی صلیبی می‌فرستد");
+  must(JSON.stringify(unitsFor("azarm")) === JSON.stringify(["arabianBow", "slinger"]), "صلاح‌الدین نیروی عرب می‌فرستد");
+  must(JSON.stringify(unitsFor("artan")) === JSON.stringify(["archer", "swordsman"]), "گرگ نیروی صلیبی می‌فرستد");
   return { name: "سبک AIها (87)", pass: true, detail: "۷ امضای یکتا + رفتار" };
 }
 
@@ -2754,10 +2754,10 @@ function t_ailords_row744() {
   must(new Set(keys.map((k) => JSON.stringify(CONFIG.AI.personalities[k].buildList))).size === 7, "ترتیب ساخت هر ۷ فرق دارد");
   const golds = keys.map((k) => CONFIG.AI.personalities[k].goldMul);
   must(Math.min(...golds) === 0.7 && Math.max(...golds) === 1.5, "دامنه منابع ۰٫۷ تا ۱٫۵ است");
-  must(CONFIG.AI.personalities.arabLord.troops.melee === "slave", "ارباب عرب: پیاده برده");
-  must(CONFIG.AI.personalities.saladin.troops.melee === "slinger", "صلاح‌الدین: فلاخن‌انداز (زوج بیابان)");
-  const rat = aiRaidPlan({ difficulty: "normal", personality: "rat" }, 0);
-  const snake = aiRaidPlan({ difficulty: "normal", personality: "snake" }, 0);
+  must(CONFIG.AI.personalities.hamun.troops.melee === "slave", "ارباب عرب: پیاده برده");
+  must(CONFIG.AI.personalities.azarm.troops.melee === "slinger", "صلاح‌الدین: فلاخن‌انداز (زوج بیابان)");
+  const rat = aiRaidPlan({ difficulty: "normal", personality: "kahbod" }, 0);
+  const snake = aiRaidPlan({ difficulty: "normal", personality: "tirazheh" }, 0);
   must(rat.at !== snake.at && rat.n !== snake.n, "یورش موش/مار فرق دارد");
   return { name: "ارباب‌های AI (744)", pass: true, detail: "۷ سبک متمایز" };
 }
@@ -3065,7 +3065,7 @@ function t_ailayers_row1186() {
   must(Object.keys(P).length === 7, "۷ شخصیت هست: " + Object.keys(P).join(","));
   const f = fresh();
   must(placeKeep(f.state, f.terrain, f.W, f.H).ok, "ستاد بازیکن");
-  must(startAI(f.state, f.terrain, f.W, f.H, "normal", "wolf").ok, "شروع AI");
+  must(startAI(f.state, f.terrain, f.W, f.H, "normal", "artan").ok, "شروع AI");
   aiSim(f.state, f.terrain, 700);
   const done = f.state.buildings.filter((b) => (b.owner == null ? 0 : b.owner) === AI_OWNER && b.type !== "keep" && (b.buildLeft || 0) === 0);
   must(done.length >= 3, "اقتصاد ≥۳ بنا ساخته: " + done.length);
@@ -3097,7 +3097,7 @@ function t_airun_row1187() {
   must(CONFIG.TICK_HZ === 10, "یعنی هر ۵ ثانیه (واگرا از ۱–۲ ثانیه)");
   const f = fresh();
   must(placeKeep(f.state, f.terrain, f.W, f.H).ok, "ستاد بازیکن");
-  must(startAI(f.state, f.terrain, f.W, f.H, "normal", "wolf").ok, "شروع");
+  must(startAI(f.state, f.terrain, f.W, f.H, "normal", "artan").ok, "شروع");
   must(f.state.ai.nextThink === f.state.tick + 50, "نوبت بعد +۵۰ است");
   stepAI(f.state, f.terrain); // همان تیک — نباید کاری کند
   must(f.state.ai.buildIdx === 0, "پیش از نوبت کاری نمی‌کند");
@@ -3109,11 +3109,11 @@ function t_airun_row1187() {
   must(aiRandAt(a, 100, 5) === aiRandAt(a, 100, 5), "draw قطعی است");
   must(aiRandAt(a, 100, 5) !== aiRandAt(a, 100, 6) || aiRandAt(a, 100, 6) !== aiRandAt(a, 100, 7), "نمک اثر می‌کند");
   const types = new Set();
-  for (let i = 0; i < 200; i++) types.add(aiRaidUnitType({ personality: "snake" }, 100, 0, i));
+  for (let i = 0; i < 200; i++) types.add(aiRaidUnitType({ personality: "tirazheh" }, 100, 0, i));
   must(types.has("archer") && types.size >= 2, "ترکیب وزنی مار هر دو نوع می‌دهد");
-  const base = aiRaidPlan({ difficulty: "normal", personality: "wolf" }, 0);
+  const base = aiRaidPlan({ difficulty: "normal", personality: "artan" }, 0);
   must(base.at === 1500 && base.n === 3, "خنثی = جدول پایه");
-  must(aiDifficulty({ difficulty: "hard" }).raidAtMul === 0.7 && aiPersonality({ personality: "lion" }).raidSizeAdd === 2, "هندیکپ‌ها فقط ضرب/جمع‌اند");
+  must(aiDifficulty({ difficulty: "hard" }).raidAtMul === 0.7 && aiPersonality({ personality: "sepehrdad" }).raidSizeAdd === 2, "هندیکپ‌ها فقط ضرب/جمع‌اند");
   must(f.state.ai.resources.food === 120, "غذای AI مصرف نمی‌شود (ساده‌سازی مستند)");
   return { name: "اجرای AI (1187)", pass: true, detail: "۵۰تیک + گیت + draw + هندیکپ" };
 }
@@ -3139,8 +3139,8 @@ function t_aiparams_row1188() {
   must(all.includes("farm") && all.includes("quarry"), "مزرعه/معدن در فهرست‌ها هست");
   must(all.includes("mill"), "آسیاب (نان) در فهرست‌ها هست");
   must(!all.includes("brewery") && !all.includes("dairy"), "آبجو/پنیر در فهرست‌ها نیست");
-  must(aiRaidPlan({ personality: "rat" }, 0).at === 2100 && aiRaidPlan({ personality: "lion" }, 0).at === 1200, "موش دیر و شیر زود است");
-  must(aiPersonality({ personality: "saladin" }).troops.melee === "slinger", "زوج صلاح‌الدین ثبت است");
+  must(aiRaidPlan({ personality: "kahbod" }, 0).at === 2100 && aiRaidPlan({ personality: "sepehrdad" }, 0).at === 1200, "موش دیر و شیر زود است");
+  must(aiPersonality({ personality: "azarm" }).troops.melee === "slinger", "زوج صلاح‌الدین ثبت است");
   return { name: "پارامترهای شخصیت (1188)", pass: true, detail: "۴ نگاشت + ۳ خلأ نام‌دار" };
 }
 
@@ -3259,7 +3259,7 @@ function t_skirmish_row85() {
     must(st[k] === undefined, "state نباید " + k + " داشته باشد (تک‌حریف)");
   }
   const f = fresh();
-  must(startAI(f.state, f.terrain, f.W, f.H, "normal", "wolf").ok, "شروع تک‌حریف");
+  must(startAI(f.state, f.terrain, f.W, f.H, "normal", "artan").ok, "شروع تک‌حریف");
   must(f.state.ai.active === true && f.state.ai2 === undefined, "پس از شروع هم تکی است");
   const room = { code: "AB12", max: 4, num: 2, seed: 7, players: [{ name: "a", logo: 0 }, { name: "b", logo: 1 }] };
   for (const h of [roomRowHTML(room), liveRowHTML(room, false)]) {
@@ -3416,7 +3416,7 @@ function t_trademark_row1258() {
 // __T_AI8_ROW1190__
 function t_ai8_row1190() {
   const keys = Object.keys(CONFIG.AI.personalities).sort();
-  must(JSON.stringify(keys) === JSON.stringify(["arabLord", "lion", "pig", "rat", "saladin", "snake", "wolf"]), "همان ۷ شخصیت است، شد " + keys.join(","));
+  must(JSON.stringify(keys) === JSON.stringify(["artan", "azarm", "farrokhan", "hamun", "kahbod", "sepehrdad", "tirazheh"]), "همان ۷ شخصیت است، شد " + keys.join(","));
   const sigs = keys.map((k) => { const P = CONFIG.AI.personalities[k]; return JSON.stringify([P.buildList, P.raidAtMul, P.raidSizeAdd, P.troops]); });
   must(new Set(sigs).size === 7, "امضای هر ۷ یکتاست");
   const ats = keys.map((k) => CONFIG.AI.personalities[k].raidAtMul);
@@ -3424,15 +3424,15 @@ function t_ai8_row1190() {
   const sizes = keys.map((k) => CONFIG.AI.personalities[k].raidSizeAdd);
   must(Math.min.apply(null, sizes) === -1 && Math.max.apply(null, sizes) === 2, "یورش کوچک (−۱) تا بزرگ (۲) هست");
   const towers = keys.map((k) => CONFIG.AI.personalities[k].buildList.filter((b) => b === "tower").length);
-  must(towers[keys.indexOf("lion")] === 2 && Math.max.apply(null, towers) === 2, "شیر پربرج‌ترین است (۲ برج)");
-  must(CONFIG.AI.personalities.pig.buildList.indexOf("mill") !== -1, "خوک آسیاب دارد (economy-boom)");
+  must(towers[keys.indexOf("sepehrdad")] === 2 && Math.max.apply(null, towers) === 2, "شیر پربرج‌ترین است (۲ برج)");
+  must(CONFIG.AI.personalities.farrokhan.buildList.indexOf("mill") !== -1, "خوک آسیاب دارد (economy-boom)");
   const siegeSet = ["siege", "catapult", "trebuchet", "ballista", "fireBallista"];
   for (const k of keys) {
     for (const b of CONFIG.AI.personalities[k].buildList) must(siegeSet.indexOf(b) === -1, "سازنده محاصره نیست: " + k + "/" + b);
   }
   const unitsFor = (pers) => { const out = new Set(); for (let i = 0; i < 60; i++) out.add(aiRaidUnitType({ seed: 4242, difficulty: "normal", personality: pers }, 100, 0, i)); return [...out].sort(); };
-  must(JSON.stringify(unitsFor("saladin")) === JSON.stringify(["arabianBow", "slinger"]), "صلاح‌الدین نیروی عرب می‌فرستد");
-  must(JSON.stringify(unitsFor("wolf")) === JSON.stringify(["archer", "swordsman"]), "گرگ نیروی صلیبی می‌فرستد");
+  must(JSON.stringify(unitsFor("azarm")) === JSON.stringify(["arabianBow", "slinger"]), "صلاح‌الدین نیروی عرب می‌فرستد");
+  must(JSON.stringify(unitsFor("artan")) === JSON.stringify(["archer", "swordsman"]), "گرگ نیروی صلیبی می‌فرستد");
   for (const k of keys) {
     const P = CONFIG.AI.personalities[k];
     must(!("extreme" in P) && !("warchest" in P) && !("isNew" in P) && !("extremeOnly" in P), "شخصیت " + k + " پرچم Extreme ندارد (ارجاع 771)");

@@ -159,14 +159,14 @@ function t_identity() {
   must(validateReplayLog({ v: REPLAY_V, seed: 1, cmds: [], ident: "arab" }).ok, "لاگ با هویت عرب قبول می‌شود");
   must(validateReplayLog({ v: REPLAY_V, seed: 1, cmds: [] }).ok, "لاگ قدیمی بی‌هویت قبول می‌شود");
   must(!validateReplayLog({ v: REPLAY_V, seed: 1, cmds: [], ident: "xx" }).ok, "هویت خراب رد می‌شود");
-  const sNone = newSoloFromSeed(7, "normal", null, "", "wolf");
-  const sArab = newSoloFromSeed(7, "normal", null, "", "wolf", "arab");
+  const sNone = newSoloFromSeed(7, "normal", null, "", "artan");
+  const sArab = newSoloFromSeed(7, "normal", null, "", "artan", "arab");
   const cnt = (s) => s.state.units.filter((u) => u.side === "player" && u.type !== "lord").length;
   must(cnt(sNone) === 0 && cnt(sArab) === 12, "بازسازی سولو: none بی‌نیرو، عرب ۱۲");
   must(sNone.state.ident === "none" && sArab.state.ident === "arab", "هویت بازی در بازسازی می‌ماند");
   must(t("ui.menu.ident.crusader").length > 0, "نام فارسی هویت");
   withLang("en", () => {
-    must(t("ui.menu.ident.crusader").indexOf("Crusader") >= 0, "نام en صلیبی");
+    must(t("ui.menu.ident.crusader").indexOf("Warden") >= 0, "نام en صلیبی");
   });
   return { name: "هویت آغازین", pass: true, detail: "کاتالوگ + ۱۲نیرو/قطعی + ری‌پلی" };
 }

@@ -48,7 +48,7 @@ export function runFirstTenScenario(seed, ticks) {
   state.mapSeed = s;
   placeKeep(state, terrain, W, H);
   spawnLord(state, terrain, W, H);
-  startAI(state, terrain, W, H, "easy", "wolf");
+  startAI(state, terrain, W, H, "easy", "artan");
   const q = createQueue();
   const cmd = (c) => enqueueCmd(q, c, state.tick);
 
@@ -184,7 +184,7 @@ export function inspectFirstTen(seed, ticks) {
   state.mapSeed = s;
   placeKeep(state, terrain, W, H);
   spawnLord(state, terrain, W, H);
-  startAI(state, terrain, W, H, "easy", "wolf");
+  startAI(state, terrain, W, H, "easy", "artan");
   const q = createQueue();
   // همان برنامه ساخت runFirstTenScenario تا تیک خواسته‌شده (بدون استخدام/دستور).
   const plan = [

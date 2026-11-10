@@ -3,7 +3,7 @@
 ## سبک سراسری (به ابتدای همه پرامپت‌ها اضافه شود)
 
 ```
-Stronghold-style hand-painted strategy game asset, isometric oblique view,
+hand-painted Persian-plateau strategy game asset, isometric oblique view,
 muted medieval palette (wood #a8894f, wood-light #e3c188, stone #8d99a6,
 stone-dark #59616b), clean readable silhouette at small size,
 transparent background, no ground shadow, no text, no watermark,
@@ -29,7 +29,7 @@ centered composition with padding, game-ready sprite
 ```
 small wooden hunter hut with a slanted plank roof, antler rack mounted above
 the door, two hanging pelts on the side wall, a chopping stump with an axe
-beside it, Stronghold-style hand-painted strategy game asset, isometric
+beside it, hand-painted Persian-plateau strategy game asset, isometric
 oblique view, muted medieval palette, transparent background, no text,
 game-ready sprite
 ```
@@ -38,7 +38,7 @@ game-ready sprite
 ```
 low cowshed: open-front wooden barn with hay roof, small fenced paddock
 attached, one brown-white cow, stacked hay bales and two milk churns by
-the door, Stronghold-style hand-painted strategy game asset, isometric
+the door, hand-painted Persian-plateau strategy game asset, isometric
 oblique view, muted medieval palette, transparent background, no text,
 game-ready sprite
 ```
@@ -46,7 +46,7 @@ game-ready sprite
 ### `orchard` — باغ سیب (۳×۳)
 ```
 3x3 grid of small round apple trees with red apple dots, dark soil mounds
-at trunks, low wooden picket fence around the plot, Stronghold-style
+at trunks, low wooden picket fence around the plot, Arg-style
 hand-painted strategy game asset, isometric oblique view, muted medieval
 palette, transparent background, no text, game-ready sprite
 ```
@@ -55,7 +55,7 @@ palette, transparent background, no text, game-ready sprite
 ```
 tiny stone prayer chapel, single arched wooden door, one narrow arched
 window with warm glow, small stone bell-arch on the roof, mossy slate roof,
-Stronghold-style hand-painted strategy game asset, isometric oblique view,
+hand-painted Persian-plateau strategy game asset, isometric oblique view,
 muted medieval palette, transparent background, no text, game-ready sprite
 ```
 
@@ -63,7 +63,7 @@ muted medieval palette, transparent background, no text, game-ready sprite
 ```
 small stone church with a steep slate nave roof and a short square bell
 tower with arched openings and a simple iron cross, arched stained-glass
-door window, Stronghold-style hand-painted strategy game asset, isometric
+door window, hand-painted Persian-plateau strategy game asset, isometric
 oblique view, muted medieval palette, transparent background, no text,
 game-ready sprite
 ```
@@ -72,7 +72,7 @@ game-ready sprite
 ```
 grand miniature cathedral: twin slim spires with crosses, central rose
 window, flying-buttress hints on the sides, tall arched portal, pale stone
-walls with slate roofs, Stronghold-style hand-painted strategy game asset,
+walls with slate roofs, hand-painted Persian-plateau strategy game asset,
 isometric oblique view, muted medieval palette, transparent background,
 no text, game-ready sprite
 ```
@@ -81,14 +81,14 @@ no text, game-ready sprite
 ```
 ornamental garden: trimmed green hedge borders, two flower beds with red
 and yellow blooms, gravel cross path, small round shrub in the center,
-Stronghold-style hand-painted strategy game asset, isometric oblique view,
+hand-painted Persian-plateau strategy game asset, isometric oblique view,
 muted medieval palette, transparent background, no text, game-ready sprite
 ```
 
 ### `statue` — تندیس (۱×۱)
 ```
 weathered gray stone statue of an armored lord holding a sword point-down,
-standing on a square inscribed pedestal, moss patches, Stronghold-style
+standing on a square inscribed pedestal, moss patches, Arg-style
 hand-painted strategy game asset, isometric oblique view, muted medieval
 palette, transparent background, no text, game-ready sprite
 ```
@@ -96,7 +96,7 @@ palette, transparent background, no text, game-ready sprite
 ### `gallows` — چوبه دار (۱×۱)
 ```
 wooden gallows: two posts with crossbeam, hanging rope noose, small
-platform with steps, weathered timber, Stronghold-style hand-painted
+platform with steps, weathered timber, hand-painted Persian-plateau
 strategy game asset, isometric oblique view, muted medieval palette,
 transparent background, no text, game-ready sprite
 ```
@@ -105,7 +105,7 @@ transparent background, no text, game-ready sprite
 ```
 gloomy square stone prison block, flat heavy roof, iron-studded door,
 two small barred windows with faint orange glow, chains hanging by the
-door, Stronghold-style hand-painted strategy game asset, isometric oblique
+door, hand-painted Persian-plateau strategy game asset, isometric oblique
 view, muted medieval palette, transparent background, no text,
 game-ready sprite
 ```
@@ -114,7 +114,7 @@ game-ready sprite
 ```
 massive square stone keep, four corner turrets with battlements, central
 tall tower with war banner, large arched gate with portcullis, arrow slits,
-pale ashlar stone, imposing fortress silhouette, Stronghold-style
+pale ashlar stone, imposing fortress silhouette, Arg-style
 hand-painted strategy game asset, isometric oblique view, muted medieval
 palette, transparent background, no text, game-ready sprite
 ```
@@ -192,7 +192,7 @@ tunic, heavy boots
 ### ماشین‌های محاصره — تک‌اسپرایت (کد لودر جدا می‌خواهد)
 ```
 single sprite, no sheet, isometric oblique view, transparent background,
-Stronghold-style hand-painted, no text:
+hand-painted Persian-plateau, no text:
 ```
 - `ram`: wooden battering ram with stitched-hide roof canopy on four iron-bound wheels, iron-tipped log slung on chains
 - `catapult`: wooden stone-thrower with twisted rope skein, throwing arm with spoon, timber frame on wheels

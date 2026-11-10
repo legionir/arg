@@ -1666,9 +1666,9 @@ function t_priest_bless() {
   must(religionCoverage(f4.state, 0) === 0, "پوشش بازیکن ۰ باید ۰ بماند");
   // نام‌ها در هر دو زبان از واژگان حل شوند.
   withLang("en", () => {
-    must(CONFIG.BUILDINGS.chapel.name === "Chapel", "نام en نمازخانه");
-    must(CONFIG.BUILDINGS.church.name === "Church", "نام en کلیسا");
-    must(CONFIG.BUILDINGS.cathedral.name === "Cathedral", "نام en کلیسای جامع");
+    must(CONFIG.BUILDINGS.chapel.name === "Shrine", "نام en نمازخانه");
+    must(CONFIG.BUILDINGS.church.name === "Temple", "نام en کلیسا");
+    must(CONFIG.BUILDINGS.cathedral.name === "Grand Temple", "نام en کلیسای جامع");
   });
   return { name: "تبرک کشیش‌ها", pass: true, detail: "۳ بنا + کشیش + پوشش/MP" };
 }

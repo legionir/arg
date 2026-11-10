@@ -71,9 +71,10 @@ export function checkMirrors(srcRaw, rootRaw, gameLogicRaw) {
   } catch (e) {
     return { ok: false, problems: ["extract: " + (e && e.message)], meta: null };
   }
-  const meta = { srcPath: "src/arg/index.html", startLine: ext.startLine, endLine: ext.endLine, stateSize: 17833432 };
+  const meta = { srcPath: "index.html", startLine: ext.startLine, endLine: ext.endLine, stateSize: 17833432 };
   const problems = [];
   if (buildGameLogic(ext.block, meta) !== String(gameLogicRaw)) problems.push("game-logic.js differs");
-  if (buildRootDoc(rootRaw, ext.block) !== toLF(rootRaw)) problems.push("root index.html mirror differs");
+  // آینه ریشه فقط در چیدمان میزبانیِ دولایه وجود دارد؛ در مخزن مستقل rootRaw = null است.
+  if (rootRaw != null && buildRootDoc(rootRaw, ext.block) !== toLF(rootRaw)) problems.push("root index.html mirror differs");
   return { ok: problems.length === 0, problems, meta };
 }

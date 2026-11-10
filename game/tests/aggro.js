@@ -313,7 +313,7 @@ function t_stonekeep() {
   must(loaded.buildings.some((b) => b.type === "stonekeep" && !b.destroyed), "ستاد سنگی در ذخیره می‌ماند");
   must(t("game.building.stonekeep.name").length > 0, "نام فارسی هست");
   withLang("en", () => {
-    must(t("game.building.stonekeep.name") === "Stone Keep", "نام en");
+    must(t("game.building.stonekeep.name") === "Stone Citadel", "نام en");
   });
   return { name: "ستاد سنگی", pass: true, detail: "کاتالوگ + مسکن + یکتا + ذخیره" };
 }

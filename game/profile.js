@@ -2,42 +2,41 @@
 // (localStorage) و در اتاق چندنفره برای همه نمایش داده می‌شود (همراه roster
 // سرور)؛ هر وقت از منو قابل ویرایش است.
 //
-// پرتره‌ها (۲۹ تصویر در assets/lords — جایگزین ایموجی‌های 0.27.0):
+// پرتره‌ها (۲۹ تصویر برداری اورجینال در assets/portraits — سازنده: tools/gen-portraits.mjs):
 // اندیس لوگو همان اندیس این فهرست است (۰..۲۸) و همان عدد در بایت اسلات
-// سرور ذخیره می‌شود؛ لوگوهای قدیمی ۰..۱۱ همچنان معتبرند و حالا پرتره
-// نشان می‌دهند. مسیر از ریشه ژنراتور است چون نشان‌ها به‌صورت <img>
-// داینامیک در DOM ریشه تزریق می‌شوند (مبانی نسبی ماژول نه).
-export const LORD_PORTRAIT_BASE = "src/arg/assets/lords/";
+// سرور ذخیره می‌شود؛ فقط به انتها اضافه کن، ترتیب را عوض نکن. هفت نفر اول
+// فرمانروایان حریف‌اند (game/foeinfo.js). مسیر نسبت به index.html است.
+export const LORD_PORTRAIT_BASE = "assets/portraits/";
 export const PROFILE_LORDS = [
-  { file: "Baibars.png", name: "Baibars" },
-  { file: "Baldwin.png", name: "Baldwin" },
-  { file: "Bullseye.png", name: "Bullseye" },
-  { file: "Emperor-Frederick.png", name: "Frederick" },
-  { file: "King-Philip.png", name: "Philip" },
-  { file: "Richard-the-Lionheart.png", name: "Richard" },
-  { file: "Saladin.png", name: "Saladin" },
-  { file: "The-Abbot.png", name: "Abbot" },
-  { file: "The-Caliph.png", name: "Caliph" },
-  { file: "The-Canary.png", name: "Canary" },
-  { file: "The-Crocodile.png", name: "Crocodile" },
-  { file: "The-Emir.png", name: "Emir" },
-  { file: "The-Jewel.png", name: "Jewel" },
-  { file: "The-Kahinah.png", name: "Kahinah" },
-  { file: "The-Lioness.png", name: "Lioness" },
-  { file: "The-Marshal.png", name: "Marshal" },
-  { file: "The-Nizar.png", name: "Nizar" },
-  { file: "The-Nomad.png", name: "Nomad" },
-  { file: "The-Pig.png", name: "Pig" },
-  { file: "The-Rat.png", name: "Rat" },
-  { file: "The-Sentinel.png", name: "Sentinel" },
-  { file: "The-Sergeant.png", name: "Sergeant" },
-  { file: "The-Sheriff.png", name: "Sheriff" },
-  { file: "The-Snake.png", name: "Snake" },
-  { file: "The-Sultan.png", name: "Sultan" },
-  { file: "The-Surgeon.png", name: "Surgeon" },
-  { file: "The-Trader.png", name: "Trader" },
-  { file: "The-Wazir.png", name: "Wazir" },
-  { file: "The-Wolf.png", name: "Wolf" },
+  { file: "artan.svg", name: "Artan" },
+  { file: "kahbod.svg", name: "Kahbod" },
+  { file: "tirazheh.svg", name: "Tirazheh" },
+  { file: "farrokhan.svg", name: "Farrokhan" },
+  { file: "sepehrdad.svg", name: "Sepehrdad" },
+  { file: "hamun.svg", name: "Hamun" },
+  { file: "azarm.svg", name: "Azarm" },
+  { file: "mehrak.svg", name: "Mehrak" },
+  { file: "golnar.svg", name: "Golnar" },
+  { file: "borzin.svg", name: "Borzin" },
+  { file: "niusha.svg", name: "Niusha" },
+  { file: "kiana.svg", name: "Kiana" },
+  { file: "bardia.svg", name: "Bardia" },
+  { file: "homa.svg", name: "Homa" },
+  { file: "delaram.svg", name: "Delaram" },
+  { file: "zarvan.svg", name: "Zarvan" },
+  { file: "parvaneh.svg", name: "Parvaneh" },
+  { file: "ramin.svg", name: "Ramin" },
+  { file: "mahyar.svg", name: "Mahyar" },
+  { file: "sanam.svg", name: "Sanam" },
+  { file: "roham.svg", name: "Roham" },
+  { file: "tara.svg", name: "Tara" },
+  { file: "arvand.svg", name: "Arvand" },
+  { file: "nahal.svg", name: "Nahal" },
+  { file: "hirbod.svg", name: "Hirbod" },
+  { file: "yasna.svg", name: "Yasna" },
+  { file: "farnaz.svg", name: "Farnaz" },
+  { file: "shahin.svg", name: "Shahin" },
+  { file: "dana.svg", name: "Dana" },
 ];
 // سازگاری: PROFILE_LOGOS حالا فهرست فایل‌های پرتره است (طول ۲۹)؛
 // رندر مستقیم رشته نداریم — با lordPortraitHTML تصویر بساز.
@@ -50,7 +49,7 @@ export const PROFILE_NAME_MAX = 12;
 export const PROFILE_RANDOM_NAMES = PROFILE_LORDS.map((l) => l.name);
 export function randomDefaultName() {
   const i = (Math.random() * PROFILE_RANDOM_NAMES.length) | 0;
-  return PROFILE_RANDOM_NAMES[i] || "Richard";
+  return PROFILE_RANDOM_NAMES[i] || "Artan";
 }
 
 // نام معتبر: ۱..۱۲ نویسه پس از trim — آینه قانون سرور (فارسی/عربی، لاتین،

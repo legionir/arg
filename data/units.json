@@ -58,7 +58,7 @@
       },
       "trainTicks": 40,
       "color": "#4d9de0",
-      "source": "reference: stronghold-wiki/archer",
+      "source": "reference: balance pass 0.14",
       "requires": "barracks",
       "requiresWeapon": "bows"
     },
@@ -610,7 +610,7 @@
         "gold": 25
       },
       "color": "#e05c4d",
-      "source": "reference: stronghold-wiki/swordsman"
+      "source": "reference: balance pass 0.14"
     },
     {
       "id": "archer",
@@ -635,7 +635,7 @@
         "gold": 15
       },
       "color": "#e09a4d",
-      "source": "reference: stronghold-wiki/archer"
+      "source": "reference: balance pass 0.14"
     },
     {
       "id": "blackmonk",

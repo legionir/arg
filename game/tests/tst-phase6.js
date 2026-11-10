@@ -27,8 +27,8 @@ function t_tst_i18n() {
   const miss = missingKeys("en");
   must(Array.isArray(miss) && miss.length === 0, "کلید fa بی en نباید باشد (" + miss.slice(0, 3).join(",") + ")");
   must(dictSize("fa") > 900 && dictSize("en") > 900, "واژگان باید پر باشد (fa=" + dictSize("fa") + " en=" + dictSize("en") + ")");
-  must(withLang("fa", () => t("game.personality.arabLord.desc")).includes("لشکر"), "fa باید فارسی باشد");
-  must(withLang("en", () => t("game.personality.arabLord.desc")).includes("Arabian"), "en باید ترجمه باشد");
+  must(withLang("fa", () => t("game.personality.hamun.desc")).includes("لشکر"), "fa باید فارسی باشد");
+  must(withLang("en", () => t("game.personality.hamun.desc")).includes("Desert"), "en باید ترجمه باشد");
   withLang("fa", () => { must(getDir() === "rtl" && isRTL() === true, "fa باید rtl باشد"); });
   withLang("en", () => { must(getDir() === "ltr" && isRTL() === false, "en باید ltr باشد"); });
   for (const lang of ["fa", "en"]) {

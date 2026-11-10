@@ -1,6 +1,6 @@
 ---
 name: run-arg
-description: Run, start, screenshot and test the Arg browser game (Stronghold-Crusader-style, Persian/English). Use when asked to run/launch/serve the game, take a screenshot of the menu or in-game UI in fa or en, or run the in-browser test suite.
+description: Run, start, screenshot and test the Arg browser game (original citadel-building RTS, Persian/English). Use when asked to run/launch/serve the game, take a screenshot of the menu or in-game UI in fa or en, or run the in-browser test suite.
 ---
 
 Arg is a static ES-module web game (`index.html` + `game/*.js` + `styles/*.css`) with an optional Node server (`server/server.mjs`: static files + WebSocket `/sock` for multiplayer/hall/cloud save). Agents drive it headless with `driver.mjs` (Playwright + Chromium). Paths below are relative to the repo root.

@@ -13,7 +13,7 @@
 // هش بلافاصله پس از load برابر باشد (همه هر تیک بازمحاسبه می‌شوند).
 // بیرون ذخیره (طراحی‌شده، خارج هش): fx نمایشی، flashTick، path واحدها، px/pr،
 // وقایع‌نگار events (فقط نمایشی)، نشست MP (ذخیره فقط سولو — main.js).
-import { CONFIG } from "./config.js";
+import { CONFIG, canonPersonality } from "./config.js";
 import { createState, occupyFootprint } from "./state.js";
 import { TAX, RATIONS, FOOD_TYPES, capFor } from "./economy.js";
 import { UNITS, validIdentity, isGarrisonPost, KILLPIT_CHARGES, DOGS_PER_CAGE, stableHorses, HORSES_PER_STABLE } from "./combat.js";
@@ -468,7 +468,7 @@ function checkAi(data) {
   // شخصیت حریف (0.56.0، اختیاری → گرگ خنثی؛ دست‌کاری رد می‌شود).
   if (a.personality === undefined || a.personality === null) {
     a.personality = CONFIG.AI.defaultPersonality;
-  } else if (typeof a.personality !== "string" || !CONFIG.AI.personalities[a.personality]) {
+  } else if (typeof (a.personality = canonPersonality(a.personality)) !== "string" || !CONFIG.AI.personalities[a.personality]) {
     throw bad("ai.personality");
   }
   return {

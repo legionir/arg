@@ -1,5 +1,5 @@
 // نقطه ورود برش اول: سیم‌کشی ساعت، ساخت، رندر و پنل‌ها.
-import { CONFIG } from "./config.js";
+import { CONFIG, canonPersonality } from "./config.js";
 import { makeTerrain } from "./terrain.js";
 import { createState } from "./state.js";
 import { validate, tryPlace, placeKeep, placeKeepFor, REASON_FA, underConstruction, hasLiveKeep, keepLocked } from "./construction.js";
@@ -182,7 +182,7 @@ function boot() {
   // می‌ماند و با هر بازی تازه به startAI و ضبط ری‌پلی می‌رسد.
   let soloPersonality = CONFIG.AI.defaultPersonality;
   try {
-    const p = localStorage.getItem("scw.personality");
+    const p = canonPersonality(localStorage.getItem("scw.personality"));
     if (p && CONFIG.AI.personalities[p]) soloPersonality = p;
   } catch (e) {}
   // هویت آغازین سولو (0.153.0 — بند 104): none/crusader/arab در localStorage

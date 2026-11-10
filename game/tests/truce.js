@@ -487,7 +487,7 @@ function t_slave() {
   must(sd.torch === true && Array.isArray(sd.equip) && sd.equip.length === 0 && !sd.requiresWeapon, "مشعل‌دار بی‌سلاح است");
   must(t("game.unit.slave.name").length > 0, "نام فارسی برده");
   withLang("en", () => {
-    must(UNITS.slave.name === "Slave", "نام en برده");
+    must(UNITS.slave.name === "Irregular", "نام en برده");
   });
   // ارزان‌ترین مزدور فهرست.
   const hireables = Object.entries(UNITS).filter(([, d]) => d.side === "player" && !d.noHire && d.cost);

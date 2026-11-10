@@ -139,7 +139,7 @@ function t_trebuchet() {
   must(Array.isArray(td.equip) && td.equip.length === 0 && !td.requiresWeapon, "تربوشه بی‌سلاح است");
   must(t("game.unit.trebuchet.name").length > 0, "نام فارسی تربوشه");
   withLang("en", () => {
-    must(UNITS.trebuchet.name === "Trebuchet", "نام en تربوشه");
+    must(UNITS.trebuchet.name === "Heavy Mangonel", "نام en تربوشه");
   });
   // شلیک واقعی مستقر + مصرف مهمات (محاصره سولو فقط بنای حریف AI را می‌زند).
   const { W, H, terrain, state } = fresh();
@@ -188,7 +188,7 @@ function t_arabianbow() {
   must(Array.isArray(ad.equip) && ad.equip.length === 0 && !ad.requiresWeapon, "کماندار عرب با کمان خودش می‌آید (بی‌سلاح)");
   must(t("game.unit.arabianBow.name").length > 0, "نام فارسی کماندار عرب");
   withLang("en", () => {
-    must(UNITS.arabianBow.name === "Arabian Bowman", "نام en کماندار عرب");
+    must(UNITS.arabianBow.name === "Desert Bowman", "نام en کماندار عرب");
   });
   const { W, H, terrain, state } = fresh();
   needBarracks(state, terrain, W, H);
@@ -233,33 +233,33 @@ function t_firethrower() {
 // ارباب عرب (0.150.0 — §۱۸.۵/بند ۱۰۰): ششمین شخصیت حریف — همان اندازه گرگ
 // ولی زوج عربی (۵/۱۲ کماندار عرب + بقیه برده)؛ انتخاب منو خودکار (داده‌محور).
 function t_arablord() {
-  must(aiRaidPlan({ personality: "arabLord" }, 0).at === 1500, "ارباب عرب زودرس گرگ‌وار (۱۵۰۰)");
-  must(aiRaidPlan({ personality: "arabLord" }, 0).n === 3, "ارباب عرب هم‌اندازه گرگ (۳)");
-  const P = aiPersonality({ personality: "arabLord" });
+  must(aiRaidPlan({ personality: "hamun" }, 0).at === 1500, "ارباب عرب زودرس گرگ‌وار (۱۵۰۰)");
+  must(aiRaidPlan({ personality: "hamun" }, 0).n === 3, "ارباب عرب هم‌اندازه گرگ (۳)");
+  const P = aiPersonality({ personality: "hamun" });
   must(P && P.troops && P.troops.ranged === "arabianBow" && P.troops.melee === "slave", "زوج عربی یورش");
   // ترکیب خالص: فقط عربی، هر دو نوع دیده شوند.
   const seen = new Set();
   for (let i = 0; i < 61; i++) {
-    const tp = aiRaidUnitType({ personality: "arabLord", seed: 777 }, 1500, 0, i);
+    const tp = aiRaidUnitType({ personality: "hamun", seed: 777 }, 1500, 0, i);
     must(tp === "arabianBow" || tp === "slave", `یورش عرب فقط عربی است، شد ${tp}`);
     seen.add(tp);
   }
   must(seen.size === 2, "هر دو نوع عربی باید بیایند");
   // گرگ دست‌نخورده.
   for (let i = 0; i < 61; i++) {
-    const tp = aiRaidUnitType({ personality: "wolf", seed: 777 }, 1500, 0, i);
+    const tp = aiRaidUnitType({ personality: "artan", seed: 777 }, 1500, 0, i);
     must(tp === "archer" || tp === "swordsman", `یورش گرگ همان است، شد ${tp}`);
   }
   // سازگاری ذخیره/ری‌پلی (رشته گذر + رد بیگانه سر جایش).
-  const { state } = aiFreshPers("arabLord");
-  must(state.ai.personality === "arabLord", "شخصیت عرب ثبت شود");
-  must(aiPersonalityName(state.ai) === "ارباب عرب", "نام فارسی ارباب عرب");
+  const { state } = aiFreshPers("hamun");
+  must(state.ai.personality === "hamun", "شخصیت عرب ثبت شود");
+  must(aiPersonalityName(state.ai) === "هامون ریگ‌سوار", "نام فارسی ارباب عرب");
   withLang("en", () => {
-    must(aiPersonalityName(state.ai) === "Arab Lord", "نام en ارباب عرب");
+    must(aiPersonalityName(state.ai) === "Hamun Dune-Rider", "نام en ارباب عرب");
   });
   const loaded = deserializeJSON(serializeJSON(state));
-  must(loaded.ai.personality === "arabLord", "شخصیت عرب در ذخیره بماند");
-  must(validateReplayLog({ v: REPLAY_V, seed: 1, pers: "arabLord", cmds: [], ticks: 10 }).ok, "ری‌پلی با شخصیت عرب قبول شود");
+  must(loaded.ai.personality === "hamun", "شخصیت عرب در ذخیره بماند");
+  must(validateReplayLog({ v: REPLAY_V, seed: 1, pers: "hamun", cmds: [], ticks: 10 }).ok, "ری‌پلی با شخصیت عرب قبول شود");
   return { name: "ارباب عرب", pass: true, detail: "همان‌اندازه + زوج عربی + سازگاری" };
 }
 export { arabCases };

@@ -50,3 +50,31 @@ export function scanContent(cfg, units) {
   }
   return { hits, checked: texts.length };
 }
+
+// نام شخصیت‌ها و روایت بازی‌های دیگر که هرگز نباید به متن shipped برگردند (0.277.0 — هویت اورجینال).
+// فقط نام‌های متمایز؛ واژه‌های عام (wolf/rat/lion/…) عمداً در فهرست نیستند.
+export const BANNED_CHARACTERS = [
+  "saladin", "lionheart", "baibars", "kahinah", "nizar", "crusades",
+  "صلاح‌الدین", "صلاح الدین", "جنگ‌های صلیبی", "شیردل",
+];
+
+// اسکن یک متن برای هر دو فهرست (شناسه‌های تجاری + شخصیت‌ها).
+export function scanForeign(text) {
+  if (typeof text !== "string" || !text) return [];
+  const low = text.toLowerCase();
+  return scanBanned(text).concat(BANNED_CHARACTERS.filter((b) => low.indexOf(b) >= 0));
+}
+
+// اسکن همه بسته‌های زبان ([{fa:{…}, en:{…}}, …]) + هر متن اضافه (نام/شرح مأموریت‌ها).
+export function scanPacks(packs, extra) {
+  const hits = [];
+  let checked = 0;
+  const see = (v) => {
+    if (typeof v !== "string") return;
+    checked++;
+    for (const h of scanForeign(v)) if (hits.indexOf(h) < 0) hits.push(h);
+  };
+  for (const p of packs || []) for (const lang of Object.keys(p)) for (const k of Object.keys(p[lang])) see(p[lang][k]);
+  for (const v of extra || []) see(v);
+  return { hits, checked };
+}

@@ -135,7 +135,7 @@ function t_blackmonk_hire() {
   const v2 = validateHire(state, terrain, W, H, spot[0], spot[1], "blackmonk", 0);
   must(!v2.ok && v2.reason === "NO_CATHEDRAL", "با ویرانی جامع خودی باید رد شود");
   withLang("en", () => {
-    must(UNITS.blackmonk.name === "Black Monk", "نام en راهب");
+    must(UNITS.blackmonk.name === "Warrior Dervish", "نام en راهب");
   });
   return { name: "راهب جنگجو", pass: true, detail: "قفل جامع + صف ۸۰تیک + حریف/ویرانه" };
 }

@@ -68,28 +68,30 @@ export const CONFIG = {
     // شخصیت حریف (0.56.0 — #۱۸ از FEATURES؛ 0.150.0 ارباب عرب؛ 0.151.0 صلاح‌الدین): ۷ پروفایل سبک بازی به الگوی
     // ارباب‌های مرجع. ضرب‌کننده‌ها روی درجه سختی سوار می‌شوند (متعامد)؛ گرگ
     // دقیقاً خنثی است (همان رفتار 0.42 — سازگاری ذخیره/ری‌پلی قدیمی).
-    defaultPersonality: "wolf",
+    defaultPersonality: "artan",
+    // شناسه‌های پیش از 0.277.0 در ذخیره/ری‌پلی قدیمی → فرمانروای هم‌رفتار امروز (فقط سازگاری بارگذاری).
+    legacyPersonality: { wolf: "artan", rat: "kahbod", snake: "tirazheh", pig: "farrokhan", lion: "sepehrdad", arabLord: "hamun", saladin: "azarm" },
     personalities: {
-      wolf:  { get name() { return t("game.personality.wolf.name"); }, get desc() { return t("game.personality.wolf.desc"); },
+      artan:  { get name() { return t("game.personality.artan.name"); }, get desc() { return t("game.personality.artan.desc"); },
         buildList: ["woodcutter", "woodcutter", "quarry", "farm", "hut", "barracks", "farm", "tower"],
         raidAtMul: 1, raidSizeAdd: 0, archerP: 0.34, goldMul: 1, workerEveryMul: 1 },
-      rat:   { get name() { return t("game.personality.rat.name"); }, get desc() { return t("game.personality.rat.desc"); },
+      kahbod:   { get name() { return t("game.personality.kahbod.name"); }, get desc() { return t("game.personality.kahbod.desc"); },
         buildList: ["woodcutter", "farm", "hut", "farm", "quarry", "barracks"], // 0.228.0 — C-BAL-4: سربازخانه آخر تا موش واقعاً یورش ببرد (پیش از این هیچ یورشی نمی‌رفت: aiRaid بی‌سربازخانه برمی‌گردد)
         raidAtMul: 1.4, raidSizeAdd: -1, archerP: 0.2, goldMul: 0.7, workerEveryMul: 1.5 },
-      snake: { get name() { return t("game.personality.snake.name"); }, get desc() { return t("game.personality.snake.desc"); },
+      tirazheh: { get name() { return t("game.personality.tirazheh.name"); }, get desc() { return t("game.personality.tirazheh.desc"); },
         buildList: ["woodcutter", "barracks", "farm", "tower", "farm", "quarry"],
         raidAtMul: 0.8, raidSizeAdd: 0, archerP: 0.55, goldMul: 0.9, workerEveryMul: 1 },
-      pig:   { get name() { return t("game.personality.pig.name"); }, get desc() { return t("game.personality.pig.desc"); },
+      farrokhan:   { get name() { return t("game.personality.farrokhan.name"); }, get desc() { return t("game.personality.farrokhan.desc"); },
         buildList: ["woodcutter", "woodcutter", "farm", "quarry", "hut", "farm", "mill", "barracks"],
         raidAtMul: 1.2, raidSizeAdd: 1, archerP: 0.3, goldMul: 1.5, workerEveryMul: 0.7 },
-      lion:  { get name() { return t("game.personality.lion.name"); }, get desc() { return t("game.personality.lion.desc"); },
+      sepehrdad:  { get name() { return t("game.personality.sepehrdad.name"); }, get desc() { return t("game.personality.sepehrdad.desc"); },
         buildList: ["woodcutter", "quarry", "farm", "barracks", "hut", "farm", "tower", "armoury", "tower"],
         raidAtMul: 0.8, raidSizeAdd: 2, archerP: 0.4, goldMul: 1.5, workerEveryMul: 0.7 },
-      arabLord:  { get name() { return t("game.personality.arabLord.name"); }, get desc() { return t("game.personality.arabLord.desc"); },
+      hamun:  { get name() { return t("game.personality.hamun.name"); }, get desc() { return t("game.personality.hamun.desc"); },
         buildList: ["woodcutter", "farm", "hut", "quarry", "barracks", "farm", "tower"],
         raidAtMul: 1, raidSizeAdd: 0, archerP: 0.42, goldMul: 1, workerEveryMul: 1,
         troops: { ranged: "arabianBow", melee: "slave", rangedP: 5 / 12 } },
-      saladin:   { get name() { return t("game.personality.saladin.name"); }, get desc() { return t("game.personality.saladin.desc"); },
+      azarm:   { get name() { return t("game.personality.azarm.name"); }, get desc() { return t("game.personality.azarm.desc"); },
         buildList: ["woodcutter", "woodcutter", "farm", "quarry", "hut", "barracks", "farm", "tower"],
         raidAtMul: 0.9, raidSizeAdd: 1, archerP: 0.42, goldMul: 1.2, workerEveryMul: 0.9,
         troops: { ranged: "arabianBow", melee: "slinger", rangedP: 1 / 2 } },
@@ -121,3 +123,9 @@ export const CONFIG = {
   // cost پس از پذیرش در tryPlace کسر می‌شود؛ rules=null یعنی قانون خاص ندارد.
   BUILDINGS,
 };
+
+// شناسه شخصیت حریف را به شکل امروزی برمی‌گرداند (ذخیره/ری‌پلی قدیمی شناسه‌های پیشین دارند).
+export function canonPersonality(k) {
+  const m = CONFIG.AI.legacyPersonality;
+  return typeof k === "string" && Object.prototype.hasOwnProperty.call(m, k) ? m[k] : k;
+}

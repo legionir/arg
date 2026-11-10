@@ -6,7 +6,7 @@
 (dataURL) داخل فایل‌های `game/tiles.gen.js`، `game/units.gen.js`، `game/decor.gen.js`،
 `game/icons.gen.js` جاسازی شده و تابع `getSprite()` در `game/sprites.js` از همان‌جا می‌خواند.
 پس فایل‌های روی دیسک «سورس» محسوب می‌شوند.
-استثناها (لود مستقیم از دیسک): پرتره‌های `lords`، فونت‌ها، و fallback آیکون‌های `resources`.
+استثناها (لود مستقیم از دیسک): پرتره‌های `portraits`، فونت‌ها، و fallback آیکون‌های `resources`.
 
 ## جدول واحد (۱۳۸ مورد)
 
@@ -106,35 +106,35 @@
 | `engineer.png` | اسپرایت یگان | شیت ۱۲۸×۱۶۰ | نقشه + بندانگشتی کارت |
 | `ladderman.png` | اسپرایت یگان | شیت ۱۲۸×۱۶۰ | نقشه + بندانگشتی کارت |
 | `tunneler.png` | اسپرایت یگان | شیت ۱۲۸×۱۶۰ | نقشه + بندانگشتی کارت |
-| `Baibars.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `Baldwin.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `Bullseye.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `Emperor-Frederick.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `King-Philip.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `Richard-the-Lionheart.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `Saladin.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Abbot.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Caliph.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Canary.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Crocodile.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Emir.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Jewel.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Kahinah.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Lioness.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Marshal.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Nizar.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Nomad.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Pig.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Rat.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Sentinel.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Sergeant.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Sheriff.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Snake.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Sultan.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Surgeon.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Trader.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Wazir.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
-| `The-Wolf.png` | پرتره پادشاه | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ستاد، کارت دشمن |
+| `portraits/artan.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/kahbod.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/tirazheh.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/farrokhan.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/sepehrdad.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/hamun.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/azarm.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/mehrak.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/golnar.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/borzin.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/niusha.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/kiana.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/bardia.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/homa.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/delaram.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/zarvan.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/parvaneh.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/ramin.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/mahyar.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/sanam.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/roham.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/tara.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/arvand.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/nahal.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/hirbod.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/yasna.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/farnaz.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/shahin.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
+| `portraits/dana.svg` | پرتره فرمانروا (برداری، `tools/gen-portraits.mjs`) | لود مستقیم `<img>` | انتخاب پروفایل، بج، roster لابی/MP، هوور ارگ، کارت حریف |
 | `wood.png` | آیکون منبع | ۲۴×۲۴، روی دیسک + inline | هزینه کارت‌ها، پنل منابع، بازار |
 | `food.png` | آیکون منبع | ۲۴×۲۴، روی دیسک + inline | هزینه کارت‌ها، پنل منابع، بازار |
 | `gold.png` | آیکون منبع | ۲۴×۲۴، روی دیسک + inline | هزینه کارت‌ها، پنل منابع، بازار |

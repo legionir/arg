@@ -264,7 +264,7 @@ function t_lord_hotkey() {
 
 // غیبت Lord حریف AI (0.163.0 - بند 248، vacuous): نه یورش، نه موج، نه کاتالوگ ارباب دشمن دارد.
 function t_ailord_absence() {
-  for (const pers of ["wolf", "saladin", "arabLord"]) {
+  for (const pers of ["artan", "azarm", "hamun"]) {
     for (let s = 0; s < 4; s++) {
       for (let k = 0; k < 12; k++) {
         const tp = aiRaidUnitType({ personality: pers, seed: 777 }, 1500, s, k);

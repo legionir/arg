@@ -298,7 +298,7 @@ function t_save_full_roundtrip() {
   Object.assign(state.ai, { active: true, seed: 777,
     resources: { ...state.ai.resources, gold: 50 }, workers: 3, workerCap: 8,
     phase: "done", buildIdx: 2, raidsSent: 1, nextThink: 99,
-    baseC: 5, baseR: 5, dormant: true, difficulty: "hard", personality: "snake" });
+    baseC: 5, baseR: 5, dormant: true, difficulty: "hard", personality: "tirazheh" });
   const h0 = stateHash(state);
   const json = serializeJSON(state);
   const loaded = deserializeJSON(json);
@@ -312,7 +312,7 @@ function t_save_full_roundtrip() {
   must(loaded.units.find((u) => u.type === "bowman").garrisonTower === tw.building.id,
     "پرچم گاریسون باید از فهرست برج بازسازی شود");
   must(loaded.units.find((u) => u.type === "spearman").guardBld === hut.building.id, "نگهبانی باید بماند");
-  must(loaded.ai.seed === 777 && loaded.ai.difficulty === "hard" && loaded.ai.personality === "snake",
+  must(loaded.ai.seed === 777 && loaded.ai.difficulty === "hard" && loaded.ai.personality === "tirazheh",
     "بلوک AI باید بماند");
   must(loaded.wave === 2 && loaded.rng === state.rng, "موج و RNG باید بمانند");
   must(JSON.stringify(loaded.mapPatches) === "[[10,1]]", "وصله‌های نقشه باید بمانند");

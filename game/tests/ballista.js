@@ -141,7 +141,7 @@ function t_ballista() {
   must(Array.isArray(bd.equip) && bd.equip.length === 0 && !bd.requiresWeapon && !bd.ammoCap, "بالیستا بی‌سلاح و بی‌مهمات است");
   must(t("game.unit.ballista.name").length > 0, "نام فارسی بالیستا");
   withLang("en", () => {
-    must(UNITS.ballista.name === "Fire Ballista", "نام en بالیستا");
+    must(UNITS.ballista.name === "Bolt Thrower", "نام en بالیستا");
   });
   // گیت خالص.
   const wallT = { kind: "bld", b: { type: "wall", destroyed: false } };

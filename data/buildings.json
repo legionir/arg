@@ -42,7 +42,7 @@
         "stone": 10
       },
       "buildTime": 100,
-      "source": "reference: stronghold-wiki/tower",
+      "source": "reference: balance pass 0.14",
       "rules": {
         "spacingFromSame": 2
       },

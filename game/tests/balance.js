@@ -129,17 +129,17 @@ function aiBreachRun(pers, diff, withLord, cap) {
 // عرب/صلاح‌الدین همیشه-بازنده و موش همیشه-تماشاچی بودند.
 // __T_TOURNAMENT_ROW__
 function t_tournament() {
-  const order = ["lion", "saladin", "snake", "wolf", "arabLord", "pig", "rat"];
+  const order = ["sepehrdad", "azarm", "tirazheh", "artan", "hamun", "farrokhan", "kahbod"];
   const res = {};
   for (const p of order) res[p] = aiBreachRun(p, "normal", false, 6000);
   for (const p of order) must(!res[p].err, p + ": بنچمارک باید شروع شود");
-  const w1 = aiBreachRun("wolf", "normal", false, 6000);
-  const w2 = aiBreachRun("wolf", "normal", false, 6000);
+  const w1 = aiBreachRun("artan", "normal", false, 6000);
+  const w2 = aiBreachRun("artan", "normal", false, 6000);
   must(w1.breach === w2.breach && w1.breach > 0 && w1.raids === w2.raids, "رخنه گرگ قطعی است");
   for (const p of order) must(res[p].breach > 0, p + ": باید رخنه کند، شد " + res[p].breach);
-  must(res.lion.breach < res.wolf.breach && res.wolf.breach < res.rat.breach, "ترتیب تماتیک: شیر < گرگ < موش");
-  must(res.lion.breach < 2000, "شیر زود می‌شکافد، شد " + res.lion.breach);
-  must(res.rat.breach > 2500, "موش دیر می‌شکافد، شد " + res.rat.breach);
+  must(res.sepehrdad.breach < res.artan.breach && res.artan.breach < res.kahbod.breach, "ترتیب تماتیک: شیر < گرگ < موش");
+  must(res.sepehrdad.breach < 2000, "شیر زود می‌شکافد، شد " + res.sepehrdad.breach);
+  must(res.kahbod.breach > 2500, "موش دیر می‌شکافد، شد " + res.kahbod.breach);
   for (const p of order) must(res[p].aiKeep, p + ": ستاد AI باید سالم بماند (بی‌خودزنی)");
   return { name: "تورنمنت شخصیت‌ها (C-BAL-4)", pass: true, detail: "۷ رخنه + قطعیت + ترتیب" };
 }
@@ -150,9 +150,9 @@ function t_tournament() {
 // سختی موجود سبز ماندند، بی‌بازپین).
 // __T_DIFFICULTY_CALIBRATION_ROW__
 function t_difficulty_calibration() {
-  const e = aiBreachRun("wolf", "easy", false, 6000);
-  const n = aiBreachRun("wolf", "normal", false, 6000);
-  const h = aiBreachRun("wolf", "hard", false, 6000);
+  const e = aiBreachRun("artan", "easy", false, 6000);
+  const n = aiBreachRun("artan", "normal", false, 6000);
+  const h = aiBreachRun("artan", "hard", false, 6000);
   must(!e.err && !n.err && !h.err, "هر ۳ درجه باید شروع شوند");
   must(e.breach > 0 && n.breach > 0 && h.breach > 0, "هر ۳ درجه رخنه می‌کنند");
   must(h.breach < n.breach && n.breach < e.breach, "سخت < معمولی < آسان (" + h.breach + "/" + n.breach + "/" + e.breach + ")");
