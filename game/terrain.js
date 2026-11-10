@@ -9,6 +9,9 @@ export { mulberry32 };
 export const T_GRASS = 0;
 export const T_WATER = 1;
 export const T_ROCK = 2;
+// واحه (0.154.0 — §1.2/بند 107): چمنِ دارای نخل/برکه — قابل‌عبور مثل چمن،
+// غیرقابل‌ساخت (ردپا چمن خالص می‌خواهد)؛ مزارع فقط نزدیک آن (شعاع ۸).
+export const T_OASIS = 3;
 
 // پارامترهای دریاچه از سید: مرکز همیشه وسط نقشه (تقارن)، شعاع‌های بیضی ۴..۸،
 // گرید نویز ۱۲×۱۲ برای لبه نامنظم (دامنه ±~۲۰٪ مرز). هسته r≤۲٫۵ همیشه آب است
@@ -21,6 +24,18 @@ export function lakeParams(seed, w, h) {
   const grid = new Float32Array(n * n);
   for (let i = 0; i < grid.length; i++) grid[i] = r();
   return { rx, ry, grid, n };
+}
+
+// پارامترهای واحه از سید (0.154.0 — بند 107): مرکز زیر محوطه شروع ربع
+// بالا-چپ + آینه‌ای؛ شکل به‌علاوه (۵ خانه).
+export function oasisParams(seed) {
+  const r = mulberry32(((seed == null ? CONFIG.MAP_SEED : seed) ^ 0x0a515) >>> 0);
+  // ستون از {۳،۴،۶}: بازوهای (oqx,9) و (oqx,11) هرگز روی نقاط استخدام پین‌شده
+  // (ستون‌های فرد ۵..۱۳) نمی‌نشینند؛ سطر ثابت ۱۰ (بازوها ۹..۱۱: بیرون محوطه‌ها،
+  // درون شعاع ۸ همه مزارع آزمونی). آینه‌ای در ۳ ربع دیگر.
+  const oqx = [3, 4, 6][Math.floor(r() * 3)];
+  const oqy = 10;
+  return { oqx, oqy };
 }
 
 // پارامترهای توده‌های سنگ از سید: مرکز توده در ربع بالا-چپ (کسر ۰٫۲۰..۰٫۳۴
@@ -105,6 +120,24 @@ export function makeTerrain(w, h, seed) {
       t[at(w - 1 - c, h - 1 - r)] = T_GRASS;
     }
   }
+  // --- واحه‌های متقارن (0.154.0 — بند 107): پس از سنگ‌ها (رویشان می‌نشیند)،
+  // پس از محوطه‌ها (روی چمن اجباری گوشه هم می‌نشیند — قطعی؛ ستاد مارپیچ جابه‌جا می‌شود).
+  {
+    const s = seed >>> 0;
+    const o = oasisParams(s);
+    const centers = [
+      [o.oqx, o.oqy], [w - 1 - o.oqx, o.oqy],
+      [o.oqx, h - 1 - o.oqy], [w - 1 - o.oqx, h - 1 - o.oqy],
+    ];
+    for (const [sc, sr] of centers) {
+      for (const [dc, dr] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const cc = sc + dc, rr = sr + dr;
+        if (cc < 0 || rr < 0 || cc >= w || rr >= h) continue;
+        if (t[at(cc, rr)] === T_WATER) continue; // برکه روی دریاچه نمی‌نشیند
+        t[at(cc, rr)] = T_OASIS;
+      }
+    }
+  }
   return t;
 }
 
@@ -120,6 +153,7 @@ export function terrainPins(w, h, seed) {
   return {
     lake: [Math.floor((w - 1) / 2), Math.floor((h - 1) / 2)],
     rock: [rock.qx, rock.qy],
+    oasis: (() => { const o = oasisParams(s); return [o.oqx, o.oqy]; })(), // مرکز واحه ربع بالا-چپ (0.154.0 — بند 107)
     rocks,
     quadrant: [Math.ceil(w / 2), Math.ceil(h / 2)],
   };

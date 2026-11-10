@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "note": "تنها منبع حقیقت تنظیمات پیاده‌شده sim (فاز ۰ بند ۷ — ۲۲.۱ داده‌محور): مالیات/جیره/میخانه/اثر موجودی غذا/زمان‌بندی/مسکن/سقف‌ها/بازار/صف آموزش/ترس/بیماری/آتش. مقادیر = رفتار پیاده‌شده امروز (خروجی‌گرفته از کد زنده در scratch/tuning-base.json، نه رونویسی دستی)؛ توازن را اینجا ویرایش کنید، بدون دست‌زدن به منطق. مقادیر مرجع دفترچه در data/balance.json اند و عمداً فرق دارند (ثبت واگرایی‌ها در تست t_tuning_vs_reference)؛ سیم‌کشی هر جدول مرجع با بند خودش در فازهای بعدی می‌آید.",
+  "tables": {
+    "tax": {
+      "source": "reference: manbook/tax-table",
+      "levels": [
+        {"id": "generousBribe", "goldPerWorker": -1, "pop": 7, "nameKey": "game.tax.generousBribe", "source": "reference: manbook/tax-table"},
+        {"id": "largeBribe", "goldPerWorker": -1, "pop": 5, "nameKey": "game.tax.largeBribe", "source": "reference: manbook/tax-table"},
+        {"id": "smallBribe", "goldPerWorker": 0, "pop": 3, "nameKey": "game.tax.smallBribe", "source": "reference: manbook/tax-table"},
+        {"id": "none", "goldPerWorker": 0, "pop": 1, "nameKey": "game.tax.none", "source": "reference: checklist-5.2"},
+        {"id": "low", "goldPerWorker": 1, "pop": -2, "nameKey": "game.tax.low", "source": "reference: checklist-5.2"},
+        {"id": "average", "goldPerWorker": 1, "pop": -4, "nameKey": "game.tax.average", "source": "reference: manbook/tax-table"},
+        {"id": "high", "goldPerWorker": 1, "pop": -6, "nameKey": "game.tax.high", "source": "reference: manbook/tax-table"},
+        {"id": "mean", "goldPerWorker": 1, "pop": -8, "nameKey": "game.tax.mean", "source": "reference: manbook/tax-table"},
+        {"id": "extortionate", "goldPerWorker": 1, "pop": -12, "nameKey": "game.tax.extortionate", "source": "reference: manbook/tax-table"},
+        {"id": "downrightCruel", "goldPerWorker": 2, "pop": -16, "nameKey": "game.tax.downrightCruel", "source": "reference: manbook/tax-table"},
+        {"id": "evenCrueler", "goldPerWorker": 2, "pop": -20, "nameKey": "game.tax.evenCrueler", "source": "reference: manbook/tax-table"},
+        {"id": "cruellerThanCruel", "goldPerWorker": 3, "pop": -24, "nameKey": "game.tax.cruellerThanCruel", "source": "reference: manbook/tax-table"}
+      ]
+    },
+    "rations": {
+      "source": "guess",
+      "levels": [
+        {"id": "none", "foodNum": 0, "pop": -8, "nameKey": "game.ration.none", "source": "reference: checklist-5.1"},
+        {"id": "half", "foodNum": 1, "pop": -4, "nameKey": "game.ration.half", "source": "reference: checklist-5.1"},
+        {"id": "normal", "foodNum": 2, "pop": 0, "nameKey": "game.ration.normal", "source": "reference: checklist-5.1"},
+        {"id": "extra", "foodNum": 3, "pop": 4, "nameKey": "game.ration.extra", "source": "reference: checklist-5.1"},
+        {"id": "double", "foodNum": 4, "pop": 8, "nameKey": "game.ration.double", "source": "reference: checklist-5.1"}
+      ]
+    },
+    "foodVariety": {
+      "source": "reference: checklist-5.1",
+      "types": ["food", "meat", "cheese", "apples"],
+      "bonus": [0, 1, 2, 3]
+    },
+    "inn": {
+      "beerEveryTicks": 50,
+      "keepers": 1,
+      "fullBonus": 8,
+      "perInn": 30,
+      "drunkardsPerInn": 2,
+      "source": "guess"
+    },
+    "religion": {
+      "chapel": 20,
+      "church": 50,
+      "cathedral": 100,
+      "priests": 1,
+      "blessEveryTicks": 1200,
+      "blessDurationTicks": 600,
+      "steps": [25, 50, 75, 100],
+      "stepBonus": [2, 4, 6, 8],
+      "churchBonus": 1,
+      "cathedralBonus": 2,
+      "source": "reference: checklist-5.5 steps + checklist-3.5 church/cathedral + guess"
+    },
+    "stockPop": {
+      "famineAt": 0,
+      "lowBelow": 50,
+      "faminePop": -6,
+      "lowPop": 0,
+      "fullPop": 2,
+      "source": "guess"
+    },
+    "crowding": {
+      "pop": -2,
+      "source": "guess"
+    },
+    "events": {
+      "fair": {"everyTicks": 2000, "offsetTicks": 1500, "durationTicks": 300, "pop": 4},
+      "lion": {"everyTicks": 2500, "offsetTicks": 1800, "durationTicks": 200, "pop": -3},
+      "disease": {"everyTicks": 3000, "offsetTicks": 2200, "durationTicks": 250, "pop": -3},
+      "source": "guess"
+    },
+    "timing": {
+      "eatThreshold": 400,
+      "popPeriod": 50,
+      "migPeriod": 100,
+      "popStep": 2,
+      "immIn": 55,
+      "immOut": 40,
+      "source": "guess"
+    },
+    "housing": {
+      "base": 4,
+      "hut": 8,
+      "keep": 8,
+      "stonekeep": 10,
+      "source": "guess + reference: checklist-8.1 Stone keep houses 10"
+    },
+    "population": {
+      "crusader": 2000,
+      "extreme": 10000,
+      "campIdleMax": 24,
+      "source": "reference: checklist-18.5 #101 (سقف جمعیت/نیرو ۲٬۰۰۰/۱۰٬۰۰۰) + #67 (حداکثر ۲۴ بیکار کنار آتش) + guess (سیم‌کشی)"
+    },
+    "caps": {
+      "source": "guess",
+      "base": {
+        "wood": 500,
+        "food": 500,
+        "meat": 500,
+        "cheese": 500,
+        "apples": 500,
+        "gold": 9999,
+        "stone": 500,
+        "wheat": 500,
+        "flour": 500,
+        "hops": 500,
+        "beer": 500,
+        "iron": 500,
+        "swords": 500,
+        "bows": 500,
+        "leather": 500
+      },
+      "store": {"res": ["wood", "stone", "gold", "leather"], "bonus": 500},
+      "granary": {"res": ["food", "meat", "cheese", "apples", "wheat", "flour", "hops", "beer"], "bonus": 500},
+      "armoury": {"res": ["iron", "swords", "bows"], "bonus": 500}
+    },
+    "market": {
+      "source": "guess",
+      "lot": 5,
+      "stages": {"mid": "barracks", "late": "cathedral"},
+      "tabs": {
+        "food": ["food", "wheat", "flour", "hops", "beer"],
+        "resources": ["wood", "stone", "iron", "leather"],
+        "military": ["swords", "bows"]
+      },
+      "rates": {
+        "wood": {"buy": 5, "sell": 2},
+        "stone": {"buy": 8, "sell": 4},
+        "food": {"buy": 4, "sell": 2},
+        "wheat": {"buy": 2, "sell": 1},
+        "flour": {"buy": 5, "sell": 2},
+        "hops": {"buy": 4, "sell": 2},
+        "beer": {"buy": 8, "sell": 4},
+        "iron": {"buy": 10, "sell": 4},
+        "swords": {"buy": 20, "sell": 8, "minStage": "mid"},
+        "bows": {"buy": 20, "sell": 8, "minStage": "mid"},
+        "leather": {"buy": 12, "sell": 5}
+      }
+    },
+    "fear": {
+      "min": -5,
+      "max": 5,
+      "workPct": 5,
+      "attackPct": 5,
+      "popPer": 1,
+      "ptsPerLevel": 4,
+      "source": "reference: checklist-5.7 scale/table + 18.5 #97 (هر ۴ امتیاز = ۱ سطح) + balance.json/fear (workCoef 1±0.05×level، attack ±۵٪/level) + guess (popPer)"
+    },
+    "train": {
+      "source": "guess",
+      "queueCap": 5
+    },
+    "disease": {
+      "source": "reference: checklist-18.4 (radius 4, 30s active) + 8.5 apothecary/healer (0.146.0: healDrain) + guess (cadence 1HP/6ticks)",
+      "radius": 4,
+      "ticks": 300,
+      "dmgEvery": 6,
+      "dmg": 1,
+      "healDrain": 15
+    },
+    "fire": {
+      "source": "reference: checklist-18.4 #215 (burn 2%/s, spread 20%/s within 2 tiles, stone immune, well/waterpot extinguish radius 10) + guess (ignite 0.1/hit — notebook gives no ignition odds)",
+      "ignite": 0.1,
+      "dmgPct": 2,
+      "spreadRadius": 2,
+      "spreadChance": 0.2
+    }
+  }
+}

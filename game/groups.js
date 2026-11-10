@@ -1,16 +1,16 @@
 // گروه‌های کنترلی یگان‌ها (0.59.0 — رتبه ۱ SOURCE-REVIEW).
-// خالص و بدون import (الگوی gestures.js/a11y.js): سه شکاف روی شناسه یگان،
-// گذرا و UI-side — sim/هش/ذخیره بی‌خبرند. ذخیره با Ctrl+1/2/3، فراخوانی با 1/2/3
+// خالص و بدون import (الگوی gestures.js/a11y.js): ده شکاف روی شناسه یگان،
+// گذرا و UI-side — sim/هش/ذخیره بی‌خبرند. ذخیره با Ctrl+1..9/0 (۰ = شکاف ۱۰)، فراخوانی با ۱..۹/۰
 // (پیش‌فرض‌های MATRIX.md:45 منبع). فراخوانی فقط زنده‌ها را به ترتیب ذخیره
 // برمی‌گرداند (مرده/رفته ساکت حذف)؛ main.js مالکیت MP را جدا فیلتر می‌کند.
-export const GROUP_SLOTS = 3;
+export const GROUP_SLOTS = 10;
 
-// سه شکاف خالی تازه.
+// ده شکاف خالی تازه.
 export function freshGroups() {
-  return [[], [], []];
+  return [[], [], [], [], [], [], [], [], [], []];
 }
 
-// شماره شکاف معتبر؟ (۱..۳ به اندیس ۰..۲)
+// شماره شکاف معتبر؟ (۱..۱۰ به اندیس ۰..۹؛ کلید ۰ یعنی ۱۰)
 export function groupIndex(slot) {
   const n = typeof slot === "number" ? slot : parseInt(slot, 10);
   if (!Number.isInteger(n) || n < 1 || n > GROUP_SLOTS) return -1;

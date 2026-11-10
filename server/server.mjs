@@ -1,5 +1,5 @@
 // سرور مستقل بازی «ارگ» (0.69.0) — اجرای شخصی.
-// همان منطق سرور پرچنس (src/server/game-logic.js = کپی عینی اسکریپت داخل
+// همان منطق سرور پرچنس (src/arg/server/game-logic.js = کپی عینی اسکریپت داخل
 // index.html) روی Node اجرا می‌شود؛ پس رفتار اتاق‌ها/تالار/ابری یکسان است.
 //
 // اجرا:
@@ -27,8 +27,8 @@ const PORT = parseInt(process.env.PORT || "8080", 10) || 8080;
 const SOCK_PATH = "/sock";
 
 // بافر دائمی سرور — باید دقیقاً اندازه موردنیاز منطق بازی باشد
-// (در سربرگ game-logic.js محاسبه شده: 664 + 32*136 + 16*65548).
-const STATE_SIZE = 1053784;
+// (در سربرگ game-logic.js محاسبه شده: 1056216 + 32*524288).
+const STATE_SIZE = 17833432;
 const DATA_DIR = path.resolve(HERE, "data");
 const STATE_FILE = path.join(DATA_DIR, "state.bin");
 
@@ -60,12 +60,32 @@ try {
   console.log("[state] fresh buffer");
 }
 let stateDirty = false;
+const BACKUP_KEEP = parseInt(process.env.STATE_BACKUP_KEEP || "6", 10) || 6;
+const BACKUP_EVERY_MS = 3600000; // بکاپ ساعتی (نه هر ذخیره ۱۰ثانیه‌ای)
+let lastBackupMs = 0;
+function rotateStateBackup(nowMs) {
+  if (nowMs - lastBackupMs < BACKUP_EVERY_MS) return;
+  lastBackupMs = nowMs;
+  try {
+    const bd = path.join(DATA_DIR, "backup");
+    fs.mkdirSync(bd, { recursive: true });
+    const ts = new Date(nowMs).toISOString().replace(/[:.]/g, "-");
+    fs.copyFileSync(STATE_FILE, path.join(bd, "state-" + ts + ".bin"));
+    const files = fs.readdirSync(bd).filter((f) => /^state-.*\.bin$/.test(f)).sort();
+    while (files.length > BACKUP_KEEP) {
+      const old = files.shift();
+      try { fs.unlinkSync(path.join(bd, old)); } catch (e) {}
+    }
+    console.log("[state] backup kept: " + files.length);
+  } catch (e) { console.error("[state] backup failed:", e.message); }
+}
 const stateSnap = () => Buffer.from(state);
 let lastSnap = stateSnap();
 setInterval(() => {
   const now = stateSnap();
   if (!Buffer.compare(lastSnap, now)) return;
   lastSnap = now;
+  rotateStateBackup(Date.now());
   try {
     fs.mkdirSync(DATA_DIR, { recursive: true });
     fs.writeFileSync(STATE_FILE + ".tmp", now);
@@ -73,6 +93,7 @@ setInterval(() => {
   } catch (e) { console.error("[state] save failed:", e.message); }
 }, 10000).unref();
 function flushState() {
+  rotateStateBackup(Date.now());
   try {
     fs.mkdirSync(DATA_DIR, { recursive: true });
     fs.writeFileSync(STATE_FILE, stateSnap());
@@ -140,10 +161,23 @@ function handleRpc(conn, raw) {
     body = JSON.stringify({ ok: false, err: "bad" });
   }
   try {
+    if (m.name === "mpDesync") appendDesyncDump(body); // (0.231.0 — C-SRV-2)
     if (conn.ws.readyState === 1) {
       conn.ws.send(JSON.stringify({ t: "res", id: m.id, body: String(body) }));
     }
   } catch (e) {}
+}
+
+// دامپ گزارش‌های ناهمگامی (0.231.0 — C-SRV-2): هر سطر یک گزارش + پنجره لاگ.
+// پرچنس حافظه‌محض است (حلقه mpDesyncRing)؛ سرور شخصی همین‌جا در data/desync/ می‌نویسد.
+function appendDesyncDump(body) {
+  try {
+    const r = JSON.parse(String(body));
+    if (!r || r.ok !== true || !r.data || typeof r.data.code !== "string") return;
+    if (!/^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{4}$/.test(r.data.code)) return;
+    fs.mkdirSync(path.join(DATA_DIR, "desync"), { recursive: true });
+    fs.appendFileSync(path.join(DATA_DIR, "desync", r.data.code + ".jsonl"), JSON.stringify(r.data) + "\n");
+  } catch (e) { console.error("[desync] dump failed:", e.message); }
 }
 
 // ---- فایل استاتیک ----

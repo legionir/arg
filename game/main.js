@@ -2,30 +2,61 @@
 import { CONFIG } from "./config.js";
 import { makeTerrain } from "./terrain.js";
 import { createState } from "./state.js";
-import { validate, tryPlace, placeKeep, placeKeepFor, REASON_FA, underConstruction } from "./construction.js";
-import { stepEconomy, assignStaff, netPerMinute, popTarget, CAPS, capFor, RATES, HUT_HOUSING, INN, econOf, TAX, RATIONS } from "./economy.js";
-import { UNITS, HIRE_FA, validateHire, hireUnit, hasBarracks, spawnWave, spawnLord, orderMove, orderAttackMove, orderRetreat, setStance, setGuard, guardPost, toggleGate, STANCE_FA, ORDER_KIND_FA, cancelOrder, stepCombat, DEMOLISH_FA, demolishBuilding, GARRISON_FA, GARRISON_CAP, canGarrisonType, garrisonUnit, DEPLOY_FA, deployUnit } from "./combat.js";
+import { validate, tryPlace, placeKeep, placeKeepFor, REASON_FA, underConstruction, hasLiveKeep, keepLocked } from "./construction.js";
+import { stepEconomy, assignStaff, netPerMinute, popTarget, campGauge, taxIndex, taxAt, CAPS, capFor, RATES, HUT_HOUSING, INN, RELIGION, RELIGION_TYPES, econOf, TAX, RATIONS, FOOD_TYPES, millSupport, activeEvents, hasOxTether, herdCows } from "./economy.js";
+import { TAX_IDS, BUILDING_CATEGORIES } from "./data.js";
+import { FINAL_WAVE, PEACE_TICKS, peaceActive, HIRE_FA, hasBarracks, hasCathedral, validateHire, hireUnit, spawnWave, waveTimeline, spawnLord, validIdentity, spawnStartingForce, ORDER_FA, STANCE_FA, ORDER_KIND_FA, setStance, guardPost, setGuard, isGarrisonPost, garrisonCapFor, GARRISON_FA, canGarrisonType, garrisonUnit, fortifyPick, ATTACK_FA, attackPick, deployUnit, FIRECOW_FA, fireCow, isCowSiege, AMMO_RESUPPLY_STONE, AMMO_RESUPPLY_ROCKS, RESUPPLY_FA, resupplyAmmo, signEdge, orderMove, orderAttackMove, orderPatrol, mercpostOf, guildOf, hasStable, stableWithHorse, setRally, isSoloLord, lordKeepGate, orderAttackPos, orderPatrolAppend, PATROL_MAX, disbandUnit, queueOrder, orderRetreat, cancelOrder, pushEvent, toggleGate, KILLPIT_CHARGES, DOGS_PER_CAGE, HORSES_PER_STABLE, RELEASE_FA, cageDogs, validateRelease, releaseDogs, stepKennels, stepStables, DEMOLISH_FA, demolishBuilding, REPAIR_FA, validateRepair, repairBuilding, undoLastBuild, stepCombat, buildingInfo, hireGoodsFor, soldierValue, UNITS } from "./combat.js";
 import { queueHire, cancelTrain, stepTraining, barracksOf, trainTimeOf, TRAIN_FA } from "./train.js";
-import { toggleInSet, pruneSet, resolveSet, orderAll, retreatAll, stanceAll, guardAll, alarmAll, boxSelectIds } from "./selection.js";
+import { toggleInSet, pruneSet, resolveSet, boxSelectIds, sameTypeIds, groupCentroid, bookmarkSet, bookmarkGet, bookmarkCycle, lordFocusIds, lordFocusNext, alarmAll, orderHoverMark, armyBreakdown } from "./selection.js";
 import { freshGroups, saveGroup, recallGroup } from "./groups.js";
 import { enableMp, mpClearSpawns, MP_SPAWN_ANCHOR, INPUT_DELAY, PLAYER_COLORS, stateHash, updateMpAlive } from "./mp.js";
-import { initMpLobby, validRoomPassword, roomRowHTML } from "./lobby.js";
+import { initMpLobby, validRoomPassword, roomRowHTML, liveRowHTML, myGameRowHTML, roomHostSlot, isRoomHost, hostStar, validMpSession, normalizeMyGames, upsertMyGameList, markMyGameDoneList, removeMyGameList } from "./lobby.js";
+import { ensureWakeLock, releaseWakeLock } from "./wakelock.js";
+import { hudShouldCollapse, setHudOpen, toggleHud } from "./mobilehud.js"; // نوار جمع‌شونده موبایل (0.224.0 — C-MOB-4)
+import { sheetShouldOverlay, setSheetOpen, toggleSheet } from "./mobilesheet.js"; // پنل کشویی موبایل (0.224.0 — C-MOB-5) // قفل بیداری موبایل (0.223.0 — C-MOB-3)
 import { runAllTests, runIdbTests } from "./tests.js";
+import { showTests, paintTestResults, paintCompat } from "./testui.js";
+import { createModals } from "./modal.js";
+import { createFlatView } from "./flatview.js";
+import { createPaletteUI } from "./paletteui.js";
+import { createMinimapUI } from "./minimapui.js";
+import { createMapPreviewUI } from "./mappreview.js";
+import { createLobbyListUI } from "./lobbyui.js";
+import { createReplayBarUI } from "./replaybar.js";
+import { createScribeUI } from "./scribeui.js";
+import { createMpViewUI } from "./mpview.js";
+import { createPanelUI } from "./panelui.js";
+import { createEditorUI } from "./editorui.js";
+import { createMissionUI } from "./missionui.js";
+import { createWatchUI } from "./watchui.js";
+import { createTickHooks } from "./tickhooks.js";
+import { createMenuUI, wireMenuUI } from "./menuui.js";
+import { startNewGame } from "./newgame.js";
+import { createWarnLines } from "./warn.js";
+import { relabelPalette, createPolicyPainters } from "./policy.js";
+import { createSoundUI } from "./soundui.js";
+import { createKeyButtons } from "./keybtns.js";
+import { createNamedSavePainter } from "./namedsave.js";
 import {
-  serializeJSON, deserializeJSON, SaveError, SAVE_FA, SLOTS,
+  serializeJSON, deserializeJSON, SaveError, SAVE_FA, SLOTS, validAutosave, autosaveTicks, autosaveDue,
   saveSlot, loadSlot, deleteSlot, infoSlot, migrateToIdb,
+  validSaveName, saveNamed, loadNamed, deleteNamed, listNamedSaves,
 } from "./persist.js";
 import { createClock } from "./clock.js";
-import { stepSim, createQueue, enqueueCmd } from "./sim.js";
+import { stepSim, createQueue, enqueueCmd, snapPrev, fixNewPrev } from "./sim.js";
 import { startAI } from "./ai.js";
-import { drawMinimap, minimapCell, panForCell } from "./minimap.js";
+import { drawMinimap, minimapCell, panForCell, paintMapThumb } from "./minimap.js";
 import { createRenderer } from "./render.js";
-import { WALL_LINE_MAX, isLineDragType, wallLineTiles } from "./wallline.js";
-import { pinchDist, pinchZoom, LONG_PRESS_MS, LONG_PRESS_SLOP, longPressMoved, dragMovedFar, panForDrag } from "./gestures.js";
+import { WALL_LINE_MAX, isLineDragType, wallLineTiles, blockLineIfAnyInvalid } from "./wallline.js";
+import { pinchDist, pinchZoom, zoomStep, LONG_PRESS_MS, LONG_PRESS_SLOP, longPressMoved, dragMovedFar, panForDrag, arrowPanDelta, edgePanDir, EDGE_PAN_STEP } from "./gestures.js";
 import { createSoundManager, soundSnapshot } from "./sound.js";
 import { bindMenuNav } from "./menunav.js";
+import { clockReady, clockText, MISSIONS, createRun, updateRun, missionSnap } from "./missions.js";
+import { campaignLoad, campaignSave, campaignRecord, campaignUnlocked, missionByKey, missionIndex, missionName, missionBrief } from "./campaign.js"; // پیشرفت کمپین (0.225.0 — فاز ۲)
+import { MASTERS_SORTS, masterEntry, mastersAdd, mastersDelete, mastersSort, mastersLoad, mastersSave } from "./masters.js";
 import { nextHint, hintBuilding } from "./hints.js";
-import { hasMarket, tradeQuote, applyTrade, TRADE_FA } from "./market.js";
+import { taxInfo, rationInfo, policySummary, advisorWarnings, warnAlarmKeys, approxRes, foodReport, eatMeter, stockpileInterior, scribeMood, scribeReports, meritRows, sortMerit, powerTier } from "./advisor.js";
+import { hasMarket, tradeQuote, applyTrade, TRADE_FA, marketSelected, tradeLocked } from "./market.js";
 import {
   REPLAY_CMD_CAP, createRecorder, recordCmd, validateReplayLog,
   newSoloFromSeed, verifyReplayAsync, saveReplaySlot, loadReplaySlot,
@@ -38,9 +69,12 @@ import {
 } from "./mapedit.js";
 import { iconSrc } from "./sprites.js";
 import { initI18n, t, onLangChange, getLang, hasKey } from "./i18n.js";
+import { faNum, escName, okB, badB, resName, costHTML, buildingMeta, srcTag, unitMeta, buildingInfoHTML, unitInfoHTML } from "./format.js";
+import { parseSeed, randomSeed, paintSeed } from "./seed.js";
+import { warName, warLogo, paintBadge, syncProfileInput, wireProfileUI } from "./profileui.js";
 import { validateConfig } from "./schema.js";
 import {
-  A11Y_PALETTES, A11Y_SCALES, KEY_ACTIONS, KEY_ACTION_FA, DEFAULT_KEYS,
+  A11Y_PALETTES, A11Y_SCALES, KEY_ACTIONS, KEY_ACTION_FA, DEFAULT_KEYS, cycleSpeed,
   validPalette, clampScale, validKeyCode, normalizeKeys,
 } from "./a11y.js";
 import { probeCompat, compatBootable, liveEnv, SUPPORT_LINE } from "./compat.js";
@@ -48,11 +82,19 @@ import { runBench } from "./bench.js";
 import { runFirstTen } from "./firstten.js";
 import { runRegression, runScenario, REGRESSIONS, fuzzSaves, fuzzCmds } from "./regression.js";
 import { initOnline } from "./online.js";
-import { initCloud, validCloudKey, CLOUD_FA, CLOUD_STORE_KEY } from "./cloud.js";
 import {
-  PROFILE_LOGOS, validProfileName, validLogo,
-  loadProfile, saveProfile, profileBadgeHTML,
+  PROFILE_LORDS, validProfileName, validLogo, lordPortraitSrc, lordPortraitHTML,
+  lordName, randomDefaultName, loadProfile, saveProfile, profileBadgeHTML, firstRunAsk,
 } from "./profile.js";
+import { createPointerInput } from "./pointerui.js";
+import { createPaletteKeysUI } from "./palettekeys.js";
+import { createOrdersUI } from "./ordersui.js";
+import { createSaveMenuUI } from "./savemenu.js";
+import { createCloudReplayUI } from "./cloudreplay.js";
+import { createLobbyWiringUI } from "./lobbywiring.js";
+import { createViewFrameUI } from "./viewframe.js";
+import { createBootTail } from "./boottail.js";
+import { createTestHookUI } from "./testhook.js";
 
 function $(id) { return document.getElementById(id); }
 
@@ -65,11 +107,13 @@ function boot() {
   const workersEl = $("workersEl"), testBadge = $("testBadge"), popEl = $("popEl");
   const saveBtn = $("saveBtn"), loadBtn = $("loadBtn"), delBtn = $("delBtn");
   const saveStatus = $("saveStatus");
-  const waveBtn = $("waveBtn"), battleEl = $("battleEl"), alarmBtn = $("alarmBtn"), demolishBtn = $("demolishBtn");
+  const waveBtn = $("waveBtn"), waveTimelineEl = $("waveTimelineEl"), mclockEl = $("mclockEl"), battleEl = $("battleEl"), alarmBtn = $("alarmBtn"), demolishBtn = $("demolishBtn"), repairBtn = $("repairBtn"), undoBtn = $("undoBtn");
   const defeatBanner = $("defeatBanner"), defeatRestartBtn = $("defeatRestartBtn");
   const victoryBanner = $("victoryBanner"), victoryRestartBtn = $("victoryRestartBtn");
   const taxBtns = Array.from(document.querySelectorAll("[data-tax]"));
   const ratBtns = Array.from(document.querySelectorAll("[data-rat]"));
+  const policy = createPolicyPainters({ taxBtns, ratBtns, getState: () => state });
+  const taxSlider = $("taxSlider"); // اسلایدر مالیات (فاز ۱ بند ۲۲)
   // لایه آنلاین (0.23.0): افزودنی — قطعی‌اش تک‌نفره را لمس نمی‌کند.
   // نام از پروفایل منو می‌آید (0.27.0).
   function setTick(n) { tickEl.textContent = t("main.tick", { n }); }
@@ -105,6 +149,19 @@ function boot() {
   // فقط سولو ضبط می‌شود؛ بازی بارگذاری‌شده لاگ ندارد (تاریخ پیش از load نیست).
   let recLog = null;
   let replayWatch = null; // {cmds, i, upto} یا null = بازی عادی
+  const replayBarUI = createReplayBarUI({ getReplayWatch: () => replayWatch, setReplayWatch: (v) => { replayWatch = v; }, getTick: () => state.tick, getMpSession: () => mpSession, getRecLog: () => recLog });
+  const paintReplayBar = replayBarUI.paintReplayBar;
+  const hideReplayBar = replayBarUI.hideReplayBar;
+  const paintReplayStatus = replayBarUI.paintReplayStatus;
+  const scribeUI = createScribeUI({ getState: () => state, getMpSession: () => mpSession, viewSlotOf: (...a) => viewSlotOf(...a) });
+  const hideReports = scribeUI.hideReports;
+  const showReports = scribeUI.showReports;
+  const paintScribe = scribeUI.paintScribe;
+  const mpViewUI = createMpViewUI({ getMpSession: () => mpSession, getState: () => state });
+  const mpStatus = mpViewUI.mpStatus;
+  const paintSync = mpViewUI.paintSync;
+  const paintMp = mpViewUI.paintMp;
+  const mpRosterHTML = mpViewUI.mpRosterHTML;
   // درجه سختی حریف سولو (0.50.0 — #۱۸ از FEATURES): در localStorage می‌ماند و
   // با هر بازی تازه (سید/تصادفی/ری‌استارت) به startAI و ضبط ری‌پلی می‌رسد.
   let soloDiff = "normal";
@@ -118,12 +175,29 @@ function boot() {
     const k = localStorage.getItem("scw.map");
     if (k && (k === "custom" || namedMapByKey(k))) soloMapKey = k;
   } catch (e) {}
+  const mapPreviewUI = createMapPreviewUI({ getSoloMapKey: () => soloMapKey });
+  const paintMapPreview = mapPreviewUI.paintMapPreview;
+  const paintMpMapPreview = mapPreviewUI.paintMpMapPreview;
   // شخصیت حریف سولو (0.56.0 — #۱۸ از FEATURES): کلید پروفایل، در localStorage
   // می‌ماند و با هر بازی تازه به startAI و ضبط ری‌پلی می‌رسد.
   let soloPersonality = CONFIG.AI.defaultPersonality;
   try {
     const p = localStorage.getItem("scw.personality");
     if (p && CONFIG.AI.personalities[p]) soloPersonality = p;
+  } catch (e) {}
+  // هویت آغازین سولو (0.153.0 — بند 104): none/crusader/arab در localStorage
+  // می‌ماند و با هر بازی تازه به نیروهای اولیه و ضبط ری‌پلی می‌رسد.
+  let soloIdentity = "none";
+  try {
+    const idv = localStorage.getItem("scw.identity");
+    if (idv && validIdentity(idv)) soloIdentity = idv;
+  } catch (e) {}
+  // فاصله ذخیره خودکار (0.153.0 — بند 117): خاموش/۳۰ثانیه/۲دقیقه/۵دقیقه؛
+  // پیش‌فرض رفتار امروز (هر ۳۰۰ تیک).
+  let soloAutosave = "s30";
+  try {
+    const av = localStorage.getItem("scw.autosave");
+    if (av && validAutosave(av)) soloAutosave = av;
   } catch (e) {}
   // دسترس‌پذیری (0.57.0 — #۲۶ از FEATURES): پالت/مقیاس/کلیدها در localStorage
   // می‌مانند و با applyA11y روی DOM می‌نشینند (sim بی‌خبر است).
@@ -158,6 +232,20 @@ function boot() {
     const sel = $("fidSel");
     if (sel) sel.value = fidelity;
   }
+  // شب/روز (0.229.0 — C-GFX-2): day/night/cycle با ماندگاری؛ پیش‌فرض day.
+  // فقط نمای renderer است (sim/هش/ذخیره بی‌خبر).
+  let dayNight = "day";
+  try {
+    const dd = localStorage.getItem("scw.daynight");
+    if (dd === "night" || dd === "cycle") dayNight = dd;
+  } catch (e) {}
+  function applyDayNight(m) {
+    dayNight = (m === "night" || m === "cycle") ? m : "day";
+    renderer.setDayNight(dayNight);
+    try { localStorage.setItem("scw.daynight", dayNight); } catch (e) {}
+    const sel = $("daySel");
+    if (sel) sel.value = dayNight;
+  }
   function playerCmd(cmd) {
     const r = enqueueCmd(cmdQueue, cmd, state.tick);
     if (!mpSession && !replayWatch && recLog && recLog.cmds.length < REPLAY_CMD_CAP) {
@@ -170,11 +258,18 @@ function boot() {
   const mpHashes = new Map(); // "slot:tick" -> h (تشخیص desync)
   const mpHashLog = []; // [[tick, hash]] هش‌های خودم هر ۱۰۰ تیک
   let mpDesync = null;
+  let mpDesyncSent = false; // گزارش desync یک‌بار هر بازی (0.232.0 — C-SRV-6)
+  let mpCatching = null; // {target} — جلو‌بردن سریع عقب‌ماندگی پس از اتصال‌مجدد/تماشا (0.141.0)
+  let mpFinishSent = false; // گزارش پایان به سرور فقط یک‌بار
+  const MP_CATCHUP_BATCH = 300; // تیک اضافی هر فریم حین همگام‌سازی (پس از بنچمارک)
   const mpActive = () => !!mpSession;
   const mySlot = () => (mpSession ? mpSession.slot : 0);
   const myEcon = () => (mpSession ? state.mpres[mpSession.slot] : state);
+  // اسلات نمایشی پنل‌ها (0.141.0): تماشاگر (slot=‎-۱) اقتصاد بازیکن اول را می‌بیند.
+  const viewSlotOf = (sess) => (sess && sess.slot >= 0 ? sess.slot : 0);
   // در MP ورودی فقط ارسال می‌شود (اجرای هم‌زمان پس از echo با seq).
-  // صف خروجی: سرور هر اتصال را به ۳۰ ورودی در ۱۰ ثانیه محدود می‌کند و مازاد را بی‌صدا دور می‌ریزد
+  // صف خروجی: سرور هر اتصال را به ۳۰ ورودی در ۱۰ ثانیه محدود می‌کند (0.231.0: + سقف ۴۰ هر اسلات
+  // که قطع/وصل مجدد دورش نمی‌زند + رد پسرفت تیک/شکل بد با خطای صادقانه) و مازاد را دور می‌ریزد
   // (مثلاً خط دیوار ۳۲ تایلی). پس ورودی‌ها حداقل MP_SEND_GAP ms فاصله می‌گیرند (≤ ۲۵ در ۱۰ ثانیه؛
   // ۵ باقی برای هش) و ترتیب حفظ می‌شود؛ ارسال ناموفق صادقانه اعلام می‌شود.
   const MP_SEND_GAP = 400, MP_OUTBOX_MAX = 80;
@@ -195,24 +290,12 @@ function boot() {
     if (mpOutbox.length) mpPumpTimer = setTimeout(mpPump, MP_SEND_GAP);
   }
   function mpSend(kind, args) {
-    if (!mpSession) return false;
+    if (!mpSession || mpSession.watching) return false; // تماشاگر ورودی ندارد (0.141.0)
     if (mpOutbox.length >= MP_OUTBOX_MAX) { statusEl.textContent = t("main.mp.sendDropped"); return false; }
     mpOutbox.push({ kind, args });
     if (!mpPumpTimer) mpPump();
     refreshPanel();
     return true;
-  }
-  function warName() {
-    return profile.name || t("main.name.anon");
-  }
-  function warLogo() {
-    return profile.logo | 0;
-  }
-  function paintBadge() {
-    const el = $("profileBadgeEl");
-    if (el) el.innerHTML = profileBadgeHTML(profile);
-    const chip = $("profileChipBody");
-    if (chip) chip.innerHTML = profileBadgeHTML(profile);
   }
 
   const renderer = createRenderer(canvas);
@@ -224,169 +307,25 @@ function boot() {
     renderer.fit();
   }));
 
-  // پالت ساختمان/مزدور (0.23.2): کارت‌واره — تصویر + آیکون هزینه از داده‌ها.
-  const FA_D = "۰۱۲۳۴۵۶۷۸۹";
-  function faNum(n) {
-    if (getLang() !== "fa") return String(n);
-    return String(n).replace(/\./g, "٫").replace(/\d/g, (d) => FA_D[d]);
-  }
-  function escName(s) {
-    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  }
-  const okB = (s) => `<b class="ok">${s}</b>`;
-  const badB = (s) => `<b class="bad">${s}</b>`;
-  function resName(key) {
-    const r = CONFIG.RESOURCES.find((x) => x.key === key);
-    return r ? r.name : key;
-  }
-  function costHTML(cost) {
-    const ks = Object.keys(cost || {});
-    if (!ks.length) return `<span class="free">${t("main.cost.free")}</span>`;
-    return ks.map((k) =>
-      `<span><img src="${iconSrc(k)}" alt="${resName(k)}">${faNum(cost[k])}</span>`).join("");
-  }
-  function buildingMeta(key, def) {
-    const parts = [];
-    const rate = RATES[key];
-    if (rate && rate.workers) parts.push(t("main.meta.workers", { n: rate.workers, num: faNum(rate.workers) }));
-    if (def.buildTime > 0) parts.push(t("main.meta.build", { n: faNum(Math.ceil(def.buildTime / 10)) }));
-    if (rate && rate.produces && !rate.consumes) {
-      parts.push(t("main.meta.perMin", { res: resName(rate.produces), n: faNum(Math.round((rate.amount * 600) / rate.everyTicks)) }));
-    }
-    if (rate && rate.consumes) {
-      const ck = Object.keys(rate.consumes)[0];
-      parts.push(t("main.meta.convert", { a: faNum(rate.consumes[ck]), r1: resName(ck), b: faNum(rate.amount), r2: resName(rate.produces) }));
-    }
-    if (key === "hut") parts.push(t("main.meta.housing", { n: faNum(HUT_HOUSING) }));
-    if (def.weapon) parts.push(t("main.meta.range", { n: faNum(def.weapon.range) }));
-    if (key === "tower") parts.push(t("main.meta.towerGarrison", { n: faNum(GARRISON_CAP) }));
-    if (def.rules && def.rules.spacingFromSame) parts.push(t("main.meta.spacing"));
-    if (def.rules && def.rules.anchorToAny) parts.push(t("main.meta.anchor"));
-    if (key === "gate") parts.push(t("main.meta.gate"));
-    if (key === "inn") parts.push(t("main.meta.inn", { one: faNum(1), ticks: faNum(INN.beerEveryTicks), pop: faNum(INN.popBonus) }));
-    if (key === "barracks") { parts.push(t("main.meta.barracksReq")); parts.push(t("main.meta.onlyOne")); }
-    if (key === "market") { parts.push(t("main.meta.marketTrade")); parts.push(t("main.meta.marketClick")); }
-    if (key === "stockpile") parts.push(t("main.meta.stockpile"));
-    if (key === "granary") parts.push(t("main.meta.granary"));
-    return parts.join(" • ");
-  }
-  // برچسب منبع اعداد (0.41.0 — #۵ از FEATURES): مرجع استخراج‌شده یا حدس وب.
-  function srcTag(def) {
-    const s = (def && def.source) || "guess";
-    return s.startsWith("reference:") ? t("main.src.ref") : t("main.src.guess");
-  }
-  function unitMeta(def) {
-    const parts = [t("main.meta.hp", { n: faNum(def.hp) })];
-    parts.push(def.range > 2 ? t("main.meta.range", { n: faNum(def.range) }) : t("main.meta.damage", { n: faNum(def.dmg) }));
-    parts.push(t("main.meta.armor", { n: faNum(def.armor || 0) }));
-    parts.push(srcTag(def));
-    if (def.requiresWeapon === "swords") parts.push(t("main.meta.sword"));
-    else if (def.requiresWeapon === "bows") parts.push(t("main.meta.bow"));
-    if (def.trainTicks) parts.push(t("main.meta.train", { n: faNum(Math.ceil(def.trainTicks / 10)) })); // (0.65.0 — صف آموزش)
-    if (def.siege) parts.push(t("main.meta.siege", { n: faNum(def.bonusVsBld || 1) }));
-    if (def.needsDeploy) parts.push(t("main.meta.needsDeploy"));
-    if (def.minRange) parts.push(t("main.meta.minRange", { n: faNum(def.minRange) }));
-    if (def.requires === "barracks") parts.push(t("main.meta.needsBarracks"));
-    return parts.join(" • ");
-  }
-  const PALETTE = ["hut", "tower", "barracks", "market", "stockpile", "granary", "woodcutter", "quarry", "ironmine", "farm", "wheatfarm",
-    "mill", "bakery", "armoury", "fletcher", "hopsfarm", "brewery", "inn", "wall", "gate"];
-  function paintThumbs() {
-    for (const btn of document.querySelectorAll("#buildPal [data-b]")) {
-      renderer.thumbBuilding(btn.dataset.b, btn.querySelector("canvas"));
-    }
-    for (const btn of document.querySelectorAll("#unitPal [data-u]")) {
-      renderer.thumbUnit(btn.dataset.u, btn.querySelector("canvas"));
-    }
-  }
-  function buildingInfoHTML(key, def) {
-    return `<span class="bname">${def.name} <i>${faNum(def.w)}×${faNum(def.h)}</i></span>` +
-      `<span class="bmeta">${buildingMeta(key, def)}</span>` +
-      `<span class="bcost">${costHTML(def.cost)}</span>`;
-  }
-  function unitInfoHTML(def) {
-    return `<span class="bname">${def.name}</span>` +
-      `<span class="bmeta">${unitMeta(def)}</span>` +
-      `<span class="bcost">${costHTML(def.cost)}</span>`;
-  }
-  // تغییر زبان: فقط متن کارت‌ها عوض می‌شود (گره‌ها و بوم‌ها می‌مانند).
-  function relabelPalette() {
-    for (const btn of document.querySelectorAll("#buildPal [data-b]")) {
-      const def = CONFIG.BUILDINGS[btn.dataset.b];
-      const info = btn.querySelector(".binfo");
-      if (def && info) info.innerHTML = buildingInfoHTML(btn.dataset.b, def);
-    }
-    for (const btn of document.querySelectorAll("#unitPal [data-u]")) {
-      const def = UNITS[btn.dataset.u];
-      const info = btn.querySelector(".binfo");
-      if (def && info) info.innerHTML = unitInfoHTML(def);
-    }
-  }
-  function buildPalette() {
-    const bp = $("buildPal"), up = $("unitPal");
-    if (!bp || !up) return;
-    bp.innerHTML = ""; up.innerHTML = "";
-    for (const key of PALETTE) {
-      const def = CONFIG.BUILDINGS[key];
-      if (!def) continue;
-      const btn = document.createElement("button");
-      btn.className = "bcard"; btn.dataset.b = key;
-      btn.innerHTML = `<canvas class="bthumb" width="128" height="112"></canvas>` +
-        `<span class="binfo">${buildingInfoHTML(key, def)}</span>`;
-      bp.appendChild(btn);
-    }
-    for (const [key, def] of Object.entries(UNITS)) {
-      if (def.side !== "player" || def.noHire || !def.cost) continue;
-      const btn = document.createElement("button");
-      btn.className = "bcard"; btn.dataset.u = key;
-      btn.innerHTML = `<canvas class="bthumb" width="96" height="84"></canvas>` +
-        `<span class="binfo">${unitInfoHTML(def)}</span>`;
-      up.appendChild(btn);
-    }
-    paintThumbs();
-    // شیت واحدها async لود می‌شود — یک repaint تا اسپرایت واقعی بنشیند
-    setTimeout(paintThumbs, 1500);
-  }
-  buildPalette();
-  // پنل بازار (0.64.0 — ب-۳): ردیف زنده هر منبع قابل‌معامله — موجودی + نرخ
-  // + دکمه خرید/فروش بسته‌ای (وضعیت دکمه از پیش‌فاکتور همان تیک).
-  function paintMarket() {
-    const o = $("marketOverlay"), rows = $("marketRows");
-    if (!o || !rows || o.hidden || marketFor == null) return;
-    const slot = mpSession ? mpSession.slot : 0;
-    const ec = mpSession ? state.mpres[slot] : state;
-    const M = CONFIG.MARKET;
-    let html = "";
-    for (const k of Object.keys(M.rates)) {
-      const rate = M.rates[k];
-      const have = (ec.resources[k] || 0);
-      const qb = tradeQuote(state, k, "buy", slot), qs = tradeQuote(state, k, "sell", slot);
-      html += `<div class="mrow"><span class="mname">${resName(k)} <b>${faNum(have)}</b></span>` +
-        `<span class="mrate">${t("main.market.rate", { buy: faNum(rate.buy), sell: faNum(rate.sell) })}</span>` +
-        `<button data-trade="buy:${k}"${qb.ok ? "" : ` disabled title="${TRADE_FA[qb.reason] || qb.reason}"`}>${qb.ok ? t("main.market.buyN", { n: faNum(qb.n) }) : t("main.market.buy")}</button>` +
-        `<button data-trade="sell:${k}"${qs.ok ? "" : ` disabled title="${TRADE_FA[qs.reason] || qs.reason}"`}>${qs.ok ? t("main.market.sellN", { n: faNum(qs.n) }) : t("main.market.sell")}</button></div>`;
-    }
-    rows.innerHTML = html;
-  }
-  // صف آموزش (0.65.0 — انتخاب ۱-الف): ردیف زنده سفارش‌های سربازخانه میزبان —
-  // نام + درصد پیشرفت + دکمه لغو با بازپرداخت. فقط view (sim بی‌خبر).
-  function paintTrain() {
-    const o = $("mercsOverlay"), box = $("trainQueueEl");
-    if (!o || !box || o.hidden || mercsFor == null) return;
-    const b = state.buildings.find((x) => x.id === mercsFor);
-    const q = b && !b.destroyed && Array.isArray(b.train) ? b.train : [];
-    const cap = CONFIG.TRAIN.queueCap;
-    let html = `<div class="lbl">${t("main.train.queue", { n: faNum(q.length), cap: faNum(cap) })}</div>`;
-    q.forEach((e, i) => {
-      const def = UNITS[e.type];
-      const pct = Math.max(0, Math.min(100, Math.round(((e.total - e.left) / e.total) * 100)));
-      html += `<div class="trow"><span>${def ? escName(def.name) : e.type} <b>${t("main.pct", { n: faNum(pct) })}</b></span>` +
-        `<button data-tcancel="${i}" title="${t("main.train.cancelTip")}">✕</button></div>`;
-    });
-    if (!q.length) html += `<div class="lbl">${t("main.train.empty")}</div>`;
-    box.innerHTML = html;
-  }
+  const PALETTE = ["hut", "tower", "lookout", "perimeter", "defence", "squaretower", "roundtower", "barracks", "mercpost", "engineerguild", "tunnelerguild", "stable", "market", "stockpile", "granary", "woodcutter", "quarry", "ironmine", "farm", "wheatfarm",
+    "mill", "bakery", "armoury", "fletcher", "hopsfarm", "brewery", "inn", "chapel", "church", "cathedral", "apothecary", "garden", "statue", "gallows", "dungeon", "hunterpost", "dairy", "tannery", "orchard", "oxtether", "wall", "lowwall", "crenwall", "gate", "killpit", "dogcage", "stonekeep", "signpost", "well", "waterpot"];
+  // حالت مأموریت/استادان/ساعت (boot-local؛ از بلوک پالت جدا ماند — C-CLN-42):
+  let mclockStart = null; // تیک شروع ساعت مأموریت (0.182.0 — بند 130): view-side، خارج هش/ذخیره
+  let mastersLogged = false; // ثبت پایان بازی جاری در استادان انجام شده؟ (0.182.0 — بند 102)
+  const paletteUI = createPaletteUI({ renderer, PALETTE });
+  policy.paintPolicyTips(); // tooltipهای داده‌محور مالیات/جیره (0.79.0 — بند ۹)
+  const panelUI = createPanelUI({ getState: () => state, getMpSession: () => mpSession, getReplayWatch: () => replayWatch, getSound: () => sound, playerCmd, mpSend, viewSlotOf, getExactRes: () => exactRes, getLastHintKey: () => lastHintKey, setLastHintKey: (v) => { lastHintKey = v; }, getMclockStart: () => mclockStart, getMpDesync: () => mpDesync, getPendingKind: () => pendingKind, setPendingKind: (v) => { pendingKind = v; }, getSelBldId: () => selBldId, setSelBldId: (v) => { selBldId = v; }, getSelIds: () => selIds, setSelIds: (v) => { selIds = v; }, getSelectedKey: () => selectedKey, getSelectedUnit: () => selectedUnit, getSelFoe: () => selFoe, setSelFoe: (v) => { selFoe = v; }, later: () => ({ armyRowsEl, attackMoveBtn, attackposBtn, bldCard, bldHpEl, bldNameEl, bldStateEl, deployBtn, disbandBtn, firecowBtn, garrisonBtn, getEditor, getLastMissionKey, getMissionLost, getMissionWon, guardBtn, missionLabel, palBtns, patrolBtn, resupplyBtn, stanceDefendBtn, stanceEngageBtn, stanceHoldBtn, unitBtns, unitCard, unitHpEl, unitNameEl, unitOrderEl, warn }), alarmBtn, battleEl, defeatBanner, defeatRestartBtn, demolishBtn, loadBtn, mclockEl, mpRosterHTML, online, orderSels, paintScribe, pauseBtn, placedEl, policy, popEl, ratBtns, rejectedEl, repairBtn, resEl, saveBtn, speedBtn, taxBtns, taxSlider, victoryBanner, victoryRestartBtn, waveBtn, waveTimelineEl, workersEl });
+  const paintGranary = panelUI.paintGranary;
+  const paintMarket = panelUI.paintMarket;
+  const paintTrain = panelUI.paintTrain;
+  const hideMercs = panelUI.hideMercs;
+  const toggleMercs = panelUI.toggleMercs;
+  const pruneMercs = panelUI.pruneMercs;
+  const hideGranary = panelUI.hideGranary;
+  const toggleGranary = panelUI.toggleGranary;
+  const hideMarket = panelUI.hideMarket;
+  const toggleMarket = panelUI.toggleMarket;
+  const pruneMarket = panelUI.pruneMarket;
   const unitBtns = Array.from(document.querySelectorAll("[data-u]"));
   const palBtns = Array.from(document.querySelectorAll("[data-b]"));
 
@@ -397,44 +336,23 @@ function boot() {
   let selectedKey = null; // حالت خنثی (0.23.4): هیچ ساختمانی مسلح نیست تا کلیکِ سرباز با ساخت قاطی نشود
   let selectedUnit = null; // حالت استخدام: null یا کلید واحد
   let selIds = []; // یگان‌های منتخب به ترتیب انتخاب (دستور/موضع جمعی) — مستقل از حالت استخدام
-  let ctrlGroups = freshGroups(); // گروه‌های کنترلی ۱..۳ (0.59.0): گذرا و UI-side — با بازی/بارگذاری تازه صفر می‌شود
+  let ctrlGroups = freshGroups();
+  let lastGroupRecall = null;
+  let selBldId = null;
+  let selFoe = null; // بازرسی دشمن (0.274.0): {kind:"unit"|"bld", id} گذرا، UI-side  const armyRowsEl = $("armyRows"); // ردیف‌های نوع پنل ارتش (0.175.0/بند 553) // بنای منتخب کارت اطلاعات (0.174.0/بند 150): گذرا و UI-side // شکاف/کلید آخرین فراخوانی گروه (0.173.0): تکرار همان شکاف = رفتن به محل گروه
+  let bookmarks = {};
+  let lastBookmark = 0; // گروه‌های کنترلی ۱..۳ (0.59.0): گذرا و UI-side — با بازی/بارگذاری تازه صفر می‌شود
+  let lastLordId = 0; // آخرین Lord فوکس‌شده با L (0.163.0 — §10.5/بند 249): گذرا و UI-side
   let pendingKind = null; // "attackmove" یعنی کلیک بعدی حمله‌در‌حرکت است (تک‌بار)
   let hover = null; // {c, r, valid, reason, ghost}
   let lastAutoTick = 0;
-  // نوار مزدورها (0.33.0): با کلیک خنثی روی سربازخانه خودی، روی نوار ساختمان باز می‌شود.
-  let mercsFor = null; // شناسه سربازخانه میزبان، یا null = بسته
-  function hideMercs() { mercsFor = null; const o = $("mercsOverlay"); if (o) o.hidden = true; }
-  function showMercs(id) { mercsFor = id; const o = $("mercsOverlay"); if (o) o.hidden = false; }
-  function toggleMercs(id) {
-    const o = $("mercsOverlay");
-    if (mercsFor === id && o && !o.hidden) hideMercs();
-    else showMercs(id);
-  }
-  function pruneMercs() { // سربازخانه میزبان از دست رفته/دشمن شده → بستن خودکار
-    if (mercsFor == null) return;
-    const b = state.buildings.find((x) => x.id === mercsFor);
-    const mine = !!b && !b.destroyed && (!mpSession || (b.owner == null ? 0 : b.owner) === mpSession.slot);
-    if (!mine) hideMercs();
-  }
-  // پنل بازار (0.64.0 — ب-۳): کلیک خنثی روی بازار خودی، روی نوار ساختمان باز می‌شود (الگوی نوار مزدورها).
-  let marketFor = null; // شناسه بازار میزبان، یا null = بسته
-  function hideMarket() { marketFor = null; const o = $("marketOverlay"); if (o) o.hidden = true; }
-  function showMarket(id) { marketFor = id; const o = $("marketOverlay"); if (o) o.hidden = false; }
-  function toggleMarket(id) {
-    const o = $("marketOverlay");
-    if (marketFor === id && o && !o.hidden) hideMarket();
-    else showMarket(id);
-  }
-  function pruneMarket() { // بازار میزبان از دست رفته/دشمن شده → بستن خودکار
-    if (marketFor == null) return;
-    const b = state.buildings.find((x) => x.id === marketFor);
-    const mine = !!b && !b.destroyed && (!mpSession || (b.owner == null ? 0 : b.owner) === mpSession.slot);
-    if (!mine) hideMarket();
-  }
+  let exactRes = false; // نوار منابع: تقریبی (~) یا دقیق با کلیک (فاز ۱ بند ۲۷، UI-side)
+  let signCycle = 0; // چرخه لبه‌ها با کلید S (0.146.0 — §۳.۴) — UI-side
 
   // صدا (0.48.0 — #۲۵ از FEATURES): مدیر سنتزشده WebAudio؛ sim هیچ‌چیز از
   // صدا نمی‌داند — حلقه فریم اسنپ‌شات سبک می‌دهد. شروع فقط با ژست کاربر.
   const sound = createSoundManager();
+  const warn = createWarnLines({ getState: () => state, sound });
   let lastSoundSnap = null;
   document.addEventListener("pointerdown", () => sound.ensureStarted(), { capture: true });
   document.addEventListener("keydown", () => sound.ensureStarted(), { capture: true });
@@ -452,21 +370,36 @@ function boot() {
     if (el && !el.disabled && e.pointerType !== "touch") sound.ui("hover");
   });
   // تب پنهان = صدا متوقف (باتری/پس‌زمینه)؛ بازگشت = ادامه
-  document.addEventListener("visibilitychange", () => sound.setSuspended(document.hidden));
+  document.addEventListener("visibilitychange", () => { sound.setSuspended(document.hidden); if (!document.hidden) { try { const ms = $("menuScreen"); if (ms && ms.hidden) ensureWakeLock(); } catch (e) {} } }); // بازگشت به تب: صدا ادامه + قفل بیداری نبرد (0.223.0 — C-MOB-3)
+  const tickHooks = createTickHooks({ getMpSession: () => mpSession, getReplayWatch: () => replayWatch, getState: () => state, getEditor: (...a) => getEditor(...a), getMclockStart: () => mclockStart, setMclockStart: (v) => { mclockStart = v; }, getMastersLogged: () => mastersLogged, setMastersLogged: (v) => { mastersLogged = v; }, getMissionActive: (...a) => getMissionActive(...a), checkMission: (...a) => checkMission(...a), recordMasters: (...a) => recordMasters(...a) });
+  const tickViewHooks = tickHooks.tickViewHooks;
   const clock = createClock({
     hz: CONFIG.TICK_HZ,
     maxPerFrame: CONFIG.MAX_TICKS_PER_FRAME,
     onTick: (n) => {
       if (mpSession) {
-        for (let i = 0; i < n; i++) { state.tick++; mpDrain(); stepEconomy(state); stepTraining(state, terrain); stepCombat(state, terrain); updateMpAlive(state); }
+        // آینه stepSim در sim.js (فاز ۰ بند ۲: همان ترتیب ثابت؛ stepAI در MP
+        // بی‌اثر است پس صدا زده نمی‌شود — ورودی‌ها با mpDrain با seq مرتب‌اند).
+        // حین همگام‌سازی عقب‌ماندگی (0.141.0) هر فریم دسته‌تایی جلو می‌رویم.
+        let steps = n;
+        if (mpCatching) steps = Math.min(n + MP_CATCHUP_BATCH, Math.max(n, mpCatching.target - state.tick));
+        for (let i = 0; i < steps; i++) { snapPrev(state); state.tick++; mpDrain(); stepEconomy(state); stepTraining(state, terrain); stepKennels(state); stepStables(state); stepCombat(state, terrain); updateMpAlive(state); fixNewPrev(state); }
         setTick(state.tick);
+        if (mpCatching) {
+          if (state.tick >= mpCatching.target) {
+            mpCatching = null;
+            mpStatus(t("main.mp.synced"));
+          } else {
+            statusEl.textContent = t("main.mp.syncTick", { n: faNum(state.tick), total: faNum(mpCatching.target) });
+          }
+        }
         if (state.tick % 100 === 0 && state.tick > 0) {
           const hNow = stateHash(state);
           mpHashLog.push([state.tick, hNow]); // سابقه هش‌ها: مقایسه با هش هم‌تیک همتاها + قلاب تست
           if (mpHashLog.length > 400) mpHashLog.shift();
           mpCheckHash(state.tick); // همتا ممکن است زودتر رسیده باشد
           for (const k of mpHashes.keys()) { if ((k.split(":")[1] | 0) < state.tick - 2000) mpHashes.delete(k); }
-          try { lobby.send("hash", { h: hNow, tick: state.tick }); } catch (e) {}
+          if (!mpSession.watching) { try { lobby.send("hash", { h: hNow, tick: state.tick }); } catch (e) {} }
           checkMpEnd();
         }
         refreshPanel();
@@ -483,6 +416,7 @@ function boot() {
       }
       stepSim(state, terrain, n, cmdQueue, { aiPaused: !$("menuScreen").hidden }); // گام یکپارچه + تخلیه صف فرمان (0.37.0؛ گیت AI پشت منو 0.68.0)
       setTick(state.tick);
+      tickViewHooks();
       refreshPanel();
       if (replayWatch) {
         paintReplayBar();
@@ -494,9 +428,9 @@ function boot() {
         }
         return; // حین تماشا ذخیره خودکار نیست
       }
-      // ذخیره خودکار هر ۳۰۰ تیک (۳۰ ثانیه) — بک‌اند IDB ناهمگام است (0.55.0)،
+      // ذخیره خودکار با فاصله تنظیم‌پذیر (0.153.0 — بند 117؛ پیش‌فرض هر ۳۰۰ تیک) — بک‌اند IDB ناهمگام است (0.55.0)،
       // پس fire-and-forget: رشته همان لحظه منجمد شده و نتیجه بعداً می‌آید.
-      if (state.tick - lastAutoTick >= 300) {
+      if (autosaveDue(state.tick, lastAutoTick, soloAutosave)) {
         lastAutoTick = state.tick;
         const tickNow = state.tick;
         saveSlot(SLOTS.auto, serializeJSON(state)).then((r) => {
@@ -540,6 +474,11 @@ function boot() {
       if (th !== undefined && String(th) !== mineStr && !mpDesync) {
         mpDesync = tick + "/P" + (sl + 1);
         state.events.push(t("main.battle.desync", { d: mpDesync }));
+        // گزارش خودکار به سرور (0.232.0 — C-SRV-6): یک‌بار هر بازی، بی‌صدا.
+        if (!mpDesyncSent && mpSession && !mpSession.watching) {
+          mpDesyncSent = true;
+          try { lobby.desync(mpSession.code, tick, mineStr); } catch (e) {}
+        }
       }
     }
   }
@@ -557,9 +496,14 @@ function boot() {
     if (kind === "place") {
       const def = typeof a.type === "string" ? CONFIG.BUILDINGS[a.type] : null;
       if (!def || def.key === "keep") return;
+      if (!hasLiveKeep(state, slot)) return; // ستاد الزامی (فاز ۱ بند ۱۲) — آینه applyCmd
       if (!Number.isInteger(a.c) || !Number.isInteger(a.r)) return;
       const r = tryPlace(state, terrain, W, H, a.c, a.r, def, slot);
-      if (r.ok) assignStaff(state, slot);
+      if (r.ok) {
+        assignStaff(state, slot);
+        // Undo تک‌سطحی (0.146.0): آینه applyCmd — ساخت موفق pending می‌نشیند.
+        state.undo = { bld: r.building.id, owner: slot };
+      }
     } else if (kind === "hire") {
       // استخدام بازیکن (0.65.0 — صف آموزش): آینه applyCmd در sim.js.
       if (typeof a.type !== "string" || !Number.isInteger(a.c) || !Number.isInteger(a.r)) return;
@@ -574,7 +518,12 @@ function boot() {
       for (const id of a.ids) {
         const u = mpUnitOwned(id, slot);
         if (!u) continue;
-        if (a.kind === "attackmove") orderAttackMove(state, u, a.c, a.r);
+        // گشت + صف (0.162.0): آینه applyCmd در sim.js.
+        const k = a.kind === "attackmove" ? "attackmove" : a.kind === "attackpos" ? "attackpos" : a.kind === "patrol" ? "patrol" : "move";
+        if (a.queue) { queueOrder(state, u, k, a.c, a.r); continue; }
+        if (k === "attackmove") orderAttackMove(state, u, a.c, a.r);
+        else if (k === "attackpos") orderAttackPos(state, u, a.c, a.r);
+        else if (k === "patrol") orderPatrol(state, u, a.c, a.r);
         else orderMove(state, u, a.c, a.r);
       }
     } else if (kind === "retreat") {
@@ -583,9 +532,22 @@ function boot() {
         const u = mpUnitOwned(id, slot);
         if (u) orderRetreat(state, u);
       }
+    } else if (kind === "disband") {
+      // انحلال (0.164.0 — بند 246): آینه فرمان disband در sim.js.
+      if (!Array.isArray(a.ids) || a.ids.length > 32) return;
+      const ids = [];
+      for (const id of a.ids) {
+        const u = mpUnitOwned(id, slot);
+        if (u) ids.push(id);
+      }
+      if (ids.length) disbandUnit(state, ids, slot);
+    } else if (kind === "rally") {
+      // پرچم تجمع (0.166.0 — §9.1/بند 170): آینه فرمان rally در sim.js.
+      if (typeof a.type !== "string" || !Number.isInteger(a.c) || !Number.isInteger(a.r)) return;
+      setRally(state, a.type, a.c, a.r, slot);
     } else if (kind === "stance") {
       if (!Array.isArray(a.ids) || a.ids.length > 32) return;
-      if (a.stance !== "engage" && a.stance !== "hold") return;
+      if (a.stance !== "engage" && a.stance !== "hold" && a.stance !== "defend") return;
       for (const id of a.ids) {
         const u = mpUnitOwned(id, slot);
         if (u) setStance(u, a.stance);
@@ -604,7 +566,7 @@ function boot() {
       if (!Array.isArray(a.ids) || a.ids.length > 32) return;
       if (!Number.isInteger(a.bld)) return;
       const b = state.buildings.find((x) => x.id === a.bld && !x.destroyed);
-      if (!b || b.type !== "tower" || (b.owner == null ? 0 : b.owner) !== slot) return;
+      if (!b || !isGarrisonPost(b.type) || (b.owner == null ? 0 : b.owner) !== slot) return;
       for (const id of a.ids) {
         const u = mpUnitOwned(id, slot);
         if (u) garrisonUnit(state, u, b);
@@ -621,6 +583,24 @@ function boot() {
         const u = mpUnitOwned(id, slot);
         if (u) deployUnit(state, u);
       }
+    } else if (kind === "firecow") {
+      if (!Array.isArray(a.ids) || a.ids.length > 32) return;
+      if (!Number.isInteger(a.c) || !Number.isInteger(a.r)) return;
+      const ids = [];
+      for (const id of a.ids) {
+        const u = mpUnitOwned(id, slot);
+        if (u) ids.push(id);
+      }
+      if (ids.length) fireCow(state, ids, a.c, a.r, slot);
+    } else if (kind === "resupply") {
+      // تأمین مهمات منجنیق (0.149.0 — §۱۲.۲/بند ۵۷۸): آینه فرمان resupply در sim.js.
+      if (!Array.isArray(a.ids) || a.ids.length > 32) return;
+      const ids = [];
+      for (const id of a.ids) {
+        const u = mpUnitOwned(id, slot);
+        if (u) ids.push(id);
+      }
+      if (ids.length) resupplyAmmo(state, ids, slot);
     } else if (kind === "demolish") {
       // تخریب دستی (0.39.0؛ 0.62.0 — ب-۱: با غرامت یک‌سوم): آینه applyCmd در sim.js — مال خودی، غیر ستاد.
       if (!Number.isInteger(a.bld)) return;
@@ -628,6 +608,21 @@ function boot() {
       if (!b || (b.owner == null ? 0 : b.owner) !== slot) return;
       if (b.type === "keep") return;
       demolishBuilding(state, b, slot);
+    } else if (kind === "repair") {
+      if (!Number.isInteger(a.bld)) return;
+      const b = state.buildings.find((x) => x.id === a.bld && !x.destroyed);
+      if (!b || (b.owner == null ? 0 : b.owner) !== slot) return;
+      repairBuilding(state, b, slot);
+    } else if (kind === "release") {
+      // release dogs (0.156.0): mirror of sim.js release command.
+      if (!Number.isInteger(a.bld)) return;
+      const b = state.buildings.find((x) => x.id === a.bld && !x.destroyed);
+      if (!b || b.type !== "dogcage" || (b.owner == null ? 0 : b.owner) !== slot) return;
+      releaseDogs(state, terrain, W, H, b, slot);
+    } else if (kind === "undo") {
+      // برگرداندن آخرین ساخت (0.146.0): آینه فرمان undo در sim.js.
+      const r = undoLastBuild(state, slot);
+      if (r.ok) assignStaff(state, slot);
     } else if (kind === "trade") {
       // بازار (0.64.0 — ب-۳): آینه فرمان trade در sim.js — بازار خودی + نرخ + استطاعت همین‌جا در applyTrade.
       if (typeof a.res !== "string" || (a.dir !== "buy" && a.dir !== "sell")) return;
@@ -638,6 +633,12 @@ function boot() {
     } else if (kind === "rations") {
       if (typeof a.v !== "string" || !RATIONS[a.v]) return;
       state.mpres[slot].rations = a.v;
+    } else if (kind === "food") { // توقف/شروع مصرف غذا (بند ۸۵): آینه فرمان food در sim.js
+      if (typeof a.v !== "string" || !FOOD_TYPES.includes(a.v)) return;
+      const off = state.mpres[slot].offFood || (state.mpres[slot].offFood = []);
+      const i = off.indexOf(a.v);
+      if (i >= 0) off.splice(i, 1);
+      else off.push(a.v);
     } else if (kind === "alarm") {
       if (!Number.isInteger(a.c) || !Number.isInteger(a.r)) return;
       const rs = alarmAll(state, a.c, a.r, slot);
@@ -664,20 +665,37 @@ function boot() {
 
   function checkMpEnd() {
     if (!mpSession || !state.mp || !state.mp.over) return;
+    if (!mpSession.watching && !mpFinishSent) {
+      // پایان را دیده‌ام — یک‌بار به سرور گزارش بده (0.141.0) + بازی من تمام‌شده.
+      mpFinishSent = true;
+      lobby.finish(mpSession.code, state.mp.winner | 0);
+      saveMyGames(markMyGameDoneList(loadMyGames(), mpSession.code));
+      paintMyGames();
+    }
     refreshPanel();
   }
 
-  function startMpGame(room, seed) {
+  // هسته مشترک شروع نبرد چندنفره (0.141.0): ساخت زمین/وضعیت از سید + بازیکنان
+  // roster (مرتب اسلات). slot خودم (تماشاگر: ‎-۱). نشست را می‌سازد و برمی‌گرداند.
+  function initMpBattle(players, seed, slot, code, rules) {
     // زمین مشترک از سید اتاق (میزبان) — همه کلاینت‌ها یک نقشه می‌سازند.
     const s = (seed == null ? 0 : seed) >>> 0 || CONFIG.MAP_SEED;
     terrain = makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, s);
     mpClearSpawns(terrain, CONFIG.GRID_W, CONFIG.GRID_H);
     state = createState();
     state.mapSeed = s;
-    const sorted = room.players.slice().sort((a, b) => a.slot - b.slot);
+    // قوانین اتاق (0.147.0 — §۱۲.۴؛ 0.148.0 — §۱۴.۲؛ 0.149.0 — §۱۴.۲/بند ۷۳۰):
+    // از میزبان برای همه یکسان (هش/ری‌پلی قطعی). غایب = پیش‌فرض مجاز/خاموش.
+    // صلح No Rush از تیک صفر تا PEACE_TICKS (بازسازی قطعی در اتصال‌مجدد چون
+    // از تیک صفر جلو می‌رویم).
+    if (rules && (rules.noCow === true || rules.strongWalls === true || rules.noRush === true || rules.noDogs === true)) {
+      state.rules = { noCow: rules.noCow === true, strongWalls: rules.strongWalls === true, noRush: rules.noRush === true, noDogs: rules.noDogs === true };
+      state.peaceUntil = rules.noRush === true ? PEACE_TICKS : 0;
+    }
+    const sorted = players.slice().sort((a, b) => a.slot - b.slot);
     const names = [], logos = [];
     for (const p of sorted) { names[p.slot] = p.name; logos[p.slot] = (p.logo | 0) || 0; }
-    enableMp(state, room.max && sorted.length <= room.max ? Math.max(sorted.length, 2) : sorted.length, names);
+    enableMp(state, sorted.length >= 2 ? sorted.length : 2, names);
     // تعداد واقعی = حاضرین (میزبان همه را ready کرده)
     state.mp.num = sorted.length;
     state.mpres.length = sorted.length;
@@ -688,48 +706,149 @@ function boot() {
     }
     for (const p of sorted) spawnLord(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, p.slot);
     for (const p of sorted) assignStaff(state, p.slot);
-    mpSession = { code: room.code, slot: room.slot, num: sorted.length, names, logos };
-    // نکته: room.slot میزبانِ اتاق است یا اسلات خودم؟ lobby.mySlot اسلات خودم است.
-    mpSession.slot = lobby.mySlot >= 0 ? lobby.mySlot : room.slot;
+    pushEvent(state, t("game.ev.caravan")); // کاروان کالاهای اولیه هر قلعه (فاز ۱ بند ۱۳)
+    mpSession = { code, slot, num: sorted.length, names, logos, watching: slot < 0 };
     mpPending.clear();
     mpNextSeq = 1;
     mpHashes.clear();
     mpHashLog.length = 0;
     mpDesync = null;
+    mpDesyncSent = false;
+    mpCatching = null;
+    mpFinishSent = false;
     cmdQueue = createQueue(); // در MP ورودی فقط از شبکه می‌آید
     clock.reset();
     lastAutoTick = state.tick;
     hover = null;
-    selIds = []; ctrlGroups = freshGroups();
+    selIds = []; ctrlGroups = freshGroups(); lastGroupRecall = null; selBldId = null; bookmarks = {}; // بوکمارک هم گذراست (0.162.0)
     pendingKind = null;
     selectedKey = null;
     selectedUnit = null;
     setTick(0);
     state.events.push(t("main.mp.battleStart", { n: sorted.length, seed: s }));
-    paintSeed();
+    paintSeed(state);
     refreshPanel();
+    return mpSession;
+  }
+
+  function startMpGame(room, seed) {
+    // نکته: room.slot میزبانِ اتاق است یا اسلات خودم؟ lobby.mySlot اسلات خودم است.
+    const slot = lobby.mySlot >= 0 ? lobby.mySlot : room.slot;
+    initMpBattle(room.players, seed, slot, room.code, mpRulesOf(room));
+  }
+
+  // قوانین اتاق از آبجکت اتاق/تماشا (0.148.0 — §۱۴.۲؛ 0.149.0 — §۱۴.۲/بند ۷۳۰):
+  // هر سه پرچم در یک جا خوانده می‌شوند تا هر ۳ مسیر شروع
+  // (شروع/اتصال‌مجدد/تماشا) یکسان بمانند.
+  function mpRulesOf(room) {
+    if (!room) return null;
+    const noCow = room.noCow === true, strongWalls = room.strongWalls === true, noRush = room.noRush === true, noDogs = room.noDogs === true;
+    return (noCow || strongWalls || noRush || noDogs) ? { noCow, strongWalls, noRush, noDogs } : null;
+  }
+
+  // عقب‌ماندگی را صفحه‌به‌صفحه از سرور بگیر و در mpPending بگذار (0.141.0)؛
+  // جلو‌بردن تیک‌ها با حلقه زنده (mpCatching) انجام می‌شود. serverSeq = seq بعدی سرور.
+  async function mpCatchUp(code, serverSeq) {
+    const total = Math.max(0, (serverSeq | 0) - 1);
+    let from = 1, maxTick = -1, got = 0, guard = 0;
+    paintSync(0, total);
+    for (;;) {
+      if (++guard > 200) break; // احتیاط در برابر حلقه بی‌پایان
+      const d = await lobby.sync(code, from);
+      const list = d.entries || [];
+      for (const e of list) {
+        if (typeof e.seq !== "number" || e.seq < mpNextSeq || mpPending.has(e.seq)) continue;
+        mpPending.set(e.seq, e);
+        got++;
+        if (typeof e.tick === "number" && e.tick > maxTick) maxTick = e.tick;
+      }
+      paintSync(got, total);
+      if (list.length) from = list[list.length - 1].seq + 1;
+      if (from >= (d.next | 0)) break;
+      if (!list.length) break;
+    }
+    paintSync(null);
+    mpCatching = { target: Math.max(0, maxTick) + INPUT_DELAY + 1 };
+    if (state.tick >= mpCatching.target) mpCatching = null;
+    else mpDrain();
+  }
+
+  // نشست مرده (اتاق روی سرور نیست / توکن بد / لاگ جلو رفته): پاک‌سازی + پیام.
+  function mpSessionDead(code, msgKey) {
+    clearMpSession();
+    if (code) { saveMyGames(markMyGameDoneList(loadMyGames(), code)); paintMyGames(); }
+    mpStatus(msgKey ? t(msgKey, { code }) : t("main.mp.sessionDead", { code }));
+    paintContinue();
+  }
+
+  // ورود به بازی جاری/تمام‌شده: بازیکن (با توکن) یا تماشاگر (0.141.0).
+  // entry: {code, slot?, token?, password?}
+  async function continueGame(entry, watching) {
+    const code = entry.code;
+    try {
+      mpStatus(t("main.mp.rejoining", { code }));
+      paintSync(0, 1);
+      let info, serverSeq;
+      if (watching) {
+        const res = await lobby.watch(code, { password: entry.password });
+        info = res.watch; serverSeq = res.seq;
+      } else {
+        const res = await lobby.rejoin(code, entry.slot, entry.token);
+        info = res.room; serverSeq = res.seq;
+      }
+      const slot = watching ? -1 : info.slot;
+      initMpBattle(info.players, info.seed, slot, code, mpRulesOf(info));
+      hideMenu();
+      if (!watching) {
+        saveMpSession({ code, slot: info.slot, token: entry.token, seed: info.seed });
+        saveMyGames(upsertMyGameList(loadMyGames(), { code, slot: info.slot, seed: info.seed }));
+        paintMyGames();
+        paintContinue();
+        mpStatus(t("main.mp.started", { n: info.slot + 1, seed: (info.seed >>> 0) || CONFIG.MAP_SEED }));
+      } else {
+        mpStatus(t("main.mp.watching", { code }));
+      }
+      paintMp(lobby);
+      await mpCatchUp(code, serverSeq);
+    } catch (e) {
+      paintSync(null);
+      const err = (e && e.message) || "bad";
+      if (err === "tooOld") mpSessionDead(code, "main.mp.tooOld");
+      else if (err === "nocode" || err === "noroom" || err === "token") mpSessionDead(code);
+      else mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[err] || err }));
+      paintContinue();
+    }
   }
 
   // ---- لابی ----
   const lobby = initMpLobby(
     {},
     {
-      warName,
-      warLogo,
+      warName: () => warName(profile),
+      warLogo: () => warLogo(profile),
       getTick: () => state.tick,
       gameActive: () => !!mpSession,
       onLeave: () => {
         mpSession = null;
+        mpCatching = null;
         mpPending.clear();
         newGame();
         showMenu();
+        paintContinue();
+        paintMyGames();
       },
       onError: (msg) => { mpStatus(msg || t("main.err.generic")); },
       paint: () => paintMp(lobby),
       onStart: (room, seed) => {
-        const myRoom = { code: room.code, slot: lobby.mySlot, players: room.players, max: room.max };
+        const myRoom = { code: room.code, slot: lobby.mySlot, players: room.players, max: room.max, noCow: room.noCow === true, strongWalls: room.strongWalls === true, noRush: room.noRush === true, noDogs: room.noDogs === true };
         startMpGame(myRoom, seed);
         hideMenu();
+        if (lobby.token) {
+          saveMpSession({ code: room.code, slot: lobby.mySlot, token: lobby.token, seed });
+          saveMyGames(upsertMyGameList(loadMyGames(), { code: room.code, slot: lobby.mySlot, seed }));
+          paintMyGames();
+          paintContinue();
+        }
         mpStatus(t("main.mp.started", { n: lobby.mySlot + 1, seed: (seed >>> 0) || CONFIG.MAP_SEED }));
       },
       onInput: (m) => {
@@ -737,6 +856,11 @@ function boot() {
         if (typeof m.seq !== "number" || m.seq < 1) return;
         if (mpPending.has(m.seq) || m.seq < mpNextSeq) return;
         mpPending.set(m.seq, m);
+        // ورودی زنده حین همگام‌سازی: هدف جلو‌بردن را به‌روز کن (0.141.0).
+        if (mpCatching && typeof m.tick === "number") {
+          const need = m.tick + INPUT_DELAY + 1;
+          if (need > mpCatching.target) mpCatching.target = need;
+        }
         mpDrain();
         refreshPanel();
       },
@@ -745,34 +869,32 @@ function boot() {
         state.events.push(t("main.mp.peerLeft", { n: slot + 1 }));
         eliminateSlot(slot);
       },
+      onPeerGone: (slot) => {
+        if (!mpSession) return;
+        state.events.push(t("main.mp.peerGone", { n: slot + 1 }));
+        refreshPanel();
+      },
+      onPeerBack: (slot) => {
+        if (!mpSession) return;
+        state.events.push(t("main.mp.peerBack", { n: slot + 1 }));
+        refreshPanel();
+      },
+      onGameEnd: (winner) => {
+        if (mpSession) { saveMyGames(markMyGameDoneList(loadMyGames(), mpSession.code)); paintMyGames(); }
+        mpStatus(t("main.mp.ended", { n: (winner | 0) + 1 }));
+      },
+      onRejoined: (seq) => {
+        // اتصال‌مجدد خودکار پس از قطعی گذرا (0.141.0): عقب‌ماندگی را همگام کن.
+        if (!mpSession || !lobby.room) return;
+        mpCatchUp(lobby.room.code, seq).catch((e) => {
+          mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message }));
+        });
+      },
     }
   );
 
-  function mpStatus(msg) {
-    const el = $("mpStatusEl");
-    if (el && msg !== undefined) el.textContent = msg;
-  }
 
-  function paintMp(api) {
-    const conn = $("mpConn"), box = $("mpRosterEl"), list = $("mpListEl");
-    if (conn) conn.textContent = api.connected ? t("main.mp.connected") : t("main.mp.disconnected");
-    if (!box) return;
-    if (!api.room) {
-      box.innerHTML = `<div class="lbl">${t("main.mp.noRoom")}</div>`;
-      mpStatus(api.connected ? t("main.mp.idle") : t("main.mp.connecting"));
-      return;
-    }
-    const r = api.room;
-    const me = r.players.find((p) => p.slot === api.mySlot);
-    const lockTxt = r.priv ? ` 🔒${t("main.mp.private")}` : ` 🔓${t("main.mp.public")}`;
-    const seedTxt = (r.seed | 0) ? ` — ${t("main.mp.seed", { seed: r.seed >>> 0 })}` : "";
-    box.innerHTML = `<div class="lbl">${t("main.mp.code")} <b>${r.code}</b>${lockTxt}${seedTxt} — ${t("main.mp.youArePlayer", { n: api.mySlot + 1 })}${r.started ? ` — ${t("main.mp.inProgress")}` : ""}</div>` +
-      r.players.map((p) => `<div class="stat"><span><span class="rosterLogo">${PROFILE_LOGOS[(p.logo | 0)] || ""}</span>${escName(p.name)} (${t("main.mp.player", { n: p.slot + 1 })})</span><span>${p.ready ? t("main.mp.readyMark") : "…"}</span></div>`).join("");
-    if (!r.started) {
-      mpStatus(!me ? "…" : me.ready ? t("main.mp.waitOthers") : t("main.mp.pressReady"));
-    }
-    if (list && list.dataset && list.dataset.show === "1") void 0;
-  }
+
 
   function selectedDef() { return selectedKey ? CONFIG.BUILDINGS[selectedKey] : null; }
 
@@ -784,174 +906,9 @@ function boot() {
     return null;
   }
 
-  function mpRosterHTML() {
-    if (!mpSession || !state.mp) return "";
-    return state.mpres.map((pl, i) => {
-      const col = PLAYER_COLORS[i] || "#999";
-      const nm = escName((mpSession.names && mpSession.names[i]) || t("main.mp.player", { n: i + 1 }));
-      const logo = (mpSession.logos && PROFILE_LOGOS[mpSession.logos[i]]) || "";
-      const tag = i === mpSession.slot ? ` ${t("main.mp.youTag")}` : "";
-      const st = pl.alive === false ? "💀" : "●";
-      return `<div class="res"><span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${col};"></i><span class="rosterLogo">${logo}</span> ${nm}${tag}</span><b>${st}</b></div>`;
-    }).join("");
-  }
 
   let lastHintKey = null;
-  function refreshPanel() {
-    // بنرهای solo + بنر MP (برنده/بازیکن حذف‌شده).
-    if (mpSession && state.mp && state.mp.enabled) {
-      const me = mpSession.slot;
-      const alive = state.mpres[me] && state.mpres[me].alive;
-      const over = state.mp.over;
-      const winner = state.mp.winner;
-      defeatBanner.hidden = !(over && alive === false);
-      victoryBanner.hidden = !(over && alive === true && winner === me);
-      if (over && winner !== me && alive !== false) {
-        // بازی تمام شده ولی من نه برنده‌ام نه بازنده (نباید رخ دهد در FFA) — هر دو پنهان
-        defeatBanner.hidden = true;
-        victoryBanner.hidden = true;
-      }
-      const vb = victoryBanner.querySelector("p");
-      const db = defeatBanner.querySelector("p");
-      if (over && winner === me && vb) vb.textContent = t("main.mp.win", { n: me + 1 });
-      if (over && alive === false && db) db.textContent = t("main.mp.lose", { n: winner + 1 });
-    } else {
-      defeatBanner.hidden = !state.defeated; // بنر شکست (0.19.0) — کل صفحه را می‌پوشاند
-      victoryBanner.hidden = !state.victorious; // بنر پیروزی (0.22.0)
-    }
-    // بنر تازه‌نمایان: فوکوس روی دکمه‌اش (یک‌بار؛ نه در هر refresh) تا صفحه‌کلید/صفحه‌خوان در بنر بیفتد
-    for (const [ban, btn] of [[defeatBanner, defeatRestartBtn], [victoryBanner, victoryRestartBtn]]) {
-      if (!ban.hidden && !ban.dataset.focused) { ban.dataset.focused = "1"; btn.focus({ preventScroll: true }); }
-      else if (ban.hidden && ban.dataset.focused) delete ban.dataset.focused;
-    }
-    // هدف بعدی (onboarding): فقط سولوی زنده؛ با رسیدن به همه نقاط عطف پنهان می‌شود.
-    const hintEl = $("hintEl");
-    if (hintEl) {
-      const hk = (mpSession || replayWatch || editor || state.defeated || state.victorious) ? null : nextHint(state);
-      if (hk) { const txt = t("ui.hint.prefix") + " " + t(hk); if (hintEl.textContent !== txt) { hintEl.textContent = txt; hintEl.title = txt; } }
-      hintEl.hidden = !hk;
-      // کارت ساختمانِ مورد اشاره هایلایت می‌شود و (یک‌بار به‌ازای هر راهنما) به دید می‌آید.
-      const hb = hintBuilding(hk);
-      for (const b of palBtns) b.classList.toggle("hinted", !!hb && b.dataset.b === hb);
-      if (hk !== lastHintKey) {
-        lastHintKey = hk;
-        const hc = hb && palBtns.find((b) => b.dataset.b === hb);
-        const pal = $("buildPal");
-        if (hc && pal) { // فقط خود پالت افقی اسکرول می‌شود (scrollIntoView کل صفحه را در موبایل می‌پراند)
-          const calm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-          const cr = hc.getBoundingClientRect(), pr = pal.getBoundingClientRect();
-          pal.scrollBy({ left: (cr.left + cr.width / 2) - (pr.left + pr.width / 2), behavior: calm ? "auto" : "smooth" });
-        }
-      }
-    }
-    if (!mpSession) online.maybeReport(state); // ثبت پیروزی در تالار مشترک (0.23.0؛ فقط یک‌بار)
-    pruneMercs(); // سربازخانه میزبان نوار مزدورها ویران شده؟ بستن خودکار
-    pruneMarket(); // بازار میزبان پنل معامله ویران شده؟ بستن خودکار
-    paintMarket(); // ردیف‌های زنده پنل بازار (موجودی/قیمت/وضعیت دکمه‌ها)
-    paintTrain(); // ردیف‌های زنده صف آموزش (0.65.0)
-    const ec = mpSession ? state.mpres[mpSession.slot] : state;
-    for (const b of palBtns) b.classList.toggle("sel", !selectedUnit && b.dataset.b === selectedKey);
-    for (const b of unitBtns) b.classList.toggle("sel", b.dataset.u === selectedUnit);
-    // قفل مزدورها (0.29.0 سرباز، 0.30.0 سرباز و کماندار، 0.35.0 همه requiresدارها):
-    // بدون سربازخانه سالم خودی، کارت‌ها کم‌رنگ‌اند.
-    const slot = mpSession ? mpSession.slot : 0;
-    const barracksOk = hasBarracks(state, slot);
-    for (const b of unitBtns) {
-      if (UNITS[b.dataset.u] && UNITS[b.dataset.u].requires === "barracks") {
-        b.classList.toggle("locked", !barracksOk);
-        b.title = barracksOk ? "" : HIRE_FA.NO_BARRACKS;
-      }
-      // قفل سلاح (0.44.0 — #۹): بدون شمشیر/کمانِ همان نوع، کارت کم‌رنگ است.
-      const wpn = UNITS[b.dataset.u] && UNITS[b.dataset.u].requiresWeapon;
-      if (wpn && barracksOk) {
-        const has = ((mpSession ? state.mpres[mpSession.slot].resources : state.resources)[wpn] || 0) >= 1;
-        b.classList.toggle("locked", !has);
-        b.title = has ? "" : HIRE_FA.NEEDS_WEAPON;
-      }
-    }
-    for (const b of taxBtns) b.classList.toggle("sel", b.dataset.tax === ec.tax);
-    for (const b of ratBtns) b.classList.toggle("sel", b.dataset.rat === ec.rations);
-    pauseBtn.textContent = mpSession ? t("main.top.multi") : state.paused ? t("main.top.resume") : t("ui.top.pause");
-    speedBtn.textContent = mpSession ? t("main.top.speedLocked") : t("main.top.speed", { n: state.speed });
-    pauseBtn.disabled = !!mpSession;
-    speedBtn.disabled = !!mpSession;
-    waveBtn.disabled = !!mpSession;
-    saveBtn.disabled = !!mpSession;
-    loadBtn.disabled = !!mpSession;
-    for (const id of ["cloudSaveBtn", "cloudLoadBtn", "cloudDelBtn"]) { // ابری فقط سولو (0.67.0)
-      const el = $(id);
-      if (el) el.disabled = !!mpSession;
-    }
-    placedEl.textContent = state.placed;
-    rejectedEl.textContent = state.rejected;
-    workersEl.textContent = t("main.workers", { free: ec.freeWorkers != null ? ec.freeWorkers : state.freeWorkers, workers: ec.workers, cap: ec.workerCap != null ? ec.workerCap : state.workerCap });
-    const p = ec.popularity;
-    popEl.textContent = t("main.pop", { p, dir: ec.popDir > 0 ? "▲" : ec.popDir < 0 ? "▼" : "●", target: popTarget(state, mpSession ? mpSession.slot : undefined) });
-    popEl.className = p >= 55 ? "hi" : p < 40 ? "lo" : "me";
-    resEl.innerHTML = CONFIG.RESOURCES.map((r) => {
-      const net = netPerMinute(state, r.key, mpSession ? mpSession.slot : undefined);
-      const sign = net > 0 ? "+" : "";
-      const have = mpSession ? state.mpres[mpSession.slot].resources[r.key] : state.resources[r.key];
-      return `<div class="res"><span><img src="${iconSrc(r.key)}" alt="" width="18" height="18" style="vertical-align:-4px"> ${r.name}</span><b>${have} / ${capFor(state, r.key, slot)} <i>(${t("main.res.perMin", { v: sign + net })})</i></b></div>`;
-    }).join("") + (mpSession ? mpRosterHTML() : "");
-    if (mpSession && state.mp && state.mp.over) {
-      battleEl.textContent = state.mp.winner === mpSession.slot ? t("main.battle.mpWon") : t("main.battle.mpOver");
-    } else battleEl.textContent = state.defeated
-      ? t("main.battle.defeat")
-      : state.victorious
-      ? t("main.battle.victory")
-      : (pendingKind === "alarm"
-        ? t("main.battle.alarm")
-        : (pendingKind === "demolish"
-          ? t("main.battle.demolish")
-          : (mpDesync ? t("main.battle.desync", { d: mpDesync }) : (state.events.length ? state.events[state.events.length - 1] : t("ui.stats.calm")))));
-    alarmBtn.classList.toggle("sel", pendingKind === "alarm");
-    demolishBtn.classList.toggle("sel", pendingKind === "demolish");
-    // کارت یگان‌های منتخب (مرده/رفته → هرس خودکار با حفظ ترتیب)
-    selIds = pruneSet(selIds, state.units);
-    // زنگ خطر و تخریب سراسری‌اند و به انتخاب نیاز ندارند — پاک نشوند.
-    if (!selIds.length && pendingKind !== "alarm" && pendingKind !== "demolish") pendingKind = null;
-    const sels = resolveSet(selIds, state.units);
-    const sel = sels[0] || null;
-    unitCard.hidden = !sel;
-    if (sel) {
-      const udef = UNITS[sel.type];
-      if (sels.length === 1) {
-        unitNameEl.textContent = t("main.unit.name", { name: udef.name, id: sel.id, stance: STANCE_FA[sel.stance] || sel.stance });
-        unitHpEl.textContent = `${sel.hp}/${sel.maxHp}`;
-      } else {
-        const hpSum = sels.reduce((a, u) => a + u.hp, 0);
-        unitNameEl.textContent = t("main.unit.selected", { n: sels.length });
-        unitHpEl.textContent = `Σ${hpSum}`;
-      }
-      stanceEngageBtn.classList.toggle("sel", sel.stance !== "hold" && sel.stance !== "guard");
-      stanceHoldBtn.classList.toggle("sel", sel.stance === "hold");
-      attackMoveBtn.classList.toggle("sel", pendingKind === "attackmove");
-      guardBtn.classList.toggle("sel", pendingKind === "guard" || sel.stance === "guard");
-      if (garrisonBtn) garrisonBtn.classList.toggle("sel", pendingKind === "garrison");
-      // دکمه استقرار منجنیق (0.46.0): روشن وقتی منتخبِ منجنیق مستقر است.
-      if (deployBtn) {
-        deployBtn.hidden = !sels.some((u) => UNITS[u.type].needsDeploy);
-        deployBtn.classList.toggle("sel", !!sel.deployed);
-      }
-      const post = guardPost(state, sel);
-      const activeOrders = sels.filter((u) => u.order && u.order.status === "active").length;
-      unitOrderEl.textContent = activeOrders > 0
-        ? (sels.length === 1
-          ? t("main.order.mission", { kind: ORDER_KIND_FA[sel.order.kind] || sel.order.kind, mission: sel.mission })
-          : t("main.order.activeOf", { a: activeOrders, n: sels.length }))
-        : (pendingKind === "attackmove" ? t("main.order.nextAttackMove")
-        : (pendingKind === "guard" ? t("main.order.nextGuard")
-        : (pendingKind === "garrison" ? t("main.order.nextGarrison")
-        : (sels.length > 1 ? t("main.order.group", { n: sels.length })
-        : (udef.needsDeploy
-          ? (sel.deployed ? t("main.order.deployed") : t("main.order.mobile"))
-        : (sel.garrisonTower != null ? t("main.order.inTower")
-        : (sel.stance === "guard"
-          ? (post ? t("main.order.guarding", { name: CONFIG.BUILDINGS[post.type].name }) : t("main.order.postLost"))
-          : t("main.order.status", { mission: sel.mission }))))))));
-    }
-  }
+  const refreshPanel = panelUI.refreshPanel;
 
   function buildingAt(c, r) {
     return state.buildings.find((b) => c >= b.c && c < b.c + b.w && r >= b.r && r < b.r + b.h) || null;
@@ -967,40 +924,106 @@ function boot() {
     return best;
   }
 
+  function orderSels() {
+    const own = mpSession ? mpSession.slot : 0;
+    return resolveSet(selIds, state.units).filter((u) => !u.dead && u.side === "player" && (u.owner == null ? 0 : u.owner) === own);
+  }
+  function foeBuilding(b) {
+    if (!b || b.destroyed) return false;
+    const own = mpSession ? mpSession.slot : 0;
+    const bow = b.owner == null ? 0 : b.owner;
+    if (bow === own) return false;
+    if (state.mp && state.mp.enabled) return true;
+    return bow === CONFIG.AI.owner && b.type !== "gate";
+  }
+  function foeUnit(u) {
+    if (!u || u.dead) return false;
+    const own = mpSession ? mpSession.slot : 0;
+    return !(u.side === "player" && (u.owner == null ? 0 : u.owner) === own);
+  }
+  const CURSOR_ATTACK = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'21\' height=\'21\'%3E%3Cpath d=\'M10 2v17M2 10h17\' stroke=\'%23e33\' stroke-width=\'2.5\'/%3E%3Ccircle cx=\'10\' cy=\'10\' r=\'6.5\' fill=\'none\' stroke=\'%23e33\' stroke-width=\'1.5\'/%3E%3C/svg%3E") 10 10, crosshair';
+  function paintOrderCursor(sx, sy) {
+    let foe = false;
+    if (orderSels().length) {
+      const rect = canvas.getBoundingClientRect();
+      const cell = renderer.screenToCell(sx - rect.left, sy - rect.top);
+      foe = foeUnit(unitAt(cell.c, cell.r)) || foeBuilding(buildingAt(cell.c, cell.r));
+    }
+    canvas.style.cursor = foe ? CURSOR_ATTACK : "";
+  }
+
   function updateHover(sx, sy) {
     const rect = canvas.getBoundingClientRect();
     const cell = renderer.screenToCell(sx - rect.left, sy - rect.top);
     const hit = buildingAt(cell.c, cell.r);
     if (hit) {
       const def = CONFIG.BUILDINGS[hit.type];
-      const hpTxt = ` — ${hit.hp}/${hit.maxHp}`;
+      // نشان آتش (0.148.0 — §۱۸.۴): بنای در حال سوختن در همه شاخه‌های
+      // هاور همین برچسب را می‌گیرد (به hpTxt چسبیده تا هیچ شاخه‌ای جا نماند).
+      const hpTxt = ` — ${hit.hp}/${hit.maxHp}` + ((hit.fire > 0 && !hit.destroyed) ? ` — ${badB(t("main.hover.burning"))}` : "");
       if (hit.type === "gate" && !hit.destroyed) {
         statusEl.innerHTML = `${def.name}${hpTxt} — ${hit.open === false ? badB(t("main.hover.closed")) : okB(t("main.hover.open"))} ${t("main.hover.gateTip")}`;
       } else if (hit.type === "keep" && !hit.destroyed) {
-        statusEl.innerHTML = `${def.name}${hpTxt} — ${okB(t("main.hover.keep"))}`;
-      } else if (hit.type === "tower" && !hit.destroyed) {
+        statusEl.innerHTML = `${lordPortraitHTML(profile.logo)}${def.name}${hpTxt} — ${okB(t("main.hover.keep"))} — ${t("main.hover.ident", { name: t("ui.menu.ident." + (state.ident || "none")) })}`;
+      } else if (isGarrisonPost(hit.type) && !hit.destroyed) {
         // گاریسون برج (0.45.0): شمار مدافعان روی هاور.
         const g = hit.garrison && hit.garrison.length ? hit.garrison.length : 0;
         const buildTxt = (hit.buildLeft || 0) > 0
           ? ` — ${badB(t("main.hover.building", { n: faNum(Math.ceil(hit.buildLeft / 10)) }))}`
           : "";
-        statusEl.innerHTML = `${def.name}${hpTxt} — ${t("main.hover.garrison", { g: faNum(g), cap: faNum(GARRISON_CAP) })}${buildTxt}`;
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${t("main.hover.garrison", { g: faNum(g), cap: faNum(garrisonCapFor(hit.type)) })}${buildTxt}`;
+        // اشاره fortify (0.161.0 — §10.2/بند 559): با یگان منتخب، هاور برج = استحکامات مستقیم.
+        const fOwn = mpSession ? mpSession.slot : 0;
+        const fSel = resolveSet(selIds, state.units).filter((u) => !u.dead && u.side === "player" && (u.owner == null ? 0 : u.owner) === fOwn);
+        if (fSel.length) {
+          statusEl.innerHTML += ((hit.owner == null ? 0 : hit.owner) === fOwn)
+            ? ` — ${okB(t("main.hover.fortify"))}`
+            : ` — ${badB(t("main.hover.fortifyFoe"))}`;
+        }
       } else if (hit.type === "inn" && !hit.destroyed) {
         statusEl.innerHTML = `${def.name}${hpTxt} — ${hit.served ? okB(t("main.hover.innServing")) : badB(t("main.hover.innDry"))}`;
+      } else if (hit.type === "granary" && !hit.destroyed && !(hit.buildLeft > 0)) {
+        // هاور انبارغذا (فاز ۱ بند ۸۷): گزارش دقیق داخل (سقف برداشته شد).
+        const rep = foodReport(state, hit.owner);
+        const repLasts = rep.lastsMin == null ? "—" : faNum(Math.round(rep.lastsMin * 10) / 10);
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${t("main.hover.granary", { total: faNum(rep.total), lasts: repLasts, types: faNum(rep.types) })}`;
+      } else if (hit.type === "stockpile" && !hit.destroyed && !(hit.buildLeft > 0)) {
+        // هاور انبار (فاز ۱ بند ۸۳): موجودی هر ۴ نوع (سقف برداشته شد).
+        const rows = stockpileInterior(state, hit.owner);
+        const amt = (k) => faNum(((rows.find((x) => x.type === k)) || { amount: 0 }).amount);
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${t("main.hover.stockpile", { w: amt("wood"), s: amt("stone"), g: amt("gold"), l: amt("leather") })}`;
+      } else if (hit.type === "killpit" && !hit.destroyed) {
+        const ch = Number.isInteger(hit.charges) ? hit.charges : KILLPIT_CHARGES;
+        const buildTxt = (hit.buildLeft || 0) > 0
+          ? ` — ${badB(t("main.hover.building", { n: faNum(Math.ceil(hit.buildLeft / 10)) }))}`
+          : "";
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${t("main.hover.pit", { n: faNum(ch) })}${buildTxt}`;
+      } else if (hit.type === "dogcage" && !hit.destroyed) {
+        const dn = cageDogs(hit);
+        const buildTxt = (hit.buildLeft || 0) > 0
+          ? ` — ${badB(t("main.hover.building", { n: faNum(Math.ceil(hit.buildLeft / 10)) }))}`
+          : "";
+        statusEl.innerHTML = `${def.name}${hpTxt} — ${t("main.hover.dogs", { n: faNum(dn), cap: faNum(DOGS_PER_CAGE) })}${buildTxt}`;
       } else if (def.prod) {
         if ((hit.buildLeft || 0) > 0) {
           statusEl.innerHTML = `${def.name}${hpTxt} — ${badB(t("main.hover.building", { n: faNum(Math.ceil(hit.buildLeft / 10)) }))}`;
         } else statusEl.innerHTML = hit.staffed === false
           ? `${def.name}${hpTxt} — ${badB(t("main.hover.unstaffed"))}`
           : (hit.starved
-            ? `${def.name}${hpTxt} — ${badB(t("main.hover.starved", { res: escName(resName(Object.keys((RATES[hit.type] || {}).consumes || { "?": 0 })[0])) }))}`
+            ? (hit.type === "quarry" && !hasOxTether(state, hit.owner)
+              ? `${def.name}${hpTxt} — ${badB(t("main.hover.quarryNoOx"))}`
+              : (hit.type === "tannery"
+                ? `${def.name}${hpTxt} — ${badB(t("main.hover.noCow"))}`
+                : `${def.name}${hpTxt} — ${badB(t("main.hover.starved", { res: escName(resName(Object.keys((RATES[hit.type] || {}).consumes || { "?": 0 })[0])) }))}`))
             : `${def.name}${hpTxt} — ${okB(t("main.hover.producing"))}`);
       } else {
         statusEl.innerHTML = (hit.buildLeft || 0) > 0
           ? `${def.name}${hpTxt} — ${badB(t("main.hover.building", { n: faNum(Math.ceil(hit.buildLeft / 10)) }))}`
           : `${def.name}${hpTxt}`;
       }
+      if (orderSels().length && foeBuilding(hit)) statusEl.innerHTML += " - " + badB(t("main.hover.attack")); // 0.162.0
       hover = { c: cell.c, r: cell.r, valid: true, reason: "OK", ghost: false };
+      hover.order = orderSels().length > 0 && foeBuilding(hit);
       return;
     }
     const hu = unitAt(cell.c, cell.r);
@@ -1008,7 +1031,9 @@ function boot() {
       const def = UNITS[hu.type];
       const lordTag = hu.type === "lord" ? ` — ${badB(t("main.hover.lordDeath"))}` : "";
       statusEl.innerHTML = `${def.name} — <b class="${hu.side === "player" ? "ok" : "bad"}">${hu.hp}/${hu.maxHp}</b> • ${t("main.meta.armor", { n: faNum(def.armor || 0) })} • ${srcTag(def)}${lordTag}`;
+      if (orderSels().length && foeUnit(hu)) statusEl.innerHTML += " - " + badB(t("main.hover.attack")); // 0.162.0
       hover = { c: cell.c, r: cell.r, valid: true, reason: "OK", ghost: false };
+      hover.order = orderSels().length > 0 && foeUnit(hu);
       return;
     }
     const inMap = cell.c >= 0 && cell.r >= 0 && cell.c < CONFIG.GRID_W && cell.r < CONFIG.GRID_H;
@@ -1028,6 +1053,15 @@ function boot() {
     }
     const def = selIds.length === 0 ? selectedDef() : null;
     if (def) {
+      // پیش‌نمایش گوست هم قفل Keep را نشان می‌دهد (فاز ۱ بند ۱۲).
+      if (!hasLiveKeep(state, mpSession ? mpSession.slot : 0)) {
+        hover = { c: cell.c, r: cell.r, valid: false, reason: "NO_KEEP", ghost: true };
+        const nk = REASON_FA.NO_KEEP || "NO_KEEP";
+        statusEl.innerHTML = inMap
+          ? `${t("main.hover.cell", { c: cell.c, r: cell.r })} — <b class="bad">${nk}</b>`
+          : `${t("main.hover.outOfMap")} — <b class="bad">${HIRE_FA.OUT_OF_BOUNDS}</b>`;
+        return;
+      }
       const v = validate(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, cell.c, cell.r, def, mpSession ? mpSession.slot : 0);
       hover = { c: cell.c, r: cell.r, valid: v.ok, reason: v.reason, ghost: true };
       const fa = REASON_FA[v.reason] || v.reason;
@@ -1045,6 +1079,12 @@ function boot() {
     const sels = resolveSet(selIds, state.units);
     if (pendingKind === "attackmove" && sels.length) {
       statusEl.innerHTML = t("main.hover.attackMove", { c: cell.c, r: cell.r });
+    } else if (pendingKind === "patrol" && sels.length) { // گشت (0.162.0)
+      const pl = sels.find((u) => u.order && u.order.status === "active" && u.order.kind === "patrol" && Array.isArray(u.order.pts));
+      statusEl.innerHTML = pl
+        ? t("main.hover.patrolAdd", { c: cell.c, r: cell.r, n: faNum(pl.order.pts.length) })
+        : t("main.hover.patrol", { c: cell.c, r: cell.r });
+      if (sels.some((u) => isSoloLord(state, u)) && !lordKeepGate(state, cell.c, cell.r)) statusEl.innerHTML += " — " + badB(ORDER_FA.LORD_KEEP);
     } else if (pendingKind === "guard" && sels.length) {
       statusEl.innerHTML = t("main.hover.guard");
     } else if (pendingKind === "garrison" && sels.length) {
@@ -1053,2032 +1093,78 @@ function boot() {
       statusEl.innerHTML = t("main.hover.group", { num: faNum(sels.length), c: cell.c, r: cell.r });
     } else if (sels.length === 1) {
       statusEl.innerHTML = t("main.hover.move", { c: cell.c, r: cell.r });
+      if (isSoloLord(state, sels[0]) && !lordKeepGate(state, cell.c, cell.r)) statusEl.innerHTML += " — " + badB(ORDER_FA.LORD_KEEP);
     } else {
       statusEl.innerHTML = t("main.hover.idle");
     }
+    if (hover) hover.order = orderHoverMark(pendingKind, sels.length);
   }
 
-  // تعامل: درگ برای جابه‌جایی، کلیک برای ساخت/استخدام/دستور، چرخ برای زوم.
-  // اولویت کلیک: حالت استخدام > انتخاب یگان خودی > دستور به منتخب > ساخت.
-  // رفع گیرکردن درگ: اگر pointerup گم می‌شد (pointercancel، رها بیرون،
-  // Alt-Tab، لمس دوم) نقشه به موس می‌چسبید و «خودبه‌خود» حرکت می‌کرد.
-  let downPos = null, panning = false, movedFar = false, activePointerId = null, midPan = false;
-  canvas.style.touchAction = "none";
-  // دکمه وسط (0.68.0): جلوگیری از autoscroll مرورگر تا درگِ فقط-پن کار کند.
-  canvas.addEventListener("mousedown", (e) => { if (e.button === 1) e.preventDefault(); });
-  // ژست‌های لمسی (0.53.0 — #۲۳ از FEATURES): دو انگشت = پینچ-زوم، نگه‌داشتن
-  // یک انگشت (≥۵۰۰ms بی‌حرکت) = خلع مثل راست‌کلیک. touchPts فقط انگشت‌های
-  // لمسی را نگه می‌دارد؛ موس همان مسیر قبلی را می‌رود.
-  let touchPts = new Map(), pinchState = null; // pinchState = {d0, z0}
-  let longPressArmed = null, longPressDoneId = -1; // armed = {id, x, y, t0, timer}
-  function cancelLongPress() {
-    if (longPressArmed) { clearTimeout(longPressArmed.timer); longPressArmed = null; }
-  }
-  function fireLongPress() {
-    // همان خلعِ راست‌کلیک (انتخاب یگان می‌ماند) + پیام؛ رها = بدون کلیک.
-    longPressArmed = null;
-    selectedUnit = null; selectedKey = null; pendingKind = null; clearWallLine();
-    movedFar = true;
-    statusEl.textContent = t("main.touch.longPress");
-    sound.ack("deny");
-    refreshPanel();
-  }
-  function armLongPress(e) {
-    cancelLongPress();
-    const sx = e.clientX, sy = e.clientY, id = e.pointerId, t0 = Date.now();
-    longPressArmed = {
-      id, x: sx, y: sy, t0,
-      timer: setTimeout(() => {
-        if (longPressArmed && longPressArmed.id === id) {
-          longPressDoneId = id;
-          fireLongPress();
-        }
-      }, LONG_PRESS_MS),
-    };
-  }
-  // انتخاب باکسی (0.40.0 — #۴ از FEATURES): شیفت+درگ مستطیل می‌کشد (به‌جای
-  // جابه‌جایی نقشه) و یگان‌های خودیِ داخلش را به انتخاب اضافه می‌کند.
-  let boxSel = null; // {x0,y0,x1,y1,active} با مختصات client
-  let boxEl = null;
-  function boxOverlay() {
-    if (!boxEl) {
-      boxEl = document.createElement("div");
-      boxEl.id = "boxSel";
-      boxEl.hidden = true;
-      boxEl.style.cssText = "position:fixed;z-index:50;pointer-events:none;border:1px solid #ffd75e;background:rgba(255,215,94,.12);";
-      document.body.appendChild(boxEl);
-    }
-    return boxEl;
-  }
-  function hideBox() { if (boxEl) boxEl.hidden = true; boxSel = null; }
-  // خط دیوار (0.47.0 — #۲۰ از FEATURES): با دیوار مسلح، درگ (نه کلیک) یک خط
-  // دیوار می‌سازد. wallLine = [{c,r,ok}] پیش‌نمایشِ همان تایل‌هایی است که رها
-  // صف می‌کند؛ downCell خانه شروع فشار است. شیفت همچنان مال باکس است.
-  let wallLine = null, downCell = null;
-  function wallArmed() {
-    return selectedKey && isLineDragType(selectedKey)
-      && !selectedUnit && !pendingKind && selIds.length === 0;
-  }
-  function clearWallLine() { wallLine = null; downCell = null; }
-  function buildWallLine(toC, toR) {
-    const own = mpSession ? mpSession.slot : 0;
-    const def = CONFIG.BUILDINGS.wall;
-    wallLine = wallLineTiles(downCell.c, downCell.r, toC, toR).map((t) => ({
-      c: t.x, r: t.y,
-      ok: validate(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, t.x, t.y, def, own).ok,
-    }));
-  }
-  function paintBox() {
-    const el = boxOverlay();
-    el.hidden = false;
-    el.style.left = Math.min(boxSel.x0, boxSel.x1) + "px";
-    el.style.top = Math.min(boxSel.y0, boxSel.y1) + "px";
-    el.style.width = Math.abs(boxSel.x1 - boxSel.x0) + "px";
-    el.style.height = Math.abs(boxSel.y1 - boxSel.y0) + "px";
-  }
-  function endDrag(e) {
-    if (e && e.pointerId !== undefined && activePointerId !== null && e.pointerId !== activePointerId) return false;
-    const wasPan = movedFar;
-    downPos = null; panning = false; activePointerId = null;
-    try { if (e && e.pointerId !== undefined && canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId); } catch (_) { /* مهم نیست */ }
-    return wasPan;
-  }
-  canvas.addEventListener("pointerdown", (e) => {
-    if (editor) { // نقاشی نقشه‌ساز (0.51.0): درگ = قلم، نه فرمان/پن
-      if (e.isPrimary === false) return;
-      if (e.pointerType === "mouse" && e.button !== 0 && e.button !== undefined) return;
-      activePointerId = e.pointerId;
-      editor.painting = true;
-      edPaintAt(edCellFromEvent(e));
-      try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* رویداد مصنوعی */ }
-      return;
-    }
-    if (e.isPrimary === false && e.pointerType !== "touch") return; // لمس دوم/چندلمسی: نادیده تا نقشه نپرد
-    if (e.pointerType === "mouse" && e.button === 1) { // درگ وسط (0.68.0) = فقط پن: بدون باکس/دیوار/کلیک/لانگ‌پرس
-      if (activePointerId !== null) return;
-      activePointerId = e.pointerId; midPan = true;
-      downPos = { x: e.clientX, y: e.clientY, panX: renderer.view.panX, panY: renderer.view.panY };
-      panning = false; movedFar = false;
-      try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* رویداد مصنوعی */ }
-      return;
-    }
-    if (e.pointerType === "mouse" && e.button !== 0 && e.button !== undefined) return; // فقط کلیک چپ
-    if (e.pointerType === "touch") {
-      // انگشت دوم = شروع پینچ: حالت تک‌انگشتی را بی‌صدا ببند تا رها شدن
-      // انگشت‌ها کلیک/باکس/خط صادر نکند؛ زوم از نسبت فاصله‌هاست.
-      touchPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (touchPts.size >= 2 && !pinchState) {
-        cancelLongPress();
-        hideBox(); clearWallLine();
-        const pts = [...touchPts.values()];
-        pinchState = {
-          d0: Math.max(1, pinchDist(pts[0].x, pts[0].y, pts[1].x, pts[1].y)),
-          z0: renderer.view.zoom,
-        };
-        downPos = null; panning = false; movedFar = true; activePointerId = null;
-        try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* رویداد مصنوعی */ }
-        return;
-      }
-      if (pinchState) return; // انگشت سوم حین پینچ: نادیده
-    }
-    if (activePointerId !== null) return; // یک درگ فعال است
-    activePointerId = e.pointerId;
-    downPos = { x: e.clientX, y: e.clientY, panX: renderer.view.panX, panY: renderer.view.panY };
-    if (e.shiftKey) boxSel = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY, active: false };
-    else if (wallArmed()) {
-      const rect = canvas.getBoundingClientRect();
-      downCell = renderer.screenToCell(e.clientX - rect.left, e.clientY - rect.top);
-    }
-    panning = false;
-    movedFar = false;
-    try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* رویداد مصنوعی/لمسی بدون pointer معتبر */ }
-    // لمس طولانی (0.53.0): فقط انگشت تکی لمسی بیرون ویرایشگر/تماشا مسلح می‌شود.
-    if (e.pointerType === "touch" && !replayWatch) armLongPress(e);
-  });
-  canvas.addEventListener("pointermove", (e) => {
-    if (editor) { // نقاشی نقشه‌ساز (0.51.0): حرکت با قلم پایین = رنگ
-      if (editor.painting && e.pointerId === activePointerId) edPaintAt(edCellFromEvent(e));
-      return;
-    }
-    if (e.pointerType === "touch" && touchPts.has(e.pointerId)) {
-      touchPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      // پینچ (0.53.0): زوم از نسبت فاصله دو انگشت؛ پن/کلیک تک‌انگشتی مرده است.
-      if (pinchState && touchPts.size >= 2) {
-        const pts = [...touchPts.values()];
-        renderer.view.zoom = pinchZoom(pinchState.z0, pinchState.d0,
-          pinchDist(pts[0].x, pts[0].y, pts[1].x, pts[1].y));
-        renderer.markDirty();
-        return;
-      }
-      // لغزش بیش از تحمل = لغو تایمر لمس طولانی.
-      if (longPressArmed && e.pointerId === longPressArmed.id
-        && longPressMoved(longPressArmed.x, longPressArmed.y, e.clientX, e.clientY)) {
-        cancelLongPress();
-      }
-    }
-    if (downPos && e.pointerId === activePointerId) {
-      if (midPan) { // درگ وسط (0.68.0): فقط پن با همان ریاضی درگ-پن چپ
-        const dx = e.clientX - downPos.x, dy = e.clientY - downPos.y;
-        if (dragMovedFar(downPos.x, downPos.y, e.clientX, e.clientY)) { panning = true; movedFar = true; }
-        if (panning) {
-          const p = panForDrag(downPos.panX, downPos.panY, downPos.x, downPos.y, e.clientX, e.clientY);
-          renderer.view.panX = p.panX; renderer.view.panY = p.panY;
-          renderer.markDirty();
-          return;
-        }
-        updateHover(e.clientX, e.clientY);
-        return;
-      }
-      if (boxSel) {
-        boxSel.x1 = e.clientX; boxSel.y1 = e.clientY;
-        if (Math.abs(boxSel.x1 - boxSel.x0) + Math.abs(boxSel.y1 - boxSel.y0) > 6) {
-          boxSel.active = true; movedFar = true; paintBox();
-        }
-        updateHover(e.clientX, e.clientY);
-        return;
-      }
-      // دکمه رها شده ولی pointerup نرسیده: درگ را ببند، نقشه را نکش
-      if (e.pointerType === "mouse" && e.buttons === 0) {
-        endDrag(e);
-        updateHover(e.clientX, e.clientY);
-        return;
-      }
-      const dx = e.clientX - downPos.x, dy = e.clientY - downPos.y;
-      if (dragMovedFar(downPos.x, downPos.y, e.clientX, e.clientY)) { panning = true; movedFar = true; }
-      // خط دیوار مال درگ است، نه جابه‌جایی: از آستانه به بعد پیش‌نمایش خط
-      if (downCell && !boxSel && wallArmed() && movedFar) {
-        const rect = canvas.getBoundingClientRect();
-        const cell = renderer.screenToCell(e.clientX - rect.left, e.clientY - rect.top);
-        buildWallLine(cell.c, cell.r);
-        panning = false;
-        renderer.markDirty();
-        const okN = wallLine.filter((t) => t.ok).length;
-        statusEl.innerHTML = t("main.wall.line", { len: faNum(wallLine.length), ok: faNum(okN), max: faNum(WALL_LINE_MAX) });
-        return;
-      }
-      if (panning) {
-        const p = panForDrag(downPos.panX, downPos.panY, downPos.x, downPos.y, e.clientX, e.clientY);
-        renderer.view.panX = p.panX;
-        renderer.view.panY = p.panY;
-        renderer.markDirty();
-        return;
-      }
-    }
-    updateHover(e.clientX, e.clientY);
-  });
-  canvas.addEventListener("pointerup", (e) => {
-    if (editor) { // نقاشی نقشه‌ساز (0.51.0): رها = پایان ضربه قلم
-      if (e.pointerId === activePointerId) {
-        editor.painting = false;
-        activePointerId = null;
-        try { if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId); } catch (_) {}
-      }
-      return;
-    }
-    if (e.pointerType === "touch") {
-      // پایان ژست لمسی (0.53.0): انگشت را از ردیابی بردار؛ اگر پینچ بود یا
-      // لمس طولانی رخ داده بود، بقیه حالت را کامل ریست کن تا کلیک کاذب نیاید.
-      const wasPinch = !!pinchState;
-      touchPts.delete(e.pointerId);
-      if (touchPts.size < 2) pinchState = null;
-      cancelLongPress();
-      if (wasPinch || e.pointerId === longPressDoneId) {
-        if (e.pointerId === longPressDoneId) longPressDoneId = -1;
-        downPos = null; panning = false; activePointerId = null;
-        try { if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId); } catch (_) { /* مهم نیست */ }
-        return;
-      }
-      if (e.pointerId !== activePointerId) return;
-    } else if (e.pointerId !== activePointerId) return;
-    const wasPan = endDrag(e);
-    if (midPan) { midPan = false; return; } // درگ وسط (0.68.0): فقط پن بود، کلیک نه
-    // تماشای ری‌پلی (0.49.0): ورودی بسته است — فقط پن/زوم؛ فرمان نه.
-    if (replayWatch) {
-      hideBox();
-      clearWallLine();
-      if (!wasPan) statusEl.textContent = t("main.replay.watchHint");
-      return;
-    }
-    // پایان باکس (0.40.0): مستطیل فعال = انتخاب افزایشی خودی‌های داخل؛
-    // بدون درگ = کلیک معمولی شیفت‌دار (مسیر پایین).
-    if (boxSel) {
-      const box = boxSel;
-      hideBox();
-      if (box.active) {
-        const rect = canvas.getBoundingClientRect();
-        const a = renderer.screenToCell(box.x0 - rect.left, box.y0 - rect.top);
-        const b = renderer.screenToCell(box.x1 - rect.left, box.y1 - rect.top);
-        selIds = boxSelectIds(state.units, { c0: a.c, r0: a.r, c1: b.c, r1: b.r },
-          { owner: mpSession ? mpSession.slot : 0, additive: true, prev: selIds });
-        pendingKind = null;
-        refreshPanel();
-        return;
-      }
-    }
-    if (wasPan && !wallLine) return;
-    // پایان خط دیوار (0.47.0): هر تایل یک place جدا — همان معنای تک‌کلیک
-    // (اعتبار/رد/هزینه در اجرا)؛ دیوار مسلح می‌ماند تا زنجیره بعدی.
-    if (wallLine && wallLine.length) {
-      const line = wallLine;
-      clearWallLine();
-      if (mpSession) {
-        for (const t of line) mpSend("place", { type: "wall", c: t.c, r: t.r });
-      } else {
-        for (const t of line) playerCmd( { kind: "place", type: "wall", c: t.c, r: t.r }, state.tick);
-      }
-      sound.ack("place");
-      refreshPanel();
-      return;
-    }
-    if (wasPan) return;
-    const rect = canvas.getBoundingClientRect();
-    const cell = renderer.screenToCell(e.clientX - rect.left, e.clientY - rect.top);
-    const bHit = buildingAt(cell.c, cell.r), uHit = unitAt(cell.c, cell.r);
-    const ownUnit = (u) => u && u.side === "player" && (!mpSession || (u.owner == null ? 0 : u.owner) === mpSession.slot);
-    // خودی در سولو یعنی مالک ۰ (0.42.0: بنای حریف AI خودی نیست — دروازه/سربازخانه/پاسگاهش لمس نمی‌شود).
-    const ownBld = (b) => b && !b.destroyed && (b.owner == null ? 0 : b.owner) === (mpSession ? mpSession.slot : 0);
-    if (selectedUnit) {
-      // سربازخانه خودی حین استخدام مسلح (0.33.0): فقط نوار مزدورها toggle می‌شود؛ استخدام مسلح می‌ماند.
-      if (bHit && bHit.type === "barracks" && ownBld(bHit)) { toggleMercs(bHit.id); refreshPanel(); return; }
-      // بازار خودی حین استخدام مسلح (0.64.0 — ب-۳): فقط پنل معامله toggle می‌شود.
-      if (bHit && bHit.type === "market" && ownBld(bHit)) { toggleMarket(bHit.id); refreshPanel(); return; }
-      if (bHit || uHit) return; // روی موجود: کاری نکن
-      if (mpSession) { mpSend("hire", { type: selectedUnit, c: cell.c, r: cell.r }); sound.ack("hire"); return; }
-      playerCmd( { kind: "hire", type: selectedUnit, c: cell.c, r: cell.r }, state.tick);
-      sound.ack("hire");
-      refreshPanel();
-      return;
-    }
-    // زنگ خطر (0.17.0): مسلح و سراسری — هر کلیک نقشه = تجمع ارتش در آن نقطه
-    // (حتی روی ساختمان؛ مقصد ناممکن به همسایه باز حل می‌شود).
-    if (pendingKind === "alarm") {
-      if (mpSession) { mpSend("alarm", { c: cell.c, r: cell.r }); pendingKind = null; sound.ack("alarm"); refreshPanel(); return; }
-      playerCmd( { kind: "alarm", c: cell.c, r: cell.r }, state.tick);
-      pendingKind = null;
-      sound.ack("alarm");
-      refreshPanel();
-      return;
-    }
-    // تخریب دستی (0.39.0): مسلح و سراسری — کلیک روی ساختمان خودی (غیر ستاد).
-    // نامعتبر = پیام دلیل و مسلح می‌ماند؛ کلیک خالی = خلع.
-    if (pendingKind === "demolish") {
-      const own = mpSession ? mpSession.slot : 0;
-      const v = bHit && !bHit.destroyed
-        ? (((bHit.owner == null ? 0 : bHit.owner) !== own) ? { ok: false, reason: "NOT_OWNED" }
-          : bHit.type === "keep" ? { ok: false, reason: "KEEP" } : { ok: true, reason: "OK" })
-        : null;
-      if (v && v.ok) {
-        if (mpSession) { mpSend("demolish", { bld: bHit.id }); }
-        else playerCmd( { kind: "demolish", bld: bHit.id }, state.tick);
-        pendingKind = null;
-        sound.ack("place");
-      } else if (v) {
-        statusEl.textContent = DEMOLISH_FA[v.reason] || v.reason;
-        sound.ack("deny");
-      } else {
-        pendingKind = null;
-      }
-      refreshPanel();
-      return;
-    }
-    // انتخاب یگان خودی (0.16.0): کلیک = تک‌انتخاب (تکرار = لغو)؛
-    // شیفت+کلیک = افزودن/حذف ضامن به مجموعه انتخاب. در MP فقط یگان خودی.
-    if (uHit && ownUnit(uHit)) {
-      if (e.shiftKey) {
-        selIds = toggleInSet(selIds, uHit.id);
-      } else {
-        selIds = (selIds.length === 1 && selIds[0] === uHit.id) ? [] : [uHit.id];
-      }
-      // در MP انتخابِ واحد чужی قاطی نشود
-      if (mpSession) selIds = selIds.filter((id) => {
-        const u = state.units.find((x) => x.id === id && !x.dead);
-        return u && (u.owner == null ? 0 : u.owner) === mpSession.slot;
-      });
-      pendingKind = null;
-      refreshPanel();
-      return;
-    }
-    // دستور جمعی به یگان‌های منتخب زنده (فقط خودی)
-    const sels = resolveSet(selIds, state.units).filter((u) => !mpSession || (u.owner == null ? 0 : u.owner) === mpSession.slot);
-    if (sels.length) {
-      const ids = sels.map((u) => u.id);
-      if (uHit && !ownUnit(uHit)) {
-        if (mpSession) { mpSend("order", { ids, kind: "attackmove", c: cell.c, r: cell.r }); pendingKind = null; sound.ack("order"); refreshPanel(); return; }
-        playerCmd( { kind: "order", orderKind: "attackmove", ids, c: cell.c, r: cell.r }, state.tick); // حمله به دشمن
-        pendingKind = null;
-        sound.ack("order");
-        refreshPanel();
-        return;
-      }
-      // دروازه سالم (0.13.0): کلیک = باز/بسته (مثل ساختمان، مقصد دستور نیست).
-      if (bHit && bHit.type === "gate" && !bHit.destroyed && ownBld(bHit)) {
-        if (mpSession) { mpSend("gate", { bld: bHit.id }); pendingKind = null; sound.ack("place"); refreshPanel(); return; }
-        playerCmd( { kind: "gate", bld: bHit.id }, state.tick);
-        pendingKind = null;
-        sound.ack("place");
-        refreshPanel();
-        return;
-      }
-      // نگهبانی (0.15.0): در حالت pending، کلیک روی ساختمان = پاسگاه جمعی.
-      if (pendingKind === "guard") {
-        if (bHit && !bHit.destroyed && ownBld(bHit)) {
-          if (mpSession) { mpSend("guard", { ids, bld: bHit.id }); pendingKind = null; sound.ack("order"); refreshPanel(); return; }
-          playerCmd( { kind: "guard", ids, bld: bHit.id }, state.tick);
-          sound.ack("order");
-        }
-        pendingKind = null;
-        refreshPanel();
-        return;
-      }
-      // گاریسون (0.45.0): در حالت pending، کلیک روی برج خودی = استقرار جمعی.
-      if (pendingKind === "garrison") {
-        if (bHit && bHit.type === "tower" && !bHit.destroyed && ownBld(bHit)) {
-          if (mpSession) { mpSend("garrison", { ids, bld: bHit.id }); pendingKind = null; sound.ack("order"); refreshPanel(); return; }
-          playerCmd( { kind: "garrison", ids, bld: bHit.id }, state.tick);
-          sound.ack("order");
-        }
-        pendingKind = null;
-        refreshPanel();
-        return;
-      }
-      if (!bHit && !uHit) {
-        const kind = pendingKind === "attackmove" ? "attackmove" : "move";
-        if (mpSession) { mpSend("order", { ids, kind, c: cell.c, r: cell.r }); pendingKind = null; sound.ack("order"); refreshPanel(); return; }
-        playerCmd( { kind: "order", orderKind: kind, ids, c: cell.c, r: cell.r }, state.tick);
-        pendingKind = null;
-        sound.ack("order");
-        refreshPanel();
-        return;
-      }
-      updateHover(e.clientX, e.clientY); // روی ساختمان: فقط نمایش، انتخاب می‌ماند
-      return;
-    }
-    selIds = [];
-    // دروازه سالم بدون یگان منتخب هم با کلیک باز/بسته می‌شود (فقط خودی).
-    if (bHit && bHit.type === "gate" && !bHit.destroyed && ownBld(bHit)) {
-      if (mpSession) { mpSend("gate", { bld: bHit.id }); pendingKind = null; sound.ack("place"); refreshPanel(); return; }
-      playerCmd( { kind: "gate", bld: bHit.id }, state.tick);
-      pendingKind = null;
-      sound.ack("place");
-      refreshPanel();
-      return;
-    }
-    // سربازخانه خودی (0.33.0): کلیک خنثی = نوار افقی مزدورها روی نوار ساختمان (تکرار = بستن).
-    if (bHit && bHit.type === "barracks" && ownBld(bHit)) {
-      toggleMercs(bHit.id);
-      pendingKind = null;
-      refreshPanel();
-      return;
-    }
-    // بازار خودی (0.64.0 — ب-۳): کلیک خنثی = پنل معامله روی نوار ساختمان (تکرار = بستن).
-    if (bHit && bHit.type === "market" && ownBld(bHit)) {
-      toggleMarket(bHit.id);
-      pendingKind = null;
-      refreshPanel();
-      return;
-    }
-    const def = selectedDef();
-    if (!def) { updateHover(e.clientX, e.clientY); refreshPanel(); return; } // حالت خنثی: کلیک خالی کاری نمی‌کند
-    if (mpSession) {
-      // پیش‌اعتبارسنجی محلی (همان validate با مالک=اسلات من): رد = پیام + صدا و ورودی هدر نمی‌رود.
-      const pv = validate(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, cell.c, cell.r, def, mpSession.slot);
-      if (!pv.ok) { statusEl.textContent = REASON_FA[pv.reason] || pv.reason; sound.ack("deny"); return; }
-      mpSend("place", { type: def.key, c: cell.c, r: cell.r }); sound.ack("place"); return;
-    }
-    playerCmd( { kind: "place", type: def.key, c: cell.c, r: cell.r }, state.tick);
-    sound.ack("place");
-    refreshPanel();
-  });
-  canvas.addEventListener("pointercancel", (e) => { if (editor) editor.painting = false; hideBox(); clearWallLine(); touchPts.delete(e.pointerId); if (touchPts.size < 2) pinchState = null; cancelLongPress(); endDrag(e); midPan = false; hover = null; });
-  canvas.addEventListener("lostpointercapture", (e) => {
-    if (editor) editor.painting = false;
-    touchPts.delete(e.pointerId); if (touchPts.size < 2) pinchState = null; cancelLongPress();
-    if (e.pointerId === activePointerId && downPos) { hideBox(); clearWallLine(); endDrag(e); midPan = false; }
-  });
-  window.addEventListener("blur", () => { hideBox(); clearWallLine(); touchPts.clear(); pinchState = null; cancelLongPress(); downPos = null; panning = false; midPan = false; movedFar = false; activePointerId = null; });
-  // راست‌کلیک: خلع ساختمان/استخدام (انتخاب یگان می‌ماند) — راه سریع برگشت به فرمان
-  canvas.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    if (editor) return; // ویرایشگر: راست‌کلیک خلع ندارد
-    selectedUnit = null; selectedKey = null; pendingKind = null; clearWallLine();
-    refreshPanel();
-  });
-  canvas.addEventListener("pointerleave", (e) => {
-    if (downPos && e.pointerId === activePointerId) return; // حین درگ (با کپچر، leave کاذب می‌آید)
-    hover = null;
-  });
-  canvas.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    const z0 = renderer.view.zoom;
-    const z1 = Math.min(3, Math.max(0.3, z0 * (e.deltaY < 0 ? 1.12 : 0.89)));
-    renderer.view.zoom = z1;
-    renderer.markDirty();
-  }, { passive: false });
+  // تعامل: درگ برای جابه‌جایی، کلیک برای ساخت/استخدام/دستور، چرخ برای زوم. (0.265.0 — C-CLN-85): استخراج مکانیکی به game/pointerui.js — بدون تغییر منطق.
+  const pointerUI = createPointerInput({ getState: () => state, getTerrain: () => terrain, getMpSession: () => mpSession, getReplayWatch: () => replayWatch, getBookmarks: () => bookmarks, getLastBookmark: () => lastBookmark, setLastBookmark: (v) => { lastBookmark = v; }, getSelIds: () => selIds, setSelIds: (v) => { selIds = v; }, setSelBldId: (v) => { selBldId = v; }, getSelectedKey: () => selectedKey, setSelectedKey: (v) => { selectedKey = v; }, getSelectedUnit: () => selectedUnit, setSelectedUnit: (v) => { selectedUnit = v; }, getPendingKind: () => pendingKind, setPendingKind: (v) => { pendingKind = v; }, setHover: (v) => { hover = v; }, getSelFoe: () => selFoe, setSelFoe: (v) => { selFoe = v; }, later: () => ({ getEditor, edPaintAt, edCellFromEvent }), canvas, renderer, statusEl, sound, refreshPanel, playerCmd, mpSend, updateHover, paintOrderCursor, buildingAt, unitAt, selectedDef, toggleMercs, toggleMarket, toggleGranary });
+  const clearWallLine = pointerUI.clearWallLine, hideBox = pointerUI.hideBox, getDownPos = pointerUI.getDownPos, getLastEdgePos = pointerUI.getLastEdgePos, getWallLine = pointerUI.getWallLine;
 
-  for (const b of palBtns) {
-    b.addEventListener("click", () => {
-      if (replayWatch) return; // تماشا: مسلح‌شدن نیست (0.49.0)
-      // کلیک دوباره روی کارت فعال = خلع (برگشت به حالت انتخاب/فرمان)
-      if (!selectedUnit && selectedKey === b.dataset.b) { selectedKey = null; }
-      else { selectedKey = b.dataset.b; selectedUnit = null; pendingKind = null; selIds = []; }
-      clearWallLine();
-      refreshPanel();
-    });
-  }
-  for (const b of unitBtns) {
-    b.addEventListener("click", () => {
-      if (replayWatch) return; // تماشا: استخدام نیست (0.49.0)
-      if (selectedUnit === b.dataset.u) { selectedUnit = null; }
-      else { selectedUnit = b.dataset.u; pendingKind = null; selIds = []; }
-      refreshPanel();
-    });
-  }
-  function paintKeyButtons() {
-    for (const b of document.querySelectorAll("[data-keyact]")) {
-      const a = b.dataset.keyact;
-      b.textContent = `${KEY_ACTION_FA[a] || a}: ${keyRecAction === a ? t("main.keys.press") : keyMap[a]}`;
-    }
-  }
-  // Esc: لغو همه‌چیز — نوار مزدورها، مودال، انتخاب، حالت‌ها و ساختمان/استخدام مسلح.
-  // کلیدها قابل remapاند (0.57.0 — #۲۶): cancel اضافه بر Escape همیشه کار می‌کند؛
-  // pause/mute حین تایپ در ورودی‌ها شلیک نمی‌شوند.
-  let keyRecAction = null; // کنش در حال ضبط کلید تازه (null = عادی)
-  window.addEventListener("keydown", (e) => {
-    if (e.code === keyMap.cancel || e.key === "Escape") {
-      if (editor) { closeEditor(false); return; } // ویرایشگر: خروج به منو (0.51.0)
-      if (replayWatch) { exitWatch(true); return; } // تماشا: خروج به منو (0.49.0)
-      if (!$("mercsOverlay").hidden) hideMercs();
-      if ($("marketOverlay") && !$("marketOverlay").hidden) hideMarket();
-      if (modalOverlay && !modalOverlay.hidden) closeModal();
-      selIds = []; pendingKind = null; selectedUnit = null; selectedKey = null; clearWallLine(); refreshPanel();
-      return;
-    }
-    const tag = (e.target && e.target.tagName) || "";
-    // دکمه فوکوس‌شده فعال‌سازی بومی خودش را دارد (Space/Enter) — میان‌بر نزن تا دو بار عمل نکند.
-    if (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(tag)) return;
-    if (e.code === keyMap.pause) {
-      e.preventDefault();
-      if (!mpSession) pauseBtn.click();
-    } else if (e.code === keyMap.mute) {
-      e.preventDefault();
-      soundIconBtn.click();
-    } else if (e.code === "Digit1" || e.code === "Digit2" || e.code === "Digit3") {
-      // گروه‌های کنترلی (0.59.0 — رتبه ۱ SOURCE-REVIEW): Ctrl+شماره = ذخیره
-      // منتخب‌های فعلی، شماره خالی = فراخوانی. گذرا و UI-side (sim بی‌خبر).
-      if (editor || replayWatch) return;
-      const slot = Number(e.code.slice(5));
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        const ids = selUnits().map((u) => u.id);
-        if (!ids.length) { statusEl.textContent = t("main.group.notSaved"); return; }
-        ctrlGroups = saveGroup(ctrlGroups, slot, ids);
-        statusEl.textContent = t("main.group.saved", { slot, n: ids.length });
-      } else {
-        const ids = recallGroup(ctrlGroups, slot, state.units);
-        if (!ids.length) { statusEl.textContent = t("main.group.empty", { slot }); return; }
-        const byId = new Map(state.units.map((u) => [u.id, u]));
-        selIds = ids.filter((id) => {
-          const u = byId.get(id);
-          if (!u || u.dead) return false;
-          if (mpSession && (u.owner == null ? 0 : u.owner) !== mpSession.slot) return false;
-          return true;
-        });
-        pendingKind = null;
-        statusEl.textContent = t("main.group.recall", { slot, n: selIds.length });
-        refreshPanel();
-      }
-    }
-  });
-  // ضبط کلید تازه (capture + توقف انتشار تا هندلر اصلی نبیند).
-  window.addEventListener("keydown", (e) => {
-    if (!keyRecAction) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.key !== "Escape" && validKeyCode(e.code)) {
-      keyMap[keyRecAction] = e.code;
-      try { localStorage.setItem("scw.keys", JSON.stringify(keyMap)); } catch (_) {}
-    }
-    keyRecAction = null;
-    paintKeyButtons();
-  }, { capture: true });
-  // مودال‌های نوار پایین (0.31.0): کارت‌های ذخیره/راهنما/آنلاین از پنل کناری
-  // به جعبه‌های مودال می‌روند و با آیکون‌های انتهای چپ استاتوس‌بار باز می‌شوند.
-  // همان گره‌ها جابه‌جا می‌شوند، پس همه سیم‌کشی‌ها (ذخیره/تالار/…) سر جایشان‌اند.
-  const modalOverlay = $("modalOverlay");
-  const modals = { tax: $("taxModal"), save: $("saveModal"), help: $("helpModal"), online: $("onlineModal") };
-  $("taxModal").appendChild($("taxCard"));
-  $("saveModal").appendChild($("saveCard"));
-  $("helpModal").appendChild($("helpCard"));
-  $("onlineModal").appendChild($("onlineCard"));
-  let modalOpener = null; // عنصری که مودال را باز کرد — با بستن فوکوس برمی‌گردد
-  function openModal(key) {
-    if (modalOverlay.hidden) modalOpener = document.activeElement;
-    for (const [k, el] of Object.entries(modals)) el.hidden = k !== key;
-    modalOverlay.hidden = false;
-    const first = modals[key].querySelector(".modalClose");
-    if (first) first.focus({ preventScroll: true });
-  }
-  function closeModal() {
-    if (modalOverlay.hidden) return;
-    modalOverlay.hidden = true;
-    const o = modalOpener; modalOpener = null;
-    if (o && typeof o.focus === "function" && document.contains(o)) o.focus({ preventScroll: true });
-  }
-  // تله فوکوس: Tab داخل مودال باز می‌چرخد (Esc از شنونده سراسری بالا می‌بندد)
-  modalOverlay.addEventListener("keydown", (e) => {
-    if (e.key !== "Tab" || modalOverlay.hidden) return;
-    const box = Object.values(modals).find((m) => !m.hidden);
-    if (!box) return;
-    const f = [...box.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")]
-      .filter((x) => !x.disabled && !x.hidden && x.offsetParent !== null);
-    if (!f.length) return;
-    const a = f[0], z = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); }
-    else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
-  });
-  function toggleModal(key) {
-    if (!modalOverlay.hidden && !modals[key].hidden) closeModal();
-    else openModal(key);
-  }
-  $("saveIconBtn").addEventListener("click", () => toggleModal("save"));
-  $("helpIconBtn").addEventListener("click", () => toggleModal("help"));
-  $("taxIconBtn").addEventListener("click", () => toggleModal("tax"));
-  // صدا (0.48.0): دکمه بی‌صدا/باصدا با ماندگاری localStorage؛ شروع واقعی
-  // AudioContext با اولین ژست (pointerdown سراسری) است، این دکمه فقط mute است.
-  const soundIconBtn = $("soundIconBtn");
-  const volMusic = $("volMusic"), volSfx = $("volSfx"), volMute = $("volMute");
-  function paintSoundBtn() {
-    soundIconBtn.innerHTML = `<svg class="sb-ic" aria-hidden="true"><use href="#i-${sound.volumes.muted ? "mute" : "sound"}"/></svg>`;
-    soundIconBtn.title = sound.volumes.muted ? t("main.sound.mutedTip") : t("ui.sound.onTip");
-    // کارت صدا در تنظیمات منو (0.70.0): همان ولوم‌های ماندگار
-    if (volMusic) volMusic.value = String(Math.round(sound.volumes.music * 100));
-    if (volSfx) volSfx.value = String(Math.round(sound.volumes.sfx * 100));
-    if (volMute) {
-      volMute.setAttribute("aria-pressed", sound.volumes.muted ? "true" : "false");
-      volMute.textContent = (sound.volumes.muted ? "🔇 " : "🔊 ") + t(sound.volumes.muted ? "ui.sound.stateOn" : "ui.sound.stateOff");
-    }
-  }
-  paintSoundBtn();
-  soundIconBtn.addEventListener("click", () => {
-    sound.setMuted(!sound.volumes.muted);
-    paintSoundBtn();
-    sound.ack("place");
-  });
-  if (volMusic) volMusic.addEventListener("input", () => sound.setMusic(volMusic.value / 100));
-  if (volSfx) {
-    volSfx.addEventListener("input", () => { sound.setSfx(volSfx.value / 100); sound.ui("tick"); });
-  }
-  if (volMute) volMute.addEventListener("click", () => { sound.setMuted(!sound.volumes.muted); paintSoundBtn(); });
-  $("mercsClose").addEventListener("click", () => { hideMercs(); refreshPanel(); });
-  // لغو سفارش آموزش (0.65.0): دکمه ✕ هر ردیف صف — بازپرداخت کامل با سقف.
-  $("mercsOverlay").addEventListener("click", (e) => {
-    const t = e.target && e.target.closest ? e.target.closest("[data-tcancel]") : null;
-    if (!t) return;
-    if (replayWatch) return; // تماشا: لغو نیست (0.49.0)
-    const idx = Number(t.dataset.tcancel);
-    if (mercsFor == null || !Number.isInteger(idx)) return;
-    if (mpSession) { mpSend("trainCancel", { bld: mercsFor, idx }); sound.ack("place"); return; }
-    playerCmd({ kind: "trainCancel", bld: mercsFor, idx }, state.tick);
-    sound.ack("place");
-    refreshPanel();
-  });
-  $("marketClose").addEventListener("click", () => { hideMarket(); refreshPanel(); });
-  $("marketOverlay").addEventListener("click", (e) => {
-    const t = e.target && e.target.closest ? e.target.closest("[data-trade]") : null;
-    if (!t || t.disabled) return;
-    if (replayWatch) return; // تماشا: معامله نیست (0.49.0)
-    const parts = String(t.dataset.trade).split(":");
-    const dir = parts[0], res = parts[1];
-    if (mpSession) { mpSend("trade", { res, dir }); sound.ack("coin"); return; }
-    playerCmd({ kind: "trade", res, dir }, state.tick);
-    sound.ack("coin");
-    refreshPanel();
-  });
-  const onlineIconBtn = $("onlineIconBtn");
-  onlineIconBtn.addEventListener("click", () => toggleModal("online"));
-  // آیکون آنلاین فقط وقتی که اتصال هست (آینه hidden کارت تالار)
-  onlineIconBtn.hidden = $("onlineCard").hidden;
-  new MutationObserver(() => { onlineIconBtn.hidden = $("onlineCard").hidden; })
-    .observe($("onlineCard"), { attributes: true, attributeFilter: ["hidden"] });
-  modalOverlay.addEventListener("click", (e) => {
-    if (e.target === modalOverlay || e.target.closest("[data-close]")) closeModal();
-  });
-  // کارت یگان: موضع + دستورهای فوری
-  const unitCard = $("unitCard"), unitNameEl = $("unitNameEl"), unitHpEl = $("unitHpEl");
-  const stanceEngageBtn = $("stanceEngageBtn"), stanceHoldBtn = $("stanceHoldBtn");
-  const attackMoveBtn = $("attackMoveBtn"), retreatBtn = $("retreatBtn"), guardBtn = $("guardBtn"), garrisonBtn = $("garrisonBtn"), deployBtn = $("deployBtn"), unitOrderEl = $("unitOrderEl");
-  function selUnit() {
-    const s = resolveSet(selIds, state.units);
-    return s[0] || null;
-  }
-  function selUnits() {
-    const all = resolveSet(selIds, state.units);
-    if (!mpSession) return all;
-    return all.filter((u) => (u.owner == null ? 0 : u.owner) === mpSession.slot);
-  }
-  stanceEngageBtn.addEventListener("click", () => {
-    if (mpSession) { const ids = selUnits().map((u) => u.id); if (ids.length) mpSend("stance", { ids, stance: "engage" }); return; }
-    const ids = selUnits().map((u) => u.id);
-    if (ids.length) playerCmd( { kind: "stance", ids, stance: "engage" }, state.tick);
-    refreshPanel();
-  });
-  stanceHoldBtn.addEventListener("click", () => {
-    if (mpSession) { const ids = selUnits().map((u) => u.id); if (ids.length) mpSend("stance", { ids, stance: "hold" }); return; }
-    const ids = selUnits().map((u) => u.id);
-    if (ids.length) playerCmd( { kind: "stance", ids, stance: "hold" }, state.tick);
-    refreshPanel();
-  });
-  attackMoveBtn.addEventListener("click", () => {
-    pendingKind = pendingKind === "attackmove" ? null : "attackmove";
-    refreshPanel();
-  });
-  // نگهبانی (0.15.0): تک‌بار — کلیک بعدی روی ساختمان، پاسگاه می‌شود.
-  guardBtn.addEventListener("click", () => {
-    if (!selUnit()) return;
-    pendingKind = pendingKind === "guard" ? null : "guard";
-    refreshPanel();
-  });
-  // گاریسون برج (0.45.0): تک‌بار — کلیک بعدی روی برج خودی، استقرار جمعی است.
-  if (garrisonBtn) garrisonBtn.addEventListener("click", () => {
-    const sels = selUnits();
-    if (!sels.some((u) => u.garrisonTower == null && canGarrisonType(u.type))) {
-      statusEl.textContent = t("main.garrison.pick");
-      return;
-    }
-    pendingKind = pendingKind === "garrison" ? null : "garrison";
-    refreshPanel();
-  });
-  // استقرار منجنیق (0.46.0): آنی (تک‌بار نیست) — جمع/باز کردن منتخب‌ها.
-  if (deployBtn) deployBtn.addEventListener("click", () => {
-    const sels = selUnits().filter((u) => UNITS[u.type].needsDeploy);
-    if (!sels.length) return;
-    if (mpSession) {
-      mpSend("deploy", { ids: sels.map((u) => u.id) });
-      pendingKind = null;
-      refreshPanel();
-      return;
-    }
-    playerCmd( { kind: "deploy", ids: sels.map((u) => u.id) }, state.tick);
-    pendingKind = null;
-    refreshPanel();
-  });
-  retreatBtn.addEventListener("click", () => {
-    if (mpSession) { const ids = selUnits().map((u) => u.id); if (ids.length) mpSend("retreat", { ids }); pendingKind = null; refreshPanel(); return; }
-    const ids = selUnits().map((u) => u.id);
-    if (ids.length) playerCmd( { kind: "retreat", ids }, state.tick);
-    pendingKind = null;
-    refreshPanel();
-  });
-  waveBtn.addEventListener("click", () => {
-    if (mpSession) return; // در نبرد رقابتی موج خنثی نداریم
-    const n = spawnWave(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H);
-    if (n === 0) state.events.push(t("main.wave.noRoom"));
-    refreshPanel();
-  });
-  // زنگ خطر (0.17.0): تک‌بار و سراسری — کلیک بعدی روی نقشه = تجمع ارتش.
-  alarmBtn.addEventListener("click", () => {
-    if (replayWatch) return; // تماشا (0.49.0)
-    selectedUnit = null; // حالت استخدام با زنگ جمع نمی‌شود
-    pendingKind = pendingKind === "alarm" ? null : "alarm";
-    refreshPanel();
-  });
-  // تخریب دستی (0.39.0): تک‌بار و سراسری — کلیک بعدی روی ساختمان خودی (غیر ستاد).
-  demolishBtn.addEventListener("click", () => {
-    if (replayWatch) return; // تماشا (0.49.0)
-    selectedUnit = null;
-    selectedKey = null;
-    pendingKind = pendingKind === "demolish" ? null : "demolish";
-    refreshPanel();
-  });
-  for (const b of taxBtns) {
-    b.addEventListener("click", () => {
-      if (replayWatch) return; // تماشا (0.49.0)
-      if (mpSession) { mpSend("tax", { v: b.dataset.tax }); return; }
-      playerCmd( { kind: "tax", v: b.dataset.tax }, state.tick);
-      refreshPanel();
-    });
-  }
-  for (const b of ratBtns) {
-    b.addEventListener("click", () => {
-      if (replayWatch) return; // تماشا (0.49.0)
-      if (mpSession) { mpSend("rations", { v: b.dataset.rat }); return; }
-      playerCmd( { kind: "rations", v: b.dataset.rat }, state.tick);
-      refreshPanel();
-    });
-  }
-  pauseBtn.addEventListener("click", () => { if (mpSession) return; state.paused = !state.paused; refreshPanel(); });
-  speedBtn.addEventListener("click", () => {
-    if (mpSession) return;
-    const i = CONFIG.SPEEDS.indexOf(state.speed);
-    state.speed = CONFIG.SPEEDS[(i + 1) % CONFIG.SPEEDS.length];
-    refreshPanel();
-  });
-  resetBtn.addEventListener("click", () => {
-    if (mpSession) { try { lobby.leave(); } catch (e) {} return; }
-    newGame();
-  });
-  defeatRestartBtn.addEventListener("click", () => {
-    if (mpSession) { try { lobby.leave(); } catch (e) {} return; }
-    newGame();
-  });
-  victoryRestartBtn.addEventListener("click", () => {
-    if (mpSession) { try { lobby.leave(); } catch (e) {} return; }
-    newGame();
-  });
+  // هایلایت/پالت/ارتش/یگان/کلیدها (0.266.0 — C-CLN-86): استخراج مکانیکی به game/palettekeys.js — بدون تغییر منطق.
+  const paletteKeysUI = createPaletteKeysUI({ getState: () => state, getMpSession: () => mpSession, getReplayWatch: () => replayWatch, getBookmarks: () => bookmarks, getHover: () => hover, getSelIds: () => selIds, setSelIds: (v) => { selIds = v; }, setSelectedKey: (v) => { selectedKey = v; }, getSelectedKey: () => selectedKey, setSelectedUnit: (v) => { selectedUnit = v; }, getSelectedUnit: () => selectedUnit, setPendingKind: (v) => { pendingKind = v; }, setLastBookmark: (v) => { lastBookmark = v; }, getLastGroupRecall: () => lastGroupRecall, setLastGroupRecall: (v) => { lastGroupRecall = v; }, getLastLordId: () => lastLordId, setLastLordId: (v) => { lastLordId = v; }, getSignCycle: () => signCycle, setSignCycle: (v) => { signCycle = v; }, getCtrlGroups: () => ctrlGroups, setCtrlGroups: (v) => { ctrlGroups = v; }, later: () => ({ getEditor, closeEditor, exitWatch, selUnits, orderStance, modalOverlay, modal, soundIconBtn }), $, armyRowsEl, clearWallLine, hideGranary, hideMarket, hideMercs, hideReports, keyMap, mpSend, palBtns, pauseBtn, playerCmd, refreshPanel, renderer, statusEl, taxSlider, unitBtns });
+  const keyUI = paletteKeysUI.keyUI, getKeyRecAction = paletteKeysUI.getKeyRecAction, setKeyRecAction = paletteKeysUI.setKeyRecAction;
+  // دکمه‌های سفارش/مودال/صدا/مالیات (0.267.0 — C-CLN-87): استخراج مکانیکی به game/ordersui.js — بدون تغییر منطق.
+  const ordersUI = createOrdersUI({ getState: () => state, getTerrain: () => terrain, getMpSession: () => mpSession, getReplayWatch: () => replayWatch, getSelIds: () => selIds, getPendingKind: () => pendingKind, setPendingKind: (v) => { pendingKind = v; }, setSelectedKey: (v) => { selectedKey = v; }, setSelectedUnit: (v) => { selectedUnit = v; }, getExactRes: () => exactRes, setExactRes: (v) => { exactRes = v; }, later: () => ({ getEditor, newGame, startMission, getLastMissionKey }), $, alarmBtn, defeatRestartBtn, demolishBtn, lobby, mpSend, orderSels, pauseBtn, playerCmd, ratBtns, refreshPanel, repairBtn, resEl, resetBtn, scribeUI, sound, speedBtn, statusEl, taxBtns, taxSlider, undoBtn, victoryRestartBtn, waveBtn });
+  const selUnits = ordersUI.selUnits, orderStance = ordersUI.orderStance, modalOverlay = ordersUI.modalOverlay, modal = ordersUI.modal, soundIconBtn = ordersUI.soundIconBtn, soundUI = ordersUI.soundUI, unitCard = ordersUI.unitCard, unitNameEl = ordersUI.unitNameEl, unitHpEl = ordersUI.unitHpEl, bldCard = ordersUI.bldCard, bldNameEl = ordersUI.bldNameEl, bldHpEl = ordersUI.bldHpEl, bldStateEl = ordersUI.bldStateEl, stanceEngageBtn = ordersUI.stanceEngageBtn, stanceDefendBtn = ordersUI.stanceDefendBtn, stanceHoldBtn = ordersUI.stanceHoldBtn, attackMoveBtn = ordersUI.attackMoveBtn, guardBtn = ordersUI.guardBtn, garrisonBtn = ordersUI.garrisonBtn, deployBtn = ordersUI.deployBtn, firecowBtn = ordersUI.firecowBtn, resupplyBtn = ordersUI.resupplyBtn, unitOrderEl = ordersUI.unitOrderEl, patrolBtn = ordersUI.patrolBtn, attackposBtn = ordersUI.attackposBtn, disbandBtn = ordersUI.disbandBtn;
 
-  // شروع تازه (0.19.0): وضعیت نو + ستاد آغازین؛ دکمه‌های شروع دوباره همین‌اند.
-  // در MP صدا زده نمی‌شود (خروج از اتاق مسیر جداست)؛ برای اطمینان session را تمیز می‌کند.
-  // seed داده شود نقشه همان سید ساخته می‌شود، وگرنه سید فعلی حفظ می‌شود (0.26.0).
-  // diff درجه سختی حریف است (0.50.0)؛ داده نشود همان انتخاب ذخیره‌شده می‌ماند.
-  // custom نقشه سفارشی است (0.51.0: {name, patches})؛ داده نشود زمین خالص سیدی.
-  function newGame(seed, diff, custom, personality) {
-    mpSession = null;
-    mpPending.clear();
-    mpNextSeq = 1;
-    mpHashes.clear();
-    mpDesync = null;
-    cmdQueue = createQueue(); // صف گذراست — با بازی تازه دور انداخته می‌شود
-    if (diff && CONFIG.AI.difficulties[diff]) {
-      soloDiff = diff;
-      try { localStorage.setItem("scw.difficulty", diff); } catch (e) {}
-    }
-    if (personality && CONFIG.AI.personalities[personality]) {
-      soloPersonality = personality;
-      try { localStorage.setItem("scw.personality", personality); } catch (e) {}
-    }
-    if (editor) closeEditor(true); // بازی تازه از داخل ویرایشگر = خروج خاموش
-    const s = (seed == null ? state.mapSeed : seed) >>> 0 || CONFIG.MAP_SEED;
-    // شروع دوباره روی نقشه سفارشی: وصله‌ها از بازی جاری به ارث می‌رسند (0.52.0؛
-    // فقط وقتی سید تازه داده نشده — seedApply با سید صریح زمین خالص می‌سازد).
-    const inherit = (seed == null && !custom && state.mapPatches && state.mapPatches.length)
-      ? { name: state.mapName, patches: state.mapPatches } : null;
-    const eff = custom || inherit;
-    const patches = eff && Array.isArray(eff.patches) && eff.patches.length ? eff.patches : null;
-    terrain = patches ? customTerrain(s, patches) : makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, s);
-    state = createState();
-    state.mapSeed = s;
-    // نام نقشه (0.51.0 سفارشی، 0.52.0 نام‌دار): صریح > سید کاتالوگ > خالی.
-    state.mapName = eff && eff.name ? String(eff.name) : mapNameFor(s);
-    state.mapPatches = patches ? patches.map((e) => [e[0], e[1]]) : null;
-    recLog = createRecorder(s, soloDiff, patches ? { name: state.mapName, patches } : null, soloPersonality); // ضبط ری‌پلی تازه (0.49.0؛ درجه از 0.50.0؛ نقشه از 0.51.0؛ شخصیت از 0.56.0)
-    replayWatch = null;
-    hideReplayBar();
-    placeKeep(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H);
-    spawnLord(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H); // ارباب آغازین (0.22.0)
-    startAI(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, soloDiff, soloPersonality); // حریف سولو (0.42.0؛ جا نبود = بی‌حریف)
-    online.onNewGame(); // پیروزی بازی تازه هنوز ثبت نشده (0.23.0)
-    clock.reset();
-    lastAutoTick = 0;
-    lastSoundSnap = null; // baseline صدا تازه شود تا سیل رویداد ندهد (0.48.0)
-    hover = null;
-    selIds = []; ctrlGroups = freshGroups();
-    pendingKind = null;
-    setTick(0);
-    paintSeed();
-    refreshPanel();
-    paintReplayStatus();
-  }
+  // راه‌اندازی بازی/منو/ذخیره (0.268.0 — C-CLN-88): استخراج مکانیکی به game/savemenu.js — بدون تغییر منطق.
+  const saveMenuUI = createSaveMenuUI({ getMpSession: () => mpSession, getState: () => state, getRecLog: () => recLog, getSoloDiff: () => soloDiff, setSoloDiff: (v) => { soloDiff = v; }, getSoloIdentity: () => soloIdentity, setSoloIdentity: (v) => { soloIdentity = v; }, getSoloMapKey: () => soloMapKey, setSoloMapKey: (v) => { soloMapKey = v; }, getSoloPersonality: () => soloPersonality, setSoloPersonality: (v) => { soloPersonality = v; }, getA11yPalette: () => a11yPalette, setA11yPalette: (v) => { a11yPalette = v; }, getProfile: () => profile, setProfile: (v) => { profile = v; }, getSoloAutosave: () => soloAutosave, setSoloAutosave: (v) => { soloAutosave = v; }, getUiScale: () => uiScale, setUiScale: (v) => { uiScale = v; }, getDayNight: () => dayNight, getFidelity: () => fidelity, getTerrain: () => terrain, getReplayWatch: () => replayWatch, setBookmarks: (v) => { bookmarks = v; }, setCmdQueue: (v) => { cmdQueue = v; }, setCtrlGroups: (v) => { ctrlGroups = v; }, setHover: (v) => { hover = v; }, setLastAutoTick: (v) => { lastAutoTick = v; }, setLastGroupRecall: (v) => { lastGroupRecall = v; }, setLastSoundSnap: (v) => { lastSoundSnap = v; }, setMastersLogged: (v) => { mastersLogged = v; }, setMclockStart: (v) => { mclockStart = v; }, setMpDesync: (v) => { mpDesync = v; }, setMpDesyncSent: (v) => { mpDesyncSent = v; }, setMpNextSeq: (v) => { mpNextSeq = v; }, setMpSession: (v) => { mpSession = v; }, setPendingKind: (v) => { pendingKind = v; }, setRecLog: (v) => { recLog = v; }, setReplayWatch: (v) => { replayWatch = v; }, setSelBldId: (v) => { selBldId = v; }, setSelIds: (v) => { selIds = v; }, setState: (v) => { state = v; }, setTerrain: (v) => { terrain = v; }, later: () => ({ applyLoaded, closeEditor, getEditor, startWatch }), $, applyA11y, applyDayNight, applyFidelity, clock, delBtn, hideReplayBar, keyUI, getKeyRecAction, setKeyRecAction, loadBtn, lobby, mpHashes, mpPending, online, paintMapPreview, paintReplayStatus, refreshPanel, renderer, saveBtn, saveStatus, setTick, sound });
+  const newGame = saveMenuUI.newGame, startMission = saveMenuUI.startMission, getLastMissionKey = saveMenuUI.getLastMissionKey, missionLabel = saveMenuUI.missionLabel, checkMission = saveMenuUI.checkMission, recordMasters = saveMenuUI.recordMasters, paintCampaign = saveMenuUI.paintCampaign, paintMasters = saveMenuUI.paintMasters, getMissionActive = saveMenuUI.getMissionActive, getMissionWon = saveMenuUI.getMissionWon, getMissionLost = saveMenuUI.getMissionLost, setMissionActive = saveMenuUI.setMissionActive, setMissionWon = saveMenuUI.setMissionWon, setMissionLost = saveMenuUI.setMissionLost, setLastMissionKey = saveMenuUI.setLastMissionKey, setMastersFilter = saveMenuUI.setMastersFilter, menuMsg = saveMenuUI.menuMsg, showMenu = saveMenuUI.showMenu, hideMenu = saveMenuUI.hideMenu, getMenuNavApi = saveMenuUI.getMenuNavApi, getMenuRelabelFns = saveMenuUI.getMenuRelabelFns;
+  // ابر/ری‌پلی (0.269.0 — C-CLN-89): استخراج مکانیکی به game/cloudreplay.js — بدون تغییر منطق.
+  createCloudReplayUI({ getMpSession: () => mpSession, getState: () => state, getRecLog: () => recLog, getReplayWatch: () => replayWatch, later: () => ({ applyLoaded, replayLogOf, startWatch, exitWatch, paintReplayStatus }), $ });
+  const watchUI = createWatchUI({ getState: () => state, setState: (v) => { state = v; }, setTerrain: (v) => { terrain = v; }, getMpPending: () => mpPending, getMpHashes: () => mpHashes, getSoloDiff: () => soloDiff, getSoloPersonality: () => soloPersonality, setMpSession: (v) => { mpSession = v; }, setMpNextSeq: (v) => { mpNextSeq = v; }, setMpDesync: (v) => { mpDesync = v; }, setMpDesyncSent: (v) => { mpDesyncSent = v; }, setCmdQueue: (v) => { cmdQueue = v; }, setRecLog: (v) => { recLog = v; }, setReplayWatch: (v) => { replayWatch = v; }, setLastAutoTick: (v) => { lastAutoTick = v; }, setLastSoundSnap: (v) => { lastSoundSnap = v; }, setHover: (v) => { hover = v; }, setSelIds: (v) => { selIds = v; }, setCtrlGroups: (v) => { ctrlGroups = v; }, setLastGroupRecall: (v) => { lastGroupRecall = v; }, setSelBldId: (v) => { selBldId = v; }, setBookmarks: (v) => { bookmarks = v; }, setSelectedKey: (v) => { selectedKey = v; }, setSelectedUnit: (v) => { selectedUnit = v; }, setPendingKind: (v) => { pendingKind = v; }, setMclockStart: (v) => { mclockStart = v; }, setMastersLogged: (v) => { mastersLogged = v; }, setMissionActive, setMissionWon, setMissionLost, setLastMissionKey, getEditor: () => getEditor(), closeEditor: (...a) => closeEditor(...a), online, clock, saveStatus, paintSeed, setTick, hideReplayBar, paintReplayBar, paintReplayStatus, hideMenu, showMenu, newGame, hideMercs, hideMarket, clearWallLine, refreshPanel });
+  const replayLogOf = watchUI.replayLogOf;
+  const startWatch = watchUI.startWatch;
+  const exitWatch = watchUI.exitWatch;
+  const applyLoaded = watchUI.applyLoaded;
+  const editorUI = createEditorUI({ getState: () => state, setTerrain: (v) => { terrain = v; }, getMpSession: () => mpSession, getReplayWatch: () => replayWatch, getSoloDiff: () => soloDiff, getMinimapUI: () => minimapUI, setSelectedKey: (v) => { selectedKey = v; }, setSelectedUnit: (v) => { selectedUnit = v; }, setPendingKind: (v) => { pendingKind = v; }, setSelIds: (v) => { selIds = v; }, setHover: (v) => { hover = v; }, exitWatch, newGame, hideMercs, hideMarket, clearWallLine, hideBox, hideMenu, showMenu, refreshPanel, menuMsg, renderer, canvas, menuRelabelFns: getMenuRelabelFns() });
+  const openEditor = editorUI.openEditor;
+  const closeEditor = editorUI.closeEditor;
+  const blankView = editorUI.blankView;
+  const lazyTable = editorUI.lazyTable;
+  const edCounts = editorUI.edCounts;
+  const syncEditorPanel = editorUI.syncEditorPanel;
+  const edCellFromEvent = editorUI.edCellFromEvent;
+  const edPaintAt = editorUI.edPaintAt;
+  const getEditor = editorUI.getEditor;
 
-  // ---- ری‌پلی: تماشا (0.49.0 — #۲۱ از FEATURES) ----
-  function replayLogOf(rec, uptoTick) {
-    const out = { v: 1, seed: rec.seed >>> 0, diff: rec.diff || soloDiff || "normal",
-      pers: rec.pers || soloPersonality || CONFIG.AI.defaultPersonality,
-      cmds: rec.cmds.map((e) => ({ t: e.t, cmd: e.cmd })), ticks: uptoTick | 0 };
-    if (rec.map) out.map = { name: rec.map.name, patches: rec.map.patches.map((e) => [e[0], e[1]]) };
-    return out;
-  }
-  function startWatch(log, label) {
-    const v = validateReplayLog(log);
-    if (!v.ok) return v;
-    if (editor) closeEditor(true); // تماشا از داخل ویرایشگر = خروج خاموش (0.51.0)
-    const fresh = newSoloFromSeed(log.seed, log.diff,
-      log.map ? log.map.patches : null, log.map ? log.map.name : "", log.pers);
-    mpSession = null;
-    mpPending.clear();
-    mpNextSeq = 1;
-    mpHashes.clear();
-    mpDesync = null;
-    cmdQueue = createQueue();
-    state = fresh.state;
-    terrain = fresh.terrain;
-    recLog = null; // تماشا ضبط نمی‌شود
-    online.onNewGame();
-    clock.reset();
-    lastAutoTick = 0;
-    lastSoundSnap = null;
-    hover = null;
-    selIds = []; ctrlGroups = freshGroups();
-    selectedKey = null;
-    selectedUnit = null;
-    pendingKind = null;
-    clearWallLine();
-    hideMercs(); hideMarket();
-    state.paused = false;
-    state.speed = 1;
-    replayWatch = {
-      cmds: log.cmds.slice().sort((a, b) => a.t - b.t),
-      i: 0,
-      upto: Math.max(0, log.ticks | 0 || 0),
-      label: label || t("main.replay.label"),
-    };
-    hideMenu();
-    setTick(0);
-    paintSeed();
-    refreshPanel();
-    paintReplayBar();
-    return { ok: true, reason: "OK" };
-  }
-  function exitWatch(toMenu) {
-    replayWatch = null;
-    hideReplayBar();
-    if (toMenu) { showMenu(); }
-    else { newGame(); showMenu(); }
-    refreshPanel();
-  }
-  function paintReplayBar() {
-    const bar = $("replayBar");
-    if (!bar) return;
-    if (!replayWatch) { bar.hidden = true; return; }
-    bar.hidden = false;
-    const done = state.tick >= replayWatch.upto;
-    const lbl = $("replayBarTxt");
-    if (lbl) lbl.textContent = t("main.replay.bar", { label: replayWatch.label, tick: faNum(state.tick), upto: faNum(replayWatch.upto), end: done ? t("main.replay.end") : "" });
-  }
-  function hideReplayBar() {
-    replayWatch = null;
-    const bar = $("replayBar");
-    if (bar) bar.hidden = true;
-  }
-  function applyLoaded(s, label) {
-    state = s;
-    recLog = null; // بازی بارگذاری‌شده: تاریخ پیش از load نیست پس ری‌پلی ندارد (0.49.0)
-    replayWatch = null;
-    hideReplayBar();
-    if (editor) closeEditor(true); // بارگذاری از داخل ویرایشگر = خروج خاموش
-    cmdQueue = createQueue(); // فرمان‌های معوق بازی قبلی در بازی تازه اجرا نشوند
-    // زمینِ سیدِ ذخیره را بازسازی کن (ذخیره قدیمی بدون سید → پیش‌فرض؛
-    // نقشه سفارشی 0.51.0 با وصله‌ها روی همان سید).
-    const ls = (s.mapSeed == null ? CONFIG.MAP_SEED : s.mapSeed) >>> 0 || CONFIG.MAP_SEED;
-    terrain = s.mapPatches && s.mapPatches.length
-      ? customTerrain(ls, s.mapPatches)
-      : makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, ls);
-    online.onNewGame(s.victorious === true); // بردِ قدیمیِ بارگذاری‌شده دوباره جشن گرفته نشود (0.23.0)
-    clock.reset();
-    lastAutoTick = s.tick;
-    lastSoundSnap = null; // baseline صدا تازه شود (0.48.0)
-    hover = null;
-    selIds = []; ctrlGroups = freshGroups();
-    pendingKind = null;
-    setTick(s.tick);
-    paintSeed();
-    refreshPanel();
-    paintReplayStatus();
-    saveStatus.textContent = t("main.save.loadedInfo", { label, tick: s.tick, seed: s.mapSeed >>> 0 });
-  }
 
-  // ---- کارت نقشه: سید (0.26.0) ----
-  function parseSeed(v) {
-    const n = typeof v === "number" ? v : parseInt(String(v == null ? "" : v).replace(/[^\d]/g, ""), 10);
-    if (!Number.isFinite(n) || n < 1 || n > 4294967295) return null;
-    return n >>> 0;
-  }
-  function randomSeed() {
-    let s = 0;
-    while (s === 0) s = (Math.random() * 4294967296) >>> 0;
-    return s;
-  }
-  function paintSeed() {
-    const el = $("seedCurEl");
-    if (el) el.textContent = state.mapName
-      ? `${t("main.mp.seed", { seed: state.mapSeed >>> 0 })} • ${state.mapName}`
-      : String(state.mapSeed >>> 0);
-    const mpIn = $("mpSeedInput");
-    if (mpIn && document.activeElement !== mpIn && !mpIn.value) mpIn.value = String(state.mapSeed >>> 0);
-  }
-  (function wireSeedCard() {
-    const inp = $("seedInput");
-    const apply = $("seedApplyBtn"), rnd = $("seedRandomBtn");
-    const say = (m) => {
-      saveStatus.textContent = m;
-      const mm = $("menuMsgEl");
-      if (mm) mm.textContent = m;
-    };
-    // سید صریح = حالت سفارشی (0.52.0): سلکت نقشه نام‌دار خلع می‌شود.
-    const toCustom = () => {
-      soloMapKey = "custom";
-      try { localStorage.setItem("scw.map", "custom"); } catch (e) {}
-      const ms = $("mapSel");
-      if (ms) ms.value = "custom";
-    };
-    if (apply) apply.addEventListener("click", () => {
-      if (mpSession) { say(t("main.seed.noMp")); return; }
-      const s = parseSeed(inp && inp.value);
-      if (s == null) { say(t("main.seed.invalid")); return; }
-      toCustom();
-      newGame(s);
-      say(t("main.seed.created", { seed: s }));
-    });
-    if (rnd) rnd.addEventListener("click", () => {
-      if (mpSession) { say(t("main.seed.noMp")); return; }
-      const s = randomSeed();
-      toCustom();
-      newGame(s);
-      if (inp) inp.value = "";
-      say(t("main.seed.created", { seed: s }));
-    });
-    paintSeed();
-  })();
+  // لابی رقابتی (0.270.0 — C-CLN-90): استخراج مکانیکی به game/lobbywiring.js — بدون تغییر منطق.
+  const lobbyWiringUI = createLobbyWiringUI({ getMpSession: () => mpSession, lobby, mpStatus, paintMpMapPreview, getMenuRelabelFns, lazyTable, continueGame, mpSessionDead, $ });
+  const saveMpSession = lobbyWiringUI.saveMpSession, clearMpSession = lobbyWiringUI.clearMpSession, loadMyGames = lobbyWiringUI.loadMyGames, saveMyGames = lobbyWiringUI.saveMyGames, paintContinue = lobbyWiringUI.paintContinue, paintMyGames = lobbyWiringUI.paintMyGames, MP_ERR_FA = lobbyWiringUI.MP_ERR_FA;
 
-  // ---- پروفایل + منوی شروع (0.27.0) ----
-  function menuMsg(m) {
-    const el = $("menuMsgEl");
-    if (el) el.textContent = m || "";
-  }
-  const menuRelabelFns = []; // پر کردن‌های سلکت‌های منو که با تغییر زبان دوباره اجرا می‌شوند
-  let menuStarted = false; // پس از نخستین شروع، «بازگشت به بازی» فعال می‌شود
-  let menuNavApi = null; // ناوبری چندصفحه‌ای منو (menunav.js) — پس از boot ساخته می‌شود
-  function showMenu() {
-    if (menuNavApi) menuNavApi.reset(); // صفحه اول همیشه فقط فهرست دکمه‌هاست
-    sound.setMood("menu");
-    if (!mpSession) state.paused = true; // بازی پشت منو متوقف می‌ماند
-    const ms = $("menuScreen");
-    if (ms) ms.hidden = false;
-    const mc = $("menuCloseBtn");
-    if (mc) mc.hidden = !menuStarted && !mpSession;
-    menuMsg("");
-    refreshPanel();
-  }
-  function hideMenu() {
-    sound.setMood("game");
-    const ms = $("menuScreen");
-    if (ms) ms.hidden = true;
-    menuStarted = true;
-    const mc = $("menuCloseBtn");
-    if (mc) mc.hidden = false;
-    if (!mpSession && !state.defeated && !state.victorious) state.paused = false;
-    renderer.resize();
-    renderer.fit();
-    // شروع تازه تک‌نفره: دوربین روی قلعه خودت (ساختمان‌ها خوانا)؛ «نمایش کل نقشه» همان fit قبلی است.
-    if (!mpSession && state.tick < 5) {
-      const keep = state.buildings.find((b) => b.type === "keep" && (b.owner == null || b.owner === 0));
-      if (keep) renderer.focus(keep.c + keep.w / 2, keep.r + keep.h / 2, 1.8);
-    }
-    menuMsg("");
-    refreshPanel();
-  }
-  function syncProfileInput() {
-    const inp = $("profileNameInput");
-    if (inp && document.activeElement !== inp) inp.value = profile.name;
-    paintBadge();
-    const grid = $("profileLogoGrid");
-    if (grid) {
-      for (const btn of grid.querySelectorAll("[data-logo]")) {
-        btn.classList.toggle("sel", (btn.dataset.logo | 0) === profile.logo);
-      }
-    }
-  }
-  (function wireProfile() {
-    const inp = $("profileNameInput");
-    if (inp) {
-      inp.value = profile.name;
-      inp.addEventListener("change", () => {
-        const v = validProfileName(inp.value);
-        if (v === null) {
-          inp.value = profile.name;
-          menuMsg(t("main.profile.nameInvalid"));
-          return;
-        }
-        const saved = saveProfile({ name: v, logo: profile.logo });
-        if (saved) {
-          profile = saved;
-          menuMsg("");
-          try { if (lobby.isInRoom()) lobby.updateProfile(); } catch (e) {}
-        }
-        syncProfileInput();
-      });
-    }
-    const grid = $("profileLogoGrid");
-    if (grid) {
-      grid.innerHTML = "";
-      PROFILE_LOGOS.forEach((emoji, i) => {
-        const btn = document.createElement("button");
-        btn.dataset.logo = i;
-        btn.textContent = emoji;
-        btn.title = t("main.profile.logoTitle", { n: i + 1 });
-        btn.addEventListener("click", () => {
-          const saved = saveProfile({ name: profile.name, logo: i });
-          if (saved) {
-            profile = saved;
-            try { if (lobby.isInRoom()) lobby.updateProfile(); } catch (e) {}
-          }
-          syncProfileInput();
-        });
-        grid.appendChild(btn);
-      });
-    }
-    syncProfileInput();
-  })();
-  menuNavApi = bindMenuNav({ onPage: () => {} });
-  (function wireMenu() {
-    const solo = $("soloBtn"), close = $("menuCloseBtn"), mb = $("menuBtn"), badge = $("profileBadgeEl");
-    const diffSel = $("diffSel");
-    // درجه سختی (0.50.0): انتخاب در localStorage می‌ماند و با شروع تک‌نفره اعمال می‌شود.
-    if (diffSel) {
-      diffSel.value = soloDiff;
-      diffSel.addEventListener("change", () => {
-        if (CONFIG.AI.difficulties[diffSel.value]) {
-          soloDiff = diffSel.value;
-          try { localStorage.setItem("scw.difficulty", soloDiff); } catch (e) {}
-        } else {
-          diffSel.value = soloDiff;
-        }
-      });
-    }
-    // نقشه نام‌دار (0.52.0): سلکت گزینه‌ها را می‌سازد؛ انتخاب = پرکردن ورودی
-    // سید + ماندگاری؛ شروع از ورودی خوانده می‌شود (نام در newGame از کاتالوگ).
-    const mapSel = $("mapSel");
-    if (mapSel) {
-      const fillMapSel = () => {
-        const cur = mapSel.value || soloMapKey;
-        mapSel.innerHTML = "";
-        const oc = document.createElement("option");
-        oc.value = "custom";
-        oc.textContent = t("main.map.custom");
-        mapSel.appendChild(oc);
-        for (const m of CONFIG.MAPS) {
-          const o = document.createElement("option");
-          o.value = m.key;
-          o.textContent = t("main.map.option", { name: m.name, seed: m.seed });
-          mapSel.appendChild(o);
-        }
-        mapSel.value = cur;
-      };
-      fillMapSel();
-      menuRelabelFns.push(fillMapSel);
-      const nm0 = namedMapByKey(soloMapKey);
-      const inp0 = $("seedInput");
-      if (nm0 && inp0 && !inp0.value) inp0.value = String(nm0.seed);
-      mapSel.addEventListener("change", () => {
-        const nm = namedMapByKey(mapSel.value);
-        soloMapKey = nm ? nm.key : "custom";
-        try { localStorage.setItem("scw.map", soloMapKey); } catch (e) {}
-        const inp = $("seedInput");
-        if (inp && nm) inp.value = String(nm.seed);
-      });
-    }
-    // شخصیت حریف (0.56.0): گزینه‌ها از CONFIG ساخته می‌شوند؛ انتخاب = ماندگاری.
-    const persSel = $("persSel");
-    if (persSel) {
-      const fillPersSel = () => {
-        const cur = persSel.value || soloPersonality;
-        persSel.innerHTML = "";
-        for (const [key, p] of Object.entries(CONFIG.AI.personalities)) {
-          const o = document.createElement("option");
-          o.value = key;
-          o.textContent = `${p.name} — ${p.desc}`;
-          persSel.appendChild(o);
-        }
-        persSel.value = cur;
-      };
-      fillPersSel();
-      menuRelabelFns.push(fillPersSel);
-      persSel.addEventListener("change", () => {
-        if (CONFIG.AI.personalities[persSel.value]) {
-          soloPersonality = persSel.value;
-          try { localStorage.setItem("scw.personality", soloPersonality); } catch (e) {}
-        } else {
-          persSel.value = soloPersonality;
-        }
-      });
-    }
-    // دسترس‌پذیری (0.57.0 — #۲۶): پالت/مقیاس/کلیدها — انتخاب = اعمال + ماندگاری.
-    const palSel = $("a11yPalSel");
-    if (palSel) {
-      const fillPalSel = () => {
-        const cur = palSel.value || a11yPalette;
-        palSel.innerHTML = "";
-        for (const [key, p] of Object.entries(A11Y_PALETTES)) {
-          const o = document.createElement("option");
-          o.value = key;
-          o.textContent = p.name;
-          palSel.appendChild(o);
-        }
-        palSel.value = cur;
-      };
-      fillPalSel();
-      menuRelabelFns.push(fillPalSel);
-      palSel.addEventListener("change", () => {
-        a11yPalette = validPalette(palSel.value);
-        palSel.value = a11yPalette;
-        try { localStorage.setItem("scw.a11y", a11yPalette); } catch (e) {}
-        applyA11y();
-      });
-    }
-    const scaleSel = $("a11yScaleSel");
-    if (scaleSel) {
-      scaleSel.value = String(uiScale);
-      scaleSel.addEventListener("change", () => {
-        uiScale = clampScale(scaleSel.value);
-        scaleSel.value = String(uiScale);
-        try { localStorage.setItem("scw.uiscale", String(uiScale)); } catch (e) {}
-        applyA11y();
-      });
-    }
-    for (const b of document.querySelectorAll("[data-keyact]")) {
-      b.addEventListener("click", () => {
-        const a = b.dataset.keyact;
-        keyRecAction = keyRecAction === a ? null : a; // کلیک دوباره = انصراف
-        paintKeyButtons();
-      });
-    }
-    paintKeyButtons();
-    applyA11y(); // نشست اولیه روی بوت (ماندگاری‌های قبلی)
-    // کیفیت رسم (0.58.0 — #۲۷): سلکت + نشست اولیه روی renderer.
-    const fidSel = $("fidSel");
-    if (fidSel) {
-      fidSel.value = fidelity;
-      fidSel.addEventListener("change", () => applyFidelity(fidSel.value, false));
-    }
-    applyFidelity(fidelity, true);
-    if (solo) solo.addEventListener("click", () => {
-      if (mpSession) { menuMsg(t("main.menu.leaveRoomFirst")); return; }
-      const inp = $("seedInput");
-      const typed = inp && inp.value ? inp.value.trim() : "";
-      const diff = diffSel && CONFIG.AI.difficulties[diffSel.value] ? diffSel.value : soloDiff;
-      const pers = persSel && CONFIG.AI.personalities[persSel.value] ? persSel.value : soloPersonality;
-      const ms = $("mapSel");
-      const named = ms ? namedMapByKey(ms.value) : null;
-      if (typed) {
-        const s = parseSeed(typed);
-        if (s == null) { menuMsg(t("main.seed.invalid")); return; }
-        newGame(s, diff, undefined, pers); // نام (کاتالوگ/خالی) در newGame حل می‌شود
-      } else if (named) {
-        newGame(named.seed, diff, undefined, pers);
-      } else {
-        newGame(undefined, diff, undefined, pers);
-      }
-      state.paused = false;
-      hideMenu();
-    });
-    if (close) close.addEventListener("click", hideMenu);
-    if (mb) mb.addEventListener("click", showMenu);
-    if (badge) badge.addEventListener("click", showMenu);
-    // تماشای ری‌پلی ذخیره‌شده از منو (0.49.0)
-    const mrp = $("menuReplayBtn");
-    if (mrp) mrp.addEventListener("click", () => {
-      if (mpSession) { menuMsg(t("main.menu.leaveRoomFirst")); return; }
-      const saved = loadReplaySlot();
-      if (!saved) { menuMsg(t("main.replay.noSaved")); return; }
-      const r = startWatch(saved, t("main.replay.savedLabel"));
-      if (!r.ok) menuMsg(t("main.err.prefix", { msg: r.reason }));
-    });
-  })();
+  // نما/قاب (0.271.0 — C-CLN-91): استخراج مکانیکی به game/viewframe.js — بدون تغییر منطق.
+  const viewFrameUI = createViewFrameUI({ getState: () => state, getTerrain: () => terrain, getHover: () => hover, getSelIds: () => selIds, getLastSoundSnap: () => lastSoundSnap, setLastSoundSnap: (v) => { lastSoundSnap = v; }, getFidelity: () => fidelity, getFidelityAuto: () => fidelityAuto, setFidelityAuto: (v) => { fidelityAuto = v; }, $, clock, sound, renderer, getEditor, editorUI, blankView, ghostDef, getWallLine, getDownPos, getLastEdgePos, modalOverlay, fpsEl, statusEl, t, faNum, CONFIG, applyFidelity, keyMap, createFlatView, createMinimapUI, edgePanDir, EDGE_PAN_STEP, soundSnapshot });
+  const flat = viewFrameUI.flat, frame = viewFrameUI.frame, minimapUI = viewFrameUI.minimapUI;
 
-  saveBtn.addEventListener("click", () => {
-    if (mpSession) return; // در MP ذخیره نداریم
-    const json = serializeJSON(state);
-    const tickNow = state.tick;
-    saveStatus.textContent = t("main.save.saving");
-    saveSlot(SLOTS.manual, json).then((r) => {
-      saveStatus.textContent = r.ok
-        ? t("main.save.manual", { tick: tickNow, bytes: r.bytes })
-        : t("main.err.prefix", { msg: SAVE_FA[r.error] || r.error });
-    });
-  });
-  loadBtn.addEventListener("click", () => {
-    if (mpSession) return;
-    saveStatus.textContent = t("main.save.loading");
-    loadSlot(SLOTS.manual).then((r) => {
-      if (r.ok) {
-        try {
-          applyLoaded(deserializeJSON(r.text), t("main.save.manualLoaded"));
-        } catch (e) {
-          saveStatus.textContent = t("main.err.prefix", { msg: e instanceof SaveError ? SAVE_FA[e.code] : e });
-        }
-        return;
-      }
-      // اگر دستی خالی است، خودکار را امتحان کن
-      loadSlot(SLOTS.auto).then((a) => {
-        if (!a.ok) {
-          saveStatus.textContent = t("main.err.prefix", { msg: SAVE_FA[r.error] || r.error });
-          return;
-        }
-        try {
-          applyLoaded(deserializeJSON(a.text), t("main.save.autoLoaded"));
-        } catch (e) {
-          saveStatus.textContent = t("main.err.prefix", { msg: e instanceof SaveError ? SAVE_FA[e.code] : e });
-        }
-      });
-    });
-  });
-  delBtn.addEventListener("click", () => {
-    saveStatus.textContent = t("main.save.deleting");
-    deleteSlot(SLOTS.manual).then(() => deleteSlot(SLOTS.auto)).then(() => {
-      saveStatus.textContent = t("main.save.deleted");
-    });
-  });
-  // ---- ذخیره ابری (0.67.0 — انتخاب ۳-الف): همان JSON محلی روی سرور، با عبارت کاربر ----
-  const cloud = initCloud();
-  const cloudStatus = $("cloudStatus"), cloudKeyInput = $("cloudKeyInput");
-  try {
-    const savedKey = localStorage.getItem(CLOUD_STORE_KEY);
-    if (savedKey && cloudKeyInput) cloudKeyInput.value = savedKey;
-  } catch (e) {}
-  if (cloudKeyInput) {
-    cloudKeyInput.addEventListener("change", () => {
-      try { localStorage.setItem(CLOUD_STORE_KEY, cloudKeyInput.value); } catch (e) {}
-    });
-  }
-  const cloudSay = (m) => { if (cloudStatus) cloudStatus.textContent = m; };
-  const cloudKey = () => (cloudKeyInput && cloudKeyInput.value) || "";
-  $("cloudSaveBtn").addEventListener("click", async () => {
-    if (mpSession) return; // در MP ابری نداریم
-    const k = cloudKey();
-    if (!validCloudKey(k)) { cloudSay(CLOUD_FA.BAD_KEY); return; }
-    cloudSay(t("main.cloud.saving"));
-    const r = await cloud.save(k, serializeJSON(state));
-    cloudSay(r.ok ? t("main.cloud.saved", { tick: state.tick }) : t("main.err.prefix", { msg: CLOUD_FA[r.error] || r.error }));
-  });
-  $("cloudLoadBtn").addEventListener("click", async () => {
-    if (mpSession) return;
-    const k = cloudKey();
-    if (!validCloudKey(k)) { cloudSay(CLOUD_FA.BAD_KEY); return; }
-    cloudSay(t("main.cloud.loading"));
-    const r = await cloud.load(k);
-    if (!r.ok) { cloudSay(t("main.err.prefix", { msg: CLOUD_FA[r.error] || r.error })); return; }
-    try {
-      applyLoaded(deserializeJSON(r.text), t("main.cloud.loadedLabel"));
-      cloudSay(t("main.cloud.loaded", { tick: state.tick }));
-    } catch (e) {
-      cloudSay(t("main.err.prefix", { msg: e instanceof SaveError ? SAVE_FA[e.code] : e }));
-    }
-  });
-  $("cloudDelBtn").addEventListener("click", async () => {
-    if (mpSession) return;
-    const k = cloudKey();
-    if (!validCloudKey(k)) { cloudSay(CLOUD_FA.BAD_KEY); return; }
-    cloudSay(t("main.cloud.deleting"));
-    const r = await cloud.del(k);
-    cloudSay(r.ok ? t("main.cloud.deleted") : t("main.err.prefix", { msg: CLOUD_FA[r.error] || r.error }));
-  });
-  // ---- ری‌پلی: ذخیره/تماشا/تأیید (0.49.0 — #۲۱ از FEATURES، فقط سولو) ----
-  const replayStatus = $("replayStatus");
-  function paintReplayStatus() {
-    if (!replayStatus) return;
-    if (mpSession) { replayStatus.textContent = t("main.replay.noMp"); return; }
-    const saved = loadReplaySlot();
-    const cur = recLog ? t("main.replay.cmds", { n: recLog.cmds.length, num: faNum(recLog.cmds.length) }) : t("main.replay.noneLoaded");
-    replayStatus.textContent = t("main.replay.status", { cur, saved: saved ? t("main.replay.savedInfo", { n: saved.cmds.length, num: faNum(saved.cmds.length), tick: faNum(saved.ticks | 0), ok: saved.verified ? " ✓" : "" }) : t("main.replay.none") });
-  }
-  $("replaySaveBtn").addEventListener("click", () => {
-    if (mpSession || replayWatch) return;
-    if (!recLog) { replayStatus.textContent = t("main.replay.freshOnly"); return; }
-    const log = { ...replayLogOf(recLog, state.tick), hash: stateHash(state), verified: false };
-    replayStatus.textContent = t("main.replay.verifying", { n: log.cmds.length, num: faNum(log.cmds.length), tick: faNum(log.ticks) });
-    verifyReplayAsync(log, log.ticks, log.hash, (tk, upto) => {
-      replayStatus.textContent = t("main.replay.progress", { tick: faNum(tk), upto: faNum(upto) });
-    }).then((r) => {
-      log.verified = r.ok;
-      if (r.ok) saveReplaySlot(log);
-      replayStatus.textContent = r.ok
-        ? t("main.replay.verified", { tick: faNum(log.ticks) })
-        : t("main.replay.notVerified", { reason: r.reason || t("main.replay.hashDiff") });
-      paintReplayStatus();
-    });
-  });
-  $("replayWatchBtn").addEventListener("click", () => {
-    if (mpSession || replayWatch) return;
-    if (recLog && recLog.cmds.length) {
-      const r = startWatch(replayLogOf(recLog, state.tick), t("main.replay.current"));
-      if (!r.ok) replayStatus.textContent = t("main.err.prefix", { msg: r.reason });
-      return;
-    }
-    const saved = loadReplaySlot();
-    if (!saved) { replayStatus.textContent = t("main.replay.noneToWatch"); return; }
-    const r = startWatch(saved, t("main.replay.savedLabel"));
-    if (!r.ok) replayStatus.textContent = t("main.err.prefix", { msg: r.reason });
-  });
-  $("replayExitBtn").addEventListener("click", () => exitWatch(true));
-
-  // ---- نقشه‌ساز داخل‌بازی (0.51.0 — #۲۲ از FEATURES، الگوی CHG-043) ----
-  // نقاشی مستقیم روی بوم اصلی با terrain موقت؛ بازی pause و ساختمان/یگان
-  // مخفی‌اند (blankView)؛ ناوبری با نقشه کوچک + زوم. ورود/خروج همیشه از منو.
-  let editor = null; // {doc, base, tile, brush, painting} یا null = بازی عادی
-  // جدول خطاها به‌صورت جست‌وجوی تنبل (در لحظه نمایش، با زبان فعلی).
-  const lazyTable = (prefix) => new Proxy({}, {
-    get: (_, k) => (typeof k === "string" && hasKey(prefix + k) ? t(prefix + k) : undefined),
-  });
-  const ED_ERR_FA = lazyTable("main.ed.err.");
-  const ED_DEFAULT_NAME = "نقشه سفارشی"; // مقدار ذخیره‌شده؛ فقط نمایش ترجمه می‌شود
-  const edShowName = (n) => (n === ED_DEFAULT_NAME ? t("main.ed.defaultName") : n);
-  function blankView() {
-    return { ...state, buildings: [], units: [], fx: [] };
-  }
-  function edStatus(m) {
-    const el = $("edStatusEl");
-    if (el) el.textContent = m || "";
-  }
-  function edCounts() {
-    if (!editor) return;
-    const n = patchCount(editor.doc);
-    edStatus(t("main.ed.counts", { name: edShowName(editor.doc.name), seed: faNum(editor.doc.seed), n: faNum(n), cap: n >= PATCH_CAP ? ` ${t("main.ed.capMark")}` : "" }));
-  }
-  function edRefreshTerrain() {
-    terrain = applyPatches(editor.base, editor.doc.patches);
-    renderer.markDirty();
-    paintMinimap();
-  }
-  function syncEditorPanel() {
-    if (!editor) return;
-    const row = $("edTileRow");
-    if (row) {
-      for (const b of row.querySelectorAll("[data-etile]")) {
-        b.classList.toggle("sel", String(editor.tile) === b.dataset.etile);
-      }
-    }
-    const br = $("edBrushSel");
-    if (br && document.activeElement !== br) br.value = String(editor.brush);
-    const nm = $("edNameInput");
-    if (nm && document.activeElement !== nm) nm.value = edShowName(editor.doc.name);
-    const sd = $("edSeedInput");
-    if (sd && document.activeElement !== sd) sd.value = String(editor.doc.seed);
-  }
-  function openEditor() {
-    if (mpSession) { menuMsg(t("main.ed.noMp")); return; }
-    if (replayWatch) exitWatch(true);
-    if (editor) return;
-    const saved = loadCustomSlot();
-    const doc = saved || createMapDoc("", state.mapSeed);
-    editor = { doc, base: baseTerrain(doc.seed), tile: 1, brush: 4, painting: false };
-    terrain = applyPatches(editor.base, doc.patches);
-    selectedKey = null; selectedUnit = null; pendingKind = null; selIds = [];
-    hover = null;
-    hideMercs(); hideMarket(); clearWallLine(); hideBox();
-    hideMenu();
-    state.paused = true; // پس از hideMenu (که unpause می‌کند)
-    const p = $("editorPanel");
-    if (p) p.hidden = false;
-    syncEditorPanel();
-    edCounts();
-    renderer.markDirty();
-    refreshPanel();
-  }
-  function closeEditor(silent) {
-    if (!editor) return;
-    editor = null;
-    const p = $("editorPanel");
-    if (p) p.hidden = true;
-    // terrain بازی جاری را از نو بساز (ویرایشگر آن را عوض کرده بود)
-    const ls = (state.mapSeed == null ? CONFIG.MAP_SEED : state.mapSeed) >>> 0 || CONFIG.MAP_SEED;
-    terrain = state.mapPatches && state.mapPatches.length
-      ? customTerrain(ls, state.mapPatches)
-      : makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, ls);
-    renderer.markDirty();
-    paintMinimap();
-    refreshPanel();
-    if (!silent) showMenu();
-  }
-  function edCellFromEvent(e) {
-    const rect = canvas.getBoundingClientRect();
-    return renderer.screenToCell(e.clientX - rect.left, e.clientY - rect.top);
-  }
-  function edPaintAt(cell) {
-    if (!editor || !cell) return 0;
-    const tile = editor.tile === "erase" ? null : editor.tile;
-    const r = paintCells(editor.doc, editor.base, cell.c, cell.r, editor.brush, tile);
-    if (r.painted) edRefreshTerrain();
-    if (r.capped) edStatus(t("main.ed.full", { cap: faNum(PATCH_CAP) }));
-    else edCounts();
-    return r.painted;
-  }
-  function edCheckPlayable() {
-    const v = validatePlayable(editor.doc.seed, patchesList(editor.doc));
-    edStatus(v.ok
-      ? t("main.ed.playable")
-      : t("main.ed.notPlayable", { reason: ED_ERR_FA[v.reason] || v.reason }));
-    return v.ok;
-  }
-  function edReadName() {
-    const nm = $("edNameInput");
-    const clean = nm ? nm.value.trim().replace(/\s+/g, " ").slice(0, MAP_NAME_MAX) : "";
-    editor.doc.name = clean || ED_DEFAULT_NAME;
-    if (nm) nm.value = edShowName(editor.doc.name);
-  }
-  (function wireEditor() {
-    const row = $("edTileRow");
-    if (row) {
-      for (const b of row.querySelectorAll("[data-etile]")) {
-        b.addEventListener("click", () => {
-          if (!editor) return;
-          const v = b.dataset.etile;
-          editor.tile = v === "erase" ? "erase" : parseInt(v, 10);
-          syncEditorPanel();
-        });
-      }
-    }
-    const br = $("edBrushSel");
-    if (br) {
-      const fillBrushSel = () => {
-        const cur = br.value || "4";
-        br.innerHTML = "";
-        for (const s of BRUSHES) {
-          const o = document.createElement("option");
-          o.value = String(s);
-          o.textContent = s === 1 ? t("main.ed.brushOne") : `${faNum(s)}×${faNum(s)}`;
-          br.appendChild(o);
-        }
-        br.value = cur;
-      };
-      fillBrushSel();
-      menuRelabelFns.push(fillBrushSel);
-      br.addEventListener("change", () => {
-        if (!editor) return;
-        const s = parseInt(br.value, 10);
-        editor.brush = BRUSHES.includes(s) ? s : 4;
-      });
-    }
-    const seedBtn = $("edSeedBtn");
-    if (seedBtn) seedBtn.addEventListener("click", () => {
-      if (!editor) return;
-      const inp = $("edSeedInput");
-      const s = parseSeed(inp && inp.value);
-      if (s == null) { edStatus(t("main.ed.seedInvalid")); return; }
-      editor.doc.seed = s;
-      editor.doc.patches = {}; // سید تازه = بوم تازه
-      editor.base = baseTerrain(s);
-      edRefreshTerrain();
-      syncEditorPanel();
-      edStatus(t("main.ed.seeded", { seed: faNum(s) }));
-    });
-    const chk = $("edCheckBtn");
-    if (chk) chk.addEventListener("click", () => { if (editor) edCheckPlayable(); });
-    const clr = $("edClearBtn");
-    if (clr) clr.addEventListener("click", () => {
-      if (!editor) return;
-      clearPatches(editor.doc);
-      edRefreshTerrain();
-      edCounts();
-    });
-    const sv = $("edSaveBtn");
-    if (sv) sv.addEventListener("click", () => {
-      if (!editor) return;
-      edReadName();
-      if (!edCheckPlayable()) return; // فقط قابل‌بازی ذخیره می‌شود
-      edStatus(saveCustomSlot(editor.doc)
-        ? t("main.ed.saved", { name: edShowName(editor.doc.name), n: faNum(patchCount(editor.doc)) })
-        : t("main.ed.saveFail"));
-    });
-    const exp = $("edExportBtn");
-    if (exp) exp.addEventListener("click", () => {
-      if (!editor) return;
-      edReadName();
-      const ta = $("edIOArea");
-      if (ta) {
-        ta.value = exportMapDoc(editor.doc);
-        ta.select();
-        try { document.execCommand("copy"); } catch (e) { /* مهم نیست */ }
-      }
-      edStatus(t("main.ed.exported", { n: faNum(patchCount(editor.doc)) }));
-    });
-    const imp = $("edImportBtn");
-    if (imp) imp.addEventListener("click", () => {
-      if (!editor) return;
-      const ta = $("edIOArea");
-      const r = importMapDoc(ta ? ta.value : "");
-      if (!r.ok) { edStatus(t("main.ed.importBad", { reason: r.reason })); return; }
-      editor.doc = r.doc;
-      editor.base = baseTerrain(r.doc.seed);
-      edRefreshTerrain();
-      syncEditorPanel();
-      edCounts();
-    });
-    const play = $("edPlayBtn");
-    if (play) play.addEventListener("click", () => {
-      if (!editor) return;
-      edReadName();
-      if (!edCheckPlayable()) return; // فقط قابل‌بازی آزمایش می‌شود
-      const custom = { name: editor.doc.name, patches: patchesList(editor.doc) };
-      newGame(editor.doc.seed, soloDiff, custom); // خروج خاموش از ویرایشگر داخلش است
-      state.paused = false;
-    });
-    const ex = $("edExitBtn");
-    if (ex) ex.addEventListener("click", () => closeEditor(false));
-    const mb = $("editorBtn");
-    if (mb) mb.addEventListener("click", () => {
-      if (mpSession) { menuMsg(t("main.menu.leaveRoomFirst")); return; }
-      openEditor();
-    });
-  })();
-
-  // ---- دکمه‌های لابی رقابتی ----
-  const mpCodeInput = $("mpCodeInput"), mpMaxSel = $("mpMaxSel");
-  const mpCreateBtn = $("mpCreateBtn"), mpJoinBtn = $("mpJoinBtn"), mpLeaveBtn = $("mpLeaveBtn");
-  const mpReadyBtn = $("mpReadyBtn"), mpStartBtn = $("mpStartBtn"), mpListBtn = $("mpListBtn");
-  const MP_ERR_FA = lazyTable("main.mperr.");
-  function mpCode() {
-    return (mpCodeInput && mpCodeInput.value ? mpCodeInput.value : "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
-  }
-  if (mpCreateBtn) mpCreateBtn.addEventListener("click", async () => {
-    try {
-      mpStatus(t("main.mp.creating"));
-      const max = mpMaxSel ? parseInt(mpMaxSel.value, 10) : 2;
-      const seedIn = $("mpSeedInput");
-      const seedRaw = seedIn && seedIn.value ? seedIn.value.trim() : "";
-      let seed = null;
-      if (seedRaw) {
-        seed = parseSeed(seedRaw);
-        if (seed == null) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA.seed })); return; }
-      }
-      const pwIn = $("mpPasswordInput");
-      const pw = validRoomPassword(pwIn && pwIn.value);
-      if (pw === false) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA.password })); return; }
-      await lobby.create(max >= 2 && max <= 4 ? max : 2, { password: pw, seed });
-      if (mpCodeInput && lobby.room) mpCodeInput.value = lobby.room.code;
-      mpStatus(t("main.mp.created", { code: lobby.room.code, lock: lobby.room.priv ? ` 🔒${t("main.mp.private")}` : ` 🔓${t("main.mp.public")}`, seed: lobby.room.seed >>> 0, pw: lobby.room.priv ? ` ${t("main.mp.andPassword")}` : "" }));
-    } catch (e) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message || t("main.unknown") })); }
-  });
-  if (mpJoinBtn) mpJoinBtn.addEventListener("click", async () => {
-    try {
-      const code = mpCode();
-      if (code.length !== 4) { mpStatus(t("main.mp.enterCode")); return; }
-      const pwIn = $("mpJoinPasswordInput");
-      const pw = validRoomPassword(pwIn && pwIn.value);
-      if (pw === false) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA.password })); return; }
-      mpStatus(t("main.mp.joining"));
-      await lobby.join(code, { password: pw });
-      mpStatus(t("main.mp.joined", { code }));
-    } catch (e) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message || t("main.unknown") })); }
-  });
-  if (mpLeaveBtn) mpLeaveBtn.addEventListener("click", async () => {
-    try { await lobby.leave(); mpStatus(t("main.mp.left")); refreshRoomList(true); } catch (e) {}
-  });
-  if (mpReadyBtn) mpReadyBtn.addEventListener("click", async () => { try { await lobby.toggleReady(); } catch (e) {} });
-  if (mpStartBtn) mpStartBtn.addEventListener("click", async () => {
-    try {
-      mpStatus(t("main.mp.starting"));
-      await lobby.start(); // سید همان سیدِ زمان ساخت است
-    }
-    catch (e) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message || t("main.unknown") })); }
-  });
-  // فهرست اتاق‌های باز (0.28.0): کد + خصوصی/عمومی + ظرفیت + سید + بازیکنان حاضر.
-  function paintRoomList(rooms, ownCode) {
-    const box = $("mpListEl");
-    if (!box) return;
-    const others = (rooms || []).filter((rm) => rm.code !== ownCode);
-    box.innerHTML = others.length
-      ? others.map(roomRowHTML).join("")
-      : `<div class="lbl">${t("main.mp.noRooms")}</div>`;
-    box.querySelectorAll("[data-joincode]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const code = btn.dataset.joincode;
-        const roomEl = btn.closest(".room");
-        const pwIn = roomEl ? roomEl.querySelector("[data-pwfor]") : null;
-        const pw = validRoomPassword(pwIn && pwIn.value);
-        if (pw === false) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA.password })); return; }
-        if (mpCodeInput) mpCodeInput.value = code;
-        try { await lobby.join(code, { password: pw }); mpStatus(t("main.mp.joinedShort")); }
-        catch (e) { mpStatus(t("main.err.prefix", { msg: MP_ERR_FA[e.message] || e.message || t("main.unknown") })); }
-      });
-    });
-  }
-  async function refreshRoomList(silent) {
-    const box = $("mpListEl");
-    if (!box) return;
-    if (!silent) box.innerHTML = `<div class="lbl">…</div>`;
-    const rooms = await lobby.list();
-    paintRoomList(rooms, lobby.room && lobby.room.code);
-  }
-  // تازه‌سازی خودکار فهرست وقتی منو باز است (نه حین تایپ رمز).
-  setInterval(() => {
-    const ms = $("menuScreen");
-    const box = $("mpListEl");
-    if (!ms || ms.hidden || !lobby.connected) return;
-    if (box && box.contains(document.activeElement)) return;
-    refreshRoomList(true);
-  }, 10000);
-  if (mpListBtn) mpListBtn.addEventListener("click", async () => {
-    await refreshRoomList(false);
-  });
-
-  // ریسایز بدون ResizeObserver (جلوگیری از حلقه RO): رویداد + چک دوره‌ای کم‌هزینه
-  window.addEventListener("resize", () => renderer.resize());
-  setInterval(() => renderer.resize(), 600);
-  document.querySelector("[data-fit]").addEventListener("click", () => renderer.fit());
-  // نمای تخت (0.25.0): حذف ارتفاع ساختمان‌ها تا پشت‌شان دیده شود؛ در حافظه می‌ماند.
-  const flatBtn = document.querySelector("[data-flat]");
-  function paintFlatBtn(f) {
-    if (flatBtn) flatBtn.textContent = f ? t("main.top.flat3d") : t("ui.top.flat");
-  }
-  function applyFlat(f) {
-    renderer.setFlat(f);
-    paintFlatBtn(f);
-    try { localStorage.setItem("scw.flat", f ? "1" : "0"); } catch {}
-  }
-  if (flatBtn) {
-    let flatInit = false;
-    try { flatInit = localStorage.getItem("scw.flat") === "1"; } catch {}
-    applyFlat(flatInit);
-    flatBtn.addEventListener("click", () => applyFlat(!renderer.isFlat()));
-  }
-
-  // مینی‌مپ (0.43.0 — #۱۲ از FEATURES): بازرسم هر ۱۵ فریم (۴fps) +
-  // کلیک/درگ = پرش دوربین به همان ناحیه. فقط view را می‌خواند/می‌نویسد.
-  const minimapCv = $("minimap");
-  let minimapTick = 0;
-  function paintMinimap() {
-    if (!minimapCv) return;
-    const size = renderer.canvasSize();
-    const tl = renderer.screenToCell(0, 0);
-    const br = renderer.screenToCell(size.W, size.H);
-    drawMinimap(minimapCv, editor ? blankView() : state, terrain, CONFIG.GRID_W, CONFIG.GRID_H,
-      { c0: tl.c, r0: tl.r, c1: br.c, r1: br.r });
-  }
-  function minimapJump(e) {
-    if (!minimapCv) return;
-    const rect = minimapCv.getBoundingClientRect();
-    const cell = minimapCell((e.clientX - rect.left) / rect.width,
-      (e.clientY - rect.top) / rect.height, CONFIG.GRID_W, CONFIG.GRID_H);
-    const size = renderer.canvasSize();
-    const pan = panForCell(cell.c, cell.r, size.W, size.H,
-      renderer.view.zoom, CONFIG.GRID_W, CONFIG.GRID_H);
-    renderer.view.panX = pan.panX;
-    renderer.view.panY = pan.panY;
-    renderer.markDirty();
-    paintMinimap();
-  }
-  if (minimapCv) {
-    minimapCv.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      try { minimapCv.setPointerCapture(e.pointerId); } catch (_) { /* مهم نیست */ }
-      minimapJump(e);
-      const move = (ev) => minimapJump(ev);
-      const up = () => {
-        minimapCv.removeEventListener("pointermove", move);
-        minimapCv.removeEventListener("pointerup", up);
-        minimapCv.removeEventListener("pointercancel", up);
-      };
-      minimapCv.addEventListener("pointermove", move);
-      minimapCv.addEventListener("pointerup", up);
-      minimapCv.addEventListener("pointercancel", up);
-    });
-  }
-
-  let lastFpsT = performance.now(), frames = 0, fps = 0, lowFpsStreak = 0;
-  function frame(now) {
-    clock.frame(now);
-    sound.tick(); // موسیقی مولد/طبل نبرد روی ساعت صوتی (ارزان؛ بدون ctx = هیچ)
-    // ویرایشگر (0.51.0): فقط زمین موقت، بدون ساختمان/یگان/گوست/هاور.
-    renderer.draw(editor ? blankView() : state, terrain,
-      editor ? null : hover, editor ? null : ghostDef(),
-      editor ? [] : selIds, editor ? null : wallLine);
-    if (++minimapTick % 15 === 0) paintMinimap();
-    // تغذیه صدا (0.48.0): هر ۵ تیکِ بازیِ در حال اجرا یک اسنپ‌شات سبک؛
-    // پرچم‌ها (مرگ/ویرانی/اتمام/پایان) latch هستند پس با این آهنگ جا نمی‌مانند.
-    if (!state.paused && $("menuScreen").hidden && state.tick % 5 === 0 && state.tick > 0) {
-      const snap = soundSnapshot(state);
-      if (lastSoundSnap && state.tick !== lastSoundSnap.tick) sound.update(lastSoundSnap, snap);
-      lastSoundSnap = { tick: state.tick, ...snap };
-    } else if (state.paused || !$("menuScreen").hidden) {
-      lastSoundSnap = null; // مکث/منو: baseline تازه تا برگشت، سیل رویداد ندهد
-    }
-    frames++;
-    if (now - lastFpsT >= 500) {
-      fps = Math.round((frames * 1000) / (now - lastFpsT));
-      frames = 0; lastFpsT = now;
-      fpsEl.textContent = t("main.fps", { fps }) + (fidelityAuto ? ` ${t("main.fps.auto", { f: fidelity })}` : "");
-      // افت خودکار کیفیت (0.58.0 — #۲۷): زیر ۲۰fps پله‌ای کم می‌کند (فقط پایین،
-      // هرگز بالا)؛ انتخاب دستی کاربر لغوش می‌کند. sim دست‌نخورده می‌ماند.
-      // نمونه‌های پیاپی (۴×۵۰۰ms) لازم است: افت لحظه‌ای (تب/مودال/بارگذاری) کیفیت را برای همیشه نمی‌کاهد.
-      lowFpsStreak = (fps < 20 && $("menuScreen").hidden && !document.hidden) ? lowFpsStreak + 1 : 0;
-      if (lowFpsStreak >= 4) {
-        lowFpsStreak = 0;
-        const next = fidelity === "full" ? "balanced" : fidelity === "balanced" ? "lite" : null;
-        if (next) {
-          fidelityAuto = true;
-          applyFidelity(next, true);
-          statusEl.textContent = t("main.fps.low", { fps, next });
-        }
-      }
-    }
-    requestAnimationFrame(frame);
-  }
-
-  refreshPanel();
-  setTick(0);
-  assignStaff(state);
-  // شروع پشت منوی انتخاب حالت (0.27.0): بازی متوقف تا تک‌نفره/چندنفره انتخاب شود.
-  state.paused = true;
-  showMenu();
-  // نسخه انتشار از تنها منبع (فرایند انتشار را ببین)
-  fetch("VERSION").then((r) => r.text()).then((txt) => {
-    const v = txt.trim();
-    if (/^\d+\.\d+\.\d+$/.test(v)) { $("verEl").textContent = v; const mv = $("menuVerEl"); if (mv) mv.textContent = v; }
-  }).catch(() => { /* پیش‌نمایش بدون service worker: نسخه نمایشی می‌ماند */ });
-  // ماتریس سازگاری (0.58.0 — #۲۷): رندر در کارت راهنما + هشدار اگر required کم است.
-  function paintCompat() {
-    const probed = probeCompat(liveEnv());
-    const el = $("compatEl");
-    if (el) {
-      el.innerHTML = t("main.compat.label") + " " +
-        probed.map((r) => `${r.ok ? "✓" : "✗"} ${r.name}`).join(t("main.listSep")) +
-        (compatBootable(probed) ? "" : ` — ${t("main.compat.missing")}`) +
-        "<br>" + String(SUPPORT_LINE);
-    }
-  }
-  paintCompat();
-  // مهاجرت یک‌بار localStorage → IDB (0.55.0 — #۱۶) و پیام وضعیت اسلات‌ها.
-  // ناهمگام است پس پیام «در حال بررسی…» اول می‌آید و نتیجه بعداً می‌نشیند.
-  saveStatus.textContent = t("main.save.checking");
-  migrateToIdb().catch(() => ({ ok: false })).then(async () => {
-    const info = await infoSlot(SLOTS.auto);
-    const m = await infoSlot(SLOTS.manual);
-    if (m.exists) saveStatus.textContent = t("main.save.haveManual", { tick: m.tick, bytes: m.bytes });
-    else if (info.exists) saveStatus.textContent = t("main.save.haveAuto", { tick: info.tick });
-    else saveStatus.textContent = t("main.save.none");
-  });
-  // تغییر زبان: هرچه یک‌بار در بوت ساخته شده (پالت، سلکت‌ها، لوگوها…) دوباره برچسب می‌خورد
-  // و پنل‌های دوره‌ای تازه می‌شوند. فقط نمایش؛ state/sim دست‌نخورده.
-  onLangChange(() => {
-    relabelPalette();
-    for (const fn of menuRelabelFns) fn();
-    for (const btn of document.querySelectorAll("#profileLogoGrid [data-logo]")) {
-      btn.title = t("main.profile.logoTitle", { n: (btn.dataset.logo | 0) + 1 });
-    }
-    paintKeyButtons();
-    paintBadge();
-    paintSoundBtn();
-    paintFlatBtn(renderer.isFlat());
-    paintCompat();
-    setTick(state.tick);
-    paintSeed();
-    paintReplayStatus();
-    paintReplayBar();
-    paintMp(lobby);
-    paintMarket();
-    paintTrain();
-    if (editor) { syncEditorPanel(); edCounts(); }
-    if (online && typeof online.relabel === "function") online.relabel();
-    refreshPanel();
-  });
-  requestAnimationFrame(frame);
+  // دم بوت (0.272.0 — C-CLN-92): استخراج مکانیکی به game/boottail.js — بدون تغییر منطق.
+  createBootTail({ getState: () => state, getProfile: () => profile, getMenuRelabelFns, refreshPanel, setTick, assignStaff, showMenu, getMenuNavApi, $, paintCompat, saveStatus, policy, keyUI, soundUI, flat, renderer, paintSeed, paintReplayStatus, paintReplayBar, paintMp, lobby, paintMarket, paintTrain, getEditor, syncEditorPanel, edCounts, online, frame });
 
   // آزمون خودکار: ?test در URL یا فراخوانی دستی
-  function showTests() {
-    const results = runAllTests();
-    paintTestResults(results);
-    console.log("[tests]", results);
-    // فاز IDB ناهمگام است (0.55.0) — جدا می‌آید و بج را کامل می‌کند.
-    runIdbTests().then((extra) => {
-      paintTestResults(results.concat(extra));
-      console.log("[tests-idb]", extra);
-    }).catch((e) => console.error("[tests-idb]", e)).finally(() => {
-      document.body.dataset.testsDone = "1"; // سیگنال پایان فاز ناهمگام برای درایور/CI
-    });
-    return results;
-  }
-  function paintTestResults(results) {
-    const passed = results.filter((r) => r.pass).length;
-    testBadge.hidden = false;
-    testBadge.className = passed === results.length ? "pass" : "fail";
-    testBadge.textContent = t("main.tests.badge", { passed, total: results.length }) + " — " +
-      results.map((r) => `${r.pass ? "✓" : "✗"} ${r.name}`).join(t("main.listSep"));
-  }
   if (/[?&]test\b/.test(location.search)) {
-    setTimeout(showTests, 400);
+    setTimeout(() => showTests(testBadge), 400);
   }
 
-  // قلاب تست خودکار (page_eval): window.__slice01
-  window.__slice01 = {
-    config: CONFIG,
-    online,
-    lobby,
-    mp: {
-      active: () => !!mpSession,
-      slot: () => (mpSession ? mpSession.slot : -1),
-      hash: () => stateHash(state),
-      hashLog: () => mpHashLog.slice(),
-      peerHashes: () => [...mpHashes.entries()],
-      desync: () => mpDesync,
-      startLocal: (num) => {
-        // شروع محلی بدون سرور (تست determinism دو نمونه هم‌سان)
-        const s = state.mapSeed >>> 0;
-        terrain = makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, s);
-        mpClearSpawns(terrain, CONFIG.GRID_W, CONFIG.GRID_H);
-        state = createState();
-        state.mapSeed = s;
-        const names = [];
-        for (let i = 0; i < num; i++) names.push("P" + (i + 1));
-        enableMp(state, num, names);
-        for (let s = 0; s < num; s++) {
-          const an = MP_SPAWN_ANCHOR[s];
-          placeKeepFor(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, s, an[0], an[1]);
-        }
-        for (let s = 0; s < num; s++) spawnLord(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, s);
-        mpSession = { code: "TEST", slot: 0, num, names, logos: names.map((_, i) => i % PROFILE_LOGOS.length) };
-        mpPending.clear();
-        mpNextSeq = 1;
-        clock.reset();
-        paintSeed();
-        refreshPanel();
-        return { keeps: state.buildings.filter((b) => b.type === "keep").length };
-      },
-      apply: (m) => { try { applyMpInput(m); refreshPanel(); return true; } catch (e) { return false; } },
-      endLocal: () => { mpSession = null; mpPending.clear(); newGame(); },
-    },
-    get state() { return state; },
-    get terrain() { return terrain; },
-    ed: () => editor, // ویرایشگر نقشه (0.51.0) — قلاب تست: null یا {doc, tile, brush}
-    validate: (c, r, key) => {
-      const def = CONFIG.BUILDINGS[key || selectedKey];
-      if (!def) return { ok: false, reason: "NO_SELECTION" };
-      return validate(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, c, r, def);
-    },
-    place: (c, r, key) => {
-      const def = CONFIG.BUILDINGS[key || selectedKey];
-      if (!def) return { ok: false, reason: "NO_SELECTION" };
-      const res = tryPlace(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, c, r, def);
-      if (res.ok) assignStaff(state);
-      refreshPanel();
-      return res;
-    },
-    selectedBuilding: () => selectedKey, // حالت ساخت/خنثی — قلاب تست (0.23.4)
-    toScreen: (c, r) => renderer.cellToScreen(c, r), // مختصات صفحه خانه — قلاب تست (0.33.0)
-    disarm: () => { // خلع کامل به حالت خنثی — قلاب تست (0.23.4)
-      selectedKey = null; selectedUnit = null; pendingKind = null;
-      refreshPanel();
-      return null;
-    },
-    ff: (n) => { // جلو بردن هم‌زمان (تست) — آینه حلقه اصلی
-      stepSim(state, terrain, n, cmdQueue);
-      setTick(state.tick);
-      refreshPanel();
-      return state.tick;
-    },
-    hire: (c, r, key) => {
-      const res = hireUnit(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, c, r, key || "soldier");
-      refreshPanel();
-      return { ok: res.ok, reason: res.reason };
-    },
-    wave: () => {
-      const n = spawnWave(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H);
-      refreshPanel();
-      return n;
-    },
-    order: (id, c, r) => {
-      const u = state.units.find((u) => u.id === id);
-      if (!u) return { ok: false, reason: "INVALID" };
-      return orderMove(state, u, c, r);
-    },
-    attackmove: (id, c, r) => {
-      const u = state.units.find((u) => u.id === id);
-      if (!u) return { ok: false, reason: "INVALID" };
-      return orderAttackMove(state, u, c, r);
-    },
-    retreat: (id) => {
-      const u = state.units.find((u) => u.id === id);
-      if (!u) return { ok: false, reason: "INVALID" };
-      return orderRetreat(state, u);
-    },
-    stance: (id, s) => {
-      const u = state.units.find((u) => u.id === id);
-      if (!u) return { ok: false, reason: "INVALID" };
-      const res = setStance(u, s);
-      refreshPanel();
-      return res;
-    },
-    guard: (id, c, r) => { // نگهبانی از ساختمانِ خانه (c,r) — قلاب تست
-      const u = state.units.find((u) => u.id === id);
-      const b = state.buildings.find((b) => c >= b.c && c < b.c + b.w && r >= b.r && r < b.r + b.h) || null;
-      if (!u || !b) return { ok: false, reason: "INVALID" };
-      const res = setGuard(state, u, b);
-      refreshPanel();
-      return res;
-    },
-    garrison: (id, c, r) => { // استقرار در برجِ خانه (c,r) — قلاب تست (0.45.0)
-      const u = state.units.find((u) => u.id === id);
-      const b = state.buildings.find((b) => c >= b.c && c < b.c + b.w && r >= b.r && r < b.r + b.h) || null;
-      if (!u || !b) return { ok: false, reason: "INVALID" };
-      const res = garrisonUnit(state, u, b);
-      refreshPanel();
-      return res;
-    },
-    deploy: (id) => { // استقرار/جمع منجنیق — قلاب تست (0.46.0)
-      const u = state.units.find((u) => u.id === id);
-      if (!u) return { ok: false, reason: "INVALID" };
-      const res = deployUnit(state, u);
-      refreshPanel();
-      return res;
-    },
-    select: (id) => {
-      selIds = [id];
-      pendingKind = null;
-      refreshPanel();
-      return selIds[0] || null;
-    },
-    selected: () => selIds[0] || null,
-    selectedIds: () => selIds.slice(), // مجموعه انتخاب (0.16.0)
-    alarm: (c, r) => { // زنگ خطر — قلاب تست (0.17.0)
-      const rs = alarmAll(state, c, r);
-      if (rs.some((r) => r.ok)) state.events.push(t("main.alarm.event", { c, r }));
-      refreshPanel();
-      return rs;
-    },
-    toggleSelect: (id) => { // ضامن شیفت+کلیک — قلاب تست
-      selIds = toggleInSet(selIds, id);
-      pendingKind = null;
-      refreshPanel();
-      return selIds.slice();
-    },
-    cancel: (id) => {
-      const u = state.units.find((u) => u.id === id);
-      if (!u) return { ok: false, reason: "INVALID" };
-      return cancelOrder(u);
-    },
-    cmd: (c) => playerCmd( c, state.tick), // صف فرمان — قلاب تست (0.37.0)
-    queueLen: () => cmdQueue.items.length,
-    soundStart: () => sound.ensureStarted(), // شروع صدا — قلاب تست (0.48.0)
-    soundLog: () => sound.log.slice(-10), // تازه‌ترین رویدادهای صوتی — قلاب تست (0.48.0)
-    soundMuted: () => sound.volumes.muted,
-    runTests: showTests,
-    runIdbTests,
-    bench: runBench,
-    firstTen: (seed, ticks) => runFirstTen(seed, ticks), // سناریوی ۱۰ دقیقه اول (0.61.0)
-    regression: runRegression,
-    regressionOne: (key) => runScenario(REGRESSIONS.find((s) => s.key === key)),
-    regressionList: () => REGRESSIONS.map((s) => s.key),
-    fuzzSaves,
-    fuzzCmds,
-    compat: () => probeCompat(liveEnv()),
-    remains: () => renderer.debugRemains(),
-    profile: () => ({ name: profile.name, logo: profile.logo }), // قلاب تست پروفایل (0.27.0)
-    setProfile: (name, logo) => {
-      const saved = saveProfile({ name, logo });
-      if (saved) {
-        profile = saved;
-        syncProfileInput();
-        refreshPanel();
-      }
-      return saved;
-    },
-    menu: { // قلاب تست منو (0.27.0)
-      show: () => showMenu(),
-      hide: () => hideMenu(),
-      visible: () => { const ms = $("menuScreen"); return !!(ms && !ms.hidden); },
-    },
-    screenToCell: (sx, sy) => {
-      const rect = canvas.getBoundingClientRect();
-      return renderer.screenToCell(sx - rect.left, sy - rect.top);
-    },
-    cellToScreen: (c, r) => {
-      const rect = canvas.getBoundingClientRect();
-      const p = renderer.cellToScreen(c, r);
-      return { x: p.x + rect.left, y: p.y + rect.top };
-    },
-  };
+  // قلاب تست (0.273.0 — C-CLN-93): استخراج مکانیکی به game/testhook.js — بدون تغییر منطق.
+  window.__slice01 = createTestHookUI({ getState: () => state, getTerrain: () => terrain, getMpSession: () => mpSession, getMpDesync: () => mpDesync, getSelBldId: () => selBldId, getSelIds: () => selIds, getSelectedKey: () => selectedKey, getCmdQueue: () => cmdQueue, getProfile: () => profile, setState: (v) => { state = v; }, setTerrain: (v) => { terrain = v; }, setMpSession: (v) => { mpSession = v; }, setMpNextSeq: (v) => { mpNextSeq = v; }, setSelIds: (v) => { selIds = v; }, setSelectedKey: (v) => { selectedKey = v; }, setSelectedUnit: (v) => { selectedUnit = v; }, setPendingKind: (v) => { pendingKind = v; }, setProfile: (v) => { profile = v; }, $, canvas, clock, exitWatch, getEditor, getMissionActive, getMissionLost, getMissionWon, hideMenu, lobby, mpHashes, mpHashLog, mpPending, newGame, online, paintCampaign, paintMasters, paintMp, refreshPanel, setMastersFilter, setTick, showMenu, sound, startMission, startWatch, tickViewHooks, renderer, applyMpInput, testBadge });
+}
+
+function bootGuarded() {
+  try {
+    boot();
+  } catch (e) {
+    // گزارش خطای بوت به قاب والد (پیش‌نمایش ریشه): عیب‌یابی cross-origin.
+    try { window.parent.postMessage({ type: "arg-boot-error", message: String((e && e.stack) || e) }, "*"); } catch (e2) {}
+    throw e;
+  }
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", boot);
+  document.addEventListener("DOMContentLoaded", bootGuarded);
 } else {
-  boot();
+  bootGuarded();
 }

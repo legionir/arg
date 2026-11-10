@@ -7,6 +7,9 @@ body {
   font-optical-sizing: auto; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
 }
 h1, h2, h3, p { margin: 0; }
+/* موبایل (0.223.0 — C-MOB-1): ژست‌های بازی با مرورگر نجنگند؛ دکمه‌ها بدون تأخیر دابل‌تپ */
+html, body { overscroll-behavior: none; }
+button { touch-action: manipulation; }
 b, strong { font-weight: var(--fw-semibold); }
 img { max-width: 100%; }
 [hidden] { display: none !important; }

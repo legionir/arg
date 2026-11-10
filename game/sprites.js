@@ -44,6 +44,13 @@ export function getSprite(path) {
 }
 
 // برای تست/اعتبارسنجی: آیا همه مسیرهای داده‌شده آماده‌اند؟
+// برای تست حافظه موبایل (0.224.0 — C-MOB-6): شمار ورودی‌های inline + اندازه کش.
+export function spriteInlineCount() {
+  return Object.keys(INLINE).length;
+}
+export function spriteCacheSize() {
+  return cache.size;
+}
 export function spritesReady(paths) {
   return paths.every((p) => {
     const e = cache.get(p);

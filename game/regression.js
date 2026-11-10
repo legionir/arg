@@ -94,6 +94,7 @@ export const REGRESSIONS = [
       put(w, "hut", 4, 4);
       put(w, "woodcutter", 10, 10);
       put(w, "quarry", 16, 16);
+      put(w, "oxtether", 19, 16); // بند ۸۴: معدن بدون آغل کار نمی‌کند
       w.state.workers = 6;
     },
   },
@@ -190,15 +191,16 @@ export function runRegression() {
 }
 
 // هش‌های پین‌شده (تولید: اجرای زنده runRegression؛ تغییر عمدی sim = به‌روزرسانی + ثبت).
+// (0.72.0 — فاز ۰ بند ۲: mix شدن rng در هش + کوانتیزاسیون Q6 موقعیت‌ها.)
 export const EXPECTED_HASHES = {
-  "eco-wood": "44ba5359",
-  "econ-chain": "a23c86d9",
-  "combat-melee": "c7e286df",
-  "tower-defense": "47f53d23",
-  "siege-catapult": "a5c35b7c",
-  "garrison-tower": "1935bca3",
-  "ai-skirmish": "e06f576b",
-  "policy-tax": "26db012d",
+  "eco-wood": "1345792b", // 0.147.0: کلبه ۱۰→۶ چوب (هزینه مرجع §۸.۵) — چرخه چوب ۴ واحد بالاتر
+  "econ-chain": "b8374bf0", // 0.172.0: آسیاب ۲۰ چوب + ۳ کارگر (هزینه/کارگر مرجع §8.3) — چرخه نان ۱۰ چوب پایین‌تر + ۲ دهان بیشتر
+  "combat-melee": "9f99f227", // 0.169.0: barracks 30w+10s -> 15s (reference cost)
+  "tower-defense": "fbeca2c9", // 0.169.0: barracks 30w+10s -> 15s (reference cost)
+  "siege-catapult": "3b2a3c26", // 0.169.0: barracks 30w+10s -> 15s (reference cost)
+  "garrison-tower": "8d704fd3", // 0.169.0: barracks 30w+10s -> 15s (reference cost)
+  "ai-skirmish": "464eeed3", // 0.154.0: زمین واحه (سایت‌های AI جابه‌جا) + بازگشت تهاجمی ارباب — تغییر عمدی sim
+  "policy-tax": "62d13cfa", // 0.147.0: کلبه ۱۰→۶ چوب (هزینه مرجع §۸.۵) — همان علت eco-wood
 };
 
 // --- فاز ---
@@ -230,6 +232,12 @@ const FUZZ_PATHS = [
   (d) => { d.mapPatches = [[0, 9]]; },
   (d) => { d.nextId = 0; },
   (d) => { d.wave = -1; },
+  (d) => { d.rng = -1; }, // جریان RNG منفی = رد تمیز (فاز ۰ بند ۲)
+  (d) => { d.rng = "lots"; }, // جریان RNG ناعدد = رد تمیز (فاز ۰ بند ۲)
+  (d) => { if (d.buildings[0]) d.buildings[0].served = "yes"; }, // served نابولین = رد تمیز (بند ۶)
+  (d) => { if (d.buildings[0]) { d.buildings[0].destroyed = true; d.buildings[0].hp = 5; } }, // ویرانه با hp = رد تمیز (بند ۶)
+  (d) => { if (d.buildings[0]) { d.buildings[0].destroyed = true; d.buildings[0].train = []; } }, // ویرانه با میدان اضافه = رد تمیز (بند ۶)
+  (d) => { d.workerCap = -1; }, // سقف منفی = رد تمیز (بند ۶)
 ];
 
 function baseSaveDoc() {

@@ -2,7 +2,7 @@
 // منطق ناوبری (پشته صفحه‌ها) خالص و تست‌پذیر است؛ اتصال DOM در bindMenuNav جداست.
 // فقط لایه نمایش — به sim/ذخیره/هش دست نمی‌زند.
 
-export const MENU_PAGES = ["home", "solo", "mp", "profile", "settings"];
+export const MENU_PAGES = ["home", "solo", "campaign", "mp", "masters", "profile", "settings"];
 
 // پشته: همیشه با "home" شروع می‌شود. go(home) پشته را ریست می‌کند؛ go(x) دوبار پشت‌سرهم تکرار نمی‌شود.
 export function createMenuNav() {

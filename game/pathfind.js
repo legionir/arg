@@ -4,11 +4,11 @@
 // - تساوی f با h کمتر، بعد ایندکس کمتر شکسته می‌شود → خروجی قطعی.
 // - شروع همیشه قابل عبور فرض می‌شود (واحد روی چمن می‌ایستد)؛
 //   هدف باید walkable باشد — اگر نیست، صداکننده باید اول nearestWalkable بزند.
-import { T_GRASS } from "./terrain.js";
+import { T_GRASS, T_OASIS } from "./terrain.js";
 
 export function isCellWalkable(terrain, occ, W, H, c, r) {
   if (c < 0 || r < 0 || c >= W || r >= H) return false;
-  if (terrain[r * W + c] !== T_GRASS) return false;
+  if (terrain[r * W + c] !== T_GRASS && terrain[r * W + c] !== T_OASIS) return false; // واحه قابل‌عبور است (0.154.0 — بند 107)
   if (occ[r * W + c] === 1) return false;
   return true;
 }

@@ -1,0 +1,97 @@
+{
+  "missions": [
+    {
+      "key": "first-steps",
+      "name": "گام‌های نخست",
+      "nameEn": "First Steps",
+      "brief": "دو کلبه بساز و تا تیک ۳۰۰ دوام بیاور.",
+      "briefEn": "Build 2 huts and survive until tick 300.",
+      "seed": 1101,
+      "difficulty": "easy",
+      "personality": "wolf",
+      "identity": "none",
+      "objectives": [
+        { "id": "huts", "kind": "haveBuilding", "type": "hut", "count": 2 },
+        { "id": "hold", "kind": "tick", "at": 300 }
+      ]
+    },
+    {
+      "key": "bread-line",
+      "name": "زنجیره نان",
+      "nameEn": "Bread Line",
+      "brief": "مزرعه، آسیاب و نانوایی بساز و جمعیت را به ۱۵ برسان.",
+      "briefEn": "Build a farm, a mill and a bakery, and reach population 15.",
+      "seed": 1202,
+      "difficulty": "easy",
+      "personality": "rat",
+      "identity": "none",
+      "objectives": [
+        { "id": "farm", "kind": "haveBuilding", "type": "farm", "count": 1 },
+        { "id": "mill", "kind": "haveBuilding", "type": "mill", "count": 1 },
+        { "id": "bakery", "kind": "haveBuilding", "type": "bakery", "count": 1 },
+        { "id": "folk", "kind": "population", "count": 15 }
+      ]
+    },
+    {
+      "key": "desert-outpost",
+      "name": "پاسگاه بیابان",
+      "nameEn": "Desert Outpost",
+      "brief": "دو برج بساز و چهار سرباز استخدام کن.",
+      "briefEn": "Build 2 towers and hire 4 soldiers.",
+      "seed": 1303,
+      "difficulty": "normal",
+      "personality": "snake",
+      "identity": "none",
+      "objectives": [
+        { "id": "towers", "kind": "haveBuilding", "type": "tower", "count": 2 },
+        { "id": "troops", "kind": "haveUnit", "type": "soldier", "count": 4 }
+      ]
+    },
+    {
+      "key": "saladin-assault",
+      "name": "یورش صلاح‌الدین",
+      "nameEn": "Saladin's Assault",
+      "brief": "تا موج سوم زنده بمان و ارباب را زنده نگه دار.",
+      "briefEn": "Survive until wave 3 and keep the lord alive.",
+      "seed": 1404,
+      "difficulty": "hard",
+      "personality": "saladin",
+      "identity": "arab",
+      "objectives": [
+        { "id": "wave3", "kind": "wave", "n": 3 },
+        { "id": "lord", "kind": "keepLordAlive" }
+      ]
+    },
+    {
+      "key": "lion-siege",
+      "name": "محاصره شیر",
+      "nameEn": "The Lion's Siege",
+      "brief": "یک منجنیق بساز و دروازه‌ای را تصرف کن.",
+      "briefEn": "Build a catapult and capture a gatehouse.",
+      "seed": 1505,
+      "difficulty": "normal",
+      "personality": "lion",
+      "identity": "crusader",
+      "objectives": [
+        { "id": "engine", "kind": "haveUnit", "type": "catapult", "count": 1 },
+        { "id": "gate", "kind": "captureGatehouse" }
+      ]
+    },
+    {
+      "key": "kings-stand",
+      "name": "پایداری پادشاهان",
+      "nameEn": "Kings' Stand",
+      "brief": "محبوبیت را به ۵۵ برسان، تا تیک ۳۰۰۰ دوام بیاور و ارباب را زنده نگه دار.",
+      "briefEn": "Reach 55 popularity, survive until tick 3000, keep the lord alive.",
+      "seed": 1606,
+      "difficulty": "hard",
+      "personality": "pig",
+      "identity": "crusader",
+      "objectives": [
+        { "id": "love", "kind": "popularity", "amount": 55 },
+        { "id": "endure", "kind": "tick", "at": 3000 },
+        { "id": "lord", "kind": "keepLordAlive" }
+      ]
+    }
+  ]
+}

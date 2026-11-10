@@ -15,7 +15,42 @@ import { CONFIG } from "./config.js";
 import { capFor } from "./economy.js";
 import { underConstruction } from "./construction.js";
 
-export const TRADE_FA = lazyTable("game.trade", ["INVALID", "NOT_OWNED", "NO_MARKET", "UNDER_CONSTRUCTION", "NO_GOLD", "NO_STOCK", "NO_SPACE", "UNKNOWN"]);
+export const TRADE_FA = lazyTable("game.trade", ["INVALID", "NOT_OWNED", "NO_MARKET", "UNDER_CONSTRUCTION", "NO_GOLD", "NO_STOCK", "NO_SPACE", "UNKNOWN", "STAGE"]);
+
+// مرحلهٔ بازی برای بازار (فاز ۱ بند ۸۹ — «برخی کالاها بسته به مرحله قابل‌معامله
+// نیستند»): early پیش‌فرض؛ mid با بنای-milestone سالمِ تکمیل‌شده خودی (پیش‌فرض
+// داده: سربازخانه)، late با milestone بالاتر (پیش‌فرض داده: کلیسای جامع).
+// 🔧 حدس: دفترچه مرحله‌ها را تعریف نمی‌کند — نگاشت milestoneها داده‌محور است
+// (CONFIG.MARKET.stages) و نبودش = همان پیش‌فرض. خالص و MP-aware.
+export const MARKET_STAGE_IDS = ["early", "mid", "late"];
+function marketMilestones() {
+  const s = CONFIG.MARKET && CONFIG.MARKET.stages;
+  if (s && typeof s === "object" && !Array.isArray(s)) return s;
+  return { mid: "barracks", late: "cathedral" };
+}
+export function stageRank(s) {
+  const i = MARKET_STAGE_IDS.indexOf(s);
+  return i < 0 ? 0 : i;
+}
+export function marketStage(state, owner) {
+  const ow = owner == null ? 0 : owner;
+  const ms = marketMilestones();
+  const has = (type) => (state.buildings || []).some((b) =>
+    b && b.type === type && !b.destroyed && !underConstruction(b) &&
+    (b.owner == null ? 0 : b.owner) === ow);
+  if (ms.late && has(ms.late)) return "late";
+  if (ms.mid && has(ms.mid)) return "mid";
+  return "early";
+}
+
+// قفل مرحله‌ای یک کالا: minStage لازم (null = آزاد). خالص و MP-aware.
+export function tradeLocked(state, res, owner) {
+  const M = CONFIG.MARKET;
+  const rate = M && M.rates && M.rates[res];
+  if (!rate || !rate.minStage) return null;
+  return stageRank(marketStage(state, owner == null ? 0 : owner)) < stageRank(rate.minStage)
+    ? rate.minStage : null;
+}
 
 function tradeRes(state, owner) {
   const mp = state.mp && state.mp.enabled;
@@ -37,6 +72,37 @@ export function hasMarket(state, owner) {
   return !!marketOf(state, owner);
 }
 
+// بازرگان بازار (فاز ۱ بند ۹۰ — §۶.۶ «وقتی بازار ساخته شود می‌آید»): شمار
+export function marketTrader(state, owner) {
+  const ow = owner == null ? 0 : owner;
+  let count = 0;
+  for (const b of state.buildings || []) {
+    if (!b || b.destroyed || b.type !== "market" || underConstruction(b)) continue;
+    if ((b.owner == null ? 0 : b.owner) !== ow) continue;
+    count++;
+  }
+  return { present: count > 0, count };
+}
+
+// تب‌های پنل trade (فاز ۱ بند ۳۶): سه تب مرجع (غذا/منابع/کالای نظامی) —
+// نگاشت از CONFIG.MARKET.tabs (داده‌محور)؛ نامعتبر = null.
+export const MARKET_TABS = ["food", "resources", "military"];
+export function marketTabOf(res) {
+  const tabs = CONFIG.MARKET && CONFIG.MARKET.tabs;
+  if (!tabs || typeof res !== "string") return null;
+  for (const id of MARKET_TABS) {
+    if (Array.isArray(tabs[id]) && tabs[id].includes(res)) return id;
+  }
+  return null;
+}
+// انتخاب کالا (فاز ۱ بند ۳۸): کلیک روی کالا آن را برای Buy/Sell برمی‌گزیند.
+// sel نامعتبر/تهی = نخستین کالای فهرست؛ فهرست تهی = null. خالص.
+export function marketSelected(list, sel) {
+  if (Array.isArray(list) && list.includes(sel)) return sel;
+  if (Array.isArray(list) && list.length > 0) return list[0];
+  return null;
+}
+
 // پیش‌فاکتور خالص و تست‌پذیر: {n, pay, gain} یا {ok:false, reason}.
 export function tradeQuote(state, res, dir, owner) {
   const ow = owner == null ? 0 : owner;
@@ -51,6 +117,7 @@ export function tradeQuote(state, res, dir, owner) {
     x.type === "market" && !x.destroyed && (x.owner == null ? 0 : x.owner) === ow);
   if (!b) return { ok: false, reason: "NO_MARKET" };
   if (underConstruction(b)) return { ok: false, reason: "UNDER_CONSTRUCTION" };
+  if (tradeLocked(state, res, ow)) return { ok: false, reason: "STAGE" };
   const bag = tradeRes(state, ow);
   if (!bag) return { ok: false, reason: "INVALID" };
   if (dir === "buy") {

@@ -1,0 +1,1378 @@
+{
+  "version": 1,
+  "note": "Single source of truth for building stats (Phase 0 item 3). Balance edits go here, no logic recompile. Stricter placement/needs arrive with Phase 1 (checklist #61/#84).",
+  "buildings": [
+    {
+      "id": "hut",
+      "flammable": true,
+      "nameKey": "game.building.hut.name",
+      "w": 2,
+      "h": 2,
+      "height": 24,
+      "base": "#a8894f",
+      "dark": "#6f5a33",
+      "top": "#e3c188",
+     "hp": 100,
+     "cost": {
+        "wood": 6
+     },
+     "buildTime": 30,
+      "source": "reference: checklist-8.5 Hovel (۶ چوب/+۸ مسکن)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "tower",
+      "fortified": true,
+      "nameKey": "game.building.tower.name",
+      "w": 3,
+      "h": 3,
+      "height": 54,
+      "base": "#8d99a6",
+      "dark": "#59616b",
+      "top": "#ccd5dd",
+      "hp": 250,
+      "cost": {
+        "wood": 20,
+        "gold": 10,
+        "stone": 10
+      },
+      "buildTime": 100,
+      "source": "reference: stronghold-wiki/tower",
+      "rules": {
+        "spacingFromSame": 2
+      },
+      "weapon": {
+        "dmg": 6,
+        "cd": 10,
+        "range": 7,
+        "source": "guess"
+      },
+      "garrisonCap": 4,
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "lookout",
+      "fortified": true,
+      "nameKey": "game.building.lookout.name",
+      "w": 2,
+      "h": 2,
+      "height": 70,
+      "base": "#9aa4ae",
+      "dark": "#626b74",
+      "top": "#d6dde3",
+      "hp": 150,
+      "cost": {
+        "stone": 10
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.1/18.3 Lookout Tower (10 stone; tallest; capacity 5 HeavenGames) + guess (hp/range/dims)",
+      "rules": {
+        "spacingFromSame": 2
+      },
+      "weapon": {
+        "dmg": 5,
+        "cd": 12,
+        "range": 9,
+        "source": "guess"
+      },
+      "garrisonCap": 5,
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "perimeter",
+      "fortified": true,
+      "nameKey": "game.building.perimeter.name",
+      "w": 2,
+      "h": 2,
+      "height": 46,
+      "base": "#8d99a6",
+      "dark": "#59616b",
+      "top": "#ccd5dd",
+      "hp": 300,
+      "cost": {
+        "stone": 10
+      },
+      "buildTime": 80,
+      "source": "reference: checklist-8.1/18.3 Perimeter Tower (10 stone; capacity 8) + guess (hp/range/dims)",
+      "rules": {
+        "spacingFromSame": 2
+      },
+      "weapon": {
+        "dmg": 6,
+        "cd": 10,
+        "range": 7,
+        "source": "guess"
+      },
+      "garrisonCap": 8,
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "defence",
+      "fortified": true,
+      "nameKey": "game.building.defence.name",
+      "w": 3,
+      "h": 3,
+      "height": 60,
+      "base": "#7e8894",
+      "dark": "#4d545c",
+      "top": "#b9c2cb",
+      "hp": 450,
+      "cost": {
+        "stone": 15
+      },
+      "buildTime": 120,
+      "source": "reference: checklist-8.1/18.3 Defence Turret (15 stone; tougher; capacity 12) + guess (hp/range/dims)",
+      "rules": {
+        "spacingFromSame": 2
+      },
+      "weapon": {
+        "dmg": 7,
+        "cd": 10,
+        "range": 8,
+        "source": "guess"
+      },
+      "garrisonCap": 12,
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "squaretower",
+      "fortified": true,
+      "nameKey": "game.building.squaretower.name",
+      "w": 3,
+      "h": 3,
+      "height": 66,
+      "base": "#868e98",
+      "dark": "#4a5058",
+      "top": "#b7bfc9",
+      "hp": 480,
+      "cost": {
+        "stone": 35
+      },
+      "buildTime": 150,
+      "source": "reference: checklist-8.1/18.3 Square Tower (35 stone; HP 1600 wiki→480 web-scale; capacity 36) + guess (hp scale/weapon/dims)",
+      "rules": {
+        "spacingFromSame": 2
+      },
+      "weapon": {
+        "dmg": 8,
+        "cd": 10,
+        "range": 8,
+        "source": "guess"
+      },
+      "garrisonCap": 36,
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "roundtower",
+      "fortified": true,
+      "nameKey": "game.building.roundtower.name",
+      "w": 3,
+      "h": 3,
+      "height": 66,
+      "base": "#93908a",
+      "dark": "#55524b",
+      "top": "#c6c2b8",
+      "hp": 600,
+      "cost": {
+        "stone": 40
+      },
+      "buildTime": 180,
+      "source": "reference: checklist-8.1/18.3 Round Tower (40 stone; tougher; HP 2000 wiki→600 web-scale; capacity 36) + guess (hp scale/weapon/dims)",
+      "rules": {
+        "spacingFromSame": 2
+      },
+      "weapon": {
+        "dmg": 8,
+        "cd": 10,
+        "range": 8,
+        "source": "guess"
+      },
+      "garrisonCap": 36,
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "barracks",
+      "nameKey": "game.building.barracks.name",
+      "w": 4,
+      "h": 3,
+      "height": 30,
+      "base": "#8d7a5c",
+      "dark": "#57492f",
+      "top": "#a03a3a",
+      "hp": 200,
+      "cost": {
+        "stone": 15
+      },
+      "buildTime": 80,
+      "source": "reference: checklist-8.1 Barracks (15 stone) + guess (dims/hp/time/unique)",
+      "rules": {
+        "unique": true
+      },
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "mercpost",
+      "nameKey": "game.building.mercpost.name",
+      "w": 3,
+      "h": 2,
+      "height": 28,
+      "base": "#8d7a5c",
+      "dark": "#57492f",
+      "top": "#3a6ea5",
+      "hp": 150,
+      "cost": {
+        "wood": 10
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.1 Mercenary Post (10 wood)",
+      "rules": {
+        "unique": true
+      },
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "stockpile",
+      "flammable": true,
+      "nameKey": "game.building.stockpile.name",
+      "w": 2,
+      "h": 2,
+      "height": 14,
+      "base": "#8d7a5c",
+      "dark": "#57492f",
+      "top": "#c2a152",
+      "hp": 100,
+      "cost": {
+        "wood": 20
+      },
+      "buildTime": 30,
+      "source": "guess",
+      "rules": {
+        "anchorToSame": true
+      },
+      "category": "industry",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "granary",
+      "flammable": true,
+      "nameKey": "game.building.granary.name",
+      "w": 2,
+      "h": 2,
+      "height": 18,
+      "base": "#a8894f",
+      "dark": "#6f5a33",
+      "top": "#9fbf5a",
+      "hp": 100,
+      "cost": {
+        "wood": 5
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-8.3 Granary (5 wood) + guess (dims/hp/time/rules)",
+      "rules": {
+        "anchorToSame": true
+      },
+      "category": "food",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "market",
+      "nameKey": "game.building.market.name",
+      "w": 2,
+      "h": 2,
+      "height": 20,
+      "base": "#9a8a6a",
+      "dark": "#5f5340",
+      "top": "#3f7a4e",
+      "hp": 120,
+      "cost": {
+        "wood": 20,
+        "stone": 10
+      },
+      "buildTime": 60,
+      "source": "guess",
+      "rules": null,
+      "category": "industry",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "woodcutter",
+      "flammable": true,
+      "nameKey": "game.building.woodcutter.name",
+      "w": 2,
+      "h": 2,
+      "height": 20,
+      "base": "#7a5c3e",
+      "dark": "#4e3a26",
+      "top": "#a88357",
+      "prod": "wood",
+      "hp": 80,
+      "cost": {
+        "wood": 15
+      },
+      "buildTime": 40,
+      "source": "guess",
+      "rules": {
+        "spacingFromSame": 1
+      },
+      "econ": {
+        "produces": "wood",
+        "amount": 1,
+        "everyTicks": 20,
+        "workers": 1
+      },
+      "category": "industry",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "hunterpost",
+      "flammable": true,
+      "nameKey": "game.building.hunterpost.name",
+      "w": 2,
+      "h": 2,
+      "height": 7,
+      "base": "#7a6a4a",
+      "dark": "#54482f",
+      "top": "#a89468",
+      "prod": "meat",
+      "hp": 60,
+      "cost": {
+        "wood": 5
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-8.2 Hunter Post (5 wood) + guess (dims/hp/time)",
+      "rules": null,
+      "econ": {
+        "produces": "meat",
+        "amount": 1,
+        "everyTicks": 33,
+        "workers": 1
+      },
+      "category": "farm",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "dairy",
+      "flammable": true,
+      "nameKey": "game.building.dairy.name",
+      "w": 3,
+      "h": 2,
+      "height": 8,
+      "base": "#b09a7a",
+      "dark": "#7d6c52",
+      "top": "#d6c096",
+      "prod": "cheese",
+      "hp": 60,
+      "cost": {
+        "wood": 10
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-8.2 Dairy Farm (10 wood) + guess (dims/hp/time/cows)",
+      "rules": null,
+      "econ": {
+        "produces": "cheese",
+        "amount": 1,
+        "everyTicks": 33,
+        "workers": 1,
+        "needsCows": 3,
+        "cowGrowthTicks": 100
+      },
+      "category": "farm",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "tannery",
+      "flammable": true,
+      "nameKey": "game.building.tannery.name",
+      "w": 2,
+      "h": 2,
+      "height": 10,
+      "base": "#7a5233",
+      "dark": "#4e3320",
+      "top": "#a87648",
+      "prod": "leather",
+      "hp": 80,
+      "cost": {
+        "wood": 15
+      },
+      "buildTime": 30,
+      "source": "guess",
+      "rules": null,
+      "econ": {
+        "produces": "leather",
+        "amount": 1,
+        "everyTicks": 50,
+        "workers": 1,
+        "consumesCow": 1
+      },
+      "category": "industry",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "orchard",
+      "flammable": true,
+      "nameKey": "game.building.orchard.name",
+      "w": 3,
+      "h": 3,
+      "height": 7,
+      "base": "#5d8a3c",
+      "dark": "#3f6127",
+      "top": "#8cc05a",
+      "prod": "apples",
+      "hp": 60,
+      "cost": {
+        "wood": 5
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-8.2 Apple Orchard (5 wood) + guess (dims/hp/time)",
+      "rules": null,
+      "econ": {
+        "produces": "apples",
+        "amount": 1,
+        "everyTicks": 20,
+        "workers": 1
+      },
+      "category": "farm",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "farm",
+      "flammable": true,
+      "nameKey": "game.building.farm.name",
+      "w": 3,
+      "h": 2,
+      "height": 8,
+      "base": "#6f8f3f",
+      "dark": "#4a6128",
+      "top": "#9fbf5a",
+      "prod": "food",
+      "hp": 60,
+      "cost": {
+        "wood": 20
+      },
+      "buildTime": 30,
+      "source": "guess",
+      "rules": null,
+      "econ": {
+        "produces": "food",
+        "amount": 1,
+        "everyTicks": 15,
+        "workers": 1
+      },
+      "category": "farm",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "wheatfarm",
+      "flammable": true,
+      "nameKey": "game.building.wheatfarm.name",
+      "w": 3,
+      "h": 2,
+      "height": 8,
+      "base": "#7a6534",
+      "dark": "#4f4220",
+      "top": "#c2a152",
+      "prod": "wheat",
+      "hp": 60,
+      "cost": {
+        "wood": 15
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-8.2 Wheat Farm (15 wood) + guess (dims/hp/time)",
+      "rules": null,
+      "econ": {
+        "produces": "wheat",
+        "amount": 1,
+        "everyTicks": 20,
+        "workers": 1
+      },
+      "category": "farm",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "mill",
+      "nameKey": "game.building.mill.name",
+      "w": 2,
+      "h": 2,
+      "height": 34,
+      "base": "#9a8a6a",
+      "dark": "#5f5340",
+      "top": "#7a4a2e",
+      "prod": "flour",
+      "hp": 100,
+      "cost": {
+        "wood": 20
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.3 Mill (20 wood + 3 workers) + guess (dims/hp/time)",
+      "rules": null,
+      "econ": {
+        "produces": "flour",
+        "amount": 2,
+        "everyTicks": 15,
+        "workers": 3,
+        "consumes": {
+          "wheat": 2
+        }
+      },
+      "category": "food",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "bakery",
+      "nameKey": "game.building.bakery.name",
+      "w": 2,
+      "h": 2,
+      "height": 22,
+      "base": "#b09a72",
+      "dark": "#6e5c40",
+      "top": "#7a4a2e",
+      "prod": "food",
+      "hp": 100,
+      "cost": {
+        "wood": 10
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.3 Bakery (10 wood) + guess (dims/hp/time)",
+      "rules": null,
+      "econ": {
+        "produces": "food",
+        "amount": 8,
+        "everyTicks": 90,
+        "workers": 1,
+        "consumes": {
+          "flour": 1
+        }
+      },
+      "category": "food",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "armoury",
+      "nameKey": "game.building.armoury.name",
+      "w": 2,
+      "h": 2,
+      "height": 22,
+      "base": "#8d7a6a",
+      "dark": "#54463a",
+      "top": "#6e6e78",
+      "prod": "swords",
+      "hp": 120,
+      "cost": {
+        "wood": 5
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.1 Armoury (5 wood) + guess (dims/hp/time/prod)",
+      "rules": null,
+      "econ": {
+        "produces": "swords",
+        "amount": 1,
+        "everyTicks": 30,
+        "workers": 1,
+        "consumes": {
+          "iron": 2
+        }
+      },
+      "category": "weapon",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "fletcher",
+      "nameKey": "game.building.fletcher.name",
+      "w": 2,
+      "h": 2,
+      "height": 22,
+      "base": "#7a5c3e",
+      "dark": "#4e3a26",
+      "top": "#a88357",
+      "prod": "bows",
+      "hp": 100,
+      "cost": {
+        "wood": 20,
+        "gold": 100
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.6 Fletcher (20 wood + 100 gold, 2 wood/bow) + guess (dims/hp/time)",
+      "rules": null,
+      "econ": {
+        "produces": "bows",
+        "amount": 1,
+        "everyTicks": 30,
+        "workers": 1,
+        "consumes": {
+          "wood": 2
+        }
+      },
+      "category": "weapon",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "hopsfarm",
+      "flammable": true,
+      "nameKey": "game.building.hopsfarm.name",
+      "w": 3,
+      "h": 2,
+      "height": 8,
+      "base": "#5e7038",
+      "dark": "#3c4a22",
+      "top": "#7fa050",
+      "prod": "hops",
+      "hp": 60,
+      "cost": {
+        "wood": 15
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-8.2 Hops Farm (15 wood) + guess (dims/hp/time)",
+      "rules": null,
+      "econ": {
+        "produces": "hops",
+        "amount": 1,
+        "everyTicks": 20,
+        "workers": 1
+      },
+      "category": "farm",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "brewery",
+      "nameKey": "game.building.brewery.name",
+      "w": 2,
+      "h": 2,
+      "height": 22,
+      "base": "#8d7a5c",
+      "dark": "#57492f",
+      "top": "#5e3a26",
+      "prod": "beer",
+      "hp": 100,
+      "cost": {
+        "wood": 10
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.3 Brewery (10 wood) + guess (dims/hp/time)",
+      "rules": null,
+      "econ": {
+        "produces": "beer",
+        "amount": 1,
+        "everyTicks": 20,
+        "workers": 1,
+        "consumes": {
+          "hops": 1
+        }
+      },
+      "category": "food",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "inn",
+      "flammable": true,
+      "nameKey": "game.building.inn.name",
+      "w": 2,
+      "h": 2,
+      "height": 26,
+      "base": "#a8894f",
+      "dark": "#6f5a33",
+      "top": "#4e3a5e",
+      "hp": 120,
+      "cost": {
+        "wood": 20,
+        "gold": 100
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.3 Inn (20 wood + 100 gold) + guess (dims/hp/time)",
+      "rules": null,
+      "category": "food",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "chapel",
+      "nameKey": "game.building.chapel.name",
+      "w": 2,
+      "h": 2,
+      "height": 22,
+      "base": "#b8b0a0",
+      "dark": "#7a7468",
+      "top": "#e8e2d4",
+      "hp": 100,
+      "cost": {
+        "gold": 250
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.5 Chapel (۲۵۰ طلا)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "church",
+      "nameKey": "game.building.church.name",
+      "w": 2,
+      "h": 2,
+      "height": 30,
+      "base": "#a89f8d",
+      "dark": "#6b6558",
+      "top": "#f0ead8",
+      "hp": 150,
+      "cost": {
+        "gold": 500
+      },
+      "buildTime": 120,
+      "source": "reference: checklist-8.5 Church (۵۰۰ طلا)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "cathedral",
+      "nameKey": "game.building.cathedral.name",
+      "w": 2,
+      "h": 2,
+      "height": 38,
+      "base": "#9a9184",
+      "dark": "#5f594e",
+      "top": "#f5efdd",
+      "hp": 200,
+      "cost": {
+        "gold": 1000
+      },
+      "buildTime": 180,
+      "source": "reference: checklist-8.5 Cathedral (۱۰۰۰ طلا)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "apothecary",
+      "flammable": true,
+      "nameKey": "game.building.apothecary.name",
+      "w": 2,
+      "h": 2,
+      "height": 16,
+      "base": "#a8a49a",
+      "dark": "#6b675e",
+      "top": "#d8d4c8",
+      "hp": 80,
+      "cost": {
+        "wood": 20,
+        "gold": 150
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.5 apothecary (۲۰ چوب + ۱۵۰ طلا؛ ۱ کارگر) + guess (ابعاد/جان/زمان)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "quarry",
+      "nameKey": "game.building.quarry.name",
+      "w": 2,
+      "h": 2,
+      "height": 14,
+      "base": "#8d949c",
+      "dark": "#565c63",
+      "top": "#b9c0c8",
+      "prod": "stone",
+      "hp": 80,
+      "cost": {
+        "wood": 15
+      },
+      "buildTime": 40,
+      "source": "guess",
+      "rules": {
+        "spacingFromSame": 1
+      },
+      "econ": {
+        "produces": "stone",
+        "amount": 1,
+        "everyTicks": 25,
+        "workers": 1
+      },
+      "category": "industry",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "oxtether",
+      "flammable": true,
+      "nameKey": "game.building.oxtether.name",
+      "w": 2,
+      "h": 2,
+      "height": 6,
+      "base": "#7a5c3e",
+      "dark": "#4e3a26",
+      "top": "#a8895c",
+      "hp": 60,
+      "cost": {
+        "wood": 5
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-8.2/6.2 ox tether (۵ چوب؛ ۱ کارگر) + guess (ابعاد/جان/زمان)",
+      "rules": null,
+      "category": "industry",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "ironmine",
+      "nameKey": "game.building.ironmine.name",
+      "w": 2,
+      "h": 2,
+      "height": 14,
+      "base": "#7a6f63",
+      "dark": "#4a4239",
+      "top": "#a89a86",
+      "prod": "iron",
+      "hp": 80,
+      "cost": {
+        "wood": 15
+      },
+      "buildTime": 40,
+      "source": "guess",
+      "rules": {
+        "spacingFromSame": 1
+      },
+      "econ": {
+        "produces": "iron",
+        "amount": 1,
+        "everyTicks": 20,
+        "workers": 1
+      },
+      "category": "industry",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "wall",
+      "fortified": true,
+      "nameKey": "game.building.wall.name",
+      "w": 1,
+      "h": 1,
+      "height": 14,
+      "base": "#939ca6",
+      "dark": "#5c636c",
+      "top": "#c9d1d9",
+      "hp": 60,
+      "cost": {
+        "wood": 2
+      },
+      "buildTime": 15,
+      "source": "guess",
+      "rules": {
+        "anchorToAny": true
+      },
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "gate",
+      "fortified": true,
+      "nameKey": "game.building.gate.name",
+      "w": 1,
+      "h": 1,
+      "height": 18,
+      "base": "#7a6a4f",
+      "dark": "#4e4230",
+      "top": "#a89468",
+      "hp": 80,
+      "cost": {
+        "wood": 4
+      },
+      "buildTime": 15,
+      "source": "guess",
+      "rules": {
+        "anchorToAny": true
+      },
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "lowwall",
+      "fortified": true,
+      "nameKey": "game.building.lowwall.name",
+      "w": 1,
+      "h": 1,
+      "height": 8,
+      "base": "#939ca6",
+      "dark": "#5c636c",
+      "top": "#c9d1d9",
+      "hp": 24,
+      "cost": {
+        "wood": 1
+      },
+      "buildTime": 10,
+      "source": "reference: checklist-18.3 low wall (HP 40% of high wall; 1 stone per 4 tiles) + guess (wood-scale cost)",
+      "rules": {
+        "anchorToAny": true
+      },
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "crenwall",
+      "fortified": true,
+      "nameKey": "game.building.crenwall.name",
+      "w": 1,
+      "h": 1,
+      "height": 16,
+      "base": "#8b939c",
+      "dark": "#565d65",
+      "top": "#d3dade",
+      "hp": 72,
+      "cost": {
+        "wood": 2
+      },
+      "buildTime": 20,
+      "source": "reference: checklist-18.3 Crenulated (HP 72 vs 60; cost like high wall) + guess (wood-scale cost)",
+      "rules": {
+        "anchorToAny": true
+      },
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "killpit",
+      "nameKey": "game.building.killpit.name",
+      "w": 1,
+      "h": 1,
+      "height": 2,
+      "base": "#4a3826",
+      "dark": "#2e2318",
+      "top": "#6e5a43",
+      "hp": 40,
+      "cost": {
+        "wood": 6
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-11.5 Killing Pit (6 wood; spiked pit; visible+harmless to friends, invisible to foe) + guess (hp/charges)",
+      "rules": null,
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "dogcage",
+      "nameKey": "game.building.dogcage.name",
+      "w": 2,
+      "h": 2,
+      "height": 10,
+      "base": "#6b5a44",
+      "dark": "#453a2c",
+      "top": "#8a795f",
+      "hp": 100,
+      "cost": {
+        "wood": 10,
+        "gold": 100
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-11.9 Caged War Dogs (10 wood + 100 gold; release hunts nearest unit) + guess (hp/size/dogs)",
+      "rules": null,
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "keep",
+      "nameKey": "game.building.keep.name",
+      "w": 4,
+      "h": 4,
+      "height": 64,
+      "base": "#9aa3ad",
+      "dark": "#5f6770",
+      "top": "#b04a3a",
+      "hp": 600,
+      "cost": {},
+      "buildTime": 0,
+      "source": "guess",
+      "rules": {
+        "unique": true
+      },
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "garden",
+      "nameKey": "game.building.garden.name",
+      "w": 2,
+      "h": 2,
+      "height": 8,
+      "base": "#5d8a4a",
+      "dark": "#3c5c30",
+      "top": "#7fae62",
+      "hp": 50,
+      "cost": {
+        "gold": 20
+      },
+      "buildTime": 60,
+      "fearGood": 2,
+      "source": "reference: checklist-8.5/5.7 good things (۲۰–۳۰ طلا؛ بزرگ‌تر ارزان‌تر) + guess (ابعاد/جان/زمان/اثر)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "statue",
+      "nameKey": "game.building.statue.name",
+      "w": 1,
+      "h": 1,
+      "height": 16,
+      "base": "#a89f8d",
+      "dark": "#6b6558",
+      "top": "#d8d0bc",
+      "hp": 60,
+      "cost": {
+        "gold": 30
+      },
+      "buildTime": 60,
+      "fearGood": 1,
+      "source": "reference: checklist-8.5/5.7 good things (۲۰–۳۰ طلا؛ بزرگ‌تر ارزان‌تر) + guess (ابعاد/جان/زمان/اثر)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "gallows",
+      "flammable": true,
+      "nameKey": "game.building.gallows.name",
+      "w": 1,
+      "h": 1,
+      "height": 18,
+      "base": "#6e5a43",
+      "dark": "#453723",
+      "top": "#8f7a5c",
+      "hp": 60,
+      "cost": {
+        "gold": 50
+      },
+      "buildTime": 60,
+      "fearBad": 1,
+      "source": "reference: checklist-8.5/5.7 bad things (۴۰–۵۰ طلا؛ بزرگ‌تر ارزان‌تر) + guess (ابعاد/جان/زمان/اثر)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "dungeon",
+      "nameKey": "game.building.dungeon.name",
+      "w": 2,
+      "h": 2,
+      "height": 12,
+      "base": "#5c6068",
+      "dark": "#383c42",
+      "top": "#7e848d",
+      "hp": 120,
+      "cost": {
+        "gold": 40
+      },
+      "buildTime": 90,
+      "fearBad": 2,
+      "source": "reference: checklist-8.5/5.7 bad things (۴۰–۵۰ طلا؛ بزرگ‌تر ارزان‌تر) + guess (ابعاد/جان/زمان/اثر)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "signpost",
+      "flammable": true,
+      "nameKey": "game.building.signpost.name",
+      "w": 1,
+      "h": 1,
+      "height": 20,
+      "base": "#7a5c3e",
+      "dark": "#4e3a26",
+      "top": "#a8895c",
+      "hp": 40,
+      "cost": {
+        "wood": 5
+      },
+      "buildTime": 30,
+      "source": "reference: checklist-8.7 signpost (محل ظهور مهاجم + کلید S) + guess (هزینه/ابعاد/جان/زمان)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    }
+    ,
+    {
+      "id": "well",
+      "nameKey": "game.building.well.name",
+      "w": 1,
+      "h": 1,
+      "height": 14,
+      "base": "#8d949c",
+      "dark": "#565c63",
+      "top": "#3f7fbf",
+      "hp": 60,
+      "cost": {
+        "gold": 30
+      },
+      "buildTime": 60,
+      "extinguish": 10,
+      "source": "reference: checklist-8.5 well (۳۰ طلا؛ ۱ کارگر؛ خاموش‌کردن آتش) + 18.4 #215 (شعاع خاموشی ۱۰) + guess (ابعاد/جان/زمان/نمای سنگی)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "waterpot",
+      "nameKey": "game.building.waterpot.name",
+      "w": 2,
+      "h": 2,
+      "height": 12,
+      "base": "#7e848d",
+      "dark": "#4a4e55",
+      "top": "#3f7fbf",
+      "hp": 100,
+      "cost": {
+        "gold": 60
+      },
+      "buildTime": 90,
+      "extinguish": 14,
+      "source": "reference: checklist-8.5 water pot (۶۰ طلا؛ ۳ کارگر؛ مثل چاه ولی کارآمدتر) + 18.4 #215 + guess (شعاع ۱۴/بزرگ‌تر/جان‌دارتر = کارآمدتر؛ ابعاد/جان/زمان)",
+      "rules": null,
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "stonekeep",
+      "nameKey": "game.building.stonekeep.name",
+      "w": 4,
+      "h": 4,
+      "height": 72,
+      "base": "#8b8f96",
+      "dark": "#54575e",
+      "top": "#9a4030",
+      "hp": 800,
+      "cost": {
+        "stone": 20
+      },
+      "buildTime": 150,
+      "source": "reference: checklist-8.1 Large stone gatehouse row (20 stone; Stone keep = next step, houses 10) + guess (hp/buildTime/dims)",
+      "rules": {
+        "unique": true
+      },
+      "category": "castle",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "engineerguild",
+      "nameKey": "game.building.engineerguild.name",
+      "w": 3,
+      "h": 2,
+      "height": 26,
+      "base": "#8d7a5c",
+      "dark": "#57492f",
+      "top": "#7a6a8d",
+      "hp": 150,
+      "cost": {
+        "wood": 10,
+        "gold": 100
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.1 Engineer Guild (۱۰ wood + ۱۰۰ gold) + guess (ابعاد/جان/زمان)",
+      "rules": {
+        "unique": true
+      },
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "tunnelerguild",
+      "nameKey": "game.building.tunnelerguild.name",
+      "w": 3,
+      "h": 2,
+      "height": 26,
+      "base": "#6b5a48",
+      "dark": "#453a2c",
+      "top": "#4d5a3a",
+      "hp": 150,
+      "cost": {
+        "wood": 10,
+        "gold": 100
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.1 Tunneler Guild (۱۰ wood + ۱۰۰ gold) + guess (ابعاد/جان/زمان)",
+      "rules": {
+        "unique": true
+      },
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    },
+    {
+      "id": "stable",
+      "nameKey": "game.building.stable.name",
+      "w": 3,
+      "h": 2,
+      "height": 26,
+      "base": "#7d6248",
+      "dark": "#4a3826",
+      "top": "#8c3b2e",
+      "hp": 150,
+      "cost": {
+        "wood": 20,
+        "gold": 400
+      },
+      "buildTime": 60,
+      "source": "reference: checklist-8.1 Stable (20 wood + 400 gold) + checklist-18.1 (4 horses) + guess (size/hp/time)",
+      "rules": {
+        "unique": true
+      },
+      "category": "town",
+      "placement": {
+        "terrain": "grass"
+      },
+      "needs": []
+    }
+  ]
+}

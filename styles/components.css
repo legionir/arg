@@ -59,6 +59,8 @@ label.lbl { margin: 0; white-space: nowrap; }
 .popRow { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-2); flex-wrap: wrap; font-size: var(--fs-sm); }
 .popRow b { white-space: nowrap; }
 #popEl.hi { color: var(--ok); } #popEl.me { color: var(--gold-400); } #popEl.lo { color: var(--danger); }
+#campEl.camp-red { color: var(--danger); text-shadow: 0 0 6px var(--danger); }
+#campEl.camp-crowd { color: var(--danger); font-weight: var(--fw-bold); }
 .ok, b.ok { color: var(--ok); } .bad, b.bad { color: var(--danger); }
 
 /* ---- Chip / resource pill ---- */
@@ -69,23 +71,28 @@ label.lbl { margin: 0; white-space: nowrap; }
 .res b { color: var(--gold-400); }
 .res b i { color: var(--ok); font-style: normal; font-size: var(--fs-2xs); font-weight: var(--fw-regular); }
 .pbadge { display: inline-flex; align-items: center; gap: 0.4rem; }
-.pbadge .plogo { font-size: 1rem; }
+.pbadge .plogo { font-size: 1rem; line-height: 0; }
+.plogo img, .rosterLogo img { width: 1.5em; height: 1.5em; object-fit: cover; border-radius: 50%;
+  vertical-align: -0.4em; background: var(--bg-0); }
 .rosterLogo { font-size: 0.95rem; margin-inline: 0.2rem 0.4rem; }
 .chip-btn, #profileBadgeEl { background: var(--bg-3); border: 1px solid var(--line-2); border-radius: var(--r-pill);
   padding: 0.25rem 0.8rem; font-size: var(--fs-sm); cursor: pointer; color: var(--text-1);
   transition: border-color var(--t-fast) var(--ease); }
 #profileBadgeEl:hover, .chip-btn:hover { border-color: var(--gold-line); }
 
-/* ---- Build / unit cards ---- */
-.bcard { display: flex; gap: var(--sp-3); align-items: flex-start; width: 100%; text-align: start; padding: var(--sp-2);
+/* ---- Build / unit cards (تصویر راست + عنوان/منابع چپِ چسبیده + توضیح تمام‌عرض زیر تصویر) ---- */
+.bcard { display: grid; grid-template-columns: auto 1fr; gap: 0.15rem var(--sp-2); align-items: start; width: 100%; text-align: start; padding: var(--sp-2);
   margin: 0; background: var(--bg-3); border-radius: var(--r-md); }
 .bcard.sel { border-color: var(--gold-line); background: var(--gold-bg); }
 .bcard.sel .bname { color: var(--gold-400); }
 .bcard.locked { opacity: 0.5; filter: saturate(0.6); }
 .bcard.locked .bname::after { content: " 🔒"; }
 .bthumb { width: 4rem; height: 3.5rem; flex-shrink: 0; background: var(--bg-0); border: 1px solid var(--line-2); border-radius: var(--r-sm); }
-.binfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
-.binfo .bcost { padding-block-start: 0.15rem; }
+.binfo { display: contents; }
+.bcard .bthumb { grid-column: 1; grid-row: 1 / 3; max-width: 100%; }
+.binfo .bname { grid-column: 2; grid-row: 1; }
+.binfo .bcost { grid-column: 2; grid-row: 2; }
+.binfo .bmeta { grid-column: 1 / -1; grid-row: 3; text-align: start; }
 .bname { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--text-1); }
 .bname i { font-style: normal; font-weight: var(--fw-regular); font-size: var(--fs-2xs); color: var(--text-3); }
 .bmeta { font-size: var(--fs-2xs); color: var(--text-3); line-height: var(--lh-base); }
@@ -93,6 +100,9 @@ label.lbl { margin: 0; white-space: nowrap; }
 .bcost span { display: inline-flex; align-items: center; gap: 0.25rem; }
 .bcost img { width: 1rem; height: 1rem; }
 .bcost .free { color: var(--ok); }
+.bcard.costhi .bcost { outline: 1px solid var(--gold-line); background: var(--gold-bg); border-radius: var(--r-md); }
+.arow { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-2); padding: 0.2rem 0.4rem; border-radius: var(--r-md); cursor: pointer; }
+.arow:hover { background: var(--gold-bg); }
 
 /* ---- Rows (training queue, market, rooms) ---- */
 #trainQueueEl .trow, #marketRows .mrow, .room { background: var(--bg-3); border: 1px solid var(--line-2); border-radius: var(--r-md); }
@@ -101,6 +111,8 @@ label.lbl { margin: 0; white-space: nowrap; }
 #trainQueueEl .trow button { padding: 0.1rem 0.5rem; font-size: var(--fs-2xs); min-height: 0; }
 #marketRows .mrow { display: flex; flex-direction: column; gap: var(--sp-1); padding: 0.4rem 0.6rem; font-size: var(--fs-xs); white-space: nowrap; flex: 0 0 auto; }
 #marketRows .mrate { font-size: var(--fs-2xs); color: var(--text-3); }
+#marketRows .mrow { cursor: pointer; }
+#marketRows .mrow.sel { border-color: var(--gold-line); background: var(--gold-bg); }
 .room { padding: var(--sp-2) var(--sp-3); margin-block-start: var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-2); }
 .room .rhead { display: flex; gap: var(--sp-3); align-items: center; font-size: var(--fs-sm); flex-wrap: wrap; }
 .room .rhead b { color: var(--gold-400); font-size: var(--fs-lg); letter-spacing: 0.08em; }
@@ -112,7 +124,9 @@ label.lbl { margin: 0; white-space: nowrap; }
 
 /* ---- Logo picker ---- */
 #profileLogoGrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--sp-2); margin-block-start: var(--sp-2); }
-#profileLogoGrid button { font-size: 1.4rem; padding: 0.4rem 0; line-height: 1.2; }
+#profileLogoGrid button { font-size: 1.4rem; padding: 0.25rem; line-height: 1.2; }
+#profileLogoGrid button img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-sm); display: block; background: var(--bg-0); }
+#profileLogoGrid button.sel { border-color: var(--gold-line); background: var(--gold-bg); outline: 2px solid var(--gold-line); }
 
 /* ---- Modal ---- */
 .modalOverlay { position: fixed; inset: 0; z-index: var(--z-modal); background: rgb(5 8 12 / 0.8);
@@ -131,6 +145,10 @@ label.lbl { margin: 0; white-space: nowrap; }
   background: var(--bg-2); border: 1px solid var(--info); color: var(--text-1); border-radius: var(--r-md);
   padding: 0.4rem var(--sp-4); font-size: var(--fs-sm); display: flex; gap: var(--sp-3); align-items: center; max-width: 90vw; box-shadow: var(--shadow-2); }
 :root[dir="rtl"] #replayBar { transform: translateX(50%); }
+/* ---- Game toast (0.274.0): پیام‌های نمایشی نقشه — بالا سمت راست روی نقشه ---- */
+#gameToast { position: absolute; inset-block-start: var(--sp-2); inset-inline-start: var(--sp-2); z-index: var(--z-overlay);
+  background: var(--bg-2); border: 1px solid var(--gold-line); color: var(--text-1); border-radius: var(--r-md);
+  padding: var(--sp-2) var(--sp-4); font-size: var(--fs-sm); max-width: min(26rem, 82%); box-shadow: var(--shadow-2); }
 #testBadge { position: fixed; inset-block-end: 2.75rem; inset-inline-start: var(--sp-3); z-index: 10; font-size: var(--fs-xs);
   padding: 0.4rem 0.8rem; border-radius: var(--r-md); border: 1px solid; max-width: 70vw; }
 #testBadge.pass { background: #0f2a1b; border-color: var(--ok); color: #bdf2d3; }
@@ -170,3 +188,10 @@ label.lbl { margin: 0; white-space: nowrap; }
 .bcard.hinted { border-color: var(--gold-400); animation: hintPulse 1.8s ease-in-out infinite; }
 @keyframes hintPulse { 50% { box-shadow: 0 0 0 3px var(--gold-bg), 0 0 16px rgb(240 199 94 / 0.35); } }
 @media (prefers-reduced-motion: reduce) { .bcard.hinted { animation: none; box-shadow: 0 0 0 2px var(--gold-line); } }
+
+/* جدول افتخار + پیش‌نمایش نقشه (0.177.0 — بندهای 740/90): هدرهای سورت و قاب thumb. */
+#meritBox .mname { font-weight: bold; }
+#meritBox button[data-mcol] { background: none; border: none; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; padding: 0 0.3rem; }
+.map-prev { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+.map-prev canvas { border-radius: 8px; }
+

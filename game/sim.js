@@ -4,6 +4,18 @@
 // - تنها حلقه تیک بازی همین‌جاست: tick++ ← تخلیه فرمان‌های سررسیده ←
 //   اقتصاد ← نبرد ← (در MP) به‌روزرسانی زنده‌بودن. main.js (سولو/MP) و
 //   قلاب تست ff همگی همین را صدا می‌زنند تا آینه بمانند.
+// - ترتیب ثابت هر تیک (فاز ۰ بند ۲ — بخش ۲۱.۱ دفترچه «ترتیب پردازش ثابت»):
+//   ۱) snapPrev نمایشی ۲) tick++ ۳) تخلیه صف (ترتیب targetTick، بعد FIFO؛
+//   در MP ورودی‌ها با seq مرتب و سر execTick اجرا می‌شوند — main.js:mpDrain)
+//   ۴) stepEconomy ۵) stepTraining ۶) stepCombat ۷) stepAI (در MP بی‌اثر است
+//   و حلقه MP آن را صدا نمی‌زند) ۸) updateMpAlive در MP ۹) fixNewPrev نمایشی.
+//   داخل هر لایه هم ترتیب ثابت است: تخصیص کارگر/اقتصاد AI با sort روی id،
+//   نبرد برج‌ها به ترتیب آرایه (= ترتیب id، فقط push/filter) بعد واحدها،
+//   یورش AI با حلقه i صعودی، مسیریابی A* با همسایه ثابت E/W/S/N و شکست تساوی
+//   قطعی، زمین با حلقه‌های سطر/ستون صعودی.
+// - تنها تصادف sim از rng.js می‌آید: جریان سریال‌شدنی state.rng (rngNext)
+//   یا draw بی‌حالت (seed,tick,salt). هیچ Math.random/Date.now در این مسیر نیست.
+// - موقعیت‌های منطقی Q6 هستند (combat.js:qpos)؛ منابع/HP/خسارت/کول‌داون صحیح‌اند.
 // - صف فرمان گذراست (transient): در ذخیره نمی‌ماند؛ load/newGame آن را
 //   می‌اندازد. فرمان نامعتبر در اجرا = rejected (نه throw).
 // - اعتبارسنجی سنگین در اجرا (applyCmd) انجام می‌شود، نه در enqueue؛
@@ -11,13 +23,13 @@
 // - path واحدها عمداً در هش نیست (گذراست و پس از load بازمحاسبه می‌شود).
 import { t } from "./i18n.js";
 import { CONFIG } from "./config.js";
-import { tryPlace } from "./construction.js";
-import { stepEconomy, assignStaff, TAX, RATIONS } from "./economy.js";
-import { hireUnit, toggleGate, stepCombat, STANCES, demolishBuilding } from "./combat.js";
+import { tryPlace, hasLiveKeep } from "./construction.js";
+import { stepEconomy, assignStaff, TAX, RATIONS, FOOD_TYPES } from "./economy.js";
+import { hireUnit, toggleGate, stepCombat, STANCES, demolishBuilding, undoLastBuild, fireCow, resupplyAmmo, repairBuilding, releaseDogs, stepKennels, stepStables, disbandUnit, setRally } from "./combat.js";
 import { queueHire, cancelTrain, stepTraining } from "./train.js";
 import { applyTrade } from "./market.js";
 import { stepAI } from "./ai.js";
-import { orderAll, retreatAll, stanceAll, guardAll, garrisonAll, deployAll, alarmAll } from "./selection.js";
+import { orderAll, queueAll, retreatAll, stanceAll, guardAll, garrisonAll, deployAll, alarmAll } from "./selection.js";
 import { updateMpAlive } from "./mp.js";
 
 export const CMD_CAP = 1024; // سقف فرمان معوق (ضد انباشت بی‌نهایت)
@@ -106,9 +118,16 @@ export function applyCmd(state, terrain, cmd) {
     case "place": {
       const def = typeof cmd.type === "string" ? CONFIG.BUILDINGS[cmd.type] : null;
       if (!def || def.key === "keep") return { ok: false, reason: "INVALID" };
+      // ستاد الزامی (فاز ۱ بند ۱۲): بی‌ستادِ زنده هیچ ساختمانی در دسترس نیست.
+      // مثل INVALID زود برمی‌گردد (بدون rejected++: فرمان بدشکل است، نه رد ارزشی).
+      if (!hasLiveKeep(state, owner)) return { ok: false, reason: "NO_KEEP" };
       if (!isInt(cmd.c) || !isInt(cmd.r)) return { ok: false, reason: "INVALID" };
       const r = tryPlace(state, terrain, W, H, cmd.c, cmd.r, def, owner);
-      if (r.ok) assignStaff(state, owner);
+      if (r.ok) {
+        assignStaff(state, owner);
+        // Undo تک‌سطحی (0.146.0 — §۳.۱): هر ساخت موفق، pending قبلی را می‌پوشاند.
+        state.undo = { bld: r.building.id, owner };
+      }
       return r;
     }
     case "hire": {
@@ -127,13 +146,15 @@ export function applyCmd(state, terrain, cmd) {
     case "order": {
       const ids = checkIds(cmd.ids);
       if (!ids || !isInt(cmd.c) || !isInt(cmd.r)) return { ok: false, reason: "INVALID" };
-      const kind = cmd.orderKind === "attackmove" ? "attackmove" : "move";
+      // گشت + صف (0.162.0 — بندهای 236/238): queue=true یعنی ته صف، وگرنه جایگزینی.
+      const kind = cmd.orderKind === "attackmove" ? "attackmove" : cmd.orderKind === "patrol" ? "patrol" : cmd.orderKind === "attackpos" ? "attackpos" : "move";
       const units = [];
       for (const id of ids) {
         const u = unitOwned(state, id, owner);
         if (u) units.push(u);
       }
       if (!units.length) return { ok: false, reason: "INVALID" };
+      if (cmd.queue) return { ok: true, reason: "OK", results: queueAll(state, units, kind, cmd.c, cmd.r) };
       return { ok: true, reason: "OK", results: orderAll(state, units, kind, cmd.c, cmd.r) };
     }
     case "retreat": {
@@ -147,10 +168,23 @@ export function applyCmd(state, terrain, cmd) {
       if (!units.length) return { ok: false, reason: "INVALID" };
       return { ok: true, reason: "OK", results: retreatAll(state, units) };
     }
+    case "rally": {
+      // پرچم تجمع (0.166.0 — §9.1/بند 170): آینه ورودی MP در main.js —
+      // اعتبارسنجی سنگین در setRally است (نوع/مختصات).
+      if (typeof cmd.type !== "string" || !isInt(cmd.c) || !isInt(cmd.r)) return { ok: false, reason: "INVALID" };
+      return setRally(state, cmd.type, cmd.c, cmd.r, owner);
+    }
+    case "disband": {
+      // انحلال (0.164.0 — §10.4/بند 246): آینه ورودی MP در main.js —
+      // اعتبارسنجی سنگین در disbandUnit است (مالکیت/Lord/مسکن).
+      const ids = checkIds(cmd.ids);
+      if (!ids) return { ok: false, reason: "INVALID" };
+      return disbandUnit(state, ids, owner);
+    }
     case "stance": {
       const ids = checkIds(cmd.ids);
       if (!ids) return { ok: false, reason: "INVALID" };
-      if (cmd.stance !== STANCES.ENGAGE && cmd.stance !== STANCES.HOLD && cmd.stance !== STANCES.GUARD) {
+      if (cmd.stance !== STANCES.ENGAGE && cmd.stance !== STANCES.HOLD && cmd.stance !== STANCES.DEFEND && cmd.stance !== STANCES.GUARD) {
         return { ok: false, reason: "INVALID" };
       }
       const units = [];
@@ -200,6 +234,20 @@ export function applyCmd(state, terrain, cmd) {
       if (!units.length) return { ok: false, reason: "INVALID" };
       return { ok: true, reason: "OK", results: deployAll(state, units) };
     }
+    case "firecow": {
+      // پرتاب گاو بیمار (0.142.0 — بند ۹۲): آینه ورودی MP در main.js —
+      // اعتبارسنجی سنگین در fireCow است (مالکیت/استقرار/برد/گله).
+      const ids = checkIds(cmd.ids);
+      if (!ids || !isInt(cmd.c) || !isInt(cmd.r)) return { ok: false, reason: "INVALID" };
+      return fireCow(state, ids, cmd.c, cmd.r, owner);
+    }
+    case "resupply": {
+      // تأمین مهمات منجنیق (0.149.0 — §۱۲.۲/بند ۵۷۸): آینه ورودی MP در
+      // main.js — اعتبارسنجی سنگین در resupplyAmmo است (مالکیت/سقف/سنگ).
+      const ids = checkIds(cmd.ids);
+      if (!ids) return { ok: false, reason: "INVALID" };
+      return resupplyAmmo(state, ids, owner);
+    }
     case "garrison": {
       // استقرار در برج (0.45.0): آینه ورودی MP در main.js — اعتبارسنجی سنگین
       // در garrisonUnit است (برج خودی/دوربرد/سقف ۴).
@@ -225,6 +273,29 @@ export function applyCmd(state, terrain, cmd) {
       if (b.type === "keep") return { ok: false, reason: "KEEP" };
       return demolishBuilding(state, b, owner);
     }
+    case "repair": {
+      // تعمیر (0.155.0 — §18.3/بند 210): آینه ورودی MP در main.js —
+      // اعتبارسنجی سنگین (مالکیت/آسیب/بودجه) در repairBuilding است.
+      if (!isInt(cmd.bld)) return { ok: false, reason: "INVALID" };
+      const b = state.buildings.find((x) => x.id === cmd.bld && !x.destroyed);
+      if (!b) return { ok: false, reason: "INVALID" };
+      return repairBuilding(state, b, owner);
+    }
+    case "release": {
+      // رهاسازی سگ‌ها (0.156.0 — §11.9/بند 288): آینه ورودی MP در main.js —
+      // اعتبارسنجی سنگین در releaseDogs است (مالکیت/ساخت/اتاق/موجودی).
+      if (!isInt(cmd.bld)) return { ok: false, reason: "INVALID" };
+      const b = state.buildings.find((x) => x.id === cmd.bld && !x.destroyed);
+      if (!b) return { ok: false, reason: "INVALID" };
+      return releaseDogs(state, terrain, W, H, b, owner);
+    }
+    case "undo": {
+      // برگرداندن آخرین ساخت (0.146.0 — §۳.۱): آینه ورودی MP در main.js —
+      // اعتبارسنجی سنگین (مالکیت/زنده‌بودن) در undoLastBuild است.
+      const r = undoLastBuild(state, owner);
+      if (r.ok) assignStaff(state, owner);
+      return r;
+    }
     case "tax": {
       if (typeof cmd.v !== "string" || !TAX[cmd.v]) return { ok: false, reason: "INVALID" };
       if (mp) state.mpres[owner].tax = cmd.v;
@@ -235,6 +306,15 @@ export function applyCmd(state, terrain, cmd) {
       if (typeof cmd.v !== "string" || !RATIONS[cmd.v]) return { ok: false, reason: "INVALID" };
       if (mp) state.mpres[owner].rations = cmd.v;
       else state.rations = cmd.v;
+      return { ok: true, reason: "OK" };
+    }
+    case "food": { // توقف/شروع مصرف یک نوع غذا (فاز ۱ بند ۸۵): تاگل در فهرست offFood
+      if (typeof cmd.v !== "string" || !FOOD_TYPES.includes(cmd.v)) return { ok: false, reason: "INVALID" };
+      const ec = mp ? state.mpres[owner] : state;
+      if (!Array.isArray(ec.offFood)) ec.offFood = [];
+      const i = ec.offFood.indexOf(cmd.v);
+      if (i >= 0) ec.offFood.splice(i, 1);
+      else ec.offFood.push(cmd.v);
       return { ok: true, reason: "OK" };
     }
     case "alarm": {
@@ -255,13 +335,38 @@ export function applyCmd(state, terrain, cmd) {
 export function stepSim(state, terrain, n, queue, opts) {
   const aiPaused = !!(opts && opts.aiPaused); // گیت 0.68.0: پشت منو AI فکر نمی‌کند
   for (let i = 0; i < n; i++) {
+    snapPrev(state); // موقعیت رندر قبلی برای درون‌یابی (فاز ۰ بند ۱) — نمایشی
     state.tick++;
     drainQueue(state, terrain, queue);
     stepEconomy(state);
     stepTraining(state, terrain); // صف آموزش (0.65.0) — پس از اقتصاد، پیش از نبرد
+    stepKennels(state); // لانه
+    stepStables(state); // شارژ اسب اصطبل (0.168.0) سگ‌ها (0.156.0 — بند 288)
     stepCombat(state, terrain);
     if (!aiPaused) stepAI(state, terrain); // حریف سولو (0.42.0؛ در MP و بازی بی‌حریف بی‌اثر)
     if (state.mp && state.mp.enabled) updateMpAlive(state);
+    fixNewPrev(state); // تازه‌ساخته‌های همین تیک: prev = current (بدون پرش رندر)
   }
   return state.tick;
+}
+
+// موقعیت قبلی رندر (px/pr) — کاملاً نمایشی، خارج هش/ذخیره (مثل path).
+// هر تیک پیش از حرکت تازه می‌شود تا رندر بین px/pr و x/r درون‌یابی کند.
+// حلقه MP در main.js هم همین‌ها را صدا می‌زند (stepSim را دور می‌زند).
+export function snapPrev(state) {
+  for (const u of state.units) {
+    if (u.dead) continue;
+    u.px = u.x;
+    u.pr = u.r;
+  }
+}
+
+export function fixNewPrev(state) {
+  for (const u of state.units) {
+    if (u.dead) continue;
+    if (u.px === undefined || u.pr === undefined) {
+      u.px = u.x;
+      u.pr = u.r;
+    }
+  }
 }

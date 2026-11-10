@@ -6,7 +6,7 @@
 import { CONFIG } from "./config.js";
 import { makeTerrain } from "./terrain.js";
 import { createState } from "./state.js";
-import { tryPlace } from "./construction.js";
+import { tryPlace, placeKeep } from "./construction.js";
 import { hireUnit } from "./combat.js";
 import { createQueue, enqueueCmd, stepSim } from "./sim.js";
 import { stateHash } from "./mp.js";
@@ -29,6 +29,7 @@ function buildBenchWorld(seed) {
   const terrain = makeTerrain(W, H, seed);
   const state = createState();
   state.mapSeed = seed >>> 0;
+  placeKeep(state, terrain, W, H); // ستاد آغازین (فاز ۱ بند ۱۲): بنچ شهر واقعی می‌سنجد.
   const q = createQueue();
   const at = (c) => enqueueCmd(q, c, state.tick);
   at({ kind: "place", type: "woodcutter", c: 1, r: 1 });
@@ -48,6 +49,15 @@ export function benchSim(seed, ticks) {
 }
 
 // بنچ کامل: دو سید جدا (گرم‌شدن JIT + نمونه واقعی). {samples, ok}
+// بودجه بنچ موبایل (0.224.0 — C-MOB-6): همان سقف sim با نمونه کوتاه‌تر (۱۲۰ تیک) + کران حافظه کش اسپرایت.
+export const MOBILE_BENCH_TICKS = 120;
+// بنچ موبایل (0.233.0 — C-TST-3): نمونه کوتاه ۱۲۰تیکی با همان سقف sim.
+// خالص از نظر قرارداد (فقط زمان‌سنج + هش)؛ runBench دست‌نخورده.
+export function benchMobile() {
+  const sample = benchSim(CONFIG.MAP_SEED, MOBILE_BENCH_TICKS);
+  return { sample, ticks: MOBILE_BENCH_TICKS, ok: withinBudget(sample) };
+}
+
 export function runBench() {
   benchSim(CONFIG.MAP_SEED, 200); // گرم‌شدن
   const samples = [benchSim(CONFIG.MAP_SEED, 600), benchSim(987654, 600)];

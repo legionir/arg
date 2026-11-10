@@ -1,6 +1,7 @@
 // لایه آنلاین (0.23.0): شمار حاضران + تالار پیروزی مشترک + جشن پیروزی دیگران.
 // کاملاً افزودنی است: قطع‌بودن یا خطای سوکت هیچ اثری روی بازی تک‌نفره ندارد.
 import { t as tr } from "./i18n.js";
+import { randomDefaultName } from "./profile.js";
 import { getSocketMaker } from "./selfhost.js"; // بک‌اند: اول پلتفرم، وگرنه سرور شخصی (0.69.0)
 const LOBBY_POLL_MS = 20000;
 const MAX_BACKOFF_MS = 30000;
@@ -25,7 +26,7 @@ export function initOnline(ui) {
     },
     async report(ticks) {
       if (!api.ready || !sock) return;
-      const name = (els.nameInput && els.nameInput.value) || "بی‌نام";
+      const name = (els.nameInput && els.nameInput.value) || randomDefaultName();
       try {
         await sock.rpc.submit(JSON.stringify({ name, ticks }));
       } catch (e) { /* ثبت ناکام = فقط همین بازی؛ تک‌نفره ادامه دارد */ }

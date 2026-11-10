@@ -18,6 +18,12 @@ export function isLineDragType(type) {
 // خط supercover از (x0,y0) تا (x1,y1) شامل هر دو سر، به ترتیب درگ، بدون
 // تکرار، با سقف max (پیش‌فرض WALL_LINE_MAX). برزنهام صحیح پس همیشه
 // ۸-پیوسته است (قطرها شکاف ندارند) و برای سرهای یکسان قطعی است. خالص.
+// خط قرمز کامل (0.156.0 — §11.2/بند 260): اگر بخشی از مسیر نامعتبر باشد کل خط قرمز می‌شود (ok=false همه) و رها هیچ نمی‌سازد (به‌جای جای‌گذاری جزئی). خالص.
+export function blockLineIfAnyInvalid(tiles) {
+  if (!Array.isArray(tiles) || !tiles.length) return tiles;
+  if (tiles.every((x) => x && x.ok)) return tiles;
+  return tiles.map((x) => ({ c: x.c, r: x.r, ok: false }));
+}
 export function wallLineTiles(x0, y0, x1, y1, max) {
   const cap = max === undefined ? WALL_LINE_MAX : max;
   const dx = Math.abs(x1 - x0);

@@ -1,0 +1,1175 @@
+{
+  "version": 1,
+  "note": "جدول‌های توازن ۱۸.۲–۱۸.۸ چک‌لیست (فاز ۰ بند ۵): مرجع توازن بدون کامپایل. همه بخش‌ها status=reference اند — یعنی sim امروز هنوز از این جدول‌ها نمی‌خواند و اعداد پیاده‌شده سر جایشان‌اند (واگرایی‌های نمونه در تست t_balance_reference_not_wired پین شده)؛ سیم‌کشی رفتاری هر جدول با بند خودش در فازهای بعدی و DoD بند ۷ می‌آید. بند ۷ فاز ۰ (0.77.0) انجام شد: مقادیر پیاده‌شده در data/tuning.json تنها منبع حقیقت‌اند و ۱۰ واگرایی مرجع در تست t_tuning_vs_reference پین شده‌اند؛ سیم‌کشی هر جدول با بند خودش در فازهای بعدی.",
+  "tables": {
+    "unitCombat": {
+      "section": "18.2",
+      "status": "reference",
+      "note": "HP نسبی است (مقیاس داخلی موتور) — مهم نسبت‌هاست.",
+      "hp": {
+        "lord": {
+          "hp": 150000,
+          "source": "community",
+          "note": "بازیکن؛ Lord حریف AI بسته به نقاط قدرت فرق می‌کند"
+        },
+        "pikeman": {
+          "hp": 50000,
+          "source": "community"
+        },
+        "swordsman": {
+          "hp": 25000,
+          "source": "community"
+        },
+        "arabianSwordsman": {
+          "hp": 20000,
+          "source": "community"
+        },
+        "knight": {
+          "hp": 20000,
+          "source": "community"
+        },
+        "maceman": {
+          "hp": 15000,
+          "source": "community"
+        },
+        "crossbowman": {
+          "hp": 15000,
+          "source": "community"
+        },
+        "archer": {
+          "hp": 10000,
+          "source": "community"
+        },
+        "spearman": {
+          "hp": 10000,
+          "source": "community"
+        },
+        "slave": {
+          "hp": 6000,
+          "source": "community"
+        },
+        "slinger": {
+          "hp": 9000,
+          "source": "community"
+        },
+        "fireThrower": {
+          "hp": 7000,
+          "source": "community"
+        },
+        "horseArcher": {
+          "hp": 10000,
+          "source": "community"
+        },
+        "arabianBow": {
+          "hp": 12000,
+          "source": "community"
+        },
+        "assassin": {
+          "hp": 15000,
+          "source": "community"
+        },
+        "engineer": {
+          "hp": 5000,
+          "source": "community"
+        },
+        "laddermen": {
+          "hp": 5000,
+          "source": "community"
+        },
+        "tunneler": {
+          "hp": 10000,
+          "source": "community"
+        },
+        "blackMonk": {
+          "hp": 30000,
+          "source": "fixup",
+          "note": "برابر Pikeman کمتر — منبع نداشتم"
+        }
+      },
+      "hitsToKillArcher": {
+        "source": "verified",
+        "note": "جدول HeavenGames: چند تیر Archer تا کشتن هدف",
+        "rows": {
+          "swordsman": 168,
+          "knight": 134,
+          "maceman": 15,
+          "pikeman": 50,
+          "spearman": 3,
+          "crossbowman": 10,
+          "archer": 5,
+          "engineer": 3,
+          "laddermen": 5,
+          "tunneler": 2,
+          "blackMonk": 4,
+          "arabianBow": 6,
+          "slave": 1,
+          "slinger": 3,
+          "assassin": 10,
+          "horseArcher": 8,
+          "arabianSwordsman": 67,
+          "fireThrower": 6
+        }
+      },
+      "hitsToKillCrossbow": {
+        "source": "verified",
+        "note": "جدول HeavenGames: چند تیر Crossbow تا کشتن هدف",
+        "rows": {
+          "swordsman": 12,
+          "knight": 8,
+          "maceman": 3,
+          "pikeman": 17,
+          "spearman": 1,
+          "crossbowman": 3,
+          "archer": 1,
+          "engineer": 1,
+          "laddermen": 2,
+          "tunneler": 1,
+          "blackMonk": 3,
+          "arabianBow": 2,
+          "slave": 1,
+          "slinger": 2,
+          "assassin": 2,
+          "horseArcher": 2,
+          "arabianSwordsman": 3,
+          "fireThrower": 1
+        }
+      },
+      "meleeHits": {
+        "source": "verified",
+        "note": "تعداد ضربه تن‌به‌تن مهاجم ↓ برای کشتن هدف →",
+        "rows": {
+          "maceman": {
+            "archer": 4,
+            "xbow": 5,
+            "spear": 4,
+            "pike": 18,
+            "mace": 6,
+            "sword": 30,
+            "knight": 20,
+            "tunneler": 3,
+            "laddermen": 2,
+            "engineer": 3,
+            "monk": 6
+          },
+          "swordsman": {
+            "archer": 2,
+            "xbow": 4,
+            "spear": 3,
+            "pike": 12,
+            "mace": 4,
+            "sword": 11,
+            "knight": 15,
+            "tunneler": 3,
+            "laddermen": 1,
+            "engineer": 2,
+            "monk": 3
+          },
+          "knight": {
+            "archer": 4,
+            "xbow": 6,
+            "spear": 4,
+            "pike": 18,
+            "mace": 5,
+            "sword": 17,
+            "knight": 11,
+            "tunneler": 4,
+            "laddermen": 1,
+            "engineer": 2,
+            "monk": 6
+          }
+        }
+      },
+      "damageRule": {
+        "source": "manbook",
+        "rule": "damage(attacker,target) = HP[target] / hitsToKill[attacker][target]; برای جفت‌های ناموجود از کلاس زره استفاده شود",
+        "simpleModel": "dmg = baseDamage[unit] × (1 − armorReduction[target]) سپس کالیبره با جدول بالا"
+      },
+      "armorClasses": {
+        "source": "fixup",
+        "note": "ضرایب پیشنهادی تیر برای جفت‌های ناموجود جدول",
+        "classes": [
+          {
+            "id": "none",
+            "members": [
+              "archer",
+              "spearman",
+              "slave",
+              "slinger",
+              "laddermen",
+              "engineer",
+              "tunneler"
+            ],
+            "arrow": 1,
+            "crossbow": 1,
+            "crossbowNote": "معمولاً یک‌ضربه"
+          },
+          {
+            "id": "leather",
+            "members": [
+              "crossbowman",
+              "maceman"
+            ],
+            "arrow": 0.5,
+            "crossbow": 0.35
+          },
+          {
+            "id": "metal",
+            "members": [
+              "pikeman",
+              "swordsman",
+              "knight",
+              "arabianSwordsman"
+            ],
+            "arrowMin": 0.01,
+            "arrowMax": 0.07,
+            "crossbowMin": 0.1,
+            "crossbowMax": 0.35
+          }
+        ]
+      },
+      "lordArrow": {
+        "archerDmgPerArrow": 100,
+        "ofHp": 150000,
+        "source": "community"
+      },
+      "speedRanks": {
+        "source": "fixup",
+        "note": "دفترچه فقط رتبه داده؛ اعداد تبدیل رتبه به tile/s اند. ناسازگاری ثبت‌شده: جدول Fire Thrower و Arabian Swordsman را Very Fast نوشته ولی متن عرب را کمی سریع‌تر از اروپایی می‌داند و ویکی‌ها Fire Thrower را کند می‌دانند",
+        "ranks": [
+          {
+            "rank": "extremelySlow",
+            "tilesPerSec": 1,
+            "members": [
+              "swordsman"
+            ]
+          },
+          {
+            "rank": "slow",
+            "tilesPerSec": 1.5,
+            "members": [
+              "crossbowman",
+              "pikeman",
+              "blackMonk"
+            ]
+          },
+          {
+            "rank": "average",
+            "tilesPerSec": 2,
+            "members": [
+              "spearman",
+              "maceman",
+              "engineer",
+              "assassin"
+            ]
+          },
+          {
+            "rank": "fast",
+            "tilesPerSec": 2.7,
+            "members": [
+              "archer",
+              "tunneler",
+              "laddermen",
+              "slave",
+              "slinger",
+              "arabianBow",
+              "fireThrower"
+            ]
+          },
+          {
+            "rank": "veryFast",
+            "tilesPerSec": 3.6,
+            "members": [
+              "knight",
+              "horseArcher",
+              "arabianSwordsman"
+            ]
+          }
+        ]
+      },
+      "weapons": {
+        "source": "fixup",
+        "note": "برد (tile) و بارگذاری (s) — baseline",
+        "rows": [
+          {
+            "weapon": "bow",
+            "range": 22,
+            "reload": 1.2,
+            "note": "بلندترین برد پیاده"
+          },
+          {
+            "weapon": "crossbow",
+            "range": 18,
+            "reload": 3,
+            "note": "کوتاه‌تر از archer، کند در بارگذاری، دقیق"
+          },
+          {
+            "weapon": "sling",
+            "range": 10,
+            "reload": 1.4,
+            "note": "برد کوتاه"
+          },
+          {
+            "weapon": "horseBow",
+            "range": 20,
+            "reload": 1.3,
+            "note": "حین حرکت شلیک می‌کند"
+          },
+          {
+            "weapon": "greekFire",
+            "range": 8,
+            "reload": 3.5,
+            "note": "آسیب ناحیه‌ای"
+          },
+          {
+            "weapon": "mangonel",
+            "range": 28,
+            "reload": 3,
+            "note": "اسپری سنگ، نادقیق (نصب‌شده)"
+          },
+          {
+            "weapon": "ballista",
+            "range": 40,
+            "reload": 2.5,
+            "note": "تک‌تیر دقیق، علیه ماشین (نصب‌شده)"
+          },
+          {
+            "weapon": "catapult",
+            "range": 36,
+            "reload": 5,
+            "note": "مسیر مسطح، دقت نسبی"
+          },
+          {
+            "weapon": "fireBallista",
+            "range": 28,
+            "reload": 3,
+            "note": "مسطح، آتشین، دقیق"
+          },
+          {
+            "weapon": "trebuchet",
+            "range": 60,
+            "reload": 8,
+            "note": "قوس بلند، نادقیق، دورترین"
+          }
+        ]
+      },
+      "height": {
+        "wallRangeBonus": 2,
+        "towerRangeBonus": 5,
+        "lookoutRangeBonus": 8,
+        "enemyFromBelowHalfDamage": true,
+        "source": "verified"
+      },
+      "accuracy": {
+        "source": "fixup",
+        "formula": "pHit = base(unit) × distanceFalloff × heightPenalty",
+        "base": {
+          "archer": 0.7,
+          "crossbow": 0.9,
+          "mangonel": 0.4,
+          "catapult": 0.6,
+          "ballista": 0.9,
+          "trebuchet": 0.35
+        }
+      },
+      "gameSpeed": {
+        "min": 10,
+        "max": 90,
+        "def": 40,
+        "source": "community"
+      }
+    },
+    "fortification": {
+      "section": "18.3",
+      "status": "reference",
+      "costs": [
+        {
+          "id": "highWall",
+          "stone": 1,
+          "tiles": 2,
+          "source": "community"
+        },
+        {
+          "id": "lowWall",
+          "stone": 1,
+          "tiles": 4,
+          "source": "community"
+        },
+        {
+          "id": "stairs",
+          "stone": 1,
+          "tiles": 2,
+          "source": "community"
+        },
+        {
+          "id": "crenulated",
+          "mirror": "highWall",
+          "source": "fixup"
+        },
+        {
+          "id": "lookout",
+          "stone": 10,
+          "source": "manbook"
+        },
+        {
+          "id": "perimeter",
+          "stone": 10,
+          "source": "manbook"
+        },
+        {
+          "id": "defence",
+          "stone": 15,
+          "source": "manbook"
+        },
+        {
+          "id": "square",
+          "stone": 35,
+          "source": "manbook"
+        },
+        {
+          "id": "round",
+          "stone": 40,
+          "source": "manbook"
+        },
+        {
+          "id": "gatehouseSmall",
+          "free": true,
+          "source": "manbook",
+          "note": "هزینه gatehouse در دفترچه جابه‌جا با Keep است (بخش ۸.۱ ⚠️)"
+        },
+        {
+          "id": "gatehouseLarge",
+          "stone": 20,
+          "source": "manbook",
+          "note": "هزینه gatehouse در دفترچه جابه‌جا با Keep است (بخش ۸.۱ ⚠️)"
+        },
+        {
+          "id": "drawbridge",
+          "wood": 10,
+          "source": "manbook"
+        }
+      ],
+      "hp": [
+        {
+          "id": "highWall",
+          "perTile": 60,
+          "source": "community"
+        },
+        {
+          "id": "crenulated",
+          "perTile": 72,
+          "source": "community"
+        },
+        {
+          "id": "smallGate",
+          "perTile": 40,
+          "source": "community"
+        },
+        {
+          "id": "bigGate",
+          "perTile": 40.8,
+          "source": "community"
+        },
+        {
+          "id": "perimeter",
+          "perTile": 62.5,
+          "total": 1000,
+          "capacity": 8,
+          "source": "community",
+          "capacitySource": "fixup"
+        },
+        {
+          "id": "defence",
+          "perTile": 48,
+          "total": 1500,
+          "capacity": 12,
+          "source": "community",
+          "capacitySource": "fixup"
+        },
+        {
+          "id": "square",
+          "perTile": 44.4,
+          "total": 1600,
+          "capacity": 36,
+          "source": "community"
+        },
+        {
+          "id": "round",
+          "perTile": 55.5,
+          "total": 2000,
+          "capacity": 36,
+          "capacityNote": "مقاوم‌تر",
+          "source": "community",
+          "capacitySource": "fixup"
+        },
+        {
+          "id": "lookout",
+          "capacity": 5,
+          "source": "verified"
+        }
+      ],
+      "repair": {
+        "source": "community",
+        "note": "در Crusader اصلی تعمیر نیست (از Crusader 2) — اگر نمی‌خواهید حذفش کنید",
+        "per100hp": [
+          "perimeter",
+          "defence"
+        ],
+        "per45hp": [
+          "square"
+        ],
+        "per50hp": [
+          "round"
+        ],
+        "stonePerStep": 1
+      },
+      "lowWallFactor": {
+        "value": 0.4,
+        "source": "fixup",
+        "note": "بسیار راحت‌تر تخریب می‌شود؛ HP هر خانه مستقل"
+      },
+      "ramStrength": {
+        "source": "community",
+        "rule": "یک ضربه Ram یک خانه از دیوار تک‌لایه را می‌برد؛ مقاوم در برابر تیر و آتش، آسیب‌پذیر در برابر Ballista و ضربه نزدیک"
+      },
+      "killingPit": {
+        "source": "community",
+        "ram": 9,
+        "siegeTower": 14,
+        "catapult": 1,
+        "onePit": [
+          "spearman",
+          "maceman",
+          "archer",
+          "crossbowman",
+          "blackMonk",
+          "engineer",
+          "laddermen",
+          "tunneler"
+        ],
+        "twoPits": [
+          "knight",
+          "swordsman"
+        ],
+        "threePits": [
+          "pikeman"
+        ]
+      }
+    },
+    "siege": {
+      "section": "18.4",
+      "status": "reference",
+      "machines": [
+        {
+          "id": "shield",
+          "gold": 30,
+          "goldSource": "fixup",
+          "engineers": 1,
+          "hp": 10000,
+          "note": "در برابر تیر خوب"
+        },
+        {
+          "id": "ram",
+          "gold": 150,
+          "goldSource": "verified",
+          "engineers": 4,
+          "hp": 150000
+        },
+        {
+          "id": "siegeTower",
+          "gold": 150,
+          "goldSource": "verified",
+          "engineers": 4,
+          "hp": 240000
+        },
+        {
+          "id": "catapult",
+          "gold": 150,
+          "goldSource": "verified",
+          "engineers": 2,
+          "hp": 10000,
+          "note": "قابل پرتاب گاو"
+        },
+        {
+          "id": "trebuchet",
+          "gold": 150,
+          "goldSource": "verified",
+          "engineers": 3,
+          "hp": 12000,
+          "note": "ثابت"
+        },
+        {
+          "id": "fireBallista",
+          "gold": 150,
+          "goldSource": "verified",
+          "engineers": 2,
+          "hp": 10000,
+          "note": "مثل ballista ولی متحرک"
+        },
+        {
+          "id": "ballista",
+          "gold": 50,
+          "goldSource": "verified",
+          "engineers": 2,
+          "hp": null,
+          "note": "فقط Square/Round Tower"
+        },
+        {
+          "id": "mangonel",
+          "gold": 50,
+          "goldSource": "community",
+          "engineers": 2,
+          "hp": null
+        }
+      ],
+      "ammo": {
+        "source": "manbook",
+        "rule": "10 stone = 20 rocks؛ تمام‌شدن = توقف شلیک؛ پر کردن از stockpile"
+      },
+      "buildTime": {
+        "source": "fixup",
+        "shield": 10,
+        "catapult": 25,
+        "fireBallista": 25,
+        "trebuchet": 35,
+        "ram": 40,
+        "siegeTower": 40,
+        "scale": "زمان /= engineerCount"
+      },
+      "tunnel": {
+        "source": "fixup",
+        "maxLength": 25,
+        "digSpeed": 0.5,
+        "igniteDelay": [
+          3,
+          5
+        ],
+        "note": "دفترچه فقط می‌گوید حداکثر فاصله دارد"
+      },
+      "siegeTowerFlow": {
+        "source": "verified",
+        "perSec": 2,
+        "excludes": [
+          "knight",
+          "horseArcher"
+        ]
+      },
+      "sickCow": {
+        "source": "fixup",
+        "radius": 4,
+        "durationSec": 30,
+        "dps": [
+          1,
+          2
+        ],
+        "counter": [
+          "healer",
+          "apothecary"
+        ]
+      },
+      "fire": {
+        "woodBurnPerSec": 0.02,
+        "spreadRadius": 2,
+        "spreadChancePerSec": 0.2,
+        "stoneImmune": true,
+        "extinguishRadius": 10,
+        "source": "fixup",
+        "wellSource": "manbook"
+      },
+      "pitch": {
+        "source": "fixup",
+        "burnSec": 10,
+        "dpsFraction": 0.2,
+        "igniteBy": "fire arrow"
+      }
+    },
+    "economy": {
+      "section": "18.5",
+      "status": "reference",
+      "month": {
+        "seconds": 60,
+        "atSpeed": 40,
+        "scalesWithSpeed": true,
+        "source": "fixup",
+        "note": "طول ماه در دفترچه نیست"
+      },
+      "tax": {
+        "sourcePop": "manbook",
+        "sourceGold": "community",
+        "linear": "درآمد = جمعیت × نرخ",
+        "rows": [
+          {
+            "id": "none",
+            "pop": 1,
+            "gold": 0
+          },
+          {
+            "id": "low",
+            "pop": -2,
+            "gold": 0.6
+          },
+          {
+            "id": "average",
+            "pop": -4,
+            "gold": 0.8
+          },
+          {
+            "id": "high",
+            "pop": -6,
+            "gold": 1
+          },
+          {
+            "id": "mean",
+            "pop": -8,
+            "gold": 1.2
+          },
+          {
+            "id": "extortionate",
+            "pop": -12,
+            "gold": 1.4
+          },
+          {
+            "id": "downrightCruel",
+            "pop": -16,
+            "gold": 1.8
+          },
+          {
+            "id": "evenCrueler",
+            "pop": -20,
+            "gold": 2.2,
+            "goldSource": "fixup"
+          },
+          {
+            "id": "cruellerThanCruel",
+            "pop": -24,
+            "gold": 2.6,
+            "goldSource": "fixup"
+          },
+          {
+            "id": "smallBribe",
+            "pop": 3,
+            "gold": -0.4,
+            "goldSource": "fixup"
+          },
+          {
+            "id": "largeBribe",
+            "pop": 5,
+            "gold": -0.8,
+            "goldSource": "fixup"
+          },
+          {
+            "id": "generousBribe",
+            "pop": 7,
+            "gold": -1.2,
+            "goldSource": "fixup"
+          }
+        ]
+      },
+      "rationCoef": {
+        "source": "fixup",
+        "none": 0,
+        "half": 0.5,
+        "full": 1,
+        "extra": 1.5,
+        "double": 2,
+        "rule": "مصرف غذا در ماه = جمعیت × ضریب × ۱"
+      },
+      "granaryCap": {
+        "value": 250,
+        "source": "community"
+      },
+      "foodSellPrice": {
+        "value": 4,
+        "source": "community"
+      },
+      "wheatChain": {
+        "source": "verified",
+        "rule": "1 wheat → 1 flour → 8 bread"
+      },
+      "wheatFarm": {
+        "perTrip": 2,
+        "perTripSource": "community",
+        "perCycle": 24,
+        "perCycleSource": "fixup"
+      },
+      "hopsRule": {
+        "source": "community",
+        "rule": "1 hops = 1 ale"
+      },
+      "millSupport": {
+        "source": "manbook",
+        "bakers": 12,
+        "wheatFarms": 3
+      },
+      "producerRates": {
+        "source": "fixup",
+        "unit": "food per (worker·sec)",
+        "orchard": 0.5,
+        "hunter": 0.3,
+        "dairy": 0.3,
+        "bakery": 0.8,
+        "order": "bread > apples > cheese؛ شکار ناپایدار"
+      },
+      "inn": {
+        "perInn": 30,
+        "perInnSource": "verified",
+        "coverage": "min(1, workingInns × 30 / pop)",
+        "coverageSource": "fixup",
+        "steps": [
+          25,
+          50,
+          75,
+          100
+        ]
+      },
+      "religion": {
+        "source": "fixup",
+        "coverage": "min(1, Σcapacity / pop)",
+        "chapel": 20,
+        "church": 50,
+        "cathedral": 100,
+        "blessExpirySec": 60
+      },
+      "popGrowth": {
+        "source": "fixup",
+        "minPopSource": "verified",
+        "enterLerp": {
+          "p": [
+            50,
+            100
+          ],
+          "sec": [
+            60,
+            20
+          ]
+        },
+        "leaveLerp": {
+          "p": [
+            49,
+            0
+          ],
+          "sec": [
+            60,
+            15
+          ]
+        },
+        "minPop": 4,
+        "maxWaiting": 24
+      },
+      "popularity": {
+        "source": "fixup",
+        "formula": "P(t+month) = clamp(P + Σmodifiers, 0, 100)",
+        "initial": 50
+      },
+      "fear": {
+        "workCoef": "1 ± 0.05 × level",
+        "valuePerLevel": 4,
+        "source": "fixup",
+        "signConvention": "مثبت = good things (روحیه +، کارایی −)؛ منفی = bad things (کارایی +، روحیه −) — از متن استنباط شده"
+      },
+      "labor": {
+        "states": [
+          "idle",
+          "needsWorker",
+          "working",
+          "carrying",
+          "delivering"
+        ],
+        "source": "fixup",
+        "notes": [
+          "نزدیک‌ترین انبار برای تحویل",
+          "بدون ماده خام منتظر می‌ماند",
+          "بدون دهقان آزاد ساختمان جدید کار نمی‌کند",
+          "تبدیل دهقان↔کارگر↔سرباز با role"
+        ]
+      },
+      "market": {
+        "note": "قیمت‌ها در Crusader اصلی ثابت به نظر می‌رسند. دفترچه نمی‌گوید.",
+        "rows": [
+          {
+            "good": "wood",
+            "buy": 4,
+            "buySource": "community",
+            "sell": 2,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "wheat",
+            "buy": 23,
+            "buySource": "community",
+            "sell": 4,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "bread",
+            "buy": null,
+            "sell": 4,
+            "sellSource": "community"
+          },
+          {
+            "good": "cheese",
+            "buy": null,
+            "sell": 4,
+            "sellSource": "community"
+          },
+          {
+            "good": "apples",
+            "buy": null,
+            "sell": 4,
+            "sellSource": "community"
+          },
+          {
+            "good": "meat",
+            "buy": null,
+            "sell": 4,
+            "sellSource": "community"
+          },
+          {
+            "good": "ale",
+            "buy": 20,
+            "buySource": "community",
+            "sell": 8,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "bow",
+            "buy": 31,
+            "buySource": "community",
+            "sell": 15,
+            "sellSource": "community"
+          },
+          {
+            "good": "crossbow",
+            "buy": 60,
+            "buySource": "fixup",
+            "sell": 30,
+            "sellSource": "community"
+          },
+          {
+            "good": "pike",
+            "buy": 36,
+            "buySource": "fixup",
+            "sell": 18,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "spear",
+            "buy": 16,
+            "buySource": "fixup",
+            "sell": 8,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "mace",
+            "buy": 60,
+            "buySource": "fixup",
+            "sell": 30,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "sword",
+            "buy": 60,
+            "buySource": "fixup",
+            "sell": 30,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "metalArmor",
+            "buy": 90,
+            "buySource": "fixup",
+            "sell": 45,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "leatherArmor",
+            "buy": 40,
+            "buySource": "fixup",
+            "sell": 20,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "stone",
+            "buy": 20,
+            "buySource": "fixup",
+            "sell": 8,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "iron",
+            "buy": 30,
+            "buySource": "fixup",
+            "sell": 12,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "pitch",
+            "buy": 30,
+            "buySource": "fixup",
+            "sell": 12,
+            "sellSource": "fixup"
+          },
+          {
+            "good": "hops",
+            "buy": null,
+            "sell": null,
+            "buySource": "fixup"
+          },
+          {
+            "good": "flour",
+            "buy": null,
+            "sell": null,
+            "buySource": "fixup"
+          }
+        ]
+      },
+      "marketRules": {
+        "source": "fixup",
+        "sellFraction": "40–50% of buy",
+        "lot": 5,
+        "lotSource": "manbook"
+      },
+      "starting": {
+        "normal": {
+          "gold": 2000,
+          "source": "verified",
+          "troops": "5 archer + 7 spearman"
+        },
+        "crusader": {
+          "gold": 2000,
+          "source": "verified",
+          "troops": "40 archer + 10 swordsman + 4 knight"
+        },
+        "deathmatch": {
+          "gold": 10000,
+          "source": "verified",
+          "note": "انبار بزرگ منابع",
+          "troops": "مثل Normal"
+        },
+        "arabLord": {
+          "source": "fixup",
+          "troops": "5 arabianBow + 7 slave"
+        },
+        "resources": {
+          "wood": 100,
+          "stone": 50,
+          "food": 40,
+          "resourcesSource": "fixup",
+          "stoneSource": "community"
+        },
+        "stockpileCaps": {
+          "source": "community",
+          "bulk": 48,
+          "grain": 32,
+          "small": 16,
+          "typesPerHouse": 4,
+          "typesPerHouseSource": "manbook"
+        },
+        "popCaps": {
+          "crusader": 2000,
+          "crusaderSource": "fixup",
+          "extreme": 10000,
+          "extremeSource": "manbook"
+        },
+        "handicaps": {
+          "source": "community",
+          "armies": "100%/150% در برابر 50%/125% در برابر 75%",
+          "taxIncome": "100%/120% در برابر 100%/150% در برابر 100%",
+          "startGoldNormal": [
+            2000,
+            4000,
+            8000
+          ],
+          "startGoldDeathmatch": [
+            10000,
+            20000,
+            40000
+          ],
+          "foeGold": [
+            7000,
+            3000
+          ]
+        }
+      },
+      "buildingCosts": {
+        "source": "manbook",
+        "ironmine": {"cost": {"wood": 20}, "workers": 2},
+        "market": {"cost": {"wood": 5}, "workers": 1},
+        "quarry": {"cost": {"wood": 20}, "workers": 3},
+        "stockpile": {"cost": {}, "workers": 0, "note": "free"},
+        "woodcutter": {"cost": {"wood": 3}, "workers": 1},
+        "armourer": {"cost": {"wood": 20, "gold": 100}, "workers": 1, "note": "iron → metal armour"},
+        "blacksmith": {"cost": {"wood": 20, "gold": 200}, "workers": 1, "note": "iron → mace/sword"},
+        "poleturner": {"cost": {"wood": 10, "gold": 100}, "workers": 1, "note": "wood → spear/pike"},
+        "pitchrig": {"cost": {"wood": 20}, "workers": 1, "marshOnly": true}
+      }
+    },
+    "soldierValue": {
+      "section": "18.6",
+      "status": "reference",
+      "rule": "ارزش سرباز = جمع طلا + ارزش بازاری تجهیزات (ستون خرید جدول ۱۸.۵-ز؛ جایگزین واقعی: هزینه مواد خام + کار)",
+      "example": {
+        "unit": "crossbowman",
+        "parts": [
+          "3 wood (bow)",
+          "1/3 cow (leather armor)",
+          "20 gold"
+        ],
+        "source": "manbook"
+      }
+    },
+    "missionScore": {
+      "section": "18.7",
+      "status": "reference",
+      "source": "fixup",
+      "formula": "score = Σ(weight × objective) + α·max(0,(final − goal)/goal) − β·(lost × value) + γ·(timeLeft/total)",
+      "weights": {
+        "alpha": 100,
+        "beta": 0.5,
+        "gamma": 50
+      },
+      "components": [
+        "فراتر رفتن از هدف اقتصادی (+)",
+        "تلفات نیرو (−)"
+      ],
+      "trail": "زمان کل = مجموع زمان بازی‌های فتح‌شده؛ بازی سریع‌تر ⇒ تاریخ کل کمتر"
+    },
+    "tacticalAid": {
+      "section": "18.8",
+      "status": "reference",
+      "barPoints": {
+        "value": 7000,
+        "source": "community"
+      },
+      "costs": {
+        "arrowVolley": 300,
+        "heal": 600,
+        "spearmen": 900,
+        "engineers": 1200,
+        "maceman": 1800,
+        "uncoverGold": 2500,
+        "knights": 3500,
+        "rockVolley": 5088,
+        "source": "fixup",
+        "rockSource": "community",
+        "order": "صعودی دفترچه"
+      },
+      "fillPerSec": {
+        "value": 10,
+        "source": "fixup",
+        "fullMinutes": 12
+      },
+      "uncoverGold": {
+        "source": "fixup",
+        "min": 200,
+        "max": 1000
+      },
+      "volley": {
+        "source": "fixup",
+        "radius": 12,
+        "duration": [
+          3,
+          5
+        ]
+      }
+    }
+  }
+}

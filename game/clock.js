@@ -1,4 +1,6 @@
 // حلقه زمان با گام ثابت (CORE-002): منطق مستقل از فریم‌ریت، با سقف جبران.
+// رندر با alpha() بین دو تیک درون‌یابی می‌کند (فاز ۰ بند ۱) — alpha فقط نما
+// است و هرگز وارد sim/هش/ذخیره نمی‌شود.
 export function createClock({ hz, onTick, maxPerFrame = 5 }) {
   let acc = 0;
   let last = -1;
@@ -22,5 +24,14 @@ export function createClock({ hz, onTick, maxPerFrame = 5 }) {
       return n;
     },
     reset() { acc = 0; last = -1; },
+    // پیشرفت به‌سوی تیک بعدی در [۰،۱] برای درون‌یابی نمایشی (فاز ۰ بند ۱).
+    // خالص‌نماست: خواندن آن sim را جلو نمی‌برد؛ هنگام pause همان مقدار
+    // منجمد می‌ماند (قاب منجمد) و پس از reset صفر است.
+    alpha() {
+      const step = 1 / hz;
+      const a = acc / step;
+      return a <= 0 ? 0 : a >= 1 ? 1 : a;
+    },
+    hz() { return hz; },
   };
 }

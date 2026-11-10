@@ -14,9 +14,9 @@ import { CONFIG } from "./config.js";
 import { T_GRASS } from "./terrain.js";
 import { tryPlace, validate, placeKeepFor } from "./construction.js";
 import { hireUnit, orderAttackMove } from "./combat.js";
-import { RATES, CAPS, STORE_RES, GRANARY_RES, STORE_BONUS, GRANARY_BONUS, ARMOURY_RES, ARMOURY_BONUS, housingCap } from "./economy.js";
+import { RATES, CAPS, STORE_RES, GRANARY_RES, STORE_BONUS, GRANARY_BONUS, ARMOURY_RES, ARMOURY_BONUS, CAMP_IDLE_MAX, atPopCap, housingCap } from "./economy.js";
 import { underConstruction } from "./construction.js";
-import { mulberry32 } from "./rng.js";
+import { statelessRand } from "./rng.js";
 
 export const AI_OWNER = CONFIG.AI.owner;
 
@@ -46,9 +46,9 @@ export function aiPersonalityName(ai) {
 
 // تصادف قطعی بدون حالت: یک draw از سیدی که فقط به (seed,tick,salt) بستگی
 // دارد — پس save/load دنباله را نمی‌شکند (هیچ RNG-state ذخیره‌ای نیست).
+// (فاز ۰ بند ۲: فرمول متمرکز در rng.js:statelessRand — دنباله بی‌تغییر.)
 export function aiRandAt(ai, tick, salt) {
-  const rnd = mulberry32((((ai.seed ^ (tick | 0) ^ ((salt | 0) * 0x9e3779b9)) >>> 0)));
-  return rnd();
+  return statelessRand(ai.seed, tick, salt);
 }
 
 function aiBlds(state) {
@@ -172,7 +172,7 @@ function stepAiEcon(state) {
       ai.resources.gold + Math.round(ai.workers * CONFIG.AI.goldPerWorker * d.goldMul * p.goldMul));
   }
   const workerEvery = Math.max(1, Math.round(CONFIG.AI.workerEvery * aiDifficulty(ai).workerEveryMul * aiPersonality(ai).workerEveryMul));
-  if (state.tick > 0 && state.tick % workerEvery === 0 && ai.workers < ai.workerCap) {
+  if (state.tick > 0 && state.tick % workerEvery === 0 && ai.workers < ai.workerCap && ai.freeWorkers < CAMP_IDLE_MAX && !atPopCap(state, AI_OWNER)) {
     ai.workers++;
   }
   for (const k of Object.keys(ai.resources)) {
@@ -206,6 +206,20 @@ function aiBuild(state, terrain, W, H) {
 
 // لایه نظامی: یورش زمان‌بندی‌شده وقتی سربازخانه سالم هست.
 // زمان/اندازه از درجه سختی × شخصیت می‌آیند (normal×گرگ = همان جدول پایه).
+// نوع یگان یورش (0.150.0 — §۱۸.۵/بند ۱۰۰): خالص و قطعی — draw از
+// (seed,tick,sent*31+i)؛ پروفایل troopsدار (ارباب عرب) زوج عربی خودش را
+// می‌فرستد (rangedP سهم دوربرد)، بقیه همان archer/swordsman با archerP.
+export function aiRaidUnitType(ai, tick, raidsSent, i) {
+  const P = aiPersonality(ai);
+  const draw = aiRandAt(ai, tick, raidsSent * 31 + i);
+  if (P && P.troops) {
+    const tp = P.troops.rangedP != null ? P.troops.rangedP : (P.archerP != null ? P.archerP : 0.34);
+    return draw < tp ? P.troops.ranged : P.troops.melee;
+  }
+  const archerP = P && P.archerP != null ? P.archerP : 0.34;
+  return draw < archerP ? "archer" : "swordsman";
+}
+
 export function aiRaidPlan(ai, idx) {
   const base = CONFIG.AI.raids[idx];
   if (!base) return null;
@@ -227,14 +241,14 @@ function aiRaid(state, terrain, W, H) {
   const keep = state.buildings.find((b) => b.type === "keep" && !b.destroyed && (b.owner == null ? 0 : b.owner) === 0);
   const tc = keep ? keep.c : Math.floor(W / 2), tr = keep ? keep.r : Math.floor(H / 2);
   let hired = 0;
-  const archerP = aiPersonality(ai).archerP != null ? aiPersonality(ai).archerP : 0.34;
   for (let i = 0; i < next.n; i++) {
-    // ترکیب قطعی ولی نه یکنواخت: draw از (seed,tick,i) + سهم کماندار پروفایل
-    const type = aiRandAt(ai, state.tick, ai.raidsSent * 31 + i) < archerP ? "archer" : "swordsman";
+    const type = aiRaidUnitType(ai, state.tick, ai.raidsSent, i);
     const site = spiralSite(state, terrain, W, H, rax.c, rax.r, 1, 1, true);
     if (!site) break;
     const h = hireUnit(state, terrain, W, H, site[0], site[1], type, AI_OWNER);
     if (!h.ok) break; // پول/جا نیست — بقیه یورش می‌سوزد
+    h.unit.side = "enemy"; // یورش حریف همیشه دشمن است (0.228.0 — C-BAL-4: نیروهای عرب def.side=player دارند؛
+    // بدون این، acquire سولو آن‌ها را به بناهای خودی (owner=9) می‌انداخت: خودزنی + خودسوزی مشعل + خاموشی AI)
     hired++;
     orderAttackMove(state, h.unit, tc, tr);
   }

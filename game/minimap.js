@@ -2,7 +2,7 @@
 // UI-side خالص: فقط می‌خواند (state/terrain/view) و هیچ‌چیز را تغییر نمی‌دهد —
 // صفر اثر روی sim، هش MP و ذخیره. همه توابع خالص و تست‌پذیرند.
 import { CONFIG } from "./config.js";
-import { T_WATER, T_ROCK } from "./terrain.js";
+import { T_WATER, T_ROCK, T_OASIS, makeTerrain } from "./terrain.js";
 import { PLAYER_COLORS } from "./mp.js";
 
 export const MINIMAP_W = 150;
@@ -12,6 +12,7 @@ export const MINIMAP_H = 150;
 export const MM_GRASS = "#33502e";
 export const MM_WATER = "#2e6f8e";
 export const MM_ROCK = "#7a7f85";
+export const MM_OASIS = "#3f8f6f"; // واحه (0.154.0 — بند 107)
 export const MM_SELF = "#4d9de0";   // آبی مالک ۰ (آینه PLAYER_COLORS[0])
 export const MM_AI = "#e05c4d";     // قرمز حریف (آینه رنگ نقطه بنای AI در render.js)
 export const MM_ME_UNIT = "#2ecc71"; // سبز: یگان خودی
@@ -57,7 +58,7 @@ export function drawMinimap(cv, state, terrain, GW, GH, viewport) {
   for (let r = 0; r < GH; r++) {
     for (let c = 0; c < GW; c++) {
       const t = terrain[r * GW + c];
-      ctx.fillStyle = t === T_WATER ? MM_WATER : t === T_ROCK ? MM_ROCK : MM_GRASS;
+      ctx.fillStyle = t === T_WATER ? MM_WATER : t === T_ROCK ? MM_ROCK : t === T_OASIS ? MM_OASIS : MM_GRASS;
       ctx.fillRect(c * cellW, r * cellH, cellW + 0.6, cellH + 0.6);
     }
   }
@@ -89,4 +90,26 @@ export function drawMinimap(cv, state, terrain, GW, GH, viewport) {
       Math.max(1, viewport.r1 - viewport.r0) * cellH
     );
   }
+}
+
+// پیش‌نمایش نقشه (0.177.0 — بند 90: thumbnail + توضیح کوتاه). زمین سید
+// داده‌شده با رنگ‌های مینی‌مپ (بدون ساختمان/یگان)؛ خالص‌نما و UI-side.
+// بوم نامعتبر = false؛ وگرنه true.
+export function paintMapThumb(cv, seed) {
+  if (!cv || typeof cv.getContext !== "function") return false;
+  const ctx = cv.getContext("2d");
+  if (!ctx) return false;
+  const GW = 64, GH = 64;
+  const terrain = makeTerrain(GW, GH, seed >>> 0);
+  const W = cv.width || 144, H = cv.height || 144;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const cellW = W / GW, cellH = H / GH;
+  for (let r = 0; r < GH; r++) {
+    for (let c = 0; c < GW; c++) {
+      const t = terrain[r * GW + c];
+      ctx.fillStyle = t === T_WATER ? MM_WATER : t === T_ROCK ? MM_ROCK : t === T_OASIS ? MM_OASIS : MM_GRASS;
+      ctx.fillRect(c * cellW, r * cellH, cellW + 0.6, cellH + 0.6);
+    }
+  }
+  return true;
 }

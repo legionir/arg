@@ -18,7 +18,10 @@ const isNonEmptyStr = (v) => typeof v === "string" && v.length > 0;
 const MAP_NAME_LEN_MAX = 64;
 
 // کلیدهای مجاز rules ساختمان (بقیه = تایپی/قانون فراموش‌شده).
-const RULE_DEFS = { unique: "bool", anchorToAny: "bool", spacingFromSame: "int" };
+const RULE_DEFS = { unique: "bool", anchorToAny: "bool", anchorToSame: "bool", spacingFromSame: "int" };
+
+// دسته‌های ساختمان (فاز ۰ بند ۳ — بخش ۸ دفترچه؛ در data/buildings.json).
+const BUILDING_CATEGORIES = new Set(["castle", "industry", "farm", "food", "town", "weapon"]);
 
 function checkRules(rules, path, errs) {
   if (rules === null || rules === undefined) return;
@@ -88,6 +91,17 @@ function validateBuildings(blds, resKeys, errs) {
     if (!isObj(b)) { errs.push(`${p}: باید آبجکت باشد`); continue; }
     if (b.key !== k) errs.push(`${p}: فیلد key باید «${k}» باشد`);
     if (!isNonEmptyStr(b.name)) errs.push(`${p}: نام فارسی لازم است`);
+    // فایل داده (فاز ۰ بند ۳): کلید نام چندزبانی + دسته + جای‌گذاری + نیازها.
+    if (!isNonEmptyStr(b.nameKey)) errs.push(`${p}: nameKey (کلید نام چندزبانی) لازم است`);
+    if (!BUILDING_CATEGORIES.has(b.category)) {
+      errs.push(`${p}.category: باید یکی از ${[...BUILDING_CATEGORIES].join("/")} باشد`);
+    }
+    if (!isObj(b.placement) || !isNonEmptyStr(b.placement.terrain)) {
+      errs.push(`${p}.placement.terrain: رشته غیرتهی لازم است`);
+    }
+    if (!Array.isArray(b.needs) || !b.needs.every((n) => typeof n === "string")) {
+      errs.push(`${p}.needs: آرایه‌ای از رشته‌ها لازم است`);
+    }
     if (!isPosInt(b.w) || !isPosInt(b.h)) errs.push(`${p}: w/h باید صحیح مثبت باشند`);
     if (!isPosNum(b.hp)) errs.push(`${p}: hp باید مثبت باشد`);
     if (typeof b.source !== "string" || b.source.length === 0) errs.push(`${p}: source (مرجع/حدس) لازم است`);
@@ -101,6 +115,8 @@ function validateBuildings(blds, resKeys, errs) {
       if (!isPosNum(e.amount)) errs.push(`${ep}.amount: باید مثبت باشد`);
       if (!isPosInt(e.everyTicks)) errs.push(`${ep}.everyTicks: باید صحیح مثبت باشد`);
       if (!isPosInt(e.workers)) errs.push(`${ep}.workers: باید صحیح مثبت باشد`);
+      if (e.needsCows !== undefined && !isPosInt(e.needsCows)) errs.push(`${ep}.needsCows: باید صحیح مثبت باشد`);
+      if (e.cowGrowthTicks !== undefined && !isPosInt(e.cowGrowthTicks)) errs.push(`${ep}.cowGrowthTicks: باید صحیح مثبت باشد`);
       if (e.consumes !== undefined) {
         checkResMap(e.consumes, `${ep}.consumes`, resKeys, errs, { positive: true });
       }
@@ -211,11 +227,45 @@ function validateAI(ai, bldKeys, resKeys, errs) {
     if (!(typeof v.archerP === "number" && v.archerP >= 0 && v.archerP <= 1)) {
       errs.push(`${p}.archerP: باید در [۰،۱] باشد`);
     }
+    // زوج یگان یورش (0.150.0 — §۱۸.۵/بند ۱۰۰): اختیاری؛ رشته‌های ناتهی + سهم [۰،۱].
+    if (v.troops !== undefined) {
+      if (!isObj(v.troops)) errs.push(`${p}.troops: باید آبجکت باشد`);
+      else {
+        if (!isNonEmptyStr(v.troops.ranged)) errs.push(`${p}.troops.ranged: رشته ناتهی لازم است`);
+        if (!isNonEmptyStr(v.troops.melee)) errs.push(`${p}.troops.melee: رشته ناتهی لازم است`);
+        if (!(typeof v.troops.rangedP === "number" && v.troops.rangedP >= 0 && v.troops.rangedP <= 1)) errs.push(`${p}.troops.rangedP: باید در [۰،۱] باشد`);
+      }
+    }
   }
 }
 
 // بازار (0.64.0 — ب-۳): نرخ‌های خرید/فروش + بسته؛ sell ≤ buy (ضد آربیتراژ)،
 // طلا قابل‌معامله نیست، کلیدها منبع شناخته‌شده.
+// افراز تب‌های بازار (فاز ۱ بند ۳۶): دقیقاً سه تب food/resources/military که
+// افراز کلیدهای نرخ باشند. prefix مسیر خطا را می‌سازد (MARKET یا TUNING.market).
+function checkMarketTabs(obj, prefix, rateKeys, errs) {
+  const tabs = obj && obj.tabs;
+  const ids = tabs && typeof tabs === "object" && !Array.isArray(tabs) ? Object.keys(tabs) : [];
+  if (JSON.stringify(ids) !== JSON.stringify(["food", "resources", "military"])) {
+    errs.push(`${prefix}.tabs: باید دقیقاً سه تب food/resources/military باشد`);
+    return;
+  }
+  const seen = [];
+  for (const id of ids) {
+    const list = tabs[id];
+    if (!Array.isArray(list) || list.length === 0) {
+      errs.push(`${prefix}.tabs.${id}: فهرست ناتهی لازم است`);
+      continue;
+    }
+    seen.push(...list);
+  }
+  const extra = seen.filter((x) => !rateKeys.includes(x));
+  const missing = rateKeys.filter((x) => !seen.includes(x));
+  const dup = seen.filter((x, i) => seen.indexOf(x) !== i);
+  if (extra.length) errs.push(`${prefix}.tabs: کالای بدون نرخ «${extra[0]}»`);
+  if (missing.length) errs.push(`${prefix}.tabs: کالای بدون تب «${missing[0]}»`);
+  if (dup.length) errs.push(`${prefix}.tabs: کالای تکراری «${dup[0]}»`);
+}
 function validateMarket(mkt, resKeys, errs) {
   if (!isObj(mkt)) { errs.push("MARKET: آبجکت لازم است"); return; }
   if (!isPosInt(mkt.lot)) errs.push("MARKET.lot: باید صحیح مثبت باشد");
@@ -234,6 +284,7 @@ function validateMarket(mkt, resKeys, errs) {
     }
     if (r.sell > r.buy) errs.push(`${p}: فروش (sell) نباید از خرید (buy) بیشتر باشد (آربیتراژ)`);
   }
+  checkMarketTabs(mkt, "MARKET", Object.keys(mkt.rates), errs);
 }
 
 // صف آموزش (0.65.0 — انتخاب ۱-الف): سقف صف هر سربازخانه.
@@ -253,11 +304,29 @@ function validateUnits(units, bldKeys, resKeys, errs) {
     if (!isObj(u)) { errs.push(`${p}: باید آبجکت باشد`); continue; }
     if (u.side !== "player" && u.side !== "enemy") errs.push(`${p}.side: باید player یا enemy باشد`);
     if (!isNonEmptyStr(u.name)) errs.push(`${p}: نام فارسی لازم است`);
+    if (!isNonEmptyStr(u.nameKey)) errs.push(`${p}.nameKey: کلید نام لازم است`);
+    // آینه فیلدهای نمونه دفترچه با میدان‌های sim (فاز ۰ بند ۴ — داده‌محور):
+    // building=requires، goldCost=cost.gold، equip=[requiresWeapon].
+    // استثنا (0.146.0): یگان استخدام‌ناپذیر (noHire مثل شفادهنده) از
+    // ساختمانش spawn می‌شود نه از requires — آینه building/requires ندارد و
+    // رزمی‌کار نیست (dmg/range صفر مجاز است؛ aggro صفر یعنی acquire خالی).
+    if (!u.noHire && (u.requires ?? null) !== (u.building ?? null)) errs.push(`${p}.building: باید آینه requires باشد`);
+    const goldCostLive = (u.cost && typeof u.cost.gold === "number") ? u.cost.gold : null;
+    if (u.goldCost !== goldCostLive) errs.push(`${p}.goldCost: باید آینه cost.gold باشد`);
+    const equipLive = u.requiresWeapon ? [u.requiresWeapon] : [];
+    if (!Array.isArray(u.equip) || JSON.stringify(u.equip) !== JSON.stringify(equipLive)) {
+      errs.push(`${p}.equip: باید آینه requiresWeapon باشد`);
+    }
+    if (!isNonEmptyStr(u.speedClass)) errs.push(`${p}.speedClass: رده سرعت لازم است`);
+    if (!isNonEmptyStr(u.armorClass)) errs.push(`${p}.armorClass: رده زره لازم است`);
+    for (const f of ["canClimbLadder", "canDigMoat"]) {
+      if (typeof u[f] !== "boolean") errs.push(`${p}.${f}: باید بولین باشد`);
+    }
     if (!isPosNum(u.hp)) errs.push(`${p}.hp: باید مثبت باشد`);
     if (!isNonNegInt(u.armor)) errs.push(`${p}.armor: باید صحیح نامنفی باشد`);
-    if (!isPosNum(u.dmg)) errs.push(`${p}.dmg: باید مثبت باشد`);
+    if (u.noHire ? !isNonNegNum(u.dmg) : !isPosNum(u.dmg)) errs.push(`${p}.dmg: باید مثبت باشد`);
     if (!isPosInt(u.cd)) errs.push(`${p}.cd: باید صحیح مثبت باشد`);
-    if (!isPosNum(u.range)) errs.push(`${p}.range: باید مثبت باشد`);
+    if (u.noHire ? !isNonNegNum(u.range) : !isPosNum(u.range)) errs.push(`${p}.range: باید مثبت باشد`);
     if (!isPosNum(u.speed)) errs.push(`${p}.speed: باید مثبت باشد`);
     if (!isNonNegNum(u.aggro)) errs.push(`${p}.aggro: باید نامنفی باشد`);
     if (u.cost !== undefined) {
@@ -281,12 +350,117 @@ function validateUnits(units, bldKeys, resKeys, errs) {
     if (u.bonusVsBld !== undefined && !isPosNum(u.bonusVsBld)) {
       errs.push(`${p}.bonusVsBld: باید مثبت باشد`);
     }
-    for (const f of ["siege", "halfVsUnit", "needsDeploy", "noHire"]) {
+    // ضعف ضد ساختمان (0.151.0 — §۱۹.۳/بند ۱۱۵۴): فقط مثبت (کسر، مثل شمشیرزن عرب ۰٫۵).
+    if (u.weakVsBld !== undefined && !isPosNum(u.weakVsBld)) {
+      errs.push(`${p}.weakVsBld: باید مثبت باشد`);
+    }
+    for (const f of ["siege", "halfVsUnit", "needsDeploy", "noHire", "torch", "fireOnMove", "noVsFort"]) {
       if (u[f] !== undefined && typeof u[f] !== "boolean") errs.push(`${p}.${f}: باید بولین باشد`);
     }
+    // سقف مهمات (0.149.0 — §۱۲.۲/بند ۵۷۸): فقط صحیح مثبت.
+    if (u.ammoCap !== undefined && !isPosInt(u.ammoCap)) errs.push(`${p}.ammoCap: باید صحیح مثبت باشد`);
+    // شعاع پاشش (0.150.0 — §۱۹.۳/بند ۲۵۴): فقط مثبت (کاشی).
+    if (u.splash !== undefined && !isPosNum(u.splash)) errs.push(`${p}.splash: باید مثبت باشد`);
   }
 }
 
+// تنظیمات پیاده‌شده (فاز ۰ بند ۷ — data/tuning.json، سند خام بدون getter):
+// سطوح مالیات/جیره دقیقاً همین شناسه‌ها (sim با کلید مستقیم می‌خواند — سطح
+// جاافتاده = رفتار خاموش‌متفاوت، پس fail-fast)، سقف‌ها و فهرست‌ها زیرمجموعه
+// منابع شناخته‌شده، شکل بازار/صف مثل validateMarket/validateTrain (که روی
+// CONFIG ساخته‌شده از همین سند اجرا می‌شوند).
+const TUN_TAX_IDS = ["generousBribe", "largeBribe", "smallBribe", "none", "low", "average", "high", "mean", "extortionate", "downrightCruel", "evenCrueler", "cruellerThanCruel"];
+const TUN_RATION_IDS = ["none", "half", "normal", "extra", "double"];
+
+function validateTuning(tun, resKeys, errs) {
+  if (!isObj(tun)) { errs.push("TUNING: آبجکت لازم است"); return; }
+  const tax = tun.tax;
+  if (!isObj(tax) || !Array.isArray(tax.levels) || tax.levels.length !== TUN_TAX_IDS.length) {
+    errs.push("TUNING.tax: دقیقاً ۱۲ سطح لازم است");
+  } else {
+    const ids = tax.levels.map((l) => l && l.id);
+    for (const id of TUN_TAX_IDS) {
+      if (!ids.includes(id)) errs.push(`TUNING.tax: سطح «${id}» لازم است`);
+    }
+    tax.levels.forEach((l, i) => {
+      const q = `TUNING.tax.levels[${i}]`;
+      if (!isObj(l)) { errs.push(`${q}: باید آبجکت باشد`); return; }
+      if (!Number.isInteger(l.goldPerWorker)) errs.push(`${q}.goldPerWorker: باید صحیح باشد`);
+      if (!Number.isInteger(l.pop)) errs.push(`${q}.pop: باید صحیح باشد`);
+      if (!isNonEmptyStr(l.nameKey)) errs.push(`${q}.nameKey: کلید نام لازم است`);
+    });
+  }
+  const rat = tun.rations;
+  if (!isObj(rat) || !Array.isArray(rat.levels) || rat.levels.length !== TUN_RATION_IDS.length) {
+    errs.push("TUNING.rations: دقیقاً ۵ سطح لازم است");
+  } else {
+    const ids = rat.levels.map((l) => l && l.id);
+    for (const id of TUN_RATION_IDS) {
+      if (!ids.includes(id)) errs.push(`TUNING.rations: سطح «${id}» لازم است`);
+    }
+    rat.levels.forEach((l, i) => {
+      const q = `TUNING.rations.levels[${i}]`;
+      if (!isObj(l)) { errs.push(`${q}: باید آبجکت باشد`); return; }
+      if (!Number.isInteger(l.foodNum) || l.foodNum < 0) errs.push(`${q}.foodNum: باید صحیح نامنفی باشد`);
+      if (!Number.isInteger(l.pop)) errs.push(`${q}.pop: باید صحیح باشد`);
+      if (!isNonEmptyStr(l.nameKey)) errs.push(`${q}.nameKey: کلید نام لازم است`);
+    });
+  }
+  if (!isObj(tun.inn) || !isPosInt(tun.inn.beerEveryTicks)) errs.push("TUNING.inn.beerEveryTicks: باید صحیح مثبت باشد");
+  if (isObj(tun.inn) && (!isPosInt(tun.inn.fullBonus) || !isPosInt(tun.inn.perInn))) errs.push("TUNING.inn.fullBonus/perInn: باید صحیح مثبت باشند");
+  if (isObj(tun.inn) && tun.inn.drunkardsPerInn !== undefined && !isNonNegInt(tun.inn.drunkardsPerInn)) errs.push("TUNING.inn.drunkardsPerInn: باید صحیح نامنفی باشد");
+  if (!isObj(tun.fear) || !Number.isInteger(tun.fear.min) || !Number.isInteger(tun.fear.max) || !(tun.fear.min < 0 && tun.fear.max > 0) || !isPosInt(tun.fear.workPct) || !isPosInt(tun.fear.attackPct) || !Number.isInteger(tun.fear.popPer) || !isPosInt(tun.fear.ptsPerLevel)) errs.push("TUNING.fear: بازه ∓ + گام‌های مثبت + اثر صحیح + امتیاز هر سطح لازم است");
+  if (!isObj(tun.population) || !isPosInt(tun.population.crusader) || !isPosInt(tun.population.extreme) || !(tun.population.extreme > tun.population.crusader) || !isPosInt(tun.population.campIdleMax)) errs.push("TUNING.population: سقف‌ها (extreme>crusader) + سقف بیکار آتش لازم است");
+  if (!isObj(tun.religion) || !isPosInt(tun.religion.chapel) || !isPosInt(tun.religion.church) || !isPosInt(tun.religion.cathedral) || !isPosInt(tun.religion.priests)) errs.push("TUNING.religion: ظرفیت‌ها و کشیش باید صحیح مثبت باشند");
+  if (isObj(tun.religion) && (!isPosInt(tun.religion.blessEveryTicks) || !isPosInt(tun.religion.blessDurationTicks) || tun.religion.blessDurationTicks >= tun.religion.blessEveryTicks)) errs.push("TUNING.religion.bless: چرخه/مدت تبرک باید مثبت و مدت کوچک‌تر از چرخه باشد");
+  if (isObj(tun.religion) && (!Array.isArray(tun.religion.steps) || tun.religion.steps.length !== 4 || !Array.isArray(tun.religion.stepBonus) || tun.religion.stepBonus.length !== 4 || !Number.isInteger(tun.religion.churchBonus) || tun.religion.churchBonus < 0 || !Number.isInteger(tun.religion.cathedralBonus) || tun.religion.cathedralBonus < 0)) errs.push("TUNING.religion.bonus: پله‌ها/پاداش‌ها/ثابت‌ها معتبر لازم است");
+  if (!isObj(tun.timing) || !isPosInt(tun.timing.eatThreshold) || !isPosInt(tun.timing.popPeriod) ||
+      !isPosInt(tun.timing.migPeriod) || !isPosInt(tun.timing.popStep)) {
+    errs.push("TUNING.timing: آستانه/دوره‌ها باید صحیح مثبت باشند");
+  }
+  if (!isObj(tun.foodVariety) || !Array.isArray(tun.foodVariety.types) || tun.foodVariety.types.length === 0 ||
+      !Array.isArray(tun.foodVariety.bonus) || tun.foodVariety.bonus.length !== 4) {
+    errs.push("TUNING.foodVariety: فهرست خوردنی‌ها + ۴ پاداش لازم است");
+  } else {
+    for (const k of tun.foodVariety.types) {
+      if (!resKeys.has(k)) errs.push(`TUNING.foodVariety.types.${k}: منبع ناشناخته`);
+    }
+  }
+  if (!isObj(tun.housing) || !isNonNegInt(tun.housing.base) || !isNonNegInt(tun.housing.hut) ||
+      !isNonNegInt(tun.housing.keep)) {
+    errs.push("TUNING.housing: مسکن باید صحیح نامنفی باشد");
+  }
+  if (!isObj(tun.crowding) || !Number.isInteger(tun.crowding.pop)) errs.push("TUNING.crowding.pop: باید صحیح باشد");
+  for (const k of ["fair", "lion", "disease"]) {
+    const ev = tun.events && tun.events[k];
+    if (!isObj(ev) || !isPosInt(ev.everyTicks) || !Number.isInteger(ev.offsetTicks) || ev.offsetTicks < 0 || !isPosInt(ev.durationTicks) || !Number.isInteger(ev.pop)) errs.push(`TUNING.events.${k}: پنجره/اثر معتبر لازم است`);
+  }
+  if (!isObj(tun.caps) || !isObj(tun.caps.base) || Object.keys(tun.caps.base).length === 0) {
+    errs.push("TUNING.caps.base: آبجکت ناتهی لازم است");
+  } else {
+    for (const k of Object.keys(tun.caps.base)) {
+      if (!resKeys.has(k)) errs.push(`TUNING.caps.base.${k}: منبع ناشناخته`);
+      else if (!isNonNegNum(tun.caps.base[k])) errs.push(`TUNING.caps.base.${k}: باید عدد نامنفی باشد`);
+    }
+  }
+  for (const g of ["store", "granary", "armoury"]) {
+    const grp = tun.caps && tun.caps[g];
+    if (!isObj(grp) || !Array.isArray(grp.res) || grp.res.length === 0) {
+      errs.push(`TUNING.caps.${g}.res: فهرست ناتهی لازم است`); continue;
+    }
+    for (const k of grp.res) {
+      if (!resKeys.has(k)) errs.push(`TUNING.caps.${g}: منبع ناشناخته «${k}»`);
+    }
+    if (!isPosInt(grp.bonus)) errs.push(`TUNING.caps.${g}.bonus: باید صحیح مثبت باشد`);
+  }
+  if (!isObj(tun.market) || !isPosInt(tun.market.lot)) errs.push("TUNING.market.lot: باید صحیح مثبت باشد");
+  if (isObj(tun.market) && isObj(tun.market.rates)) {
+    checkMarketTabs(tun.market, "TUNING.market", Object.keys(tun.market.rates), errs);
+  } else if (isObj(tun.market)) {
+    errs.push("TUNING.market.rates: آبجکت ناتهی لازم است");
+  }
+  if (!isObj(tun.train) || !isPosInt(tun.train.queueCap)) errs.push("TUNING.train.queueCap: باید صحیح مثبت باشد");
+}
 // نقطه ورود: همه خطاهای شکل/ارجاع CONFIG و UNITS. خالی = معتبر.
 export function validateConfig(cfg, units) {
   const errs = [];
@@ -297,6 +471,7 @@ export function validateConfig(cfg, units) {
   validateMaps(cfg.MAPS, errs);
   validateMarket(cfg.MARKET, resKeys, errs);
   validateTrain(cfg.TRAIN, errs);
+  validateTuning(cfg.TUNING, resKeys, errs);
   validateAI(cfg.AI, bldKeys, resKeys, errs);
   validateUnits(units, bldKeys, resKeys, errs);
   return errs;

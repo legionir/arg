@@ -1,5 +1,2001 @@
 # تاریخچه انتشار — ارگ (Arg)
 
+# تاریخچه انتشار — ارگ (Arg)
+## 0.276.1 (نوامبر 2026) — اصلاح کرش هوور یگان
+
+- **ردیف C-UI-69:** کرش `updateHover` هنگام هوور هر یگان (`main.js:1036` از `ownUnit` استفاده می‌کرد که فقط داخل `pointerui.js` تعریف شده و در اسکوپ main.js وجود نداشت — جاافتاده از استخراج C-CLN-85؛ همان کلاس گیر `frame()` در ردیف C-CLN-85 که سوئیت هم نمی‌گیرد چون تستی `updateHover` را پوشش نمی‌دهد) → جایگزینی با `foeUnit(hu)` (معادل محلی، هم‌خوان با شرط برچسب حمله خط قبل و `foeBuilding` شاخه ساختمان).
+
+- بدون بازپین (UI-side محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.276.1). سوئیت 696/696 + ۶/۶ + هوور زنده هر ۴۰۹۶ خانه نقشه بدون خطا (شاخه‌های ستاد/ارباب/چوب‌بری/خنثی).
+
+- **ردیف C-UI-68:** تولید ۱۴ تصویر با مدل (۱۰ شیت ۱۲۸×۱۶۰ اسمبل‌شده از turnaround + ۴ تک‌اسپرایت ۹۶×۹۶ محاصره؛ کلید پس‌زمینه از روی حاشیه + trim + مرگِ خوابیده) در `assets/units/*.png` (سورس durable) و inline در `units.gen.js` (۲۴ شیت + ۴ تک‌اسپرایت)؛ سیم‌کشی رندر: `drawSiege` اول تک‌اسپرایت آماده را می‌کشد (وگرنه وکتور)، `thumbUnit` تک‌اسپرایت محاصره، `drawCorpses` بدون جسد محاصره؛ تست‌ها (`t_merc_sprites` + ردیف 1232) به‌روز شدند.
+
+- بدون بازپین (sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.276.0). سوئیت 696/696 + ۶/۶.
+
+## 0.275.0 (نوامبر 2026) — چیدمان کارت تصویر-راست + قید پرتره نوار پایین
+
+- **ردیف C-UI-67:** کارت‌های پالت (مزدور/ساختمان) با گرید جهت‌راست‌به‌چپ‌ایمن: تصویر ستون راست (ردیف ۱–۲)، عنوان بالا + منابع زیرش در ستون چپِ چسبیده، توضیح تمام‌عرض زیر تصویر (`components.css`: `.bcard` گرید + `grid-column/row` صریح؛ `order`های ستونی حذف شد)؛ پرتره هوور ستاد در `#statusEl` (تزریق `lordPortraitHTML` بدون قید در `main.js:967`) با اندازه طبیعی (~۲۰۰px) نوار پایین را بلند می‌کرد → قید 1.5em دایره‌ای `#statusEl img.lordFace` در `layout.css` (نوار ۴۷px ثابت).
+
+- بدون بازپین (UI-side محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.275.0). سوئیت 696/696 + ۶/۶.
+
+## 0.274.0 (نوامبر 2026) — پنل دشمن + سربرگ اورلی‌ها + تست کاروان
+
+- **ردیف C-UI-66:** سربرگ ۴ اورلی (مزدور/بازار/جیره/کاتب) با الگوی مشترک `.ovHead` (عنوان بالای کادر + راهنما و ✕ انتهای چپ مقابل عنوان؛ راهنمای صف «خالی — روی نقشه کلیک کن تا سفارش بدهی» در سربرگ مزدورها)؛ چیدمان کارت‌های پالت (عنوان، سپس منابع، سپس تصویر، سپس توضیح تمام‌عرض از راست) در `format.js`؛ پنل پادشاه دشمن `#foeCard` در buildBar (تصویر راست + اطلاعات چپ؛ سولو=شخصیت AI با پرتره، چندنفره=نام/لوگوی نشست، موج=برچسب) با انتخاب خنثی در `pointerui.js` (selFoe گذرا)؛ پیام کاروان از آمار حذف و به toast بالا-راست نقشه (`#gameToast`) منتقل شد؛ ماژول خالص `game/foeinfo.js` + سوئیت `tests/foe.js` (۷ تست).
+
+- بدون بازپین (UI-side محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.274.0). سوئیت 696/696 + ۶/۶.
+
+## 0.273.0 (نوامبر 2026) — فاز ۷ تمیزکاری: قلاب تست در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-93:** قلاب تست main.js — `game/testhook.js` (createTestHookUI({...}) مالک `window.__slice01` (۵۲ کلید: view/mp/masters/mission/validate/place/orderها/ff/hire/wave/alarm/profile/menu/… + گترهای state/terrain)؛ ۲۰ import + ۹ گتر/۹ ستر (state/terrain/mpSession/mpNextSeq/selIds/selectedKey*/pendingKind/profile/mpDesync/selBldId/cmdQueue) + ۳۰ ارجاع مستقیم (const-Mapهای mpPending/mpHashes/mpHashLog مستقیم)؛ main.js 1385→1170). یک گیر واقعی: کلید آبجکت `profile:` هم‌نام boot-local بازنویسی شد (`getProfile():` نامعتبر → sucrase Sucrase سبز ولی import مرورگر خطای «missing { before function body» در خط دقیق داد) → قانون: بازنویسی شناسه باید کلید آبجکت (`{,key:`) را مستثنا کند + شماره خط واقعی را از پراپ خطای import مرورگر بگیر. smoke: ساخت ایزوله (۵۲ کلید) + ff(۳۰) زنده (تیک ۳۹→۷۲) + گترهای state/terrain.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.273.0). سوئیت 689/689 + ۶/۶ (کل سوئیت از داخل فکتوری می‌گذرد).
+
+## 0.272.0 (نوامبر 2026) — فاز ۷ تمیزکاری: دم بوت در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-92:** دم بوت main.js — `game/boottail.js` (createBootTail({...}) مالک شروع پشت منو (paused+showMenu+firstRun) + نسخه VERSION + paintCompat + مهاجرت IDB/وضعیت اسلات + `onLangChange` (۱۸ بازبرچسب) + شروع حلقه فریم؛ ۴ import + ۳ گتر (state/profile/menuRelabelFns؛ جهش `state.paused` via گتر، بدون ستر) + ۲۵ ارجاع مستقیم؛ بدون const تفویضی؛ main.js 1438→1385). بدون گیر واقعی؛ ۲ مثبت‌کاذب مفسری (واژه داخل کامنت + `requestAnimationFrame` گلوبال). smoke: تاگل زبان English↔فارسی بی‌خطا (Tick ۷۹ ↔ تیک ۸۲) + تیک ۵۷.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.272.0). سوئیت 689/689 + ۶/۶.
+
+## 0.271.0 (نوامبر 2026) — فاز ۷ تمیزکاری: نما/قاب در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-91:** نما/قاب main.js — `game/viewframe.js` (createViewFrameUI({...}) مالک ریسایز + نمای تخت (کلیک/Space/نگه‌داشتن V) + `minimapUI` + حلقه `frame()` (ساعت/صدا/لبه‌اسکرول/رسم/سلام‌اولین‌فریم/اسنپ‌شات صدا/fps + افت خودکار کیفیت)؛ ۶ import + ۷ گتر/۲ ستر (state/terrain/hover/selIds/lastSoundSnap/fidelity/fidelityAuto) + ۲۴ ارجاع مستقیم؛ ۳ const تفویضی (flat/frame/minimapUI — مصرفیِ قلاب تست ۱۲۷۲ و بوت‌تیل ۱۲۸۶ و `getMinimapUI` تنبل ۱۱۲۰)؛ main.js 1528→1438). بدون گیر واقعی؛ ۱ مثبت‌کاذب ماک (renderer.setFlat). smoke بصری: منوی فارسی + شروع سولو (تیک ۷) + اسنپ‌شات بوم (زمین/قلعه/برکه/HUD/پالت، ۱۹۲۰×۱۰۸۰ تمیز؛ به‌هم‌ریختگی نمای باریک آرتیفکت html2canvas است).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.271.0). سوئیت 689/689 + ۶/۶.
+
+## 0.270.0 (نوامبر 2026) — فاز ۷ تمیزکاری: لابی رقابتی در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-90:** لابی رقابتی main.js — `game/lobbywiring.js` (createLobbyWiringUI({...}) مالک دکمه‌های ساخت/پیوستن/تماشا/ترک/آماده/شروع/فهرست + سیم‌کشی کارت ادامه (تفویض یک‌بار) + `mpCode()` + `continueStored()` + رفرش دوره‌ای فهرست؛ ۴ import + ۱ گتر + ۸ ارجاع مستقیم (lobby/mpStatus/paintMpMapPreview/getMenuRelabelFns/lazyTable/continueGame/mpSessionDead/`$`)؛ ۷ const تفویضی (saveMpSession/clearMpSession/loadMyGames/saveMyGames/paintContinue/paintMyGames/MP_ERR_FA — مصرفیِ تابع‌های پیشین ۷۷۲/۷۸۱، پس‌از بوت تنبل‌اند)؛ main.js 1690→1528). بدون گیر واقعی؛ ۲ مثبت‌کاذب اسکنر (اعلام چندتایی const در یک خط + لیترال regex) → قانون: کلاس‌های مثبت‌کاذب شناخته‌شده را پیش از قضاوت با grep اثبات کن. یک فریز گذرای صفحه هنگام اجرای یک‌تکه سوئیت (۱۳ ثانیه بلاک سینک در برابر نگهبان ۱۵ ثانیه) → سوئیت را در دو فراخوانی جدا (سینک + IDB) اجرا کن. smoke: بازشدن منو/کلیک mpList بی‌خطا + توقف/ازسرگیری تیک ۷۲→۷۹.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.270.0). سوئیت 689/689 + ۶/۶.
+
+## 0.269.0 (نوامبر 2026) — فاز ۷ تمیزکاری: ابر/ری‌پلی در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-89:** ابر/ری‌پلی main.js — `game/cloudreplay.js` (createCloudReplayUI({...}) مالک سیم‌کشی ابر (ذخیره/بارگذاری/حذف + عبارت) + دکمه‌های ری‌پلی (ذخیره/تماشا/خروج)؛ ۶ import + ۴ گتر + thunk گروهی later برای ۵ نام پس‌تعریف (applyLoaded/replayLogOf/startWatch/exitWatch/paintReplayStatus، destructure تنبل داخل لیسنرها) + `$` مستقیم؛ بدون const تفویضی (هیچ مصرفی بیرون نماند — range-scan تمیز، import بلااستفاده cloud.js از main.js حذف شد)؛ main.js 1762→1690). دو گیر واقعی: (۱) خط import فکتوری پس از splice در فایل ننشست (`createCloudReplayUI is not defined` + مرگ خاموش بوت: `__argAlive=false` + TDZ آبشاری getEditor در ۱۰ تست) → قانون: پس از splice، وجود خط import را با grep اثبات کن نه با حافظه اسکریپت؛ بنر `argError` و پرچم `__argAlive` داور نهایی بوت‌اند؛ (۲) `replayLogOf` در destructure لیسنر تماشا جا ماند (خطای تنبل هنگام تماشای ضبط جاری) → قانون: هر later-name در هر لیسنر باید در destructure همان لیسنر باشد. smoke: replaySave (freshOnly) + replayWatch (noneToWatch) + cloudSave (BAD_KEY فارسی) + پیشروی تیک ۳۲۹→۳۳۷.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.269.0). سوئیت 689/689 + ۶/۶.
+
+## 0.268.0 (نوامبر 2026) — فاز ۷ تمیزکاری: بازی/منو/ذخیره در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-88:** بازی/منو/ذخیره main.js — `game/savemenu.js` (createSaveMenuUI({...}) مالک newGame + سیم‌کشی کارت سید + missionUI/menuUI + ذخیره دستی/خودکار/بانام؛ ۲۵ import + ۱۵ گتر/۲۸ ستر + thunk گروهی later برای ۴ نام پس‌تعریف + ۲۴ ارجاع مستقیم؛ ۲۱ const تفویضی؛ main.js 1912→1762). سه گیر واقعی: (۱) کلیدهای تکراری getDayNight/getFidelity در امضای factory + گترهای جامانده getTerrain/getReplayWatch (ارجاع لخت `terrain`/`replayWatch` در بدنه) → پیش از verify زنده اصلاح شد؛ (۲) چهار نام (getMissionActive/getMissionWon/getMissionLost/setMastersFilter) از return و تفویض جا ماندند → پنج تست قرمز (`getMissionLost is not defined` در later@main.js:313) → قانون: پس از splice، نه‌فقط خوانش‌های بیرون‌منطقه، بلکه همه نام‌های مصرفیِ بیرون‌منطقه در return/expose هم range-scan شوند؛ (۳) مثبت‌کاذب‌های ماک در فراخوانی ایزوله (keyUI.paint/mpPending.clear/state ناقص) — ماک ناقص = مثبت‌کاذب، داور نهایی بوت زنده است. smoke: attackmove/pause/speed/tax + ذخیره دستی (تیک ۱۵۴) + پیشروی تیک ۴۴→۶۹.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.268.0). سوئیت 689/689 + ۶/۶.
+
+## 0.267.0 (نوامبر 2026) — فاز ۷ تمیزکاری: دکمه‌های سفارش در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-87:** دکمه‌های سفارش main.js — `game/ordersui.js` (createOrdersUI({...}) مالک مودال‌ها + صدا + کارت یگان/ساختمان + ۱۹ دکمه سفارش/زنگ/تخریب/تعمیر/موج + مالیات/سرعت/توقف/ری‌استارت؛ ۱۵ import + ۷ گتر/۴ ستر + thunk گروهی later برای ۴ نام پس‌تعریف + ۲۵ ارجاع مستقیم؛ factory مالک selUnits/orderStance و expose آن‌ها + ۲۴ const تفویضی (کارت‌ها/دکمه‌های panelUI-later + modalOverlay/modal/soundIconBtn/soundUI)؛ main.js 2148→1912). بدون گیر واقعی: anon-arrow چندخطی با later (`() => {`) در اسکنر جا ماند → قانون: الگوی addEventListener هر دو شکل `(e)` و `()` را بگیرد؛ single-line با later → چندخطی + destructure. smoke: attackmove/alarm/tax/pause/speed بی‌خطا + تیک ۲۲.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.267.0). سوئیت 689/689 + ۶/۶.
+
+## 0.266.0 (نوامبر 2026) — فاز ۷ تمیزکاری: سیم‌کشی پالت/کلیدها در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-86:** سیم‌کشی پالت/کلیدها main.js — `game/palettekeys.js` (createPaletteKeysUI({...}) مالک هایلایت unitPal + پالت ساختمان/مزدور + ردیف‌های ارتش + keydown اصلی (Esc/سرعت/mute/Tab/جهت/H/S/مواضع/L/بوکمارک/گروه/Z) + ضبط کلید؛ ۱۸ import + ۱۰ گتر/۹ ستر + thunk گروهی later برای ۷ نام پس‌تعریف + ۱۹ ارجاع مستقیم؛ factory مالک keyUI/keyRecAction و expose آن‌ها؛ main.js 2369→2148). سه گیر واقعی: (۱) TDZ در آرگ کارخانه (soundIconBtn در ۱۳۵۱، خوانده‌شده در keydown تنبل ولی پاس‌شده eager) → later (قانون: هر direct که تعریفش بعد از خط فراخوانی است، later می‌شود — ترتیب ارزیابی لفظی اثبات می‌کند)؛ (۲) بازنویسی همه‌جایی روی let داخلیِ exposeشده (keyRecAction: `let setKeyRecAction(null)` نحوی + `getKeyRecAction()` ناموجود) → داخلی‌ها دست‌نخورده می‌مانند، فقط بیرون via گتر/ستر؛ (۳) `signCycle++` به `getSignCycle()++` تبدیل شد (خوانش‌نما روی write) → ترتیب: اول `++`/`--`، بعد `=`، بعد خوانش. فراخوانی ایزوله factory سبز بود ولی TDZ را نگرفت (ماک ترتیب واقعی را ندارد) → بوت زنده داور نهایی است. smoke: پالت arm/disarm + Escape/Z/بوکمارک بی‌خطا + تیک ۱۹.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.266.0). سوئیت 689/689 + ۶/۶.
+
+## 0.265.0 (نوامبر 2026) — فاز ۷ تمیزکاری: تعامل اشاره‌گر در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-85:** تعامل اشاره‌گر main.js — `game/pointerui.js` (createPointerInput({...}) مالک درگ/کلیک/باکس/خط‌دیوار/پینچ/لانگ‌پرس + ۱۰ لیسنر بوم؛ ۲۳ let/tابع داخلی + ۱۲ گتر/ستر (state/terrain/mpSession/replayWatch/bookmarks/lastBookmark*/selIds*/setSelBldId/selectedKey*/selectedUnit*/pendingKind*/setHover) + thunk گروهی later برای ۳ نام پس‌تعریف (getEditor/edPaintAt/edCellFromEvent، فراخوانی تنبل داخل لیسنرها) + ۱۵ ارجاع مستقیم؛ main.js 3001→2369). دو گیر واقعی: (۱) درج import با آفست «آخرین خط import» یک import چندخطی را شکافت (sucrase: expected «,» در 87:8) → مرز بلوک import همیشه داینامیک + حفظ EOL همسایه (CRLF)؛ (۲) سه خوانش frame() از نام‌های داخلی‌شده (lastEdgePos/downPos/wallLine) جا ماند → ReferenceError هر فریم (سوئیت سبز ماند چون sim مستقیم می‌تازد!) → گترهای exposeشده + قانون: range-scan نام‌های داخلی روی کل main.js پس از splice. smoke زنده: شروع سولو + کلیک/شیفت‌باکس/چرخ بی‌خطا + پیشروی تیک.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.265.0). سوئیت 689/689 + ۶/۶.
+
+## 0.264.0 (نوامبر 2026) — فاز ۷ تمیزکاری: بازپینت پنل‌ها در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-84:** بازپینت پنل‌ها main.js — `game/panelui.js` (تابع ۲۸۰خطی refreshPanel به‌صورت متد داخلی panelUI + `const refreshPanel = panelUI.refreshPanel;` در main.js؛ ۲۹ نام later-group (آرایه/المان‌های پس‌تعریف + warn/getEditor/getLastMissionKey/getMission*/missionLabel) + گتر/سترهای جدید (از جمله setPendingKind) + ۸ فراخوان داخلی بی‌تغییر به closure؛ main.js 3280→3001). سه گیر واقعی: (۱) iconSrc از sprites.js و (۲) capFor از economy.js در importهای ماژول جا ماندند (قانون: فهرست import را مکانیکی از نگاشت ماژول بساز، نه دستی)؛ (۳) محل نوشتن `pendingKind = null` خوانش دیده شد و به `getPendingKind() = null` تبدیل شد → خطای نحوی «invalid assignment left-hand side» و مرگ خاموش بوت (HTML ایستا بالا بود ولی `__slice01` ساخته نشد) → ستر setPendingKind اضافه شد؛ درس ابزار: strip تمپلیت با regex روی تمپلیت‌های پشت‌سرهم over-match می‌کند → اسکنر توکنایزری char-by-char با پشته حالت. smoke زنده: شروع سولو + ری‌استارت با پیشروی تیک ۲→۳۴ + ۵۰ ورودی پالت بی‌خطا.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.264.0). سوئیت 689/689 + ۶/۶.
+
+## 0.263.0 (اکتبر 2026) — فاز ۷ تمیزکاری: شروع تازه در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-83:** شروع تازه main.js — `game/newgame.js` (startNewGame({...}) مالک تابع ۵۷خطی newGame؛ ۲۳ ستر (session/صف/هویت/حالت/انتخاب) + ۵ گتر (soloDiff/soloPersonality/soloIdentity/state/terrain) + thunk گروهی later برای ۵ نام پس‌تعریف (getEditor/closeEditor/setMission*) + ۹ ارجاع مستقیم؛ main.js 3335→3280). فراخواننده‌های پیش از خط تعریف همگی lazy بودند (کلیک/onLeave) پس تفویض const در همان‌جا امن ماند. یک گیر ابزار: خوانش soloDiff/soloPersonality داخل setItem (پس از انتساب) در طبقه‌بندی write-only جا ماند → leftover-check روی متن stripشده گرفت + گتر اضافه شد. smoke زنده: شروع سولو + ری‌استارت با پیشروی تیک.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.263.0). سوئیت 689/689 + ۶/۶.
+
+## 0.262.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سیم‌کشی منوی شروع در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-82:** سیم‌کشی منوی شروع main.js — `game/menuui.js` (wireMenuUI({...}) مالک IIFE دویست‌خطی wireMenu؛ ۸ جفت گتر/ستر (solo*/a11y/uiScale/keyRecAction) + ۴ گتر (dayNight/fidelity/mpSession/state) + thunk پس‌تعریف getStartWatch + ۱۴ ارجاع مستقیم؛ main.js 3534→3335). یک گیر واقعی: validAutosave (persist) در importهای menuui.js جا ماند — sucrase سبز ماند (نام ناموجود خطای نحوی نیست) ولی بوت روی خط ۲۰۴ factory مرد: منوی HTML بالا بود ولی `__slice01` ساخته نشد (نشانه: سوئیت‌هوک ناموجود + solo بی‌اثر ولی diffSel زنده = نیمه‌راه‌مردن factory). عیب‌یابی: فراخوانی ایزوله factory با آرگ‌های ساختگی در page_eval (خطای دقیق + شماره خط)؛ قانون جدید: چک پوشش import (هر نامِ importشده main.js در بدنه منتقل‌شده باید در importهای ماژول مقصد هم باشد) + sucrase + فراخوانی ایزوله پیش از refresh.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.262.0). سوئیت 689/689 + ۶/۶.
+
+## 0.261.0 (اکتبر 2026) — فاز ۷ تمیزکاری: پایان استخراج سوئیت‌ها + سیم‌کشی پروفایل در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-79:** سوئیت خدمات شهری — `game/tests/services.js` (servicesCases + ۴ تست: عطاری+شفادهنده/undo/کاتب/تابلوی راهنما؛ بدون ارجاع بیرونی). اسکن شناسه تمیز + round-trip بایت‌عینی؛ سبز پس از انتقال.
+
+- **ردیف C-CLN-80:** سوئیت ناهمگام IDB — `game/tests/idb.js` (idbCases + ۶ تست ناهمگام: تأیید ری‌پلی/ذخیره بانام/۴ تست IDB؛ بدون ارجاع بیرونی). یک گیر ابزار: برش import با آفست ثابت (پس از درج import دسته ۷۹) خط پایانی `} from "./profile.js"` را جا انداخت — sucrase دقیق زد (expected "," در 143:7) → بازسازی با مرز داینامیک + قانون: مرز بلوک import همیشه داینامیک (تکرار C-CLN-42)؛ سبز پس از اصلاح.
+
+- **ردیف C-CLN-81:** سیم‌کشی پروفایل main.js — `game/profileui.js` (wireProfileUI({getProfile, setProfile, menuMsg, lobby}) مالک IIFE سیم‌کشی نام/لوگوی منوی شروع؛ ۱ ستر (profile) + خوانش‌ها via گتر؛ main.js 3580→3534). یک مثبت کاذب ابزار: چک leftover کلمه profile داخل کلیدهای i18n (رشته) را گرفت → strip رشته پیش از چک. smoke زنده: ۲۹ دکمه لوگو + تغییر/بازگردانی + نام/بازگردانی سبز.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.261.0). سوئیت 689/689 + ۶/۶.
+
+## 0.260.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های اصطبل و یگان‌ها + ماژول منو در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-76:** سوئیت اصطبل — `game/tests/stable.js` (stableCases + ۲ تست: اصطبل و اسب/غیبت ناوگراف چندلایه؛ بدون ارجاع بیرونی). اسکن شناسه تمیز (با قانون جدید: strip رشته→کامنت→regex تا `//` کامنت‌های حاوی `/` بلعیده نشود) + round-trip بایت‌عینی؛ سبز پس از انتقال.
+
+- **ردیف C-CLN-77:** سوئیت یگان‌ها — `game/tests/troops.js` (troopsCases + ۴ تست زنده: فلاخن‌انداز/نیزه‌دار زرهی/کماندار سواره/صلاح‌الدین + تابع مرده t_firecow_treb عیناً منتقل شد ولی ثبت نشد — در هیچ‌جا صدا زده نمی‌شود؛ بدون ارجاع بیرونی). دو گیر ابزار: (۱) استاب وسط بدنه (cases151) به‌جای تغییرنام حذف شد (فایل نو استاب تازه می‌گیرد — وگرنه تابع تکراری)؛ سبز پس از انتقال.
+
+- **ردیف C-CLN-78:** ماژول منو main.js — `game/menuui.js` (createMenuUI مالک menuMsg/showMenu/hideMenu + menuRelabelFns/menuStarted/menuNavApi؛ ۲ گتر + ۱ ستر + sound/renderer/refreshPanel مستقیم؛ ۷ const تفویضی؛ main.js 3610→3580). سه گیر واقعی: (۱) TDZ قدیمی‌سبک — missionUI (خط ۲۵۷۵) نام hideMenu را مستقیم می‌خواند ولی تفویض در ۲۵۹۶+ ساخته می‌شود → thunk پرتابی (همان الگوی startWatch در C-CLN-72)؛ (۲) پرانتز گمشده در wrap (`setMenuNavApi(bindMenuNav({…}` به‌جای `…}))`)؛ (۳) فراخوانی به‌جای shorthand (`{…, getMenuRelabelFns() }` نامعتبر است → `menuRelabelFns: getMenuRelabelFns()`). عیب‌یابی بوت‌مرده: import پویای تکی ماژول‌ها (خطای دقیق TDZ را داد) + sucrase برای نحو. قانون جدید: پس از هر استخراج factory، کل main.js را با sucrase (یا import پویا) راستی‌آزمایی کن نه فقط فایل نو.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.260.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.259.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های تحویل و انجمن‌ها + ماژول قلاب‌های تیک در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-73:** سوئیت تحویل نیرو — `game/tests/hire.js` (hireCases + ۳ تست: ظهور در campfire/پست مزدور/پرچم تجمع؛ بدون ارجاع بیرونی). اسکن شناسه تمیز (کامنت/رشته/کلید آبجکت مستثنا) + round-trip بایت‌عینی بدنه‌ها؛ سبز پس از انتقال.
+
+- **ردیف C-CLN-74:** سوئیت انجمن‌ها — `game/tests/guilds.js` (guildsCases + ۱ تست: انجمن‌ها؛ بدون ارجاع بیرونی). سبز پس از انتقال.
+
+- **ردیف C-CLN-75:** ماژول قلاب‌های تیک main.js — `game/tickhooks.js` (createTickHooks مالک tickViewHooks؛ ۳ گتر + ۲ جفت گتر/ستر + ۴ thunk برای تعریف‌های بعدی (getEditor/getMissionActive/checkMission/recordMasters)؛ ۱ const تفویضی؛ main.js 3622→3610). یک گیر واقعی: regex بازنویسی انتساب (`mclockStart\s*=\s*…`) نخستین `=` از `==` را گرفت و خط ۳۶۷ را به `setMclockStart(= null…` تبدیل کرد — بوت روی لودینگ گیر کرد (tickhooks.js: «expected expression, got '='») → اصلاح دستی + قانون جدید: بازنویسی انتساب فقط با الگوی امن `(?<![=!<>])=(?!=)`.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.259.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.258.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های گشت و جاده + ماژول تماشا در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-70:** سوئیت گشت — `game/tests/patrol.js` (patrolCases + ۴ تست: گشت پیشرفته ۱۰نقطه‌ای/انحلال/پرتاب گاو/غیبت حفر و ساخت؛ بدون ارجاع بیرونی). یک گیر ابزار: برش منطقه ۱۶۵ (تا خط ۸۵۱) شش تابع سوئیت‌های ۱۶۶/۱۶۷/۱۶۸ را بلعید (گروه‌های ۱۶۷/۱۶۸/۱۶۶ دورجا بودند) — تابع‌ها به tests.js بازگردانده شدند؛ سبز پس از اصلاح.
+
+- **ردیف C-CLN-71:** سوئیت جاده — `game/tests/roads.js` (roadsCases + ۳ تست: بستن دروازه/redx/هزینه راه؛ بدون ارجاع بیرونی). سبز پس از اصلاح برش.
+
+- **ردیف C-CLN-72:** ماژول تماشا و بارگذاری main.js — `game/watchui.js` (createWatchUI مالک replayLogOf/startWatch/exitWatch/applyLoaded؛ ۲۲ ستر (انتساب‌های newGame/watch/load) + ۵ گتر (خوانش‌های مشترک) + ۲۵ ارجاع مستقیم (توابع hoisted/constهای قبلی/importها)؛ ۴ const تفویضی؛ main.js 3706→3622). دو گیر: (۱) واقعی TDZ — ساخت missionUI (خط ۲۵۸۶) نام startWatch را مستقیم می‌خواند ولی تفویض در ۳۰۴۵ ساخته می‌شود → thunk پرتابی؛ (۲) بازنویسی با مرز کلمه fresh.state را به fresh.getState تبدیل کرد (t_campaign_replay قرمزش کرد) → اصلاح + قانون جدید: پس از بازنویسی، grep الگوی `\.\s*getX\(\)` در فایل ساخته‌شده.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.258.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.257.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های فرمان‌ها و حمله + ماژول مأموریت در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-67:** سوئیت فرمان‌ها — `game/tests/orders.js` (ordersCases + ۴ تست: حمله کلیکی به ساختمان/گشت رفت‌وبرگشتی/صف وی‌پوینت/بوکمارک دوربین؛ تابع گروه سرجا + ۴ تابع دورجا (پس از cases166) منتقل شد؛ بدون ارجاع بیرونی). یک گیر ابزار: بازنویسی نام گروه با آفست اشتباه (i===1 به‌جای i===0) — با ویرایش مستقیم اصلاح شد.
+
+- **ردیف C-CLN-68:** سوئیت حمله — `game/tests/attack.js` (attackCases + ۴ تست: حمله به اینجا/ارباب/کلید ارباب/غیبت ارباب حریف؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-69:** ماژول مأموریت و استادان main.js — `game/missionui.js` (createMissionUI مالک ۸ let (missionActive/Won/Lost/Key + campaignProg + mastersList/Filter/SortKey/SortDir) + recordMasters/missionLabel/startMission/checkMission/paintCampaign/masterMapLabel/masterDur/paintMasters/dropMaster/wireMasters؛ ۵ گتر + ۵ ستر برای نگهبان‌ها/ریست‌های بیرونی (newGame/watch/load/بنرها/قلاب تست) + ۶ const تفویضی؛ main.js 3881→3706). بدون گیر.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.257.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.256.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های غیبت‌ها و fortify + ماژول ویرایشگر در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-64:** سوئیت غیبت‌ها — `game/tests/absence.js` (absenceCases + ۴ تست: غیبت پله/غیبت خندق و پل/غیبت محاصره سوارشده/غیبت روغن و قیر؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-65:** سوئیت استحکامات مستقیم — `game/tests/fortify.js` (fortifyCases + ۴ تست: استحکامات مستقیم/غیبت تونل/غیبت حفر/غیبت چادر؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-66:** ماژول ویرایشگر نقشه main.js — `game/editorui.js` (createEditorUI مالک `editor` + blankView/edStatus/edCounts/edRefreshTerrain/syncEditorPanel/openEditor/closeEditor/edCellFromEvent/edPaintAt/edCheckPlayable/edReadName/lazyTable + wiring کامل؛ گتر getEditor برای ~۳۰ نگهبان بیرونی + ۸ const تفویضی؛ main.js 4103→3881). یک گیر واقعی: lazyTable در TDZ بود (تعریف ۳۳۱۴ بعد از محل ساخت) → به فکتوری منتقل شد + تفویض برای MP_ERR_FA.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.256.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.255.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های تصرف/حفر و روش‌ها + ماژول پنل‌ها در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-61:** سوئیت تصرف/حفر — `game/tests/gatecapture.js` (gatecaptureCases + ۷ تست: تصرف دروازه/تصرف با رسیدن/چندگیت/ردیف ۱۱۰/ستون حفر/تونل/اعداد گودال؛ بدون ارجاع بیرونی). سبز در اولین اجرا. نظر جامانده 0.157.0 حذف شد (تکراریِ gate.js).
+
+- **ردیف C-CLN-62:** سوئیت روش‌ها — `game/tests/siege.js` (siegeCases + ۳ تست: روش‌های تصرف دروازه/برج مربع/پین مهمات؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-63:** ماژول پنل‌های نوار ساختمان main.js — `game/panelui.js` (createPanelUI({getState, getMpSession, getReplayWatch, getSound, playerCmd, mpSend, refreshPanel, viewSlotOf}) مالک ۳ painter + ۶ show/hide/toggle + ۲ prune + wiring اورلی‌های مزدور/بازار/انبار؛ ۱۱ const تفویضی؛ main.js 4244→4103). دو گیر ابزار: بازنویسی زنجیره‌ای مسیر tests (دو بار اعمال شد) + تداخل نام import سوئیت/ماژول هم‌نام (۱۴ خط به `../` برگشت).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.255.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.254.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های برج/دروازه + ماژول نمای چندنفره در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-58:** سوئیت برج — `game/tests/tower.js` (towerCases + ۴ تست: برتری برج/قدرت رم/خط قرمز/سگ‌های جنگی؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-59:** سوئیت دروازه — `game/tests/gate.js` (gateCases + ۴ تست: نیاز دروازه (نظر چسبیده 0.157.0 هم منتقل شد)/جهت چهارسو/درگ دیوار/دیده‌بانی؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-60:** ماژول نمای چندنفره main.js — `game/mpview.js` (createMpViewUI({getMpSession, getState}) مالک mpStatus/paintSync/paintMp/mpRosterHTML؛ ۴ const تفویضی؛ main.js 4296→4244). یک گیر ابزار: پرانتز اشتباه در الگوی بازنویسی state (خطای نحوی اسکریپت، نه کد محصول) → ترمیم. smoke headless: وضعیت/همگام‌سازی/رستر بی‌اتاق/رستر خالی.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.254.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.253.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های تهاجمی/استحکامات + ماژول کاتب در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-55:** سوئیت تهاجمی — `game/tests/aggro.js` (aggroCases + ۴ تست: موضع تهاجمی/ستاد سنگی/کلیدهای سرعت/واحه؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-56:** سوئیت استحکامات — `game/tests/fort.js` (fortCases + ۵ تست: ۳ برج/۲ دیوار/ردیف lowwall/تعمیر/گودال؛ بدون ارجاع بیرونی). سبز در اولین اجرا. نظر جامانده هویت (0.153.0) که بالای t_towers مانده بود به stance.js منتقل شد.
+
+- **ردیف C-CLN-57:** ماژول کاتب main.js — `game/scribeui.js` (createScribeUI({getState, getMpSession, viewSlotOf}) مالک reportsOpen/meritSort + hide/show/paint + isReportsOpen/cycleMerit + wireScribe({refreshPanel})؛ ۳ const تفویضی؛ main.js 4359→4296). یک گیر واقعی: viewSlotOf در آبجکت factory (const بوت‌لوکال، TDZ) → thunk دیرهنگام. smoke زنده: تاگل اورلی + meritBox/سکشن‌ها + سورت مجدد + بستن.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.253.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.252.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های بالیستا/مواضع + ماژول نوار ری‌پلی در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-52:** سوئیت بالیستا — `game/tests/ballista.js` (ballistaCases + ۳ تست: بالیستای آتشین/ردیف Manor/نام اولین اجرا؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-53:** سوئیت مواضع — `game/tests/stance.js` (stanceCases + ۵ تست: هویت آغازین/فاصله ذخیره خودکار/موضع تدافعی/ذخیره پست/شعاع پابرجا؛ گروه دور از تست‌ها بود — برش چندتکه‌ای با مرز دقیق؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-54:** ماژول نوار ری‌پلی main.js — `game/replaybar.js` (createReplayBarUI({getReplayWatch/setReplayWatch, getTick, getMpSession, getRecLog}) مالک paintReplayBar/hideReplayBar/paintReplayStatus + const replayStatus؛ ۳ const تفویضی در main؛ main.js 4377→4359). بدون گیر (بازنویسی شناسه‌ها با مرز کلمه + رفت‌وبرگشت همانی). smoke headless: وضعیت/نوار پنهان/نال‌سِت/نوار ۴۲/وضعیت با رکورد.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.252.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.251.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های صلح/عرب + ماژول فهرست لابی در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-49:** سوئیت صلح — `game/tests/truce.js` (truceCases + ۵ تست: صلح No-Rush/مهمات منجنیق/خط زمانی موج/ردیف نابودی/برده مشعل‌دار؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-50:** سوئیت عرب — `game/tests/arab.js` (arabCases + ۴ تست: تربوشه/کماندار عرب/آتش‌افکن/ارباب عرب؛ بدون ارجاع بیرونی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-51:** ماژول فهرست لابی main.js — `game/lobbyui.js` (createLobbyListUI({lobby, getMpSession, mpStatus, mpCodeInput, MP_ERR_FA, continueGame, continueStored}) مالک ۵ هلپر نشست + ۷ painter/سیم‌کشی؛ main.js با ۱۲ const تفویضی بی‌تغییر ماند؛ main.js 4489→4377). یک گیر واقعی: ارجاع مستقیم mpSession در paintContinue (بوت‌لوکال) → getMpSession() → ترمیم. smoke headless: رفت‌وبرگشت نشست/بازی‌ها + رد نامعتبر + paintMyGames/paintLive/paintContinue.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.251.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.250.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های هزینه/آتش + ماژول پیش‌نمایش نقشه در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-46:** سوئیت هزینه‌ها — `game/tests/costs.js` (costCases + ۵ تست: هزینه کلبه/بناهای دینی + No-Cow/No-Dogs؛ importهای game/fixtures در خود ماژول). سبز در اولین اجرا.
+
+- **ردیف C-CLN-47:** سوئیت آتش — `game/tests/fire.js` (fireCases + ۴ تست: سیم آتش/چاه/حوض/Strong Walls؛ تنها ارجاع بیرونی t_wardogs در کامنت است). سبز در اولین اجرا.
+
+- **ردیف C-CLN-48:** ماژول پیش‌نمایش نقشه main.js — `game/mappreview.js` (createMapPreviewUI({getSoloMapKey}) مالک paintMapPreview/paintMpMapPreview؛ wiring ورودی لابی در main.js ماند؛ main.js 4510→4489). یک گیر ابزار: انکر مرز تابع `}` با `  }` بوت‌لوکال نخورد → ترمیم انکر. smoke: mapThumb نقاشی‌شده (۹۳ رنگ).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.250.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.249.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های مشاور/سامانه + ماژول مینی‌مپ در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-43:** سوئیت مشاور — `game/tests/advisor.js` (advisorCases + ۳۲ تست + importهای game/fixtures در خود ماژول). مکانیکی، سبز پس از ترمیم C-CLN-44.
+
+- **ردیف C-CLN-44:** سوئیت سامانه‌ها — `game/tests/sys.js` (sysCases + ۴۳ تست + هلپر محلی findEnclosureSite که فقط t_mission_failed می‌خواهد + importهای game/fixtures). یک گیر واقعی: findEnclosureSite در tests.js جا مانده بود (۱ قرمز) → به sys.js منتقل شد → 689/689.
+
+- **ردیف C-CLN-45:** ماژول مینی‌مپ main.js — `game/minimapui.js` (createMinimapUI({renderer, getState/getTerrain/getEditor, blankView}) مالک minimapCv/minimapTick + wiring درگ؛ tickMinimap برای خط فریم؛ ۲ فراخوانی paint + ۱ خط فریم در main سیم‌کشی شدند؛ main.js 4550→4510). یک گیر واقعی: در paintMinimap به‌جای getTerrain همان terrain بوت مانده بود → ترمیم. smoke: کلیک مینی‌مپ = پرش دوربین (pan تغییر کرد) + بوم ۱۵۰×۱۵۰.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.249.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.248.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های اقتصاد/persist + ماژول پالت در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-40:** سوئیت اقتصاد — `game/tests/econ.js` (econCases + ۸۱ تست + placeAll/SPOTS_2X2 محلی؛ putNear/snapOf مشترک به `fixtures.js` رفتند + ایمپورت tests.js). سه گیر واقعی: (۱) ایمپورت‌های چندخطی با regex تک‌خطی ناقص کپی شدند (syntax)؛ (۲) مسیر نسبی `./config.js` از زیرپوشه tests/ غلط بود (`../` + `../../tools/`)؛ (۳) SPOTS_2X2 و validate جامانده بودند → ترمیم → 689/689.
+
+- **ردیف C-CLN-41:** سوئیت persist — `game/tests/persist.js` (persistCases + ۲۱ تست + importهای game/fixtures در خود ماژول؛ snapOf از fixtures). سبز پس از ترمیم‌های C-CLN-40 (ارجاع سوم persistCases کامنت توضیحی است).
+
+- **ردیف C-CLN-42:** ماژول پالت main.js — `game/paletteui.js` (createPaletteUI({renderer, PALETTE}) مالک catFilter + wiring شیلدها؛ ۶ متغیر boot-local مأموریت/استادان/ساعت در main.js ماندند؛ main.js 4621→4550). یک گیر واقعی ابزار: درج ایمپورت پیش از محاسبه آفست برش، برش را ۵۰ نویسه جابه‌جا کرد (PALETTE بریده + متغیرهای بیگانه در ماژول) → بازسازی از نسخه ذخیره‌شده 0.247.0 با مرز دقیق + smoke. smoke: ۵۰ کارت بنا + ۲۳ کارت مزدور + ۶ شیلد (کلیک castle = ۳۶ قایم، برگشت = ۰ قایم).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.248.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.247.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های نبرد/دسترس‌پذیری + ماژول namedsave در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-37:** سوئیت نبرد — `game/tests/combat.js` (combatCases + ۴۲ تست؛ تک‌اسپن؛ بلوک سازگاری persist در tests.js ماند؛ ۵ نام ارجاع ۳تایی = تعریف + رجیستری + کامنت توضیحی). سبز در اولین اجرا.
+
+- **ردیف C-CLN-38:** سوئیت دسترس‌پذیری — `game/tests/a11y.js` (a11yCases + ۱۷۷ تست؛ تک‌اسپن ۳۵۹۲ خطی شامل pitFight/aiLongRun/personalitySig محلی؛ grassInBand/placeGateAt مشترک به `fixtures.js` رفتند + ایمپورت tests.js؛ `import * as` دو فضای‌نام terrainNs/constrNs). یک گیر واقعی: فضای‌نام‌ها در census import نبودند → ۲ قرمز → ترمیم.
+
+- **ردیف C-CLN-39:** ماژول namedsave در main.js — `game/namedsave.js` (createNamedSavePainter({namedSaveList, listNamedSaves, t, faNum})؛ همان نام paintNamedSaves به‌جا ماند پس ۴ فراخوانی بی‌تغییر؛ main.js ۴۶۵۲→4621). smoke: paint headless (برچسب خالی + ۲ دکمه در هر ردیف + null-safe).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.247.0). سوئیت 689/689 + ۶/۶.
+
+
+## 0.246.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های AI/ساخت + ماژول keybtns در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-34:** سوئیت AI — `game/tests/ai.js` (aiCases + ۱۸ تست + aiSummary/aiFresh/aiFreshDiff محلی؛ aiSim/aiFreshPers مشترک به `fixtures.js` رفت + ایمپورت tests.js). یک گیر واقعی: `deserializeJSON` در فیلتر دستی بود → ۳ قرمز → ترمیم.
+
+- **ردیف C-CLN-35:** سوئیت ساخت — `game/tests/const.js` (constCases + ۲۳ تست یکتا — رجیستری ۲۴ ورودی با t_const_cost تکراریِ پیشین؛ ۲ اسپن). سبز در اولین اجرا.
+
+- **ردیف C-CLN-36:** ماژول keybtns در main.js — `game/keybtns.js` (createKeyButtons({getKeyMap, getRecAction}) — هر دو در بوت reassign می‌شوند پس getter؛ ۴ سیم‌کشی + ۱ ساخت؛ main.js ۴۶۵۶→۴۶۵۲). smoke: برچسب فارسی دکمه‌ها پس از بوت.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.246.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.245.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های sim/ری‌پلی + ماژول soundui در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-31:** سوئیت sim — `game/tests/sim.js` (simCases + ۱۳ تست + simScriptedRun محلی؛ importهای clock/render/rng/sim/train/combat/economy/construction/persist/mp). یک گیر واقعی: `deserialize` و `qpos` در فهرست ignore دستی بودند → ۲ قرمز → ترمیم ایمپورت. پس از ترمیم سبز.
+
+- **ردیف C-CLN-32:** سوئیت ری‌پلی — `game/tests/replay.js` (replayCases + ۱۱ تست + replayScriptedRun + const مشترک REF_SOLO_001؛ ۲ اسپن + رجیستری؛ importهای replay/sim/terrain/mp). سبز در اولین اجرا (ارجاع سوم هر دو نام، کامنت توضیحی است).
+
+- **ردیف C-CLN-33:** ماژول soundui در main.js — `game/soundui.js` (createSoundUI({sound, soundIconBtn, volMusic, volSfx, volMute}) با paint اولیه + wiring لیسنرها؛ ۱ سیم‌کشی + ۱ ساخت؛ main.js ۴۶۷۶→۴۶۵۶). smoke: آیکون svg دکمه صدا پس از بوت.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.245.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.244.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های جلوه/بالانس + ماژول policy در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-28:** سوئیت جلوه — `game/tests/gfx.js` (gfxCases + ۶ تست + gfxCanvas؛ importهای render/icons/terrain/combat/economy/persist/construction/mp؛ siteNear مشترک (۵۴ ارجاع) به `fixtures.js` رفت). گیر ابزار: حذف def اصلی siteNear از قلم افتاد → «redeclaration of import» و خواب بوت → ترمیم (حذف ۲۰ خط). پس از ترمیم سبز.
+
+- **ردیف C-CLN-29:** سوئیت بالانس — `game/tests/balance.js` (balanceCases + ۵ تست + duel1v1/placeType/aiBreachRun محلی؛ importهای combat/economy/train/construction/ai/mp/terrain). سبز در اولین اجرا.
+
+- **ردیف C-CLN-30:** ماژول policy در main.js — `game/policy.js` (relabelPalette + createPolicyPainters({taxBtns, ratBtns, getState}) با sgn داخلی؛ $ محلی؛ ۴ سیم‌کشی + ۱ ساخت؛ main.js ۴۷۱۸→۴۶۷۶). گیر واقعی: فراخوانی init در بدنه بوت (خط ۳۷۰) پیش از instantiation بود → خطای TDZ → انتقال ساخت به خط ۹۰ (کنار taxBtns). smoke: پروب مستقیم (خلاصه سیاست فارسی در policyEl).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.244.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.243.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های مسیریابی/ارباب + ماژول warn در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-25:** سوئیت مسیریابی — `game/tests/path.js` (pathCases + ۶ تست؛ importهای pathfind/terrain/combat/economy/persist/mp + هلپرهای fresh/grassNear/needBarracks/simC/blankMap؛ blankMap مشترک به `fixtures.js` رفت + ایمپورت tests.js). گیر ابزار: export جامانده روی pathCases → بوت خوابید → ترمیم. پس از ترمیم سبز.
+
+- **ردیف C-CLN-26:** سوئیت ارباب — `game/tests/lord.js` (lordCases + ۶ تست؛ importهای combat/construction/persist/terrain؛ CONFIG اضافی حذف شد). سبز در اولین اجرا.
+
+- **ردیف C-CLN-27:** ماژول warn در main.js — `game/warn.js` (warnText خالص exportشده + createWarnLines({getState, sound}) مالک lastWarnKeys؛ `# تاریخچه انتشار — ارگ (Arg)
+
+# تاریخچه انتشار — ارگ (Arg)
+ محلی؛ ۲ سیم‌کشی + ۱ ساخت؛ main.js ۴۷۵۱→۴۷۱۸). smoke: پروب مستقیم ماژول (ارقام فارسی warnText + خط اردو «🔥 ۰٪» + مخفی‌بودن warnEl بی‌هشدار + بی‌صدا).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.243.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.242.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های آموزش/دیوار + ماژول flatview در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-22:** سوئیت آموزش — `game/tests/train.js` (trainCases + ۵ تست؛ importهای train/sim/mp/persist/combat/construction/config/i18n + هلپرهای fresh/completeAll/grassNear/needBarracks). سبز در اولین اجرا.
+
+- **ردیف C-CLN-23:** سوئیت دیوار خطی — `game/tests/wall.js` (wallCases + ۵ تست؛ t_ها پیش از Cases؛ importهای wallline/sim/render/construction/config/i18n). سبز در اولین اجرا.
+
+- **ردیف C-CLN-24:** ماژول flatview در main.js — `game/flatview.js` (createFlatView(flatBtn, renderer) با paint/stored/apply؛ ۵+۱+۱ سیم‌کشی + ۱ ساخت؛ main.js ۴۷۶۰→۴۷۵۱). smoke: تاگل دکمه (flip + scw.flat ماندگار ۱/۰).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.242.0). سوئیت 689/689 + ۶/۶.
+
+
+
+
+## 0.241.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های تالار/ابری + ماژول مودال main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-19:** سوئیت تالار — `game/tests/masters.js` (mastersCases + ۳ تست + importهای masters). گیر ابزار: اسکنر آکولاد رشته «خراب{» را کد شمرد و اسپن t_masters_store را تک‌خطی بست؛ با اسکنر رشته/قالب‌/regex-آگاه + `};`-پایان برای cases ترمیم شد. پس از ترمیم سبز.
+
+- **ردیف C-CLN-20:** سوئیت ابری — `game/tests/cloud.js` (cloudCases + ۲ تست + importهای cloud). حادثه میانی جدی: اسکنر قدیمی روی regex رشته‌ای منحرف شد و دو splice هم‌پوشان ۲۳۱۷ خط (suites ai/combat/path/const/lord + بدنه persist/train) را پاک کرد؛ بوت خوابید. بازیابی بایت‌دقیق از نسخه ذخیره‌شده 0.236 (fetch_generator؛ این ناحیه از 0.236 دست‌نخورده بود) منهای خانواده keep (در 0.240 استخراج شده) + بازسازی cloud.js با اسکنر درست + parse-check همه ۱۱۵ تابع پیش از درج. پس از بازیابی: 689/689.
+
+- **ردیف C-CLN-21:** ماژول مودال main.js — `game/modal.js` (createModals(overlay, modals) با opener داخلی؛ open/close/toggle؛ ۴+۲ سیم‌کشی + ۱ ساخت؛ main.js ۴۷۷۶→۴۷۶۰) + rename صریح modalOverlay/modalOpener به overlay/opener. smoke: باز/فوکوس/بسته‌شدن مودال راهنما.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.241.0). سوئیت 689/689 + ۶/۶.
+
+
+
+
+## 0.240.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های مأموریت/ستاد + ماژول testui در main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-16:** سوئیت مأموریت — `game/tests/mission.js` (missionCases + ۱۰ تست + SAMPLE_MISSION؛ importهای missions/campaign/masters/menunav/replay/config/combat/state/i18n در خود ماژول). یک گیر واقعی: ۵ نام بلوک چندخطی replay (REPLAY_V/validateReplayLog/runReplay/REPLAY_KEY/saveReplaySlot) با اسکنر سطری دیده نشد → t_campaign_replay قرمز → ترمیم با همان الگو. پس از ترمیم: 689/689.
+
+- **ردیف C-CLN-17:** سوئیت ستاد — `game/tests/keep.js` (keepCases + ۷ تست؛ importهای construction/terrain/economy/combat/sim/persist/replay/i18n/config). سبز در اولین اجرا (تحلیل‌گر چندخطی‌خوان از اول).
+
+- **ردیف C-CLN-18:** ماژول testui در main.js — `game/testui.js` (showTests/paintTestResults/paintCompat با پارام testBadge؛ `$` محلی مثل seed.js؛ ۴ نقطه سیم‌کشی: ۲×paintCompat بی‌تغییر + setTimeout/set-slice با closure). یک گیر واقعی: جایگزینی سراسری فقط `paintTestResults(results)` را گرفت و فراخوانی `results.concat(extra)` تک‌آرگومان ماند → خطای tests-idb در کنسول → ترمیم؛ مسیر کامل ?test سبز (بج ۶۹۵/۶۹۵ + testsDone=1). paintCompat با فراخوانی مستقیم تأیید شد (placeholder بوت، رفتار پیشین i18n-relabel است، بی‌تغییر).
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.240.0). سوئیت 689/689 + ۶/۶.
+
+
+
+
+## 0.239.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های داده/سخت‌سازی + ماژول پروفایل main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-13:** سوئیت داده — `game/tests/data.js` (dataCases + هر ۱۳ تست؛ ~۵۰ import از data/economy/combat/state/i18n در خود ماژول). مکانیکی، سبز در اولین اجرا.
+
+- **ردیف C-CLN-14:** سوئیت سخت‌سازی — `game/tests/hardening.js` (hardeningCases + ۷ تست؛ t_replay_slot عمداً ماند چون مال replayCases است). دو گیر میانی در ابزار برش (آفست دستی پس از splice مثل 0.238): بار اول فقط ۴ خط بریده شد (اسکنر، بسته‌شدن همان تابع cases را پایان ناحیه شمرد) و تست‌ها تکراری ماندند؛ با لنگر محتوایی + شمارش تعریف‌ها ترمیم شد. پس از ترمیم: 689/689.
+
+- **ردیف C-CLN-15:** ماژول پروفایل main.js — `game/profileui.js` (warName/warLogo/paintBadge/syncProfileInput با پارام profile؛ `# تاریخچه انتشار — ارگ (Arg)
+
+# تاریخچه انتشار — ارگ (Arg)
+ محلی مثل seed.js؛ late binding لابی با thunk حفظ شد: `warName: () => warName(profile)`) + ۸ ویرایش محل فراخوانی؛ main.js ۴۸۲۷→۴۸۰۵ خط. smoke: چیپ «NewLord» + بج ۲۱۲ نویسه‌ای + سوئیت سبز.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.239.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.238.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های ژست/نقشه‌ساز + ماژول سید main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-10:** سوئیت ژست‌ها — `game/tests/gesture.js` (gestureCases + هر ۷ تست: ۶تای پیوسته + t_scroll_math جدا؛ همه deps از gestures.js/selection.js). مکانیکی، سبز در اولین اجرا.
+
+- **ردیف C-CLN-11:** سوئیت نقشه‌ساز — `game/tests/mapedit.js` (mapeditCases + ۱۲ تست + t_map_thumbs دور؛ هر نام دقیقاً ۲ ارجاع؛ importهای mapedit/persist/replay/minimap/i18n در خود ماژول). دو گیر میانی در ابزار برش (آفست دستی پس از splice اشتباه شد) — با لنگرگیری محتوایی (findIndex + شمارش تعریف‌ها) بازنویسی و سبز شد؛ درس: آفست عددی دستی ممنوع، همیشه لنگر محتوایی.
+
+- **ردیف C-CLN-12:** ماژول سید main.js — `game/seed.js` (parseSeed/randomSeed خالص + paintSeed(state) با t از i18n و `# تاریخچه انتشار — ارگ (Arg)
+
+# تاریخچه انتشار — ارگ (Arg)
+ محلی؛ ۷ محل فراخوانی به‌روز شد) + main.js ۴۸۴۵→۴۸۲۷ خط. یک گیر واقعی و ارزشمند در smoke: دکمه سید تصادفی `paintMapPreview is not defined` می‌داد — تابع در بلوک `if (mapSel)` (و سپس اشتباهاً در IIFE wireMenu) حبس بود؛ به دامنه boot آورده شد. دکمه از قبل خراب بود (سوئیت پوشش نمی‌دهد) و حالا کار می‌کند: سید ۱۳۳۷ ← ۲۷۰۹۰۳۴۳۴۵ بدون خطا.
+
+- بدون بازپین (تمیزکاری + یک فیکس باگ UI؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.238.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.237.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های پایه/صدا + خوشه قالب main.js (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-7:** سوئیت‌های پایه — `game/tests/basics.js` (groupCases/legalCases/schemaCases/firstTenCases + هر ۱۰ تست، استخراج مکانیکی بی‌تغییر منطق). بدون گیر (هر ۱۴ نام دقیقاً ۲ ارجاع؛ ارجاع‌زدایی با strip رشته/کامنت انجام شد؛ سوئیت سبز در اولین اجرا).
+
+- **ردیف C-CLN-8:** سوئیت صدا/منو/راهنما — `game/tests/sound.js` (soundCases + هر ۹ تست). یک گیر واقعی و آموزنده: هلپرهای `sndSnap/sndBld/sndUnit` بیرون ناحیه برش بودند (۵ تست صدا + ردیف asset قرمز شدند) — هر سه به sound.js منتقل شدند؛ و `stubCtx` که بین صدا و asset مشترک بود به `fixtures.js` رفت (export) با ایمپورت در هر دو سوئیت. پس از ترمیم: 689/689.
+
+- **ردیف C-CLN-9:** خوشه قالب main.js — `game/format.js` (FA_D/faNum/escName/okB/badB/resName/costHTML/buildingMeta/srcTag/unitMeta/buildingInfoHTML/unitInfoHTML؛ همه وابستگی‌ها import سطح‌بالا یا ثابت منتقل‌شونده؛ renderer/PALETTE در boot ماندند). main.js از ۴۹۴۱ به ۴۸۴۵ خط رسید. smoke زنده: ۵۰ کارت بنا + ۵۰ هزینه + ۲۳ کارت مزدور + ارقام فارسی + تاگل زبان (fa «۶» ↔ en «6») + سوئیت سبز.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.237.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.236.0 (اکتبر 2026) — فاز ۷ تمیزکاری: سوئیت‌های سرور/رقابتی + تجمیع هلپرها (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-4:** سوئیت سرور — `game/tests/server.js` (هر ۱۰ تست + `serverCases`، مکانیکی بی‌تغییر منطق؛ ایمپورت ابزار/لابی در خود ماژول). گیر: `export` جامانده روی `serverCases` (ماژول بی‌خطا ولی خالی برمی‌گشت — درس 0.235.0 تکرار شد).
+
+- **ردیف C-CLN-5:** سوئیت رقابتی — `game/tests/mp.js` (هر ۸ تست + `mpCases`؛ `simC`/`needBarracks`/`mpFresh` از فیکسچرها). دو گیر: `createState` و `fresh` جامانده از ایمپورت (هر دو را خود ماژول می‌خواهد).
+
+- **ردیف C-CLN-6:** تجمیع هلپرهای مشترک — `sim/simC/simT/completeAll/rawTicks/grassNear/needBarracks` در `game/tests/fixtures.js` (از tests.js حذف و باز-ایمپورت شدند؛ ده‌ها مصرف‌کننده در سوئیت دست‌نخورده سبز ماندند). `tests.js` حالا فقط رانر + `runAllTests` + `runIdbTests` است.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.236.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.235.0 (اکتبر 2026) — فاز ۷ تمیزکاری: استخراج سوئیت‌ها + حذف وندور ws + README/تریاژ (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CLN-1:** استخراج سوئیت فاز ۶ — `game/tests/tst-phase6.js` (هر ۶ تست + `tstCases`، مکانیکی بی‌تغییر منطق) + `game/tests/fixtures.js` (must/fresh/mpFresh/هارنس headless سرور + `srvCode`)؛ `tests.js` از ~۱٫۲۳MB به ~۱٫۲۱MB رسید و ایمپورت‌های مرده (MIGRATIONS/benchMobile/getSprite/missingKeys/dictSize/getDir/isRTL) پاک شدند. دو گیر واقعی در راه: چرخه import با `tests.js` از سوی موتور پشتیبانی نمی‌شود («function declarations have already been instantiated») — راه‌حل: فیکسچرها در ماژول جدا بدون چرخه؛ و دو export جامانده (`srvCode`/`MIGRATIONS`). پین: سوئیت سبز بی‌تغییر (689/689).
+
+- **ردیف C-CLN-2:** حذف وندور ws — ۲۰ فایل `server/node_modules/` پاک شدند (بسته کامل `ws` + package-lock داخلی)؛ `server.mjs`/`selftest.mjs` ایمپورت برهنه `ws` دارند که با `npm install` در دیپلوی می‌آید (`package.json` + `package-lock.json` ریشه سرور + راهنمای `README.md` دست‌نخورده). بدون ارجاع `node_modules/ws` در کد.
+
+- **ردیف C-CLN-3:** به‌روزرسانی README + تریاژ scratch — بخش «وضعیت فعلی» + سطرهای `tests/` و `server/` در `src/arg/README.md`؛ تریاژ: سازنده زنده `src/tools/gen-icons.js` است، بقیه scratch پروب‌های یک‌بارمصرف‌اند؛ ۶ فایل افزونه نشست (پروب‌ها/PNGهای صحنه مرجع + کپی میانی تست‌ها) پاک شدند؛ `CURRENT_TASK.md` ماند.
+
+- بدون بازپین (تمیزکاری محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.235.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.234.0 (اکتبر 2026) — فاز ۶ تست‌ها: رگرسیون تصویری + همگامی ۴نفره + فازینگ (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-TST-4:** رگرسیون تصویری — `tools/refscene-lib.mjs` خالص (صحنه قطعی ۹۶ فرمان: ۴۰ مستطیل/۲۴ دایره/۱۶ خط + ۱۵ کاشی آیکون؛ checksum خالص) + CLI + `data/ref-scene.json` (هش پیکسل نقاشی OffscreenCanvas). پین `t_tst_refscene` (شمار/هش صحنه + قطعیت/حساسیت + هش بایت‌های هر ۱۵ آیکون + بردار FNV-1a). گزارش پلتفرم: read_image این محیط برای همه فایل‌ها سیاه است (f630f99d) — تأیید پیکسل عددی جایگزین شد (دو دیکدر مستقل).
+
+- **ردیف C-TST-5:** همگامی ۴نفره headless — اتاق واقعی ۴نفره از بلوک سرور همین صفحه + seq واقعی + ۴ sim مستقل با صف کلاینت آینه onInput/mpDrain + rejoin میانی اسلات ۳ (تداوم seq)؛ نوار ۱۰ ورودی (tax/rations/place با مختصات اعتبارشده) تا ۶۰۰ تیک؛ هش هر ۲۰۰ تیک برابر + برابری با مرجع مستقیم. پین `t_tst_mp4`. E2E مرورگری تازه شد (هدر `e2e-mp4.mjs` + `research/e2e-4p.md`: سلکتورها/اجرا/دوره‌ای).
+
+- **ردیف C-TST-6:** فازینگ شبکه — `tools/netfuzz-lib.mjs` خالص (زمان‌بندی تحویل seqدار: drop/dup/reorder/delay + `findGaps`/`countDups`) + CLI نمایشی. پین رفتار واقعی سرور (ارسال تکراری = seq تازه؛ dedup با seq سمت کلاینت) + همگرایی ۴ sim زیر dup/reorder + stall دقیق روی seq گمشده با واگرایی قابل‌مشاهده. پین `t_tst_netfuzz` (همه ادعاها قطعی‌به‌ساخت‌اند).
+
+- بدون بازپین (ابزار/تست محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.234.0). سوئیت 689/689 + ۶/۶.
+
+
+
+## 0.233.0 (اکتبر 2026) — فاز ۶ تست‌ها: اسکن i18n + زنجیره مهاجرت + بودجه موبایل (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-TST-1:** اسکن i18n — فیکس باگ واقعی (کلید تکراری fa با متن انگلیسی روی `game.personality.arabLord.desc` + نبود همان کلید در en) + lib خالص `tools/i18n-scan-lib.mjs` + CLI `tools/i18n-scan.mjs` (هر ۴ فایل: گمشده/تکراری/placeholder؛ سه جمع .one انحصاری en در allowlist). پین `t_tst_i18n` (missingKeys خالی + جهت rtl/ltr + placeholder).
+
+- **ردیف C-TST-2:** زنجیره مهاجرت نسخه‌به‌نسخه — `MIGRATIONS` + `migrateSaveDoc` در persist.js (v1→v2 صریح، خالص، idempotent؛ رد v0/آینده). پین `t_tst_save_migrate` (ارتقا + برابری هش با deserialize مستقیم + بی‌لمسی ورودی + ردها). deserialize دست‌نخورده.
+
+- **ردیف C-TST-3:** بودجه موبایل واقعی + نشت کش اسپرایت — `benchMobile()` در bench.js (نمونه ۱۲۰تیکی با همان سقف) + پین `t_tst_bench_mobile` (بودجه + قطعیت + پایداری کش در get مکرر + سقف inline+۶۴). runBench دست‌نخورده.
+
+- بدون بازپین (ابزار/نما/تست؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.233.0). سوئیت 686/686 + ۶/۶.
+
+
+
+## 0.232.0 (اکتبر 2026) — فاز ۵ سرور: باندل دیپلوی + بکاپ چرخشی + سقف بازی + گزارش کلاینت
+
+- **ردیف C-SRV-4:** باندل دیپلوی — tools/make-bundle.mjs با ZIP-writer خالص tools/zip-store-lib.mjs (stored + CRC32 + خوانش با راستی‌آزمایی؛ بیلد قطعی). پین t_srv_bundle (round-trip + CRC + رد نام بد + بردار استاندارد).
+
+- **ردیف C-SRV-5:** بکاپ چرخشی + سقف بازی جاری — server.mjs بکاپ ساعتی state.bin (نگه‌داشت ۶تای آخر در data/backup/، سقف با STATE_BACKUP_KEEP) + MP_LIVE_MAX=24 در اسکریپت مشترک (گیت mpStart با خطای full؛ اتاق تمام‌شده سهم ندارد). پین t_srv_livecap (۲۴ جاری + ۲۵می full + آزادی پس از finish).
+
+- **ردیف C-SRV-6:** گزارش خودکار کلاینت — desyncReportOf خالص + api.desync در lobby.js (الگوی finish) + سیم‌کشی mpCheckHash در main.js (یک‌بار هر بازی، بی‌صدا، فقط بازیکن). پین t_srv_client_report (۱ سالم + ۶ نامعتبر).
+
+- بدون بازپین (sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.232.0). سوئیت 683/683 + ۶/۶.
+
+## 0.231.0 (اکتبر 2026) — فاز ۵ سرور: سخت‌سازی ورودی + دامپ ناهمگامی + sync-server (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-SRV-1:** سخت‌سازی `mpInput` — سقف هر اسلات ۴۰/۱۰ثانیه (قطع/وصل مجدد سقف اتصال را دور نمی‌زند) + پسرفت تیک (تلورانس ۱۰۰، خطای `old`) + اسکیمای آرگومان هر kind (خطای `args`؛ کلیدهای ناشناخته نادیده برای سازگاری) + افزودن `rally`/`disband` به `MP_KINDS` (کلاینت از قبل می‌فرستاد، سرور بی‌صدا رد می‌کرد — باگ زنده). پین `t_srv_input_kinds`/`t_srv_input_args`/`t_srv_input_tick`/`t_srv_input_rate` (هارنس headless از بلوک همین صفحه؛ ۴۱می پس از rejoin رد).
+
+- **ردیف C-SRV-2:** گزارش ناهمگامی `mpDesync` ({code,tick,hash} ← حلقه ۲۰تایی + پنجره ۱۵۰ ورودی آخر در پاسخ؛ سقف ۱/۳۰ثانیه هر اتصال؛ تماشاگر هم مجاز) + دامپ خودکار `data/desync/<CODE>.jsonl` در سرور شخصی + ابزار `tools/desync-diff.mjs` (خط‌زمانی هش/نخستین واگرایی/مقایسه seq) با هسته خالص `tools/desync-lib.mjs`. پین `t_srv_desync_report`/`t_srv_desync_rate`.
+
+- **ردیف C-SRV-3:** ابزار `tools/sync-server.mjs` (+ هسته خالص `sync-server-lib.mjs`): تولید `server/game-logic.js` و آینه ریشه از بلوک `src/arg/index.html` + `--check` برای CI؛ هر دو آینه بازتولید شدند. پین `t_srv_mirror` (تک‌بلوک + کامپایل + ریاضی بافر OFF_LOG+32*LOG_CAP=17833432).
+
+- بدون بازپین (sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.231.0). سوئیت 680/680 + ۶/۶.
+
+## 0.230.0 (اکتبر 2026) — فاز ۴ گرافیک: مراحل ساخت + سایه نرم + بازطراحی آیکون‌ها (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-GFX-4:** مراحل ساخت — کمک خالص `buildPhase` (پی/اسکلت/نزدیک‌تمام/تکمیل از buildLeft/buildTime) + پی سنگی با تیرک کوتاه (بنا کشیده نمی‌شود) + تخته افقی فقط تا اسکلت؛ داربست قبلی سر جایش. پین `t_gfx_buildstages` (فاز خالص + قاب هر فاز).
+
+- **ردیف C-GFX-5:** سایه نرم واحدها — کمک مشترک `softShadow` (دو بیضی، الگوی سایه جزیره) در هر ۳ مسیر (شیت/وکتور/محاصره) به‌جای تک‌بیضی تخت. پین `t_gfx_softshadow` (۵ گونه + ۳ fidelity).
+
+- **ردیف C-GFX-6:** بازطراحی ۱۵ آیکون منابع — سبک تخت یکدست ۲۴×۲۴ (سازنده `src/tools/gen-icons.js`، اجرا در execute_js + بازبینی read_image)؛ کلیدها/فرمت/ابعاد بی‌تغییر. پین `t_gfx_icons` (۱۵ کلید + PNG + ۲۴×۲۴ + تمایز).
+
+- بدون بازپین (نما محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.230.0). سوئیت 673/673 + ۶/۶.
+
+## 0.229.0 (اکتبر 2026) — فاز ۴ گرافیک: ذره‌موتور + شب/روز + آب متحرک (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-GFX-1:** موتور ذره سبک renderer-local (الگوی puffs): دود/آتشِ بناهای در حال سوختن + گرد راهِ یگان‌های متحرک (از `face.moving`) + پاششِ قوس‌های روی آب (arc/cow با هدف روی `T_WATER`)؛ همه قطعی (تابعی از tick/id/salt، بی-`Math.random`)، سقف ۲۴۰، هرس سنی؛ full=همه، balanced=دود+آتش، lite=هیچ. شمارنده `debugParticles`. پین `t_gfx_particles` (دود+آتش+گرد+پاشش+سقف+lite بی‌خطا).
+
+- **ردیف C-GFX-2:** چرخه شب/روز — `dayLight(tick)` خالص (دوره ۳۶۰۰: بامداد ۰/ظهر ۱/غروب ۰؛ غبار شناور سین(π) با آستانه 1e-9 صفر می‌شود) + `setDayNight(day/night/cycle)` + سلکت `#daySel` با ماندگاری `scw.daynight` + کلیدهای i18n دو‌زبانه؛ تینت + هاله آتش‌ها (lighter) پس از نمای جهان؛ پیش‌فرض روز. پین `t_gfx_daynight` (خالص + ۳ حالت + DOM زنده).
+
+- **ردیف C-GFX-3:** آب متحرک — نوار برق متحرک per-frame روی `waterList` (جای نوار از `waterPhase(tick,c,r)` خالص) + کف ساحل ۴فازی (`foamColor` + بیت کش `(tick>>4)&3`)؛ sim بی‌خبر (فقط خوانش tick). پین `t_gfx_water` (قطعیت/چرخش فاز + ۴ قاب).
+
+- یک گیر میانی: `dayLight(1800)` غبار مثبت می‌داد (سین(π)≈۱٫۲e-16) — آستانه صفر شد. بدون بازپین (نما محض؛ sim/هش/ذخیره دست‌نخورده؛ هش مرجع همان b621bd25، فقط gameVersion به 0.229.0). سوئیت 670/670 + ۶/۶. نکته محیطی: readback پیکسل بوم در این محیط سیاه است (document.hidden → purge بافر؛ درس 0.224.0) — راستی‌آزمایی بصری با قاب بی‌خطا + شمارنده ذرات + DOM زنده.
+
+## 0.228.0 (اکتبر 2026) — فاز ۳ بالانس: تورنمنت شخصیت‌ها + کالیبره سختی + تقارن شروع (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-BAL-4:** تورنمنت ۷ شخصیت (بنچمارک رخنه keep-only با helper تست‌محض `aiBreachRun` + جدول کامل در `research/tournament.md`): شیر ۱۷۰۱ ← … ← موش ۲۸۵۸ (هر دو سید، ترتیب پایدار، همه یورش اول). دو اصلاح رفتار یافته بنچمارک: ۱) یورش عرب `side=enemy` می‌شود (`ai.js` — نیروهای عرب `def.side=player` داشتند و به بناهای خودی می‌زدند: خودزنی + خودسوزی مشعل + خاموشی AI؛ keepHp مهاجم دست‌نخورده ۶۰۰ می‌ماند)؛ ۲) موش سربازخانه آخر فهرست گرفت (پیش از این ۰ یورش). پین `t_tournament` (قطعیت + رخنه همگانی + ترتیب شیر<گرگ<موش + باندها + سلامت ستاد AI).
+
+- **ردیف C-BAL-5:** کالیبره سختی با داده رخنه گرگ (keep-only: آسان ~۳۰۰۰ / معمولی ~۲۲۰۰ / سخت ~۱۵۶۰؛ یکنوا هر دو سید و keep+lord) — ضریب‌ها بی‌تغییر ماندند (داده همان رفتار موردانتظار؛ پین‌های سختی موجود سبز). پین `t_difficulty_calibration` (یکنوایی + باند سخت<۲۰۰۰<…<آسان>۲۵۰۰).
+
+- **ردیف C-BAL-6:** تقارن شروع ۲/۳/۴نفره — شمارش منابع شعاع ۱۲ هر ۴ لنگر در ۵ سید دقیقاً یکسان (زمین ۴-متقارن + لنگرهای آینه‌ای)؛ بی‌تغییر لنگر. پین `t_spawn_symmetry`.
+
+- بدون بازپین (همه پین‌های محدودکننده سبز ماندند: 87/744/1189 امضای یکتا/دامنه/خنثی‌بودن normal، جدول‌های شخصیت/سختی، هش مرجع همان b621bd25 — سناریوی مرجع گرگ/معمولی است و رفتارش دست‌نخورده؛ gameVersion به 0.228.0). سوئیت 667/667 + ۶/۶.
+
+## 0.227.0 (اکتبر 2026) — فاز ۳ بالانس: ماتریس دوئل + تنظیم اعداد + زنجیره اقتصاد (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-BAL-1:** ماتریس دوئل 1v1 همه‌به‌همه (۲۸ واحد، ۷۸۴ دوئل، سقف ۳۰۰۰ تیک؛ هر جفت ۲ بار = قطعیت کامل، بدون NONDET) — helper تست‌محض `duel1v1` (الگوی aiLongRun) + جدول کامل در `research/duel-matrix.md` + پین `t_duel_matrix` (قطعیت + سلسله crusader>knight>lord + نقش‌های siege/healer). یافته‌ها: ملکه crusader (۵۴-۰ در برابر دیگران)، سواره پیش از باف ۲۱-۷ در برابر دیگران، منجنیق‌ها در میدان بی‌شلیک (نقش ضدساختمان ✅)، کمانداران پیاده ضعف میدان باز (نقش دیوار ✅).
+
+- **ردیف C-BAL-2:** سه عدد از ماتریس (فقط اعداد، بدون تغییر کد): knight hp ۱۰۰←۱۱۰ (هم‌تراز صلیبی، سقف مشترک t_roster_roles؛ حاشیه باخت ۱۱٪←۵٪)، horseArcher hp/dmg ۶۰/۹←۷۰/۱۰ (۴۸-۸؛ چرخش عرب/راهب/قاتل؛ زیر سقف زوبین‌دار) ، crusader cost ۴۵غ+۵۵ط←۵۵غ+۶۵ط (قیمت با قدرت هم‌تراز؛ goldCost آینه اسکیما). همه پین‌های محدودکننده سبز ماندند (roster/lord/stable/pit/horsearcher). ثبت در numbers-registry.
+
+- **ردیف C-BAL-3:** زنجیره‌های ۳۰دقیقه‌ای headless (۱۸۰۰۰ تیک، ‏~۰٫۶ ثانیه): نان ۶+۲+۲ با ۴۰ کارگر → گندم/آرد سقف ۵۰۰ (سرریز آسیاب)، غذای پایدار ~۴۹۴؛ ۱ آسیاب = ۱۲ نانوایی + ۳ مزرعه (`millSupport` = hint دفترچه ✅)؛ تبدیل هر گندم به ۸ غذا = قاعده مرجع 1w→1f→8bread ✅؛ سیب ۴۹۹/ساعت-بازی (واگرای ۱۰× از مرجع ۰٫۵، مقیاس وب)؛ آبجو ۳۵۸/ساعت (۱←۱ = قاعده مرجع ✅). ردیف‌های کهنه registry اصلاح شدند (bakery/brewery/mill). پین `t_econ_chain` (۱۴۰/۵۰۰/۴۹۲ + ۴۹۹ + ۳۶۲/۳۵۸ + تناسب ۱۲/۳).
+
+- یک گیر میانی: assertion وارونه assassin/horseArcher (ماتریس: سواره هر دو جهت می‌برد، نه قاتل) — تست/سند/رجیستری اصلاح شدند. بدون بازپین (هش مرجع همان b621bd25 — سناریوی مرجع سرباز/موج از واحدهای تغییریافته استفاده نمی‌کند؛ gameVersion به 0.227.0). سوئیت 664/664 + ۶/۶.
+## 0.226.0 (اکتبر 2026) — فاز ۲ کمپین: تالار per-مأموریت + ری‌پلی مأموریت (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CMP-4:** نمایش نام مأموریت در تالار استادان — helper خالص‌نمای `masterMapLabel` در main.js (رکورد `campaign:key` → `missionName` به زبان جاری)؛ سورت/شمارش/ذخیره دست‌نخورده. پین `t_campaign_masters_display` (نام محلی + غیبت رشته خام + ۸ گزینه select).
+
+- **ردیف C-CMP-5:** پالایش per-مأموریت تالار — select تازه `#mastersFilter` (all/solo/هر ۶ مأموریت، بازسازی در هر paint برای i18n) + فیلتر در `paintMasters` + شمارش پالایش‌شده + شنونده change در `wireMasters`؛ شناسه تازه بی‌اصطکاک با ردیف 124 (نه mission نه objective). پین `t_campaign_masters_filter` (all/solo/تک‌تک از مسیر واقعی change).
+
+- **ردیف C-CMP-6:** ری‌پلی مأموریت — فیلد اختیاری `mission` در لاگ (replayLogOf + validateReplayLog با رد BAD_MISSION + stamp در startMission)؛ بازیابی حالت view-side در startWatch (مأموریت ناشناس = تماشای ساده) + شاخه تماشا در tickViewHooks/checkMission (فقط بنر برد/باخت، بی‌ثبت progress/استادان) + دکمه «تماشای ری‌پلی» در ردیف کمپین وقتی اسلات ذخیره همین مأموریت است + قلاب‌های watch/unwatch. پین `t_campaign_replay` (اعتبارسنجی/ردها/رفت‌وبرگشت + قطعیت هش با/بی‌کلید + تماشا با بی‌ثبتی progress/استادان + رندر دکمه).
+
+- بدون بازپین (ردیف 124 و tooltips و masters_ui سبز ماندند: شناسه تازه `mastersFilter` بی‌اصطکاک، دکمه تماشا متن‌دار، ۴ سورت دست‌نخورده). بدون تغییر sim/هش/ذخیره (ری‌پلی مرجع همان b621bd25، فقط gameVersion به 0.226.0). سوئیت 662/662 + ۶/۶.
+## 0.225.0 (اکتبر 2026) — فاز ۲ کمپین: کاتالوگ/صفحه/اجرا (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-CMP-1:** کاتالوگ ۶ مأموریت داده‌محور — `data/missions.json` (تنها منبع حقیقت) + `validateMissionFile` + لودر TLA در `game/missions.js` (همان مکانیزم data.js)؛ هر سند: seed/difficulty/personality/identity + objectives از kindهای موجود. sim/state بی‌خبر (پیشرفت در campaign.js + localStorage؛ اجرا view-side). پین `t_campaign_catalog` (سند/یکتایی/عضویت در CONFIG/ارجاع BUILDINGS/UNITS + بی‌میدان sim).
+
+- **ردیف C-CMP-2:** صفحه کمپین در منو — `campaign` در MENU_PAGES (هفتمین صفحه) + section + دکمه خانه + کلیدهای i18n دو‌زبانه + ماژول خالص `game/campaign.js` (unlock/record/load/save به الگوی masters.js) + رندر ۶ ردیف با قفل در main.js (onPage/boot/relabel). پین `t_campaign_page` (۷ صفحه + زنجیره + DOM با progress hermetic).
+
+- **ردیف C-CMP-3:** اجرای مأموریت view-side — `startMission` (newGame با seed/سختی/شخصیت/هویت سند) + چک هر تیک در `tickViewHooks` (برد = run done؛ باخت = keepLordAlive با ارباب مرده) + پرچم‌های `missionWon/missionLost` در بنرها + ثبت progress + رکورد masters با map=«campaign:key»؛ دکمه‌های شروع‌مجدد مأموریت را از سر می‌گیرند. sim/هش/ذخیره/ری‌پلی دست‌نخورده. پین `t_campaign_run`.
+
+- بازپین عمدی (پایان پارک 0.61.0 — غیبت‌ها عمداً به حضور تبدیل شدند): 80/91/93/94/1179/124/128 (کاتالوگ خالی→۶تایی)، 82 (۶→۷ صفحه)، 91 (صفحه کمپین در منو هست)، tooltips (۵→۶ دکمه بازگشت)، `t_mission_validate` (کاتالوگ ۶تایی). بدون تغییر sim/هش (ری‌پلی مرجع همان b621bd25).
+
+- بدون تغییر sim/هش/ذخیره (۱ JSON + ۱ ماژول خالص + سیم‌کشی view-side). سوئیت 659/659 + ۶/۶.
+## 0.224.0 (اکتبر 2026) — فاز ۱ موبایل: HUD جمع‌شونده/پنل کشویی/بنچ (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-MOB-4:** تراکم HUD در 390px — نوار بالا در 480px پشت دکمه ☰ (`#hudMenuBtn`) می‌رود (`body.hud-open` بازش می‌کند)؛ CSS در `styles/layout.css` + کمک خالص `game/mobilehud.js` (`hudShouldCollapse`) + سیم‌کشی در `game/main.js`. پین `t_mob_hud_row` (آستانه + کلید + رفتار کلاس).
+
+- **ردیف C-MOB-5:** نقشه تمام‌صفحه + پنل کشویی در 800px — سایدبار پشت دکمه ▲ (`#sheetToggleBtn` روی `#boardWrap`) می‌رود و با `body.sheet-open` شیت fixed پایین (۵۲dvh) می‌شود؛ CSS + کمک خالص `game/mobilesheet.js` (`sheetShouldOverlay`) + سیم‌کشی در `game/main.js`. پین `t_mob_sheet_row` (آستانه + کلید + رفتار کلاس).
+
+- **ردیف C-MOB-6:** بودجه بنچ موبایل — `MOBILE_BENCH_TICKS=۱۲۰` با همان سقف sim (`withinBudget`) + قطعیت بنچ + کران حافظه کش اسپرایت (دو introspection در `game/sprites.js`: کش ≤ inline+۶۴). پین `t_mob_bench_row`.
+
+- بدون تغییر sim/هش/ذخیره (۲ ماژول خالص + ۴ خط سیم‌کشی + ۲ introspection). سوئیت 656/656 + ۶/۶.
+## 0.223.0 (اکتبر 2026) — فاز ۱ موبایل: ژست/کیفیت/بیداری (نقشه‌راه `src/ROADMAP.md`)
+
+- **ردیف C-MOB-1:** ژست‌های بازی با مرورگر نمی‌جنگند — `touch-action:none` روی بوم اصلی (`#minimap` از قبل داشت)، `overscroll-behavior:none` روی بدنه (بی‌اثر شدن pull-to-refresh)، `touch-action:manipulation` روی دکمه‌ها (بی‌تأخیر دابل‌تپ). CSS-only (`styles/layout.css` + `styles/base.css`). پین `t_mob_touch_row` (computed هر سه).
+
+- **ردیف C-MOB-2:** سقف DPR به‌ازای کیفیت رسم — کمک خالص `dprCapFor` در `game/render.js` (lite=۱، balanced=۱٫۵، full/ناشناخته=۲) و استفاده در `resize` (قبلاً همیشه ۲ بود). `fidelity`/`fidSel`/افت خودکار از 0.58.0 بودند؛ این ردیف فقط وضوح را به کیفیت گره می‌زند. sim/هش/ذخیره دست‌نخورده. پین `t_mob_dpr_row`.
+
+- **ردیف C-MOB-3:** قفل بیداری صفحه در نبرد — ماژول تازه خالص/تزریق‌پذیر `game/wakelock.js` (`canWakeLock`/`ensureWakeLock`/`releaseWakeLock`/`isWakeLocked`)؛ سیم‌کشی در `game/main.js` (گرفتن در `hideMenu`، رها در `showMenu`، گرفتن‌مجدد در `visibilitychange` وقتی منو پنهان است). بدون WakeLock = بی‌اثر بی‌خطا. پین `t_mob_wake_row` (همگام: شکل+گارد+رها) + پروب زنده مسیر ناهمگام با navigator قلابی.
+
+- بدون تغییر sim/هش/ذخیره (۲ import افزودنی در tests.js + ماژول ۳۳خطی + ۵ خط سیم‌کشی). سوئیت 653/653 + ۶/۶.
+## 0.222.0 (اکتبر 2026) — بسته شخصیت/لابی/دارایی §20/§14.2/§21
+
+- **ردیف 1190 (§20 — ناقص→کامل؛ C-UI-65):** همان ۷ شخصیت پین‌شده در 771/746/87/744 (تکراری عمدی، نه شخصیت تازه): کلیدهای یکسان + امضای رفتاری یکتا (buildList + raidAtMul/raidSizeAdd + نیرو) + پوشش کهن‌الگوها (یورش ۰٫۸–۱٫۴، اندازه −۱–۲، mill خوک، زوج بیابان عرب)؛ واگرای مستند: هشتمی نیست (مغایر 771/746/87/744 می‌شد)، نه siegeUsage/riskTolerance (ارجاع 1188)، نه پرچم extreme/warchest (ارجاع 771)، نه سازنده محاصره در هیچ buildList. پین `t_ai8_row1190` در `a11yCases`.
+
+- **ردیف 1209 (§14.2 — ناقص→کامل؛ C-UI-65):** بسته لابی — همه زیربخش‌ها ردیف کامل خودشان را دارند: host (ستاره + شروع فقط-میزبان، 718) + ready (علامت + دکمه mpReadyBtn، 719) + هر ۴ گزینه اتاق (727/728/729/730: چک‌باکس‌ها + قوانین)؛ اتحاد (735-739) و چت/taunt (741) غایب‌اند و همان‌جا پین شده‌اند. پین `t_lobbyfull_row1209` در `a11yCases` (اتاق جعلی + اسکن ردیف‌ها + پروب ۶ المان DOM).
+
+- **ردیف 1232 (§21 — ناقص→کامل؛ C-UI-65):** موجودی دارایی‌ها در برابر ۶ بند: (۱) ۵۱ بنا — وکتوری تک‌پروژکشن (نه ۴ جهت جدا) + حالت‌های ghost/damageWash/gray/active روی همان پروژکشن (ارجاع 1139/153)؛ (۲) ۲۸ واحد: ۱۴ شیت ۴جهت×(بیکار/راهA/راهB/حمله)+سطر مرگ (UDIR/ستون اجساد در رندر) + ۱۴ وکتوری (محاصره/انجمن، ارجاع t_merc_sprites)؛ (۳) شخصیت‌های شهری: ارباب/شفا + کاتب ۳باندی + هشدار مشاور (ارجاع 164/t_advisor_pure)؛ (۴) زمین/صخره/آب: ۴ کد + ۱۱ تایل + ۴ دکور؛ درخت عمداً نیست (manifest: not-required)؛ (۵) UI: ۶ سپر + مینی‌مپ + پنل‌ها + چهره‌ها (ارجاع 138/146/147)؛ (۶) صدا: موسیقی مولد (mood/drum، ارجاع t_sound_ui_music) + ولوم، بی‌گفتار (نه speak در موتور). پین `t_assets_row1232` در `a11yCases`.
+
+- بدون کد محصول (فقط ۲ import افزودنی TILE_DATA/DECOR_DATA + ۳ تست در tests.js؛ sim/هش/ذخیره دست‌نخورده).
+## 0.221.0 (اکتبر 2026) — بسته میزبان/چندنفره/نام §14.1/§1.1/§22.3
+
+- **ردیف 718 (§14.1 — ناقص→کامل؛ C-UI-64):** میزبان با ستاره (رستر درون‌اتاق + شروع فقط-میزبان: سرور از قبل nohost را enforced می‌کرد + حالا دکمه شروع برای دیگران پنهان است با فالبک اولین بازیکن) + ready (ارجاع 719)؛ چت نیست (ارجاع 741 — دیگران عملاً فقط ready). پین `t_host_row718` در `a11yCases`. کد: کمک‌های خالص lobby.js (roomHostSlot/isRoomHost/hostStar) + لوله‌کشی host در ۸ نقطه + ستاره/گیت در paintMp + قلاب آزمون mpPaint (UI-side؛ sim/هش/ذخیره دست‌نخورده).
+
+- **ردیف 97 (§1.1 — ناقص→کامل؛ C-UI-64):** چندنفره هست (اتاق/رستر/lockstep با تأخیر ثابت ۶ + هش + ری‌پلی، ارجاع 1208/1210) ولی واگرا: سقف ۴ نه ۸ (MP_MAX + ۴ لنگر + انتخاب ۲/۳/۴)، اسلات‌ها فقط انسانی‌اند (نه ۴+۴ AI، ارجاع 720) و انتقال سرور مدرن است (نه LAN/Gamespy). پین `t_mp_row97` در `a11yCases`. sim دست‌نخورده (فقط import افزودنی MP_MAX در tests.js).
+
+- **ردیف 1258 (§22.3 — ناقص→کامل؛ C-UI-64):** نام بازی اصلی است (ارگ — Arg) + فهرست ممنوعه فعال (firefly/stronghold-crusader با اسکنر و پاکی محتوا)؛ واگرای مستند: کلیدهای شخصیت (wolf/rat/…) واژه‌های عام‌اند. پین `t_trademark_row1258` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- تست: ۳ تست تازه (۱ خالص/DOM با اتاق جعلی + ۲ خالص/DOM)؛ 647/647 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (feature+divergence/legal pin خالص)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.221.0، هش بی‌تغییر). سبز در اولین اجرا؛ بدون گیر.
+
+- **فلیپ‌ها:** ردیف‌های 718/97/1258 → کامل. شمارش ماشینی: 456 کامل/3 ناقص/0 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 647 سبز در صفحه تازه + ۶/۶ ناهمگام (قلاب mpPaint موجود؛ ستاره/گیت در رستر واقعی paints شد و بازگردانده شد).
+
+## 0.220.0 (اکتبر 2026) — بسته اسکیرمیش/ارباب/فهرست لابی §1.1/§13/§14.1
+
+- **ردیف 85 (§1.1 — ناقص→کامل؛ C-UI-63):** والد پس از ۵ فرزند (86/87/88/89/90) — جعبه AI نیست + ۷ سبک متمایز + FFA بی‌تیم + گونه مرجع/واگرا + ۳ نقشه و پیش‌نمایش؛ واگرای مستند والد: فقط ۱ حریف تکی (کانتینر تکی state.ai + مالک ۹، نه ۷ اسلات). پین `t_skirmish_row85` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 685 (§13 — ناقص→کامل؛ C-UI-63):** ارباب مهم‌ترین است (استخدام‌ناپذیر + پرتره + مرگ=باخت ارجاع 128) ولی «جنگجوی مرگبار» واگراست: جان ۱۵۰ (بالاترین در میان پیاده‌ها) اما آسیب ۸ از شوالیه (۱۰)، صلیبی (۱۱) و قاتل (۱۳) کمتر است. پین `t_lord_row685` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 720 (§14.1 — ناقص→کامل؛ C-UI-63):** فهرست بازیکنان + ready هست (رستر اتاق/بازی زنده + دکمه آماده + رشته‌های راهنما) ولی صندلی CPU نیست: اسلات‌های MP فقط انسانی‌اند + stepAI در MP بی‌اثر است (ارجاع 86/737/1195). پین `t_lobbylist_row720` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- تست: ۳ تست تازه (۲ خالص + ۱ خالص/DOM)؛ 644/644 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (parent/divergence/partial pin خالص؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.220.0، هش بی‌تغییر). سبز در اولین اجرا؛ بدون گیر.
+
+- **فلیپ‌ها:** ردیف‌های 85/685/720 → کامل. شمارش ماشینی: 453 کامل/6 ناقص/0 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 644 سبز در صفحه تازه + ۶/۶ ناهمگام.
+
+## 0.219.0 (اکتبر 2026) — بسته مزدور/پرتابه/نقشه لابی §9.5/§19.3/§14.2
+
+- **ردیف 108 (§9.5 — ناقص→کامل؛ C-UI-62):** والد پس از فرزندان (512/1157) — هر ۷ مزدور عرب با پروفایل متمایز (dmg/hp/speed/range/armor)؛ ۶/۷ با فقط طلا از پست (hireGoodsFor تک‌قلمی)؛ واگرای برده (سربازخانه+غذا) + واگرای قاتل (نه قلاب، نه نامرئی). پین `t_arab7_row108` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1153 (§19.3 — ناقص→کامل؛ C-UI-62):** مدل ضربه آنی است (strike) — نه موجودیت/میدان پرتابه در state، نه سرعت/قوس در تعریف‌ها؛ آسیب در همان ۱ تیک در برد کامل؛ رول دقت جدا در 962 (ارجاع). پین `t_proj_row1153` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 722 (§14.2 — ناقص→کامل؛ C-UI-62):** پیش‌نمایش+توضیح نقشه لابی (mpMapThumb/mpMapDesc + paintMpMapPreview + رویداد input + relabel زبانی)؛ انتخاب (max ۲/۳/۴ + سید) و سید در ردیف اتاق؛ ارسال نقشه بی‌مصداق (زمین تابع خالص سید + ۴ لنگر ظاهرشونده). پین `t_lobbymap_row722` در `a11yCases`. کد: ۲ خط HTML + تابع/سیم‌کشی main.js (UI-side؛ sim/هش/ذخیره دست‌نخورده).
+
+- تست: ۳ تست تازه (۲ سینک + ۱ سینک/DOM)؛ 641/641 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (parent/absence/feature pin خالص؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.219.0، هش بی‌تغییر). سبز در اولین اجرا؛ بدون گیر.
+
+- **فلیپ‌ها:** ردیف‌های 108/1153/722 → کامل. شمارش ماشینی: 450 کامل/9 ناقص/0 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 641 سبز در صفحه تازه + ۶/۶ ناهمگام.
+
+## 0.218.0 (اکتبر 2026) — بسته رویداد/AI §19.5/§20
+
+- **ردیف 1173 (§19.5 — ناقص→کامل؛ C-UI-61):** رویدادها — هر ۳ رویداد سیم‌کشی‌شده (نمایشگاه +۴، شیر −۳، بیماری −۳ با پنجره‌های دوره‌ای)؛ invasion در هیچ پنجره/داده‌ای نیست و F1 در DEFAULT_KEYS نیست — واگرای مستند. پین `t_events_row1173` در `a11yCases`. sim دست‌نخورده (فقط تست). یک گیر میانی: TUNING.events کلید اضافه دارد → assertion به includes شل شد؛ پس از اصلاح سبز.
+
+- **ردیف 1186 (§20 — ناقص→کامل؛ C-UI-61):** لایه‌های AI — Economy (ساخت ترتیبی پروفایل + پرداخت واقعی)، Defense (برج در ۵/۷ فهرست + شلیک پایه بی‌گاریسون؛ نه دیوار/نگهبان)، Military (موج زمان‌بندی‌شده با هدف ثابت=ستاد بازیکن)، PersonalityConfig (۷ شخصیت)؛ Diplomacy بی‌مصداق (نه allies نه tribute) — غیبت مستند. پین `t_ailayers_row1186` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1187 (§20 — ناقص→کامل؛ C-UI-61):** اجرای AI — لایه‌ها هر ۵۰ تیک (۵ ثانیه با TICK_HZ=۱۰ — واگرا از ۱–۲ ثانیه) + گیت nextThink + یکی‌درمیان؛ draw قطعی + ترکیب یگان وزنی (بی‌امتیازدهی هدف)؛ فقط هندیکپ (normal×wolf=پایه) + ساده‌سازی مستند (غذای AI مصرف نمی‌شود). پین `t_airun_row1187` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1188 (§20 — ناقص→کامل؛ C-UI-61):** پارامترهای شخصیت — aggression (raidAtMul/SizeAdd) + buildStyle/economyFocus (buildList: برج/مزرعه/آسیاب/معدن هست؛ دیوار/خندق/آبجو/پنیر نیست) + unitMix (archerP/troops) + attackTiming (موش دیر/شیر زود)؛ siegeUsage/riskTolerance در هیچ پروفایلی نیست — واگرای مستند. پین `t_aiparams_row1188` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- تست: ۴ تست تازه سینک؛ 638/638 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (divergence/partial/absence pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.218.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1173/1186/1187/1188 → کامل. شمارش ماشینی: 447 کامل/12 ناقص/0 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 638 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز پس از یک اصلاح؛ بدون گیر دیگر).
+
+## 0.217.0 (اکتبر 2026) — بسته tile/جایگذاری/منابع §19.1
+
+- **ردیف 1136 (§19.1 — ناقص→کامل؛ C-UI-60):** لایه‌های tile — فقط ۴ کد (T_GRASS=۰/T_WATER=۱/T_ROCK=۲/T_OASIS=۳؛ هر ۴ روی نقشه سیدی، هیچ کد دیگری نیست؛ T_DESERT/T_MARSH/T_HILL/T_HEIGHT بی‌مصادق)؛ لایه height/resourceNode/buildable/occupant جدا نیست (buildable=چمن‌خالص، occupant=occ). پین `t_tiles_row1136` در `a11yCases`. sim دست‌نخورده (فقط تست + دو import: T_ROCK و دو namespace برای غیبت‌نگاری).
+
+- **ردیف 1137 (§19.1 — ناقص→کامل؛ C-UI-60):** قیدهای جایگذاری — هر ۶ دسته-farm (شامل شکارچی) دور از واحه NO_OASIS؛ معدن سنگ/آهن روی چمن بی‌قید (نه boulder نه hilltop)؛ آغل گاو بی‌قید مجاورت؛ چوب‌بری بی‌قید درخت؛ خندق/قیر بنا نیستند؛ سنگ فقط TERRAIN. پین `t_placecond_row1137` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1138 (§19.1 — ناقص→کامل؛ C-UI-60):** منابع بی‌پایان — نرخ‌ها (سنگ ۱/۲۵ + آهن ۱/۲۰ + چوب ۱/۲۰ + گوشت ۱/۳۳) + دو پنجره برابر producedTotal؛ نه درخت نه گوزن (state/بنا/یگان). پین `t_resources_row1138` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1139 (§19.1 — ناقص→کامل؛ C-UI-60):** footprint — هر ۵۱ بنا ردپای مستطیلی صحیح؛ اعتبارسنج همان validate است (نه canPlace) با هر ۴ دلیل (TERRAIN/OCCUPIED/INSUFFICIENT/ANCHOR) + لنگر granary/wall؛ پله بنا نیست؛ گوست قرمز/سبز (ارجاع t_redfootprint_row153). پین `t_footprint_row1139` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- تست: ۴ تست تازه سینک؛ 634/634 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (divergence/behavioral pin خالص؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.217.0، هش بی‌تغییر). یک گیر میانی: دیوار (۵،۵) به گرانری چسبیده بود و ANCHOR نمی‌شد → (۸،۸)؛ پس از اصلاح سبز.
+
+- **فلیپ‌ها:** ردیف‌های 1136/1137/1138/1139 → کامل. شمارش ماشینی: 443 کامل/16 ناقص/0 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 634 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز پس از یک اصلاح؛ بدون گیر دیگر).
+
+## 0.216.0 (اکتبر 2026) — بسته گزینه/ساختار/کارایی §3/§21.1/§22
+
+- **ردیف 115 (§3 — ناقص→کامل؛ C-UI-59):** گزینه‌ها — Game Play (سرعت/توقف با کلید + راهنمای درون‌بازی) + Sound (موسیقی/افکت/بی‌صدا) موجود؛ گفتار در موتور نیست (سنتز خالص → Genie بی‌مصداق)؛ Video نیست (نه رزولوشن/اسکرول/نشانگر؛ واکنش‌گرا + state بی‌میدان ویدیویی). پین `t_options_row115` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1204 (§21.1 — ناقص→کامل؛ C-UI-59):** ساختار داده‌محور — هر ۱۰ مؤلفه ECS روی فیلدهای ساده نگاشت می‌شود (موقعیت/جان/مالک/کار/سلاح/زره/موجودیِ مهمات‌دار/بنا/استخر کارگر/مسیر/هدف) با پشتوانه Uint8Array و سریال‌شدنی کامل؛ واگرای مستند: بی‌مهمات inventory ندارد. پین `t_ecs_row1204` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1233 (§22 — ناقص→کامل؛ C-UI-59):** کارایی — بودجه ماشینی (هر تیک ≤۳ms و ≥۳۰۰ تیک/ثانیه) + بنچ واقعی سبز + ۳ سطح کیفیت نمایشی؛ sim ده‌هرتزی جدا از رندر؛ واگرای مستند: بدون instancing (بوم دوبعدی). پین `t_perf_row1233` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- تست: ۳ تست تازه سینک؛ 630/630 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (موجود+خلأ/نگاشت/بودجه pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.216.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 115/1204/1233 → کامل. شمارش ماشینی: 439 کامل/20 ناقص/0 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 630 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.215.0 (اکتبر 2026) — بسته سبک/قدرت/همگامی AI §1.1/§14.4/§20.1/§21.2
+
+- **ردیف 87 (§1.1 — ناقص→کامل؛ C-UI-58):** هر AI سبک قلعه، غذا/منابع، سلاح و تاکتیک متفاوت دارد — هر ۷ شخصیت امضای یکتا (ترتیب ساخت، ضرب اقتصاد/کارگر، سهم کماندار/نیروی عرب، زمان‌بندی/اندازه یورش) + رفتار واقعی (aiRaidPlan و aiRaidUnitType برحسب شخصیت: صلاح‌الدین نیروی عرب، گرگ نیروی صلیبی). پین `t_aistyles_row87` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 744 (§14.4 — ناقص→کامل؛ C-UI-58):** چند Lord AI با سبک ساخت، منابع، سلاح و تاکتیک مختلف — همان ۷ شخصیت (ارجاع 87): ترتیب ساخت هر ۷ متمایز، دامنه منابع ۰٫۷ تا ۱٫۵، زوج بیابان با نیروی عرب (0.151.0) + یورش متمایز موش/مار. پین `t_ailords_row744` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1189 (§20.1 — ناقص→کامل؛ C-UI-58):** قدرت AI — نقطه‌های آبی/زرد تا ۵ هست (powerTier با ۵ رنگ) + handicap اقتصاد/ارتش هست (۳ درجه؛ normal خنثی)؛ ولی ضریب HP ارباب نیست (جان ثابت ۱۵۰) — همان یک واگرایی مستند. پین `t_aipower_row1189` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1208 (§21.2 — ناقص→کامل؛ C-UI-58):** مدل lockstep قطعی — تأخیر ورودی ثابت هست ولی ۶ تیک است (نه ۲–۳)؛ تشخیص desync با stateHash هست ولی خودکار/دوره‌ای نیست؛ توقف/ادامه خودکار برای عقب‌افتاده نیست. پین `t_lockstep_row1208` در `a11yCases`. sim دست‌نخورده (فقط تست + یک import یک‌کلمه‌ای INPUT_DELAY).
+
+- تست: ۴ تست تازه سینک؛ 627/627 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (behavioral/divergence pin خالص؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.215.0، هش بی‌تغییر). یک گیر میانی: stateHash رشته hex است نه عدد (پس از اصلاح سبز).
+
+- **فلیپ‌ها:** ردیف‌های 87/744/1189/1208 → کامل. شمارش ماشینی: 436 کامل/23 ناقص/0 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 627 سبز در صفحه تازه + ۶/۶ ناهمگام.
+
+## 0.214.0 (اکتبر 2026) — بسته سناریو/مذهب/میزبان §22.2/§3/§14.2
+
+- **ردیف 1251 (§22.2 — ناقص→کامل؛ C-UI-57):** هر ۷ سناریو — ۴ رفتار (ستاد→انبارغذا→جمعیت: سقف ۱۰۰۰ + ساعت + رشد کارگر؛ زنجیره نان: گندم/آرد/غذای ۱۳۱؛ آبجو+میخانه ⇒ +۸؛ دشمن روی gatehouse ⇒ تصرف با ارجاع 110) + ۳ خلأ (نه پله، نه تونل با ارجاع 474، نه خندق). پین `t_scenarios_row1251` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 109 (§3 — ناقص→کامل؛ C-UI-57):** پاداش مذهب و آبجو — مرجع (میخانه کامل +۸، پله‌های مذهب ۲/۴/۶/۸ + کلیسا/جامع) + رفتار (میخانه سروکننده ⇒ +۸؛ نمازخانه کشیش‌دار ⇒ تبرک ۱۰۰ + پاداش مثبت). پین `t_alefaith_row109` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 734 (§14.2 — ناقص→کامل؛ C-UI-57):** پیش‌فرض هر بازیکن جداگانه (MP خالص FFA — نه میدان team/allies، ارجاع 88) + host هیچ آیکن میز اتحاد ندارد (نه در کارت‌های اتاق، نه در DOM). پین `t_hostally_row734` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- تست: ۳ تست تازه سینک؛ 623/623 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (integration/reference/behavioral/absence/DOM pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.214.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1251/109/734 → کامل. شمارش ماشینی: 432 کامل/27 ناقص/0 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 623 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.213.0 (اکتبر 2026) — بسته سامانه §22.2 (پایان انجام‌نشده‌ها)
+
+- **ردیف 1252 (§22.2 — انجام‌نشده→کامل؛ C-UI-56):** آزمون تحمل — سامانه تازه واقعی: ۶۰ یگان (۳۰ سرباز در برابر ۳۰ شمشیرزن) + ۶۰۰ تیک نبرد بی-throw؛ میانه‌راه اسنپ‌شات هش + رفت‌وبرگشت ذخیره بی-desync (هش بارگذاری‌شده = هش اصلی، و پس از ۳۰۰ تیک ادامه برابر). پین `t_soak_row1252` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1253 (§22.2 — انجام‌نشده→کامل؛ C-UI-56):** شبیه‌ساز توازن — سامانه تازه واقعی: ۳ گود خودکار (سرباز×۵/شمشیرزن×۵، کماندار×۵/کماندار×۵، شوالیه×۳/شمشیرزن×۶) تا نابودی یک طرف؛ گزارش {برنده، تیک، بازمانده، ارزش‌به‌هزینه} + قطعیت (تکرار = همان نتیجه). پین `t_balancesim_row1253` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- **ردیف 1254 (§22.2 — انجام‌نشده→کامل؛ C-UI-56):** نبرد AI طولانی — سامانه تازه واقعی: دو حریف متوالی (گرگ معمولی + موش سخت، هر یک ۱۲۰۰ تیک با اقتصاد/آموزش/نبرد/AI)؛ بی-throw + بی‌قفل (تیک جلو می‌رود، یورش/ساخت/تغییر فاز). پین `t_aivsai_row1254` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- تست: ۳ تست تازه سینک؛ 620/620 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (soak/balance-sim/AI-vs-AI تازه خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.213.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1252/1253/1254 → کامل. شمارش ماشینی: 429 کامل/30 ناقص/0 انجام‌نشده (مجموع 459) — هیچ ردیف انجام‌نشده‌ای نماند.
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 620 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.212.0 (اکتبر 2026) — بسته AI/معماری/رأی §14.4/§18.5/§21
+
+- **ردیف 746 (§14.4 — انجام‌نشده→کامل؛ C-UI-55):** ۸ AI اضافی Extreme (قبلاً در Warchest) — تکراری 771: همان ۷ شخصیت‌اند و هیچ‌کدام پرچم extreme/warchest/new ندارند؛ نه کاتالوگ تازه، نه صفحه Extreme در منو. پین `t_extai8b_row746` در `a11yCases` (ارجاع به `t_extai8_row771`). sim دست‌نخورده.
+
+- **ردیف 1073 (§18.5/و — انجام‌نشده→کامل؛ C-UI-55):** تبدیل دهقان↔کارگر↔سرباز با یک موجودیت `role` نیست — یگان‌ها نه میدان role دارند نه رفتار ارتقا/تنزل؛ کارگرها شمارنده‌اند (workers/freeWorkers) نه موجودیت. پین `t_role_row1073` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1205 (§21.1 — انجام‌نشده→کامل؛ C-UI-55):** هش فضایی/quadtree برای هدف‌گیری و pooling برای پرتابه‌ها نیست — نه میدان شاخص در state، نه انبار پرتابه (ارجاع 1153)؛ نبرد با جست‌وجوی خطی کار می‌کند (یگان‌های زنده پس از ۲۰۰ تیک). پین `t_spatial_row1205` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1211 (§21.2 — انجام‌نشده→کامل؛ C-UI-55):** توقف و سرعت در مولتی‌پلیر با رأی/توافق نیست — mp فقط {enabled,num,seed,winner,over} است (نه میدان رأی، نه توقف چندنفره)؛ paused/speed سراسری تک‌نفره‌اند. پین `t_mpvote_row1211` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۴ تست تازه سینک؛ 617/617 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (reference/absence/vacuous pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.212.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 746/1073/1205/1211 → کامل. شمارش ماشینی: 426 کامل/30 ناقص/3 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 617 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.211.0 (اکتبر 2026) — بسته انواع نقشه §15
+
+- **ردیف 753 (§15 — انجام‌نشده→کامل؛ C-UI-54):** انواع نقشه جدید (والد: Castle Builder / Custom Scenario / Crusader در 754-756 همین نسخه) — هیچ کاتالوگ نوع‌نقشه در sim نیست: سند سفارشی فقط ۴ کلید (v/name/seed/patches) + نه میدان mapType در state + نه انتخاب نوع در ویرایشگر. پین `t_maptypes_row753` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 754 (§15 — انجام‌نشده→کامل؛ C-UI-54):** نقشه Castle Builder (منظره تازه + دکمه «Edit Scenario» برای شرایط اولیه) نیست — سند وصله‌ای نه منظره دارد نه سناریو (normalize اضافه‌ها را می‌اندازد) + نه دکمه سناریو در DOM. پین `t_cbmap_row754` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 755 (§15 — انجام‌نشده→کامل؛ C-UI-54):** نقشه سناریوی سفارشی (رویدادهای مخصوص؛ نوع اقتصادی یا invasion) نیست — گونه‌های مأموریت همان ۱۰ گونه‌اند (نه economic، نه invasion) + سند نقشه نه نوع سناریو دارد نه رویداد. پین `t_scenmap_row755` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 756 (§15 — انجام‌نشده→کامل؛ C-UI-54):** نقشه Crusader (برای Custom/Multiplayer؛ تعداد Keepهای قرارگرفته = حداکثر بازیکنان) نیست — سند نقشه keep ندارد (قابل‌بازی‌بودن با ستاد خودکار است) + در MP نه keepCount هست نه قاعده keep (لنگرهای ثابت ۴گانه). پین `t_crusadermap_row756` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 758 (§15 — انجام‌نشده→کامل؛ C-UI-54):** سازنده نقشه Extreme (نقشه مولتی‌پلیر Extreme؛ نوع و تعداد نیروی outpost در ویرایشگر) نیست — ویرایشگر نه کنترل outpost دارد (ارجاع 769: بنا/تولید outpost هم در sim نیست) نه میدان Extreme؛ سند نقشه ۴کلیده می‌ماند. پین `t_exmapmaker_row758` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۵ تست تازه سینک؛ 613/613 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (vacuous/absence/DOM pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.211.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 753/754/755/756/758 → کامل. شمارش ماشینی: 422 کامل/30 ناقص/7 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 613 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.210.0 (اکتبر 2026) — بسته لابی/کاتالوگ/فاز
+
+- **ردیف 86 (§1.1 — انجام‌نشده→کامل؛ C-UI-53):** جعبه AI لابی (افزودن/حذف حریف AI) نیست — کارت‌های اتاق بی-CPU + نه کنترل AI در DOM. پین `t_lobbyai_row86` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 88 (§1.1 — انجام‌نشده→کامل؛ C-UI-53):** میز گرد تیم نیست — MP خالص FFA است (نه میدان team در state.mp) + نه میز/رنگ تیم در DOM. پین `t_roundtable_row88` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1179 (§19.5 — انجام‌نشده→کامل؛ C-UI-53):** کاتالوگ کمپین‌ها (Trail ۵۰/Extreme ۲۰ + ست تألیفی) نیست — MISSIONS خالی + نه مأموریت تألیفی. متمایز از 91. پین `t_campcatalog_row1179` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1255 (§22.2 — انجام‌نشده→کامل؛ C-UI-53):** فاز `canPlace()` و مسیریابی — پوشش تازه واقعی: ۳۰۰ validate خصمانه + ۳۰۰ مسیریابی تصادفی، بی‌throw (seed ثابت). پین `t_fuzzplace_row1255` در `a11yCases`. sim دست‌نخورده (فقط تست).
+
+- تست: ۴ تست تازه سینک؛ 608/608 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (absence/vacuous/DOM/fuzz pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.210.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 86/88/1179/1255 → کامل. شمارش ماشینی: 417 کامل/30 ناقص/12 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 608 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.209.0 (اکتبر 2026) — خوشه AI §20
+
+- **ردیف 1191 (§20.1 — انجام‌نشده→کامل؛ C-UI-52):** رفتار ضدچرخش AI نیست — یگان‌های AI نه گارد نه گاریسون می‌گیرند (رفتار: ۲ یگان پس از ۳۰۰ تیک)؛ نه لایه دفاع، نه پاسخ به تونل (نه دستور dig)، نه چادر محاصره در کاتالوگ. پین `t_antiturtle_row1191` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1192 (§20.1 — انجام‌نشده→کامل؛ C-UI-52):** تجارت AI با متحد نیست — نه میدان trade در state.ai، نه کلید trade در شخصیت‌ها، نه گونه trade در queueOrder. پین `t_allytrade_row1192` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1195 (§20.2 — انجام‌نشده→کامل؛ C-UI-52):** AI متحد در MP نیست — اسلات‌ها فقط انسانی‌اند (mpres بی‌پرچم AI + liveRowHTML بی-CPU) + نه Set Orders + نه آیکن وضعیت در DOM. پین `t_mpailly_row1195` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۳ تست تازه سینک؛ 604/604 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (behavioral/absence/DOM pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.209.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1191/1192/1195 → کامل. شمارش ماشینی: 413 کامل/30 ناقص/16 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 604 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.208.0 (اکتبر 2026) — خوشه کمپین تاریخی §1.1
+
+- **ردیف 91 (§1.1 — انجام‌نشده→کامل؛ C-UI-51):** Historical Campaign (۴ کمپین) — کاتالوگ MISSIONS خالی است؛ نه میدان campaign در state، نه صفحه کمپین در منو (ارجاع به 92-95 همین نسخه). پین `t_hcampaign_row91` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 92 (§1.1 — انجام‌نشده→کامل؛ C-UI-51):** Call to Arms (مسیر صلیبیان اول + راه‌های صحرا) — آموزش ۷ نقطه عطف ساخت‌وساز است (HINT_STEPS؛ نه مأموریت/صحرا) + نه میدان کمپین. پین `t_calltoarms_row92` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 93 (§1.1 — انجام‌نشده→کامل؛ C-UI-51):** Saladin's Conquest (فرماندهی عرب) — هویت عرب و شخصیت صلاح‌الدین تک‌بازی‌اند (104/737)، نه کمپین. پین `t_saladinconq_row93` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 94 (§1.1 — انجام‌نشده→کامل؛ C-UI-51):** Kings' Crusade (همراهی پادشاهان اروپا) — نه میدان kings/campaign، نه موجودیت پادشاهان در sim. پین `t_kingscrusade_row94` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 95 (§1.1 — انجام‌نشده→کامل؛ C-UI-51):** Crusader States (کمپین skirmish چندحریفی) — AI تک‌بازی با کانتینر تکی است، زنجیره کمپین نیست. پین `t_cstates_row95` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۵ تست تازه سینک؛ 601/601 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (vacuous/divergence/reference pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.208.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 91/92/93/94/95 → کامل. شمارش ماشینی: 410 کامل/30 ناقص/19 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 601 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.207.0 (اکتبر 2026) — خوشه Trail §1.1
+
+- **ردیف 80 (§1.1 — انجام‌نشده→کامل؛ C-UI-50):** زنجیره Crusader Trail (۵۰ بازی زنجیره‌ای) — در sim نیست (تک‌بازی‌ها فقط): MISSIONS خالی + نه میدان trail در state + نه صفحه trail در منو (ارجاع به 81-84 همین نسخه). پین `t_crtrail_row80` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 81 (§1.1 — انجام‌نشده→کامل؛ C-UI-50):** نقشه پیشرفت Trail (پرچم = موقعیت، شمشیرها = فتح‌شده) — نه صفحه trail در منو، نه میدان پیشرفت در state. پین `t_trailmap_row81` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 82 (§1.1 — انجام‌نشده→کامل؛ C-UI-50):** صفحه info پیش از بازی Trail — MENU_PAGES فقط ۶ صفحه (home/solo/mp/masters/profile/settings) + نه صفحه info/pregame در DOM. پین `t_trailinfo_row82` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 83 (§1.1 — انجام‌نشده→کامل؛ C-UI-50):** سختی تدریجی Trail — درجه تک‌بازی هست (easy/normal/hard در startAI) ولی زنجیره تشدیدکننده نیست (نه trailStep، نه پارام trail). پین `t_traildiff_row83` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 84 (§1.1 — انجام‌نشده→کامل؛ C-UI-50):** تاریخ Trail = زمان کل + رقابت سرعت — ساعت تک‌بازی هست (130) ولی تاریخ انباشته نیست؛ رشته مرجع در 1123 پین شده. پین `t_traildate_row84` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۵ تست تازه سینک؛ 596/596 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (vacuous/absence/divergence/reference pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.207.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 80/81/82/83/84 → کامل. شمارش ماشینی: 405 کامل/30 ناقص/24 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 596 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.206.0 (اکتبر 2026) — خوشه Extreme §16
+
+- **ردیف 767 (§16 — انجام‌نشده→کامل؛ C-UI-49):** کمپین Extreme (۲۰ مأموریت) — کاتالوگ MISSIONS خالی است؛ نه میدان campaign در state، نه شمار مأموریت. پین `t_extcamp_row767` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 768 (§16 — انجام‌نشده→کامل؛ C-UI-49):** مولتی‌پلیر Extreme — مکانیزم Extreme در MP نیست: rules فقط گزینه‌های اتاق (noCow/strongWalls/noRush/noDogs) + نه پرچم extreme در state/mp. پین `t_extmp_row768` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 769 (§16 — انجام‌نشده→کامل؛ C-UI-49):** پاسگاه (outpost) — نه بنا در کاتالوگ (۵۱ بنا)، نه spawn تولیدی در sim. پین `t_outpost_row769` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 770 (§16 — انجام‌نشده→کامل؛ C-UI-49):** سقف ۱۰٬۰۰۰ نیرو — عدد مرجع هست (TUNING.population.extreme + POP_CAP_EXTREME) ولی فقط سقف crusader (۲۰۰۰) اعمال می‌شود (atPopCap) چون حالت Extreme نیست. پین `t_popcap10k_row770` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 771 (§16 — انجام‌نشده→کامل؛ C-UI-49):** ۸ AI تازه (Warchest) — فقط ۷ شخصیت (wolf/rat/snake/pig/lion/arabLord/saladin) + نه پرچم extreme/warchest در هیچ‌کدام. پین `t_extai8_row771` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۵ تست تازه سینک؛ 591/591 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (absence/reference/vacuous pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.206.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 767/768/769/770/771 → کامل. شمارش ماشینی: 400 کامل/30 ناقص/29 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 591 سبز در صفحه تازه + ۶/۶ ناهمگام (یک گیر میانی: پیش‌فرض rules سولو ۳ کلید است نه ۴ — assertion به مجموعه مجاز شل شد؛ پس از اصلاح سبز).
+
+## 0.205.0 (اکتبر 2026) — خوشه اتحاد §14.3
+
+- **ردیف 735 (§14.3 — انجام‌نشده→کامل؛ C-UI-48):** معنای اتحاد — هدف‌گیری برون‌مالکی خصمانه است (رفتار: سرباز مالک ۰ سرباز مالک ۱ را می‌زند)؛ نه فرمان هدیه/خراج (صف فقط ۴ گونه WP)؛ برد مشترک نیست (129). پین `t_allyterms_row735` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 736 (§14.3 — انجام‌نشده→کامل؛ C-UI-48):** صفحه متحدان — نه Send/Request Goods در کارت‌های اتاق، نه پنل/دکمه متحد در DOM. پین `t_allyscreen_row736` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 737 (§14.3 — انجام‌نشده→کامل؛ C-UI-48):** درخواست از متحد AI — اتاق‌ها صندلی AI/CPU ندارند (بازیکنان انسانی)؛ شخصیت‌های AI میدان دیپلماسی ندارند. پین `t_allyaireq_row737` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 738 (§14.3 — انجام‌نشده→کامل؛ C-UI-48):** نشانگر دور پرتره — lordPortraitHTML فقط <img> است؛ رستر اتاق نشانگر ندارد (هشدارهای مشاور سامانه جداست). پین `t_allymarks_row738` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 739 (§14.3 — انجام‌نشده→کامل؛ C-UI-48):** دستورات متحد — نه پنل Set Orders/بوق در DOM، نه فرمان صدور دستور (صف فقط ۴ گونه). پین `t_allyorders_row739` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۵ تست تازه سینک؛ 586/586 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (behavioral/absence/DOM pin خالص؛ sim/هش/ذخیره دست‌نخورده؛ بدون تغییر import)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.205.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 735/736/737/738/739 → کامل. شمارش ماشینی: 395 کامل/30 ناقص/34 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 586 سبز در صفحه تازه + ۶/۶ ناهمگام (سبز در اولین اجرا؛ بدون گیر).
+
+## 0.204.0 (اکتبر 2026) — خوشه نبرد §19.3
+
+- **ردیف 1151 (§19.3 — ناقص→کامل؛ C-UI-47):** حلقه هدف — تازه = تهاجمیِ بی‌هدفِ بی‌سردی؛ setStance (نامعتبر رد)؛ کسب هدف در برد؛ سقف hold ‏۸ (بی‌حرکت/دست‌نخورده در برابر تعقیب تهاجمی در aggro)؛ افسار ۴۰/۴۲ + شعاع ۲۰. پین `t_targetloop_row1151` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1156 (§19.3 — ناقص→کامل؛ C-UI-47):** فرو ریختن — صفرشدن HP با strike = حذف (destroyed + ‎hp صفر + آزادی زمین) + استقلال قطعه دیوار مجاور؛ مدافعان برجِ ویران زنده بیرون می‌پرند (انحراف مستند: دفترچه مرگ می‌گوید ✅ منبع SC2)؛ فروپاشی تونل بی‌مصداق (نه بنا، نه حفر، نه collapse در مرجع siege). پین `t_collapse_row1156` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1157 (§19.3 — انجام‌نشده→کامل؛ C-UI-47):** قاتل نامرئی نیست — نه پرچم stealth/invisible در هیچ یگان، نه موضع دیدن/علامت (STANCES همان چهارتاست)، تجهیزات فقط شمشیر؛ رفتار: دشمن قاتل را می‌زند (دیده می‌شود). پین `t_spotmark_row1157` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1160 (§19.3 — انجام‌نشده→کامل؛ C-UI-47):** اپراتور روغن — نه بنا (کلید-دقیق)، نه میدان اپراتور/دیگ در هیچ بنا، نه میدان روغن/ریختن در هیچ یگان (مهندس equip خالی)، نه قاعده روغن در مرجع siege، نه موضع pour/oil، نه آستانه ۱/۳ دشمن. پین `t_oilop_row1160` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۴ تست تازه سینک؛ 581/581 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (behavioral/absence/divergence pin خالص؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.204.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1151/1156/1157/1160 → کامل. شمارش ماشینی: 390 کامل/30 ناقص/39 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 581 سبز در صفحه تازه + ۶/۶ ناهمگام (یک گیر میانی: کلیدهای STANCES حروف‌بزرگ‌اند — assertion اصلاح شد).
+
+## 0.203.0 (اکتبر 2026) — استخدام + نفوذ
+
+- **ردیف 481 (§9 — ناقص→کامل؛ C-UI-46):** شرط استخدام — سربازخانه + سلاح + طلا enforced (NO_BARRACKS/NEEDS_WEAPON/INSUFFICIENT) ولی دهقان آزاد لازم نیست (انحراف مستند). پین `t_hirecond_row481` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 868 (§18.1 — ناقص→کامل؛ C-UI-46):** هزینه استخدام — قاتل با پست مزدور فقط طلا می‌خواهد (✅ بی‌سلاح/بی‌غذا)؛ همان قاتل بی‌پست NEEDS_WEAPON؛ دهقان هم لازم نیست. پین `t_hirecost_row868` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 474 (§8 — انجام‌نشده→کامل؛ C-UI-46):** ورودی تونل — نه بنا، نه دستور حفر؛ موتور تونل نیست (1013). پین `t_tunnelent_row474` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 512 (§10 — ناقص→کامل؛ C-UI-46):** قاتل — قلاب/نامرئی ندارد (نه پرچم، نه قلاب در تجهیزات)؛ تصرف دروازه هست (110). پین `t_assassin_row512` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 649 (§12 — ناقص→کامل؛ C-UI-46):** مهندس — مهندس + انجمنش هستند؛ چادر/دکمه Siege Equipment نیست (1012/650). پین `t_engineer_row649` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۵ تست تازه سینک؛ 577/577 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (behavioral/absence/divergence/mixed pin خالص؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.203.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 481/868/474/512/649 → کامل. شمارش ماشینی: 386 کامل/32 ناقص/41 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 577 سبز در صفحه تازه + ۶/۶ ناهمگام (یک گیر میانی: حلقه regex روی `tunnelerguild` — محدود به کلیدهای دقیق شد).
+
+## 0.202.0 (اکتبر 2026) — کارگاه‌ها + قیر + والد دوربین
+
+- **ردیف 466 (§8 — انجام‌نشده→کامل؛ C-UI-45):** زره‌ساز — مرجع (۲۰ چوب + ۱۰۰ طلا + ۱ کارگر)؛ بنای جدا نیست — آهن‌کاری در armoury تجمیع شده (703/704). داده مرجع در `economy.buildingCosts`؛ پین `t_armourer_row466` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 467 (§8 — انجام‌نشده→کامل؛ C-UI-45):** آهنگر — مرجع (۲۰ چوب + ۲۰۰ طلا + ۱ کارگر)؛ بنای جدا نیست — شمشیر در armoury ساخته می‌شود (704). پین `t_blacksmith_row467` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 469 (§8 — انجام‌نشده→کامل؛ C-UI-45):** نیزه‌ساز — مرجع (۱۰ چوب + ۱۰۰ طلا + ۱ کارگر)؛ نه بنا، نه تولید نیزه/پیک (705: vacuous). پین `t_poleturner_row469` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 447 (§8 — انجام‌نشده→کامل؛ C-UI-45):** تجهیز قیر — مرجع (۲۰ چوب + ۱ کارگر، فقط باتلاق)؛ نه بنا، نه قیر (1017/696). پین `t_pitchrig_row447` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 1231 (§23 — ناقص→کامل؛ C-UI-45):** نمای دوربین — والد تجمیعی: کاشی ۲:۱ ایزومتریک + هر ۴ فرزند پین‌شده (rotate 158 vacuous + zoom 159 + peek 160 + flatten 161). پین `t_camera_row1231` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۵ تست تازه سینک؛ 572/572 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (absence/parent pin خالص؛ فقط ۴ ورودی مرجع به `buildingCosts` — sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.202.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 466/467/469/447/1231 → کامل. شمارش ماشینی: 381 کامل/36 ناقص/42 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 572 سبز در صفحه تازه + ۶/۶ ناهمگام.
+
+## 0.201.0 (اکتبر 2026) — هزینه بناهای §8
+
+- **ردیف 444 (§8 — ناقص→کامل؛ C-UI-44):** معدن آهن — مرجع (۲۰ چوب + ۲ کارگر)؛ sim (۱۵ چوب + ۱ کارگر) — واگرایی عمدی و مستند. داده مرجع تازه در `economy.buildingCosts`؛ پین `t_ironmine_row444` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 445 (§8 — ناقص→کامل؛ C-UI-44):** بازار — مرجع (۵ چوب + ۱ کارگر)؛ sim (۲۰ چوب + ۱۰ سنگ، بی‌نیاز از کارگر). پین `t_market_row445` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 448 (§8 — ناقص→کامل؛ C-UI-44):** معدن سنگ — مرجع (۲۰ چوب + ۳ کارگر)؛ sim (۱۵ چوب + ۱ کارگر). پین `t_quarry_row448` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 449 (§8 — ناقص→کامل؛ C-UI-44):** انبار — مرجع رایگان؛ sim (۲۰ چوب). پین `t_stockpile_row449` در `a11yCases`. sim دست‌نخورده.
+
+- **ردیف 450 (§8 — ناقص→کامل؛ C-UI-44):** چوب‌بری — مرجع (۳ چوب + ۱ کارگر)؛ sim (۱۵ چوب + ۱ کارگر — کارگر یکی است). پین `t_woodcutter_row450` در `a11yCases`. sim دست‌نخورده.
+
+- تست: ۵ تست تازه سینک؛ 567/567 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (divergence pin خالص؛ فقط داده مرجع به balance.json اضافه شد — sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.201.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 444/445/448/449/450 → کامل. شمارش ماشینی: 376 کامل/37 ناقص/46 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 567 سبز در صفحه تازه + ۶/۶ ناهمگام.
+
+## 0.200.0 (اکتبر 2026) — هندیکپ + ظرفیت + قلعه‌ساز + لابی
+
+- **ردیف 1105 (§18.5-ح — ناقص→کامل؛ C-UI-43):** هندیکپ — جدول مرجع (پله‌های ارتش/مالیات + طلای شروع ۲۰۰۰/۴۰۰۰/۸۰۰۰ و ۱۰k/۲۰k/۴۰k + حریف ۷۰۰۰/۳۰۰۰)؛ sim هندیکپ ندارد. پین `t_handicap_row1105` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1108 (§18.5-ح — ناقص→کامل؛ C-UI-43):** ظرفیت انبار — مرجع هر خانه (۴۸/۳۲/۱۶ + ۴ نوع)؛ sim سقف سراسری خودش را دارد (پایه ۵۰۰ + ۵۰۰/بنا — پین با انبار واقعی). پین `t_stockcaps_row1108` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 96 (§1.1 — انجام‌نشده→کامل؛ C-UI-43):** قلعه‌ساز — سولو همان ساخت آزاد است (حریف خاموش، موج صفر، پیروزی فقط با wave≥۵، بی‌مهلت) ولی کلید F1 نیست. پین `t_castlebuilder_row96` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 721 (§14.1 — انجام‌نشده→کامل؛ C-UI-43):** اخراج بازیکن — کارت‌های اتاق فقط نام/پرتره + پیوستن/تماشا/ادامه دارند؛ data-mydel فقط حذف «بازی خودم» است. پین `t_kick_row721` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 741 (§14.3 — انجام‌نشده→کامل؛ C-UI-43):** چت/Taunt — نه کنش، نه Enter/F-کلید، نه ورودی در DOM. پین `t_chat_row741` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 562/562 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (reference/vacuous/divergence/absence pin خالص؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.200.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1105/1108/96/721/741 → کامل. شمارش ماشینی: 371 کامل/42 ناقص/46 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 562 سبز در صفحه تازه + ۶/۶ ناهمگام.
+
+## 0.199.0 (اکتبر 2026) — شروع بازی + نشانه‌ها
+
+- **ردیف 725 (§14.2 — انجام‌نشده→کامل؛ C-UI-42):** گونه بازی — سه گونه مرجع (Normal/Crusader ‏۲٬۰۰۰، Deathmatch ‏۱۰٬۰۰۰+انبار)؛ sim گونه ندارد (نه gameType/mode، rules فقط ۳ گزینه 727-730). پین `t_gametype_row725` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 89 (§1.1 — انجام‌نشده→کامل؛ C-UI-42):** گونه اسکیرمیش — نگاشت نیروهای مرجع (Normal ‏۵+۷ ↔ هویت crusader از بند 104، عربی ↔ هویت arab؛ none بی‌نیرو)؛ طلای شروع sim ثابت ۶۰ و بی‌پله گونه است. پین `t_gametype_row89` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1107 (§18.5-ح — ناقص→کامل؛ C-UI-42):** منابع شروع — مرجع Normal (۱۰۰ چوب/۵۰ سنگ/۴۰ غذا)؛ sim کیت سندباکس خودش را دارد (۱۲۰/۴۰/۱۲۰/۶۰) — واگرایی عمدی و مستند. پین `t_startres_row1107` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 124 (§2 — ناقص→کامل؛ C-UI-42):** اهداف تاریخی — vacuous: کاتالوگ MISSIONS خالی است پس نمایش اهداف از منو بی‌مصداق است (نه پنل mission/objective در DOM)؛ زیرساخت validate/createRun/updateRun هست ولی سیم‌کشی نشده؛ قانون پایان در بند 126. پین `t_objectives_row124` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 148 (§3.1 — انجام‌نشده→کامل؛ C-UI-42):** آیکن‌های مینی‌مپ — divergence: ستاد ستاره طلایی دارد (MM_KEEP_STAR، نه دایره)؛ کلیک=پرش هست (147) ولی نشانگر ! و سپر گوینده نیستند (drawMinimap رویداد را نادیده می‌گیرد + هشدارها متنی‌اند). پین `t_icons_row148` در `a11yCases`. بدون کد محصول تازه (فقط import افزودنی MM_KEEP_STAR در tests.js).
+
+- تست: ۵ تست تازه سینک؛ 557/557 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (reference/vacuous/divergence pin خالص؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.199.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 725/89/1107/124/148 → کامل. شمارش ماشینی: 366 کامل/44 ناقص/49 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 557 سبز در صفحه تازه + ۶/۶ ناهمگام.
+
+## 0.198.0 (اکتبر 2026) — مرجع محاصره §18.3-ب + مزرعه گندم
+
+- **ردیف 1012 (§18.3-ب — ناقص→کامل؛ C-UI-41):** زمان چادر — زمان‌های مرجع (۱۰/۲۵/۲۵/۳۵/۴۰/۴۰ + مقیاس مهندس)؛ sim چادر ندارد. پین `t_tenttime_row1012` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1013 (§18.3-ب — انجام‌نشده→کامل؛ C-UI-41):** تونل مرجع — ۲۵ تایل/۰٫۵ tile/s/آتش ۳–۵s؛ sim تونل ندارد. پین `t_tunnelref_row1013` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1014 (§18.3-ب — انجام‌نشده→کامل؛ C-UI-41):** برج محاصره — گذر ۲نفر/s + محرومیت knight/horseArcher؛ sim برج محاصره ندارد. پین `t_siegetower_row1014` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1017 (§18.3-ب — انجام‌نشده→کامل؛ C-UI-41):** خندق قیر — مرجع ۱۰s/۲۰٪/تیر آتشین؛ sim قیر ندارد. پین `t_pitchditch_row1017` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1047 (§18.5 — ناقص→کامل؛ C-UI-41):** مزرعه گندم — مرجع ۲/رفت‌وبرگشت + ۲۴/چرخه؛ sim مدل خودش (۱/۲۰تیک). پین `t_wheatfarm_row1047` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 552/552 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (reference pin خالص؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.198.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1012/1013/1014/1017/1047 → کامل. شمارش ماشینی: 361 کامل/46 ناقص/52 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 552 سبز در صفحه تازه + ۶/۶ ناهمگام.
+- **تعمیر:** دو فلیپ قدیمی اشتباه‌جا (0.195.0/0.196.0) اصلاح شد — `t_blacksmith_row704`/`t_poleturner_row705` روی ردیف هزینه §8 (467/469) نشسته بودند؛ به ردیف نقش §9 (704/705) منتقل شدند؛ 467/469 به «انجام نشده» برگشتند (هزینه‌های کارگاه عمداً فرق دارند، پارک). شمارش بی‌تغییر (361).
+## 0.197.0 (اکتبر 2026) — مرجع نبرد §18.2 (بخش دوم)
+
+- **ردیف 924 (§18.2 — ناقص→کامل؛ C-UI-40):** مدل خسارت — قاعده مرجع دفترچه + ۳ کلاس زره + جدول‌های hitsToKill تیر (داده از قبل در balance.json)؛ sim مسیر خسارت خودش را دارد. پین `t_damage_row924` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 933 (§18.2 — ناقص→کامل؛ C-UI-40):** مدل ساده — فرمول شروع در damageRule.simpleModel ثبت است؛ sim جدول baseDamage/armorReduction ندارد. پین `t_simple_row933` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 961 (§18.2 — ناقص→کامل؛ C-UI-40):** اثر ارتفاع — پاداش برد ۲/۵/۸ + نصف خسارت از پایین (مرجع)؛ موتور بی‌ارتفاع است (زمین فقط کد تایل + یگان بی‌ارتفاع). پین `t_height_row961` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 963 (§18.2 — ناقص→کامل؛ C-UI-40):** جدول سرعت — سرعت مرجع ۱۰–۹۰ با پیش‌فرض ۴۰ + ۵ رتبه سرعت؛ سرعت‌های sim جدا هستند. پین `t_gamespeed_row963` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1152 (§18.2 — ناقص→کامل؛ C-UI-40):** تن‌به‌تن — ۳ ردیف جدول عین دفترچه (تعداد ضربه مهاجم برای کشتن هدف). پین `t_melee_row1152` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 547/547 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (reference pin خالص؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.197.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 924/933/961/963/1152 → کامل. شمارش ماشینی: 356 کامل/48 ناقص/55 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 547 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.196.0 (اکتبر 2026) — پایان حیات قلعه §9 + نشانگر 177
+
+- **ردیف 696 (§9 — انجام‌نشده→کامل؛ C-UI-39):** قیرکن — vacuous: نه بنای قیر/روغن در کاتالوگ است نه منبع قیر/روغن در sim (آینه غیبت `t_moatdraw_absence`). پین `t_pitchdigger_row696` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 705 (§9 — انجام‌نشده→کامل؛ C-UI-39):** نیزه‌ساز — vacuous: نه بنا هست نه تولید نیزه/پایک (ARMOURY_RES فقط آهن/شمشیر/کمان). پین `t_poleturner_row705` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 709 (§9 — انجام‌نشده→کامل؛ C-UI-39):** بازرگان — بازار کامل = ۱ بازرگان حاضر (آینه رفتار `t_market_trader`). پین `t_trader_row709` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 710 (§9 — انجام‌نشده→کامل؛ C-UI-39):** بازیگر سیار — نمایشگاه دوره‌ای ۱۵۰۰–۱۸۰۰ با پاداش +۴ (آینه رفتار `t_events`). پین `t_juggler_row710` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 177 (§۴ — انجام‌نشده→کامل؛ C-UI-39):** سرعت نشانگر — vacuous: prog صرفاً تیک‌محور است؛ محبوبیت فقط جهت/هاله می‌دهد نه سرعت (تیک یکسان + محبوبیت ۰/۱۰۰ → prog یکسان). پین `t_campfill_row177` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 542/542 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین vacuous/رفتاری؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.196.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 696/705/709/710/177 → کامل. شمارش ماشینی: 351 کامل/53 ناقص/55 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 542 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.195.0 (اکتبر 2026) — حیات قلعه §9 (سلاح‌سازان + ایمان)
+
+- **ردیف 702 (§9 — انجام‌نشده→کامل؛ C-UI-38):** کمان‌ساز — fletcher در کاتالوگ است؛ چوب را با ۱ کارگر به کمان تبدیل می‌کند. پین `t_fletcher_row702` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 703 (§9 — انجام‌نشده→کامل؛ C-UI-38):** زره‌ساز — armoury در کاتالوگ است و کار فلزی با آهن می‌کند (۲ آهن، ۱ کارگر). پین `t_armorer_row703` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 704 (§9 — انجام‌نشده→کامل؛ C-UI-38):** آهنگر — armoury شمشیر تولید می‌کند. پین `t_blacksmith_row704` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 707 (§9 — انجام‌نشده→کامل؛ C-UI-38):** کشیش — نمازخانه ۱ کشیش می‌خواهد؛ بدون کارگر تبرکی نیست، با کارگر تبرک کامل است (آینه رفتار `t_priest_bless`). پین `t_priest_row707` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 708 (§9 — انجام‌نشده→کامل؛ C-UI-38):** شفادهنده — عطاری کارا ۱ شفادهنده می‌سازد (آینه رفتار `t_apothecary_healer`). پین `t_healer_row708` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 537/537 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین presence/رفتاری؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.195.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 702/703/704/707/708 → کامل. شمارش ماشینی: 346 کامل/53 ناقص/60 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 537 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.194.0 (اکتبر 2026) — حیات قلعه §9 (ادامه ۲)
+
+- **ردیف 690 (§9 — انجام‌نشده→کامل؛ C-UI-37):** کشاورز — farm در کاتالوگ است و با ۱ کارگر غذا تولید می‌کند. پین `t_farmer_row690` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 693 (§9 — انجام‌نشده→کامل؛ C-UI-37):** مادران و نوزادان — vacuous: بنای hovel در کاتالوگ نیست و موجودیتی به این نام در sim نیست. پین `t_mothers_row693` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 697 (§9 — انجام‌نشده→کامل؛ C-UI-37):** پسر آسیاب — mill در کاتالوگ است؛ گندم را به آرد تبدیل می‌کند. پین `t_millboy_row697` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 700 (§9 — انجام‌نشده→کامل؛ C-UI-37):** مهماندار — میخانه ۱ مهماندار می‌خواهد؛ بدون کارگر سروی نیست، با کارگر+آبجو سرو می‌کند (آینه رفتار `t_innkeeper_required`). پین `t_innkeeper_row700` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 701 (§9 — انجام‌نشده→کامل؛ C-UI-37):** مست — بدون میخانه صفر؛ ۱ میخانه کارا = ۲ مست (آینه رفتار `t_drunkards`). پین `t_drunkard_row701` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 532/532 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین presence/vacuous/رفتاری؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.194.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 690/693/697/700/701 → کامل. شمارش ماشینی: 341 کامل/53 ناقص/65 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 532 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.193.0 (اکتبر 2026) — حیات قلعه §9 (ادامه)
+
+- **ردیف 692 (§9 — انجام‌نشده→کامل؛ C-UI-36):** کودکان — vacuous: نقش عملکردی ذکر نشده و موجودیتی به این نام در sim نیست. پین `t_children_row692` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 694 (§9 — انجام‌نشده→کامل؛ C-UI-36):** سنگ‌تراش — quarry در کاتالوگ است و با ۱ کارگر سنگ تولید می‌کند. پین `t_stonemason_row694` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 695 (§9 — انجام‌نشده→کامل؛ C-UI-36):** معدنچی آهن — ironmine در کاتالوگ است و با ۱ کارگر آهن تولید می‌کند. پین `t_ironminer_row695` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 698 (§9 — انجام‌نشده→کامل؛ C-UI-36):** نانوا — bakery در کاتالوگ است؛ آرد را با ۱ کارگر به غذا (نان) تبدیل می‌کند. پین `t_baker_row698` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 699 (§9 — انجام‌نشده→کامل؛ C-UI-36):** آبجوساز — brewery در کاتالوگ است و ale/beer برای inn تولید می‌کند (بنای inn هم در کاتالوگ است). پین `t_brewer_row699` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 527/527 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین presence/vacuous؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.193.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 692/694/695/698/699 → کامل. شمارش ماشینی: 336 کامل/53 ناقص/70 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 527 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.192.0 (اکتبر 2026) — حیات قلعه §9
+
+- **ردیف 688 (§9 — انجام‌نشده→کامل؛ C-UI-35):** چوب‌بر — بنا در کاتالوگ است و با ۱ کارگر چوب تولید می‌کند. پین `t_woodcutter_row688` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 689 (§9 — انجام‌نشده→کامل؛ C-UI-35):** شکارچی — پست شکار گوشت تولید می‌کند و گوشت جزو منابع انبارغذاست. پین `t_hunter_row689` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 691 (§9 — انجام‌نشده→کامل؛ C-UI-35):** دهقان — استخر کارگران (۴ نفر آغازین)؛ بیکاران کنار آتش‌اند (campGauge)؛ انحلال یگان دهقان را به استخر برمی‌گرداند. پین `t_peasant_row691` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 686 (§9 — انجام‌نشده→کامل؛ C-UI-35):** بانو — vacuous: دفترچه نقش عملکردی ذکر نمی‌کند و موجودیتی به این نام در sim نیست. پین `t_lady_row686` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 687 (§9 — انجام‌نشده→کامل؛ C-UI-35):** دلقک — vacuous: نقش عملکردی ذکر نشده و موجودیتی به این نام در sim نیست. پین `t_jester_row687` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 522/522 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین presence/vacuous؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.192.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 688/689/691/686/687 → کامل. شمارش ماشینی: 331 کامل/53 ناقص/75 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 522 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.191.0 (اکتبر 2026) — خوشه اقتصاد + غیبت ارباب AI
+
+- **ردیف 1022 (§18.5 — ناقص→کامل؛ C-UI-34):** مرجع «ماه» = ۶۰ ثانیه در سرعت پیش‌فرض ۴۰ (مقیاس‌پذیر با سرعت) + دقیقه sim ‏= ۶۰۰ تیک (TICK_HZ ‏۱۰، ساعت مأموریت)؛ سرعت‌های sim ‏[۱،۲،۴] با بازه دفترچه ‏۱۰–۹۰ فرق دارند (واگرایی مستند). پین `t_month_row1022` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1043 (§18.5 — ناقص→کامل؛ C-UI-34):** ضرایب جیره sim ‏(foodNum/۲) عیناً مرجع‌اند {۰،۰٫۵،۱،۱٫۵،۲}؛ ساختار فرق دارد (انباشت eatAcc با آستانه ۴۰۰ روی mouths = کارگران، نه جمعیت کل). پین `t_fooduse_row1043` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1044 (§18.5 — ناقص→کامل؛ C-UI-34):** مرجع ظرفیت ۲۵۰ (جامعه، از تخمین ۱۰۰۰/۴) + سقف sim: مبنای غذا ۵۰۰ + ۵۰۰ به‌ازای هر انبار (واگرایی مستند). پین `t_grancap_row1044` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1045 (§18.5 — ناقص→کامل؛ C-UI-34):** مرجع فروش هر واحد غذا ≈ ۴ (جامعه) + نرخ sim: خرید ۴ / فروش ۲ (واگرایی مستند). پین `t_foodsell_row1045` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 890 (§18.2 — انجام‌نشده→کامل؛ C-UI-34):** HP ارباب حریف AI بسته به نقاط قدرت — vacuous: حریف AI اربابی ندارد (startAI ارباب نمی‌سازد) و جدول HP ارباب AI در مرجع نیست (merit/power نمایشی بازیکن است). پین `t_ailord_row890` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 517/517 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین مرجع/vacuous؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.191.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1022/1043/1044/1045/890 → کامل. شمارش ماشینی: 326 کامل/53 ناقص/80 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 517 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.190.0 (اکتبر 2026) — مرجع نبرد §18.2 + دو غیبت
+
+- **ردیف 891 (§18.2 — انجام‌نشده→کامل؛ C-UI-33):** HP مرجع Black Monk ‏۳۰٬۰۰۰ (پیشنهاد fixup: برابر Pikeman کمتر) — reference pin در `balance.json` + ترتیب حفظ‌شده در مقیاس داخلی sim ‏(blackmonk ‏۷۰ < pikeman ‏۸۰). پین `t_blackmonk_row891` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 932 (§18.2 — ناقص→کامل؛ C-UI-33):** ارباب در sim هست + اعداد مرجع تیر (هر تیر Archer ≈ ۱۰۰ از ۱۵۰٬۰۰۰ HP، منبع جامعه)؛ مقیاس sim داخلی است ‏(lord ‏۱۵۰). پین `t_lordarrow_row932` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 962 (§18.2 — انجام‌نشده→کامل؛ C-UI-33):** فرمول دقت pHit + ۶ مقدار پایه (۰٫۷/۰٫۹/۰٫۴/۰٫۶/۰٫۹/۰٫۳۵) — reference pin در `balance.json`؛ ضربه sim قطعی است (بدون تاس miss). پین `t_accuracy_row962` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 158 (§3.2 — انجام‌نشده→کامل؛ C-UI-33):** چرخش ۹۰ درجه‌ای دوربین (X/C) — vacuous: نه کنش rotate، نه کلید X/C، نه میدان چرخش، نه دکمه در DOM؛ دوربین فقط پن/زوم است. پین `t_rotate_row158` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 506 (§9 — انجام‌نشده→کامل؛ C-UI-33):** «شخصیت مرموز» — vacuous: خود بند می‌گوید جزئیات در متن خراب PDF خوانا نیست + یگان مرموز در کاتالوگ نیست. پین `t_mystery_row506` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 512/512 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین مرجع/vacuous؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.190.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 891/932/962/158/506 → کامل. شمارش ماشینی: 321 کامل/57 ناقص/81 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 512 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.189.0 (اکتبر 2026) — پایان اعداد TA و مرجع فرمول امتیاز
+
+- **ردیف 1128 (§18.8 — انجام‌نشده→کامل؛ C-UI-32):** سرعت پرشدن نوار TA ≈ ۱۰ امتیاز/ثانیه (نوار پر ≈ ۱۲ دقیقه) — reference pin: سازگار با نوار ۷٬۰۰۰ (۷۰۰ ثانیه ≈ ۱۲ دقیقه) در `balance.json`. پین `t_tafill_row1128` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1129 (§18.8 — انجام‌نشده→کامل؛ C-UI-32):** طلای تصادفی Uncover Gold (۲۰۰–۱۰۰۰) + شعاع والی ≈ ۱۲ tile و مدت ۳–۵ ثانیه — reference pin در `balance.json`. پین `t_tavals_row1129` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 127 (§2 — انجام‌نشده→کامل؛ C-UI-32):** امتیازدهی بر اساس فراتررفتن از هدف اقتصادی (+) و تلفات نیرو (−)؛ فرمول عددی در دفترچه نیست پس وزن‌ها پیشنهادی‌اند — reference pin: فرمول + وزن‌ها در `balance.json`؛ امتیاز mission در sim سیم‌کشی ندارد (امتیاز نمایشی استادان جداست). پین `t_score_row127` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1122 (§18.7 — انجام‌نشده→کامل؛ C-UI-32):** ۲ جزء دفترچه‌ای فرمول (هدف اقتصادی + / تلفات −) + وزن‌های پیشنهادی α=100/β=0.5/γ=50 — reference pin. پین `t_scorecomp_row1122` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1123 (§18.7 — انجام‌نشده→کامل؛ C-UI-32):** قاعده Trail (زمان کل = مجموع زمان بازی‌های فتح‌شده؛ سریع‌تر ⇒ کمتر) — reference pin. پین `t_trail_row1123` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 507/507 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین مرجع؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.189.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1128/1129/127/1122/1123 → کامل. شمارش ماشینی: 316 کامل/58 ناقص/85 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ سوئیت 507 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.188.0 (اکتبر 2026) — خوشه Tactical Aid
+
+- **ردیف 772 (§16 — انجام‌نشده→کامل؛ C-UI-31):** نوار TA که با زمان پر می‌شود و قدرت باز می‌کند — vacuous: سامانه پیاده نشده (داده فقط مرجع در `balance.json`): نه میدان ta در state، نه نوار در DOM؛ مرجع ۷٬۰۰۰ + ۱۰/ثانیه سر جایش است. پین `t_tabar_row772` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 773 (§16 — انجام‌نشده→کامل؛ C-UI-31):** روشن‌شدن آیکن‌ها + کلیک آیکن/نقشه + کسر امتیاز + استفاده چندباره ارزان‌ها — vacuous: نه آیکن، نه فرمان TA، نه کیف امتیاز. پین `t_tause_row773` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 774 (§16 — انجام‌نشده→کامل؛ C-UI-31):** فهرست ۸ قدرت به ترتیب صعودی — vacuous: سامانه نیست؛ ترتیب مرجع ۸ هزینه در costs پین شد (۳۰۰→۵۰۸۸). پین `t_tapowers_row774` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1126 (§18.8 — انجام‌نشده→کامل؛ C-UI-31):** نوار کامل ۷٬۰۰۰ امتیاز + قدرت سنگ ۵٬۰۸۸ (منبع جامعه) — reference pin: هر دو در `balance.json` با منشأ community. پین `t_tabarpts_row1126` در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1127 (§18.8 — انجام‌نشده→کامل؛ C-UI-31):** ۸ هزینه به ترتیب صعودی دفترچه (۳۰۰/۶۰۰/۹۰۰/۱۲۰۰/۱۸۰۰/۲۵۰۰/۳۵۰۰/۵۰۸۸) — reference pin. پین `t_tacosts_row1127` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 502/502 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین/vacuous؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.188.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 772/773/774/1126/1127 → کامل. شمارش ماشینی: 311 کامل/58 ناقص/90 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ غیبت DOM نوار/پنل/آیکن TA؛ سوئیت 502 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.187.0 (اکتبر 2026) — میزکار ویرایش/باخت/پایان/فرمول‌ها
+
+- **ردیف 757 (§15 — ناقص→کامل؛ C-UI-30):** میزکار ویرایش — تجمیع بندهای 99/98 (0.186.0): ابزار منظره (قلم ۱..۳۲ + سید + بررسی قابل‌بازی‌بودن) + سازنده سناریو (سند سید+وصله + رفت‌وبرگشت JSON + بازی). پین `t_workbench_row757` (قلم‌ها + نسخه/سقف + نقاشی + رفت‌وبرگشت + قابل‌بازی‌بودن + باز/بسته میزکار) در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 128 (§2 — ناقص→کامل؛ C-UI-30):** باخت = مرگ Lord — سولو: هر ۳ مسیر `strike` → `defeated` + توقف + رویداد `game.ev.lordDead`؛ MP: فقط رویداد `lordDeadMp` (بازیکن N)، بدون حذف سراسری (حذف در `updateMpAlive`). اتمام زمان بی‌مصداق است (نه میدان timeLimit در state، نه گونه زمان‌دار در `MISSION_KINDS`، کاتالوگ `MISSIONS` خالی). کد: `export` آزمون‌پذیری `strike` در combat.js (رفتار بی‌تغییر). پین `t_lose_row128` (کیل واقعی ارباب سولو/MP + رویدادها + غیبت زمان + بنرهای شکست/پیروزی) در `a11yCases`.
+
+- **ردیف 126 (§2 — ناقص→کامل؛ C-UI-30):** پایان = همه اهداف done — قانون `updateRun` (جزئی = active می‌ماند، همه = done + doneTick) + نمایش امتیاز (ثبت خودکار پایان سولو در استادان + صفحه masters). نمایش اهداف مأموریت تاریخی از منو (بند 124) پارک است. پین `t_alldone_row126` (جزئی/active + کامل/done + ترتیب امتیاز برد/باخت + رکورد + صفحه) در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1178 (§19.5 — ناقص→کامل؛ C-UI-30):** شکست/تایمر — تجمیعی: شکست = بند 128 (همین نسخه)، تایمر تک‌نفره بعد از Keep+Granary = بند 130 (`clockReady`/`clockText` + `mclockEl`؛ MP از آغاز مسابقه، از 0.182.0). پین `t_defeatclock_row1178` (۴ حالت clockReady + قالب ساعت + مبنای شکست‌نخورده + mclock) در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1250 (§22.2 — ناقص→کامل؛ C-UI-30):** فرمول‌های واحد — محبوبیت (`popTarget`)، مالیات (`TAX`/`TAX_IDS` — ۱۲ پله)، جیره (`RATIONS`/`RATION_IDS` — ۵ سطح)، میخانه (`innBonus`)، مذهب (`religionBonus`)، ترس (`fearLevel`/`fearPop`)، رشد جمعیت (`MIG_PERIOD`/`IMM_IN`/`IMM_OUT` + `campGauge`) + خلاصه سیاست و پنل‌های کاتب (بند 165) — همه خالص و نمایشی. پین `t_formulas_row1250` در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۵ تست تازه سینک؛ 497/497 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین/vacuous + یک export بی‌اثر؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.187.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 757/128/126/1178/1250 → کامل. شمارش ماشینی: 306 کامل/58 ناقص/95 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ بنرهای شکست/پیروزی + دکمه‌ها + ساعت مأموریت + صفحه استادان + باز/بسته ویرایشگر؛ سوئیت 497 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.186.0 (اکتبر 2026) — تخت Space/ویرایشگر/سناریوی سفارشی/آموزش
+
+- **ردیف 161 (§۳.۲ — ناقص→کامل؛ C-UI-29):** تخت‌کردن با Space + تکرار = برگشت — رفتار از بند 1141 (`keyMap.flat` + `applyFlat` + remap)؛ «توصیه هنگام ساخت» دفترچه الزام اجرایی ندارد (مستند در `ui.help.g3` fa/en شامل Space). پین `t_flat_row161` (کنش + پیش‌فرض Space + برچسب دوزبانه + g3 شامل Space + تاگل رفت‌وبرگشتی Space با بازگردانی) در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 99 (§۱.۱/بخش ۱۵ — ناقص→کامل؛ C-UI-29):** ویرایشگر نقشه — پنل کامل از قبل: ۵ دکمه تایل (`edTileRow`: چمن/آب/سنگ/واحه/پاک‌کن) + قلم ۱..۳۲ (`BRUSHES` + `edBrushSel`) + نام/سید + ساخت از سید + بررسی قابل‌بازی‌بودن + آزمایش/ذخیره + پاک‌کردن/خروج + خروجی/ورودی JSON + کلیدهای ۱-۴/E/+/- (بند 759) + یادداشت اشتراک (بند 761). پین `t_mapeditor_row99` (قلم‌ها + نسخه/سقف سند + همه دکمه‌ها/ورودی‌ها در DOM + باز/بسته رفت‌وبرگشتی) در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 98 (§۱.۱ — ناقص→کامل؛ C-UI-29):** سناریوی سفارشی — ساخت (سند سید+وصله: `createMapDoc` + `paintCells`) و بازی (قابل‌بازی‌بودن واقعی `validatePlayable` + ذخیره/ری‌پلی نقشه سفارشی از قبل) نقشه خودت. پین `t_customscen_row98` (ساخت + نقاشی + رفت‌وبرگشت JSON + سید خالص قابل‌بازی + ۴ دکمه ویرایشگر) در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 101 (§۱.۱ — ناقص→کامل؛ C-UI-29):** آموزش مفاهیم پایه — ۱۲ راهنمای `ui.help.g1..g12` در کارت راهنما (fa/en، هرکدام ۴۰+ نویسه + پاراگراف DOM): منو/تک‌نفره/چندنفره/ساخت/بازار/سقف/حریف/نقشه‌ساز/مینی‌مپ/سلاح/برج/اشتراک. پین `t_tutorial_row101` (۱۲ کلید دوزبانه + کارت + دکمه‌ها + ۱۲ پاراگراف DOM) در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۴ تست تازه سینک؛ 492/492 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (UI-side + پین؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.186.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 161/99/98/101 → کامل. شمارش ماشینی: 301 کامل/63 ناقص/95 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ تاگل Space رفت‌وبرگشت (تخت→سه‌بعدی→تخت) + باز/بسته ویرایشگر + هر ۱۲ راهنما پر (کمینه ۱۴۸ نویسه) + همه دکمه‌های ویرایشگر؛ سوئیت 492 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.185.0 (اکتبر 2026) — گزینه‌ها/منو/شیلدهای دسته
+
+- **ردیف 731 (§۱۸.۵-ح — ناقص→کامل؛ C-UI-28):** سه گزینه اتاق — Extreme Mode/TA بی‌مصداق است (بند 116: فقط مرجع در `balance.json`)؛ سرعت بازی (بند 117: `SPEEDS` ‏[۱،۲،۴] + دکمه + کلید +/−) و ذخیره خودکار (بند 117: سلکت خاموش/۳۰ثانیه/۲دقیقه/۵دقیقه + ماندگاری + گیت حلقه) از قبل پیاده‌اند. پین `t_options_row731` (مرجع‌بودن TA + پله‌های سرعت + اعتبار/سررسید autosave + دکمه سرعت + ۴ گزینه سلکت) در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 138 (§۳.۱ — ناقص→کامل؛ C-UI-28):** نوار پالت ساختمان + ۶ دکمه دسته (سپر) — داده ۶ دسته (`BUILDING_CATEGORIES`) بود ولی پالت تخت بود. کد: نوار `#catShields` (۶ دکمه `data-cat` + برچسب fa/en تازه `ui.cat.*`) + فیلتر نمایشی (`paintCatShields`: `hidden` روی کارت‌ها؛ کلیک = فقط همان دسته، کلیک دوباره = همه) + ماندگاری `scw.catchield` + سیم‌کشی از `BUILDING_CATEGORIES` (بدون تکرار لیترال). تست `t_catshields_row138` (۶ دسته + پوشش بنا + برچسب دوزبانه + ترتیب شیلدها + فیلتر/برگشت خودتمیزشونده) در `a11yCases`.
+
+- **ردیف 118 (§۱.۳ — ناقص→کامل؛ C-UI-28):** پنج فرمان منوی دفترچه — Help (کارت راهنما + `navHelp`) + Restart (`resetBtn`/`defeatRestartBtn`) + Quit (`menuBtn`→`showMenu`؛ بازی پشت منو متوقف می‌ماند) + Exit (`replayExitBtn`/`edExitBtn`/`showMenu`) + Resume (`menuCloseBtn`) — هر پنج از قبل پیاده بودند. پین `t_menu_row118` (۷ دکمه در DOM + باز/بسته رفت‌وبرگشتی راهنما + منو) در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۳ تست تازه سینک؛ 488/488 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (UI-side + پین؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.185.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 731/138/118 → کامل. شمارش ماشینی: 297 کامل/67 ناقص/95 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ ۶ شیلد با برچسب فارسی + فیلتر town=۱۶ کارت از ۵۰ + برگشت به ۵۰ + پاک‌شدن نشست؛ سوئیت 488 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.184.0 (اکتبر 2026) — کلیدهای قابل‌تغییر/زبان-RTL/دسترس‌پذیری
+
+- **ردیف 1234 (§۲۲ — ناقص→کامل؛ C-UI-27):** کلیدهای قابل‌تغییر + موس/کیبورد/لمسی — از ۱۳ کنش `KEY_ACTIONS` فقط ۱۲ دکمه remap در DOM بود (کنش sign بی‌دکمه)؛ کد: افزودن `keySignBtn` (سیم‌کشی `paintKeyButtons`/ضبط ژنریک، بدون منطق تازه). موس (کلیک/درگ/چرخ بوم) و لمسی (پینچ/لمس‌طولانی) از قبل با `gestureCases`. پین `t_hotkeys_row1234` (۱۳ پیش‌فرض معتبر + برچسب fa/en + ۱۳ دکمه DOM + رفتار ضبط/انصراف-Esc/remap واقعی با برگرداندن) در `a11yCases`.
+
+- **ردیف 1235 (§۲۲ — ناقص→کامل؛ C-UI-27):** زبان و RTL — از قبل پیاده بود: رشته‌ها خارج کد (`lang/*.js` + `data-i18n`) + فونت پشتیبان فارسی (Vazirmatn خودمیزبان + Tahoma در `--font-fa`، سوئیچ `:root[lang]`) + `document.dir` از `setLang` + نقشه LTR (بوم) و `e.code` لاتین مستقل از چیدمان. پین `t_i18n_row1235` (۸ کلید دوزبانه + لاتین‌بودن هر ۱۳ پیش‌فرض + لینک fonts.css + Vazirmatn محاسباتی + گرد `fa→rtl/en→ltr` با بازگردانی) در `a11yCases`. بدون کد محصول تازه.
+
+- **ردیف 1236 (§۲۲ — ناقص→کامل؛ C-UI-27):** دسترس‌پذیری — از قبل پیاده بود: ۴ گزینه پالت کوررنگی (سلکت پرشده با JS از `A11Y_PALETTES`) + مقیاس ۱۰۰/۱۲۵/۱۵۰ (`A11Y_SCALES` + zoom روی `#app`) + زیرنویس (هر ۶ هشدار مشاور متن fa/en در `warnEl`؛ موتور صدا گفتار ندارد — `say` پیام متنی است). پین `t_a11y_row1236` (پله‌های مقیاس + ۶ متن دوزبانه + ۴ گزینه پالت + ۳ گزینه مقیاس + `warnEl`) در `a11yCases`. بدون کد محصول تازه.
+
+- تست: ۳ تست تازه سینک؛ 485/485 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (UI-side + پین؛ sim/هش/ذخیره دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.184.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1234/1235/1236 → کامل. شمارش ماشینی: 294 کامل/70 ناقص/95 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ دکمه تازه sign با برچسب «لبه‌های نقشه (تابلوی راهنما): KeyS» + کلیک=«کلید را بزن…» + Esc=بازگشت؛ سلکت پالت ۴ گزینه + مقیاس ۳ گزینه؛ سوئیت 485 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.183.0 (اکتبر 2026) — شروع انبارغذا/تحویل مرکزی/غنیمت حذف
+
+- **ردیف 175 (§۴ — انجام‌نشده→کامل؛ C-UI-26):** با ساخت Granary غذای اولیه به آن منتقل می‌شود و بازی شروع می‌شود — نگاشت معماری: غذای آغازین ۱۲۰ از تیک ۰ در مخزن مرکزی است (انتقال بی‌مصداق)؛ انبارغذا سقف غذا ۵۰۰→۱۰۰۰ می‌برد؛ «شروع بازی» = آماده‌شدن ساعت (Keep+Granary، بند ۱۳۰). پین ترکیبی `t_granary_start_row175` (غذا ۱۲۰ + سقف ۵۰۰/۱۰۰۰ + clockReady ناآماده/آماده) در `econCases`. بدون کد محصول تازه.
+
+- **ردیف 1070 (§کار/حمل — انجام‌نشده→کامل، vacuous؛ C-UI-26):** کارگر نزدیک‌ترین stockpile/granary/armoury را برای تحویل انتخاب می‌کند — در موتور نیست: تولید مستقیم در مخزن مشترک می‌نشیند؛ هیچ بنایی فیلد مقصد تحویل (deliverTo/dropAt/targetStock) ندارد؛ فاصله انبار بی‌اثر. پین `t_delivery_no_target_row1070` (سود یکسان با/بی انبار مجاور + غیبت کلیدها) در `econCases`. سابقه vacuous: بندهای 424/116/242-243. بدون کد محصول تازه.
+
+- **ردیف 129 (§۲ — انجام‌نشده→کامل، vacuous؛ C-UI-26):** برد مشترک در حالت اتحاد MP — حالت اتحاد/تیم در موتور نیست (state.mp خالص FFA) پس برد مشترک بی‌مصداق است؛ قانون: آخرین بازمانده (updateMpAlive). پین `t_alliance_absence_row129` (غیبت فیلدهای team/allies/alliance + حذف p2 در بازی ۳نفره = ادامه بدون برد مشترک) در `mpCases`. بدون کد محصول تازه.
+
+- **ردیف 871 (§۱۸.۱ — انجام‌نشده→کامل؛ C-UI-26):** حذف Lord حریف → طلا و بخشی از انبار به برنده — `lootEliminated(state, slot)` در mp.js + هوک در `updateMpAlive` روی گذار alive→dead (دوپاسه): طلای کامل + نصفِ کفِ هر کالای مثبت دیگر، تقسیم مساوی بین بازماندگان (باقیمانده به کمترین اسلات) با سقف capFor + رویداد `game.ev.loot` (fa/en). فقط MP (سولو حریف lordدار ندارد). تست `t_mp_loot` (۲نفره: ۱۰۰طلا/۲۵چوب/۳سنگ + رویداد؛ ۳نفره: ۵/۵ + ۲/۲ + قطعیت هش) در `mpCases` + سطر numbers-registry (guess).
+
+- تست: ۴ تست تازه سینک؛ 482/482 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (pin/vacuous + sim محدود به گذار حذف که هیچ سناریویی نمی‌رسد؛ ذخیره/ری‌پلی دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.183.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 175/1070/129/871 → کامل. شمارش ماشینی: 291 کامل/73 ناقص/95 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ غنیمت زنده در startLocal دونفره (+۱۰۰ طلا/+۲۵ چوب + رویداد «غنیمت بازیکن ۲...»)؛ سوئیت 482 سبز در صفحه تازه + ۶/۶ ناهمگام.
+## 0.182.0 (اکتبر 2026) — دیوار کوتاه/استادان نبرد/ساعت مأموریت
+
+- **ردیف 111 (§1.2 — انجام‌نشده→کامل؛ C-UI-25):** دیوار کوتاه جای دیوار چوبی + برج دیده‌بانی — از 0.155.0 پیاده است (lowwall جان ۲۴/۱چوب/مستحکم + بی‌دیوارچوبی در کاتالوگ + lookout ‏۱۰سنگ/سقف ۵/کماندار-بله-محاصره-نه + پالت ساخت). پین `t_lowwall_row111` (کاتالوگ + بی‌چوبی + چسبیدگی + DOM پالت) در `wallCases`. بدون کد محصول تازه.
+
+- **ردیف 102 (§1.1 — انجام‌نشده→کامل؛ C-UI-25):** Skirmish Masters — صفحه `masters` در منو (ناوبری + ۴ دکمه سورت امتیاز/نام/زمان/تاریخ + شمار + فهرست) + منطق خالص `masters.js` (امتیاز guess: برد ۱۰۰۰+max(۰،۶۰۰−ثانیه)، باخت max(۰،۴۰۰−ثانیه)؛ سقف ۲۵۰؛ سورت پایدار؛ حذف) + ماندگاری localStorage (`scw.masters.v1` با پشتیبان‌گیری در تست) + ثبت خودکار پایان سولوی زنده در تیک‌هوک (قلاب `tickViewHooks` مشترک حلقه زنده و `ff` آزمایشی) + تست‌ها `t_masters`/`t_masters_store`/`t_masters_ui` در `mastersCases`.
+
+- **ردیف 130 (§2 — انجام‌نشده→کامل؛ C-UI-25):** ساعت مأموریت — `clockReady`/`clockText` خالص در `missions.js` (آمادگی = Keep+Granary سالم خودی؛ قالب mm:ss از تیک) + `mclockEl` در نوار بالا (`--:--` تا آمادگی؛ در MP از آغاز مسابقه) + همان `tickViewHooks` (view-side خالص، بی‌اثر بر sim/هش/ذخیره/ری‌پلی) + تست `t_mission_clock` (آمادگی/ویرانه/نیمه‌کاره/بیگانه + قالب + DOM) در `missionCases`.
+
+- تست: ۵ تست تازه سینک + به‌روزرسانی پین‌ها (`t_tooltips_all`: ۵ دکمه بازگشت؛ `t_redfootprint_row153`: بوم ۹۶×۷۲ جداشده + نگهبان skip محیطی)؛ 478/478 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (پین + خالص/UI-side؛ sim/هش/ذخیره/ری‌پلی دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.182.0، هش بی‌تغییر).
+
+- درس ابزار: readback بوم‌های ≥۱۲۸px در صفحه hidden شفاف است (محدودیت محیطی، نه باگ کد) — تست‌های پیکسلی روی بوم کوچک جداشده (<۱۲۸px) + نگهبان skip؛ `ff` حالا `tickViewHooks` را صدا می‌زند (آینه کامل حلقه زنده).
+
+- **فلیپ‌ها:** ردیف‌های 111/102/130 → کامل. شمارش ماشینی: 287 کامل/73 ناقص/99 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ صفحه استادان (۴ سورت فارسی + شمار)؛ ساعت زنده (--:-- ← 00:00 ← 01:00 پس از انبار)؛ سوئیت 478 سبز در صفحه + ۶/۶ ناهمگام.
+## 0.181.0 (اکتبر 2026) — پین تصرف/timeline/ردپا + غیبت TA + بوق مشاور
+
+- **ردیف 110 (§1.2 — انجام‌نشده→کامل؛ C-UI-24):** «رساندن واحد به بالای gatehouse آن را تصرف می‌کند» — از 0.158.0 پیاده است (`stepGateCapture`: یگان پیاده زنده روی ردپا = تصرف؛ مجاورت = حمله). پین `t_gatecapture_row110` (جمله دفترچه: شمشیرزن دشمن روی ردپا → مالک 9 + باز؛ سرباز خودی → بازپس‌گیری 0) در `cases158`. بدون کد محصول تازه.
+
+- **ردیف 125 (§2 — انجام‌نشده→کامل؛ C-UI-24):** timeline نابودی همه دشمنان — نوار خط موج‌ها (`waveTimelineEl` کنار `waveBtn`، از 0.149.0): موج‌ها دستی‌اند پس شمارش‌معکوس نداریم؛ نوار پیشرفت ۱..۵ + نشان پایان آخرین حمله (`final`) را می‌دهد. پین `t_timeline_row125` (خلوص + نام دوزبانه + DOM) در `cases149`. بدون کد محصول تازه.
+
+- **ردیف 116 (§1.3 — انجام‌نشده→کامل، vacuous؛ C-UI-24):** تاگل Extreme Mode برای نوار TA — سامانه Tactical Aid پیاده نشده (داده‌اش فقط مرجع در `balance.json` می‌ماند) پس تاگل بی‌مصداق است: نه نوار، نه تاگل، نه حالت extreme در state/قوانین. پین `t_extreme_ta_absence` (مرجع ۷٬۰۰۰ + extreme ‏۱۰٬۰۰۰ سر جایشان؛ غیبت DOM). سابقه vacuous: بند 424 (0.169.0).
+
+- **ردیف 153 (§3.1 — ناقص→کامل؛ C-UI-24):** پیش‌نمایش قرمز footprint — پیاده بود (ردپای ساختمان + خانه‌به‌خانه خط دیوار با رنگ اعتبار)؛ پین تفاضلی پیکسلی `t_redfootprint_row153` در `sysCases` (همان صحنه دوبار: معتبر/نامعتبر؛ شمار پیکسل مایل‌به‌قرمز نامعتبر بیشتر — ساختمان و خط دیوار). بدون کد محصول تازه.
+
+- **ردیف 166 (§3.3 — انجام‌نشده→کامل؛ C-UI-24):** اعلان صوتی مشاور برای مشکلات — `warnAlarmKeys(prevKeys, warnings)` خالص در advisor.js (فقط کلیدهای تازه) + سیم‌کشی در `paintWarnLine` (بوق `sound.ack("alarm")` با edge-trigger روی مجموعه کلیدها؛ تکرار هشدار = سکوت، رفع‌وبرگشت = بوق دوباره) + تست `t_advisor_alarm` (تازه/تکرار/افزوده/رفتن/تهی + قحطی واقعی و سکوت فریم بعد) در `advisorCases`. تفسیر ثبت‌شده: دفترچه «گفتار» مشاور را می‌گوید؛ معادل پیاده‌شده = بوق هشدار + همان متن در خط هشدار (بدون TTS/دارایی صوتی).
+
+- تست: ۵ تست تازه سینک؛ 473/473 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (۳ پین + ۱ vacuous + ۱ خالص/UI-side؛ sim/هش/ذخیره/ری‌پلی دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.181.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 110/125/116/153/166 → کامل. شمارش ماشینی: 284 کامل/73 ناقص/102 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ نوار timeline کنار دکمه موج؛ warnEl با قحطی واقعی + بوق (بدون خطا)؛ ردپای قرمز/سبز پیکسلی؛ سوئیت 473 سبز در صفحه + ۶/۶ ناهمگام.
+
+## 0.180.0 (اکتبر 2026) — گونه‌های مأموریت + ارزش سپاه/نقاط قدرت + کلیدهای ادیتور/یادداشت اشتراک
+
+- **ردیف 1177 (§19.5 — ناقص→کامل؛ C-UI-23):** ۵ گونه هدف تازه مأموریت — `killAllEnemies` (بی‌پارامتر: نبود دشمن زنده)، `population` (count: جمعیت ≥ N)، `popularity` (amount: محبوبیت ۰–۱۰۰ با خطای تازه `BAD_POP`)، `captureGatehouse` (بی‌پارامتر: دروازه ایستاده خودی — دروازه‌ها با `stepGateCapture` مالکیت عوض می‌کنند پس دروازه خودی = در کنترل)، `keepLordAlive` (بی‌پارامتر: ارباب زنده غیر-دشمن) — بقیه فهرست ردیف از قبل بودند (survive=tick، reach=resource، build=haveBuilding). `missionSnap(state)` خالص: اسنپ‌شات از وضعیت زنده (population = یگان زنده + استخر کارگران، guess مستند) + تست `t_mission_kinds2` (ثبت گونه‌ها + سند معتبر/۵ رد + اجرای همه-done/هیچ-done + اسنپ‌شات/تهی) در `missionCases`. بدون سیم‌کشی در sim (کاتالوگ `MISSIONS` همچنان خالی).
+
+- **ردیف 1112 (§18.7 — انجام‌نشده→کامل؛ C-UI-23):** ارزیابی با ستون خرید = `armyValue(list)` خالص در combat.js (Σ `soldierValue` یگان‌های زنده؛ مرده/ناشناخته = ۰؛ ارباب فقط ارزش زره mail = ۱۰) + تست `t_army_value` (۷۲ = ۵۷+۱۰+۵؛ ۱۴۲ = ۶۲+۸۰؛ تهی = ۰) در `sysCases`. مصرف: نمایش قدرت merit (ردیف 745).
+
+- **ردیف 745 (§10.5 — انجام‌نشده→کامل؛ C-UI-23):** قدرت با نقاط رنگی روی جدول افتخار — `powerTier(v)` خالص در advisor.js (۵ پله با آستانه guess [150, 400, 800, 1400] ثبت در numbers-registry + رنگ هر پله) + `meritRows` ستون `power` (سولو/MP/AI) + ستون قابل‌سورت power (پیش‌فرض سورت سپاه می‌ماند) + رندر نقطه‌ها با `title` مقدار در گزارش کاتب + کلیدهای `main.scribe.merit.power` در fa/en + تست `t_merit_power` (مرزهای ۵ پله + سطرها + سورت) + راستی‌آزمایی زنده (نقطه‌ها + کلیک سورت قدرت).
+
+- **ردیف 759 (§15 — انجام‌نشده→کامل؛ C-UI-23):** کلیدهای ادیتور — وقتی ویرایشگر باز است و فوکس روی ورودی/دکمه نیست: ۱–۴ = چمن/آب/سنگ/واحه، E = پاک‌کن، +/− = چرخه اندازه قلم `BRUSHES` (شنونده جدا؛ شاخه‌های هندلر اصلی همگی در ویرایشگر برمی‌گردند، بی‌تداخل) + مستند در `ui.editor.hint` (fa/en + index) + تست DOM `t_editor_keys` (بازکردن واقعی ویرایشگر + سنگ/E/قلم + بستن با Esc + finally اطمینان).
+
+- **ردیف 761 (§15 — انجام‌نشده→کامل؛ C-UI-23):** یادداشت مجوز در خود ویرایشگر (نقطه اشتراک) — `ui.editor.shareNote` در fa/en + div زیر دکمه‌های خروجی/ورودی + تست `t_ed_share` (کلید دوزبانه + DOM). متمایز از g12 راهنما (0.179.0) که حکم کلی را می‌گوید؛ این یکی سر نقطه خروجی است.
+
+- تست: ۵ تست تازه سینک؛ 468/468 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (همه خالص/UI-side؛ sim/هش/ذخیره/ری‌پلی دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.180.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 1177/1112/745/759/761 → کامل. شمارش ماشینی: 279 کامل/74 ناقص/106 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ جدول افتخار با ستون قدرت + نقطه‌ها + سورت قدرتی؛ ویرایشگر (بازشدن + hint/shareNote + کلید ۳/E + بستن)؛ سوئیت 468 سبز در صفحه + ۶/۶ ناهمگام. درس ابزار: splice با لنگر return تکراری داخل تابع اشتباه نشست — جابه‌جایی به انتهای واقعی تابع + acorn.
+
+## 0.179.0 (اکتبر 2026) — پین Play Options/ری‌پلی + نمای تخت Space/Peek + یادداشت اشتراک
+
+- **ردیف 726 (§14.2 — انجام‌نشده→کامل؛ C-UI-22):** سربرگ «Play Options» — هر ۴ فرزندش کامل‌اند (727 StrongWalls در 0.148.0، 728/729 در 0.178.0، 730 NoRush در 0.149.0) و منطق هر گزینه با تست خودش پوشش دارد. پین `t_playoptions_all` (DOM: هر ۴ چک‌باکس `mpNoCowInput/mpStrongWallsInput/mpNoDogsInput/mpNoRushInput` + لیبل دوزبانه `ui.mp.*`).
+
+- **ردیف 1210 (§21.2 — ناقص→کامل؛ C-UI-22):** ری‌پلی «ذخیره seed + فرمان‌ها (ابزار تست هم هست)» — اسلات localStorage + راستی‌آزمایی ناهمگام + تماشا + ری‌پلی مرجع، همه با تست پوشش دارند (`t_replay_slot`/`t_replay_verify_async`/`t_replay_roundtrip`/ارجاع). پین `t_replay_ui` (DOM: دکمه‌های `replaySaveBtn/replayWatchBtn/replayExitBtn` + متن وضعیت + کلیدهای دوزبانه `main.replay.*`).
+
+- **ردیف 1141 (§18.8 — ناقص→کامل؛ C-UI-22):** «Space کل نمایش را تخت می‌کند (فقط نما)» — کنش تازه `flat` با پیش‌فرض Space (قابل remap + دکمه در کارت دسترس‌پذیری) + تاگل `applyFlat(!isFlat())` با همان گارد INPUT/BUTTON شنونده اصلی (Space روی دکمه فوکوس‌شده دو عمل نمی‌کند) + تست خالص `t_flat_key` (پیش‌فرض/نشست قدیمی/remap/نامعتبر/لیبل دوزبانه) و تست DOM `t_flat_space` (رفت‌وبرگشت Space روی دکمه) + جمله راهنما در `ui.help.g3` (fa/en).
+
+- **ردیف 160 (§3.2 — انجام‌نشده→کامل؛ C-UI-22):** «Peek … (کلید V)» — نگه‌داشتن V = تخت لحظه‌ای: `applyFlat(true, {temp:true})` ذخیره `scw.flat` را دست نمی‌زند ولی لیبل دکمه را می‌نقشد (سیگنال DOM)؛ `keyup` به `storedFlat()` برمی‌گردد. کنش `peek` با پیش‌فرض KeyV (قابل remap) + تست DOM `t_peek_hold` (نگه‌دار/رها) + پوشش خالص در `t_flat_key` + جمله راهنما در `ui.help.g3`.
+
+- **ردیف 1259 (§23 — انجام‌نشده→کامل؛ C-UI-22):** قانون اشتراک مأموریت/نقشه (بازی مجاز، تجاری ممنوع) — پاراگراف تازه `ui.help.g12` در fa/en + index.html + تست `t_share_note` (کلید دوزبانه + DOM) + راستی‌آزمایی زنده در راهنما.
+
+- تست: ۶ تست تازه سینک؛ 463/463 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (همه UI-side خالص؛ sim/هش/ذخیره/ری‌پلی دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.179.0، هش بی‌تغییر).
+
+- **فلیپ‌ها:** ردیف‌های 726/1210/1141/160/1259 → کامل. شمارش ماشینی: 274 کامل/75 ناقص/110 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای شناخته‌شده اسپرایت)؛ Space/V در بازی واقعی (تاگل + نگه‌دار/رها روی لیبل دکمه)؛ دکمه‌های remap تخت/نگاه با Space/KeyV؛ یادداشت g12 در راهنما؛ ۴ چک‌باکس اتاق + دکمه‌های ری‌پلی؛ سوئیت 463 سبز در صفحه + ۶/۶ ناهمگام.
+
+## 0.178.0 (اکتبر 2026) — پین گزینه‌های اتاق + ارزش سرباز + ذخیره بانام
+
+- **ردیف 728 (§14.2 — انجام‌نشده→کامل؛ C-UI-21):** گزینه اتاق «No Cow Throwing» — از قبل کامل سرهم بود (چک‌باکس `mpNoCowInput` در کارت MP + `lobby.create({noCow})` + گیت NOCOW در `fireCow`/آینه sim + ذخیره/هش از 0.147.0). پین `t_nocow_opt` (DOM: چک‌باکس + لیبل دوزبانه `ui.mp.noCow`).
+
+- **ردیف 729 (§14.2 — انجام‌نشده→کامل؛ C-UI-21):** گزینه اتاق «No Dogs» — از قبل کامل (چک‌باکس `mpNoDogsInput` + create + گیت NODOGS در `validateRelease`/`tryPlace` + پوشش `t_wardogs` از 0.149.0). پین `t_nodogs_opt` (DOM دوزبانه).
+
+- **ردیف 869 (§18.6 — انجام‌نشده→کامل؛ C-UI-21):** ارزش یک سرباز (برای ارزیابی) = طلای پرداختی (مزدور: mercGold وگرنه goldCost) + Σ قیمت خرید تجهیزات + قیمت خرید زره (نگاشت guess: none=۰، leather=چرم، mail/plate=آهن؛ ثبت در numbers-registry) — `soldierValue(type)` خالص در combat.js (ناشناخته = null) + نمایش «ارزش: N طلا» در `unitMeta` کارت استخدام (کلید `main.meta.value` در fa/en) + تست `t_soldier_value` (۷ نمونه: زوبین‌دار ۶۲ + همه یگان‌ها عددی). مثال مرجع (۲۰طلا) با goldCost پیاده‌شده ما (۳۰) می‌شود ۶۲.
+
+- **ردیف 114 (§1.3 — ناقص→کامل؛ C-UI-21):** Save بانام/Load — persist: `validSaveName` (۱–۲۴ نویسه) + `namedSlotKey` + `listNamedSaves` (هرس خودکار ورودی بی‌اسلات) + `saveNamed`/`loadNamed`/`deleteNamed` با ایندکس `scw.save.named.index` (روی saveSlot/loadSlot = IDB-aware + سازگار با fallback) + UI در saveCard (ورودی نام + دکمه + فهرست با بارگذاری/حذف + پیام‌های `ui.save.*`) + تست ناهمگام `t_named_saves` (اعتبار/رفت‌وبرگشت/بازنویسی/هرس) و تست DOM `t_named_save_ui` + راستی‌آزمایی زنده کامل (save→list→load→delete در fa).
+
+- تست: ۵ تست تازه (۴ سینک + ۱ ناهمگام)؛ 457/457 سینک + ۶/۶ ناهمگام؛ بدون بازپین هش (UI-side + persist + pure؛ sim/هش دست‌نخورده)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.178.0).
+
+- **فلیپ‌ها:** ردیف‌های 114/728/729/869 → کامل. شمارش ماشینی: 269 کامل/77 ناقص/113 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (بدون خطا)؛ ارزش fa/en روی کارت‌های استخدام (soldier=۵۷)؛ گردش کامل ذخیره بانام با دکمه‌های واقعی؛ سوئیت 457 سبز در صفحه + ۶/۶ ناهمگام. محدودیت محیطی: readback بوم‌های ≥۱۲۸px و اسنپ‌شات DOM متنی در این محیط سیاه می‌دهد (فونت‌ها loading می‌مانند) — راستی‌آزمایی پیکسلی از مسیر تست‌های headless سبز (`t_render_flat`/`t_terrain_cache_no_ghost`) + DOM assertions انجام شد.
+
+## 0.177.0 (اکتبر 2026) — پیش‌نمایش نقشه + روایت مقدمه + جدول افتخار
+
+- **ردیف 90 (§1.2 — ناقص→کامل؛ C-UI-20):** انتخاب نقشه با thumbnail و توضیح کوتاه — `paintMapThumb(cv, seed)` خالص در minimap.js (زمین ۶۴×۶۴ سید با رنگ‌های MM_*) + `#mapThumb`/`#mapDesc` در کارت نقشه صفحه solo + رنگ‌آمیزی روی بوت/تغییر انتخاب/سفارشی + کلیدهای `game.map.<k>.desc` و `game.map.custom.desc` در fa/en + تست `t_map_thumbs` (رسم + کلید دوزبانه + DOM).
+
+- **ردیف 131 (§2 — انجام‌نشده→کامل؛ C-UI-20):** مقدمه داستان (فقط روایت: ۱۰۹۴/الکسیوس/اوربان/ترکان/زیارت اورشلیم — متن اورجینال fa + ترجمه en) — بخش تازه در helpCard (`ui.help.storyTitle`/`ui.help.story`) + تست `t_help_story` (کلید دوزبانه + DOM).
+
+- **ردیف 740 (§10 — انجام‌نشده→کامل؛ C-UI-20):** Order of Merit — بزرگ‌ترین lord/طلا/نیروی هر بازیکن + مرتب‌سازی — `meritRows(state)` و `sortMerit(rows, key, dir)` خالص در advisor.js (سولو: بازیکن با `main.scribe.merit.you` + AI با نام شخصیت؛ MP: شکاف‌ها با نام اتاق؛ طلا از resources.gold؛ سپاه = یگان زنده همان سو؛ ارباب = پرچم) + بخش merit بالای گزارش کاتب با ۴ هدر کلیک‌شونده (وضعیت گذرای meritSort؛ پیش‌فرض سپاه نزولی) + کلیدهای `main.scribe.merit.*` در fa/en + تست‌های `t_merit_rows`/`t_merit_sort` + راستی‌آزمایی زنده (بازکردن گزارش + کلیک سورت). همه UI-side خالص (sim/هش/ذخیره دست‌نخورده).
+
+- تست: ۴ تست تازه (`t_map_thumbs`، `t_help_story`، `t_merit_rows`، `t_merit_sort`)؛ 453/453 سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (همه UI-side)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.177.0).
+
+- **فلیپ‌ها:** ردیف‌های 90/131/740 → کامل. شمارش ماشینی: 265 کامل/78 ناقص/116 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز؛ desc هر ۳ نقشه + custom در هر دو زبان (سوییچ)؛ روایت fa/en؛ گزارش کاتب با جدول merit (۱ ردیف بازیکن در منو) + سورت طلا/سپاه؛ سوئیت 453 سبز در صفحه + ۵/۵ ناهمگام.
+
+## 0.176.0 (اکتبر 2026) — تولتیپ بازگشت + اسکرول لبه/جهت + Tab پنل
+
+- **ردیف 149 (§3.1 — ناقص→کامل؛ C-UI-19):** تولتیپ همه آیکن‌ها — یافته: هر ۲۳۱ دکمه نام دسترس‌پذیر دارد و ۳۶ دکمه آیکن‌خالص title دارند؛ فقط ۴ دکمه `.page-back` (بازگشت صفحات منو) aria داشتند و title هاور نداشتند. فیکس: `data-i18n-title="ui.nav.back"` + `title` روی هر ۴ + تست DOM دوزبانه `t_tooltips_all`.
+
+- **ردیف 155 (§3.1 — انجام‌نشده→کامل؛ C-UI-19):** مخفی/نمایش پنل مدیریت با Tab — flip روی `#side.hidden` با گیت (منو/مودال بسته + فوکوس روی ورودی/دکمه نباشد؛ قانون `[hidden]{display:none!important}` از قبل) + `preventDefault` + تست DOM `t_tab_panel` (flip + گیت مودال/منو).
+
+- **ردیف 154 (§3.1 — انجام‌نشده→کامل؛ C-UI-19):** اسکرول لبه + جهت‌دار — `arrowPanDelta` (گام ۵۶؛ تکرار خودکار صفحه‌کلید = حرکت پیوسته) و `edgePanDir` (حاشیه ۱۰، گام ۱۰ بر فریم) خالص در gestures.js + سیم‌کشی (keydown جهت‌ها؛ ردیابی pointermove ماوس روی #board + اعمال در frame با گیت منو/مودال/درگ) + قلاب `__slice01.view.pan` + تست‌های `t_scroll_math` (هدلس) و `t_scroll_keys` (DOM). همه UI-side خالص (sim/هش/ذخیره دست‌نخورده).
+
+- تست: ۴ تست تازه (`t_scroll_math`، `t_tooltips_all`، `t_tab_panel`، `t_scroll_keys`)؛ 449/449 سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (همه UI-side)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.176.0).
+
+- **فلیپ‌ها:** ردیف‌های 149/154/155 → کامل. شمارش ماشینی: 262 کامل/79 ناقص/118 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز؛ title بازگشت در fa و en (سوییچ زبان)؛ Tab پشت منو/مودال بی‌اثر و حین بازی flip؛ ArrowRight‏=‏panX منهای ۵۶؛ لبه چپ بوم‏=‏panX به‌علاوه ۱۰ بر فریم؛ سوئیت 449 سبز در صفحه + ۵/۵ ناهمگام.
+
+## 0.175.0 (اکتبر 2026) — هایلایت استخدام + پنل ارتش + پین دکمه‌ها/مینی‌مپ
+
+- **ردیف 482 (§9.3 — ناقص→کامل؛ C-UI-18):** هاور روی کارت نیرو = هایلایت ردیف کالاهای لازم. `hireGoodsFor` خالص در combat.js (غذا/طلا + سلاح لازم؛ مزدور mercدار فقط طلای mercGold) + delegation روی #unitPal (unitPal همان پنل استخدام است) با کلاس `costhi` + قانون CSS (outline روی .bcost). کلیک چپ استخدام/آموزش از قبل.
+
+- **ردیف 553 (§10.3 — ناقص→کامل؛ C-UI-18):** پنل ارتش — سمت راست کارت یگان: ردیف هر نوع (نام/تعداد/Σجان) با `armyBreakdown` خالص در selection.js + `#armyRows` در unitCard؛ کلیک چپ ردیف = فقط آن نوع، راست‌کلیک = حذف آن نوع از انتخاب (گارد replayWatch، preventDefault؛ جعبه فرمان همان دکمه‌های unitCard از قبل). UI-side خالص (sim/هش/ذخیره دست‌نخورده).
+
+- **ردیف 146 (§3.3 — ناقص→کامل؛ C-UI-18):** هر ۴ دکمه کنار مینی‌مپ از قبل هست (menuBtn/demolishBtn/undoBtn/scribeBtn + هندلرهای تست‌شده). بدون کد محصول — پین `t_minimap_buttons` (DOM).
+
+- **ردیف 147 (§3.2 — ناقص→کامل؛ C-UI-18):** مینی‌مپ از قبل هست (بوم + کلیک=پرش با minimapCell/panForCell + رسم دنبال‌کننده اسکرول). بدون کد محصول — پین `t_minimap_panel` (DOM + تابع).
+
+- تست: ۴ تست تازه (`t_hire_hover`، `t_army_panel`، `t_minimap_buttons`، `t_minimap_panel`)؛ 445/445 سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (همه UI-side)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.175.0).
+
+- **فلیپ‌ها:** ردیف‌های 146/147/482/553 → کامل. شمارش ماشینی: 259 کامل/80 ناقص/120 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز؛ هاور کارت سرباز = costhi؛ بازی واقعی (mercpost + slinger + مخفی‌کردن ارباب از یورش!) — ۲ ردیف ارتش، کلیک فلاخن = فقط فلاخن، راست‌کلیک ارباب = حذف ارباب؛ سوئیت 445 سبز در صفحه + ۵/۵ ناهمگام.
+
+## 0.174.0 (اکتبر 2026) — پنل اطلاعات ساختمان + نشان سبز مقصد + پین گزارش‌ها/نشانگرها
+
+- **ردیف 150 (§3.3 — ناقص→کامل؛ C-UI-17):** کلیک چپ روی ساختمان خودی = کارت اطلاعات (`buildingInfo` خالص در combat.js: نام/جان/درصدِ ماندهٔ ساخت/ویرانه + `bldCard` در پنل کناری بعد از unitCard + سیم‌کشی کلیک خنثی با `selBldId` گذرا؛ اولویت با کارت یگان، پاک‌سازی با انتخاب یگان/کلیک خالی/ریست بازی) + راست‌کلیک خلع از قبل. UI-side خالص (sim/هش/ذخیره دست‌نخورده).
+
+- **ردیف 558 (§10.3 — ناقص→کامل؛ C-UI-17):** نشان سبز = مقصد معتبر، مکمل ضربدر قرمز (t_redx از 0.165.0). `orderHoverMark` خالص در selection.js (۵ kind حرکتی attackmove/patrol/attackpos/guard/garrison + خنثیِ بامنتخب → سبز؛ alarm/demolish/repair/firecow/ساخت/استخدام → نه) + لوزی سبز (#2ecc71) در render.js + wire در updateHover (شاخه خنثی + هاور ساختمان/یگان دشمن). lite دست‌نخورده.
+
+- **ردیف 165 (§3.4 — ناقص→کامل؛ C-UI-17):** هر ۶ پنل گزارش از قبل پوشش داده شده‌اند (کاتب ۸ بخش: popularity/treasury از 0.147.0 + tax/rations/stores/inn/religion/fear از 0.146.0 + گزارش‌های جدای غذا/انبار/خزانه). بدون کد محصول — پین `t_report_panels`.
+
+- **ردیف 145 (§3.2 — ناقص→کامل؛ C-UI-17):** هر ۳ نشانگر از قبل در HUD هستند (محبوبیت popEl+هدف، خزانه = طلا در resbar، جمعیت/سقف workersEl؛ همه MP-aware). بدون کد محصول — پین `t_hud_indicators`.
+
+- تست: ۴ تست تازه (`t_bldinfo`، `t_order_mark`، `t_report_panels`، `t_hud_indicators`)؛ 441/441 سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (همه UI-side)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.174.0).
+
+- **فلیپ‌ها:** ردیف‌های 145/150/165/558 → کامل. شمارش ماشینی: 255 کامل/84 ناقص/120 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز؛ شروع بازی سولو + کلیک روی Keep = کارت «Keep #1 + 600/600 HP + Active»؛ انتخاب ارباب + هاور = بدون خطا (رندر سبز در چرخه رسم)؛ سوئیت 441 سبز در صفحه + ۵/۵ ناهمگام.
+
+## 0.173.0 (اکتبر 2026) — غرامت نصف + گروه‌های ۱۰تایی + دابل‌کلیک هم‌نوع + زوم Z
+
+- **ردیف 152 (§3 — ناقص→کامل؛ C-CONST-29):** غرامت Delete ‏۱/۳ → **نصف** مرجع (`demolishRefund` در combat.js: /۳ → /۲؛ کف/سقف/گیت‌های KEEP/ویرانه/صف/MP و undo-full دست‌نخورده) + بازپین عمدی ۲ تست (`t_demolish`: کلبه ۲→۳چ؛ `t_demolish_refund`: برج ۶/۳/۳→۱۰/۵/۵ + دیوار {}→{wood:1} + کلبه ۲→۳ + ۱۰۶/۵۳/۳۳→۱۱۰/۵۵/۳۵؛ سقف ۵۰۰ بی‌تغییر سبز).
+
+- **ردیف 554 (§10.1 — ناقص→کامل؛ C-UI-16):** گروه‌های کنترلی ۳ → ۱۰ شکاف (`GROUP_SLOTS` در groups.js؛ Ctrl+۰..۹ که ۰ = شکاف ۱۰، استاندارد RTS) + فشردن دوباره همان شکاف = رفتن به محل گروه (`groupCentroid` خالص در selection.js + `renderer.focus` ۱٫۵ مثل ارباب؛ `lastGroupRecall` با save/reset می‌شود) + پیام recall موجود. UI-side خالص: sim/هش/ذخیره/MP دست‌نخورده.
+
+- **ردیف‌های 167 (§3.3) + 552 (§10.1 تکراری — ناقص→کامل؛ C-UI-16):** دابل‌کلیک = همه هم‌نوع‌های خودیِ زندهٔ **روی صفحه** (`sameTypeIds` خالص در selection.js: فیلتر type/owner/زنده + `onScreen` تزریق‌پذیر؛ wire در dblclick با گارد editor/replayWatch + فیلتر مالک MP + `cellToScreen`). یک پیاده‌سازی، هر دو ردیف (سابقه 0.148.0 برای ردیف تکراری). تک‌کلیک/باکس/شیفت از قبل.
+
+- **ردیف 159 (§3.2 — ناقص→کامل؛ C-UI-16):** زوم Z نزدیک / Shift+Z دور (`zoomStep` خالص در gestures.js: همان گام چرخ ۱٫۱۲/۰٫۸۹ + سقف [۰٫۳، ۳]) + refactor هندلر چرخ به همان تابع (ریاضی یکسان، بدون تغییر رفتار) + گارد تایپ موجود.
+
+- تست: ۳ تست تازه (`t_group_centroid`: میانگین + null؛ `t_select_same_type`: فیلتر خودی/زنده + نما + مالک؛ `t_zoom_step`: ‏۱٫۱۲/۰٫۸۹ + سقف) + به‌روزرسانی پین‌ها (`t_demolish`، `t_demolish_refund`، `t_group_save_recall`، `t_group_guards`)؛ 437/437 سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش رگرسیون (refund در هیچ سناریوی رگرسیون نیست؛ بقیه UI-side)؛ ری‌پلی مرجع دست‌نخورده (سناریو demolish/گروه/زوم ندارد؛ gameVersion به 0.173.0).
+
+- **فلیپ‌ها:** ردیف‌های 152/159/167/552/554 → کامل. شمارش ماشینی: 251 کامل/88 ناقص/120 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط fallback وکتوری موردانتظار)؛ KeyZ/Shift+Z و Digit۱/۲ بدون خطا روی صفحه؛ سوئیت 437 سبز در صفحه + ۵/۵ ناهمگام.
+
+## 0.172.0 (اکتبر 2026) — هزینه/کارگر/ورودی مرجع آسیاب و کمان‌سازی §8.3/§8.6
+
+- **ردیف‌های 440/468 (§8.3/§8.6) — مرجع (C-CONST-28):** آسیاب ۱۰چوب+۵سنگ → ۲۰چوب + کارگر ۱→۳ مرجع + کمان‌سازی ۲۰چوب+۱۰سنگ → ۲۰چوب+۱۰۰طلا + ورودی آهن → چوب (کمان ۲ چوب، جدول §8.6؛ تصمیم طراحی ثبت‌شده) + `source` مرجع؛ زنجیره‌های نان/سلاح (C-ECON-14/C-FOOD-3/4) دست‌نخورده. پین در `t_data_buildings_file` + `t_rates_from_config`.
+
+- تست: بدون تست تازه + به‌روزرسانی پین‌ها (`t_bakery_chain` استخر ۵ + چوب ۸۵→۷۵ + سنگ ۳۵→۴۰ + غذا ۱۳۳→۱۳۱؛ `t_mill_cost` بازنویسی ۲۰چوب + رد چوبی؛ `t_build_mill_waits` کارگر ۱→۳؛ `t_iron_chain` تأمین طلا ۴۰۰ + سنگ ۳۰→۴۰؛ ورودی چوب کمان‌سازی در `t_rates_from_config`)؛ 434/434 سینک ×۳ + ۵/۵ ناهمگام؛ بازپین عمدی ۱ هش رگرسیون (econ-chain: آسیاب ۲۰چوبی ۳کارگره؛ `b8374bf0`)؛ ری‌پلی مرجع دست‌نخورده (سناریو آسیاب/کمان‌سازی ندارد؛ gameVersion به 0.172.0).
+
+- **فلیپ‌ها:** ردیف‌های 440/468 → کامل. شمارش ماشینی: 246 کامل/93 ناقص/120 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط fallback وکتوری موردانتظار)؛ کارت آسیاب (۲۰چوب/۳کارگر/۲گندم←۲آرد) و کمان‌سازی (۲۰چوب+۱۰۰طلا/۲چوب←۱کمان)؛ ساخت واقعی آسیاب (چوب ۱۲۰→۱۰۰، سنگ ۴۰→۴۰)؛ thumbهای پالت سالم؛ سوئیت 434 سبز ×۳ + ۵/۵ ناهمگام در صفحه.
+
+## 0.171.0 (اکتبر 2026) — هزینه مرجع ۴ بنای فرآوری غذا §8.3
+
+- **ردیف‌های 436 تا 439 (§8.3) — هزینه مرجع (C-CONST-27):** نانوایی ۱۰چوب+۵سنگ → ۱۰چوب + آبجوسازی ۱۰چوب+۵سنگ → ۱۰چوب + انبار غذا ۲۰چوب → ۵چوب + میخانه ۱۵چوب → ۲۰چوب+۱۰۰طلا (مرجع دفترچه) + `source` مرجع؛ زنجیره‌ها/پنل‌ها (C-ECON-14/C-GRAN/C-INN) دست‌نخورده. پین در `t_data_buildings_file`.
+
+- تست: بدون تست تازه + به‌روزرسانی پین‌ها (`t_bakery_chain` سنگ ۳۰→۳۵؛ `t_bakery_cost` سنگ ۳۵→۴۰ + رد چوبی؛ `t_beer_chain` سنگ ۳۵→۴۰؛ `t_beer_costs` چوب ۸۰→۷۵ + سنگ ۳۵→۴۰ + رد چوبی) + تأمین طلا در ۹ نقطه میخانه (الگوی نمازخانه 0.147.0)؛ 434/434 سینک ×۳ + ۵/۵ ناهمگام؛ بازپین عمدی ۱ هش رگرسیون (econ-chain: نانوایی سنگ نمی‌خواهد؛ `c0d6e9a3`)؛ ری‌پلی مرجع دست‌نخورده (gameVersion به 0.171.0).
+
+- **فلیپ‌ها:** ردیف‌های 436/437/438/439 → کامل. شمارش ماشینی: 244 کامل/95 ناقص/120 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط fallback وکتوری موردانتظار)؛ کارت‌های نانوایی/آبجوسازی/انبار غذا با ۱۰/۱۰/۵چوب و میخانه ۲۰چوب+۱۰۰طلا؛ ساخت واقعی نانوایی (چوب ۱۲۰→۱۱۰، سنگ ۴۰→۴۰؛ buildLeft صفر)؛ ۵۰/۵۰ thumb سالم (بی‌blank)؛ سوئیت 434 سبز ×۳ + ۵/۵ ناهمگام در صفحه.
+## 0.170.0 (اکتبر 2026) — هزینه مرجع ۵ مزرعه §8.2
+
+- **ردیف‌های 428 تا 432 (§8.2) — هزینه مرجع (C-CONST-26):** شکارچی ۲۰چوب → ۵چوب + لبنیاتی ۲۰چوب → ۱۰چوب + باغ ۲۰چوب → ۵چوب + گندم ۲۰چوب → ۱۵چوب + رازک ۲۰چوب → ۱۵چوب (مرجع دفترچه) + `source` مرجع؛ زنجیره‌ها/کارگر/واحه (C-ECON-14/C-FOOD-6) دست‌نخورده. پین در `t_data_buildings_file`.
+
+- تست: بدون تست تازه + به‌روزرسانی ۴ پین چوب (`t_bakery_chain` ۸۰→۸۵؛ `t_beer_chain` ۹۰→۹۵؛ `t_beer_costs` ۷۵→۸۰؛ `t_stockpile_central` ۹۵→۱۰۰)؛ 434/434 سینک ×۳ + ۵/۵ ناهمگام؛ بازپین عمدی ۱ هش رگرسیون (econ-chain: مزرعه گندم ارزان شد؛ `b2d1e0f2`)؛ ری‌پلی مرجع دست‌نخورده (فقط مزرعه عمومی می‌سازد؛ gameVersion به 0.170.0).
+
+- **فلیپ‌ها:** ردیف‌های 428/429/430/431/432 → کامل. شمارش ماشینی: 240 کامل/99 ناقص/120 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط fallback وکتوری موردانتظار؛ یک رفرش ناموفق گذرا با retry بعدی سالم شد — کد مقصر نبود)؛ کارت‌های شکارچی/لبنیاتی/باغ/گندم/رازک با ۵/۱۰/۵/۱۵/۱۵چوب؛ ساخت واقعی مزرعه گندم (چوب ۱۲۰→۱۰۵؛ buildLeft صفر؛ گندم در جریان)؛ ۵۰/۵۰ thumb سالم (بی‌blank)؛ سوئیت 434 سبز + ۵/۵ ناهمگام در صفحه. قید محیطی: readback بوم‌های بزرگ (#board/#minimap) در این پیش‌نمایش صفر برمی‌گرداند (حتی fillRect دستی) پس راستی‌آزمایی پیکسلی بوم ناممکن است — رندر با شمارش fill/zنده‌بودن حلقه (۵۷fps) تأیید شد؛ دست‌کاری‌های پروب پس از اتمام با رفرش پاک شدند.
+## 0.169.0 (اکتبر 2026) — هزینه مرجع زرادخانه/سربازخانه + ارباب جنگجو + چادر vacuous
+
+- **ردیف‌های 414/415 (§8.1) — هزینه مرجع (C-CONST-25):** زرادخانه ‏۲۰چوب+۱۰سنگ → ۵چوب مرجع + `source` مرجع؛ سربازخانه ‏۳۰چوب+۱۰سنگ → ۱۵سنگ مرجع + `source` مرجع؛ انبار/سقف (C-ECON-15) و صف/گیت‌ها دست‌نخورده. انحراف ثبت‌شده: دهقانِ لفظی شرط سربازخانه = هزینه غذا (الگوی پست مزدور 0.166.0). پین در `t_data_buildings_file`.
+
+- **بند 226 (§10.5) — ارباب جنگجو (C-MIL-57):** جان ۱۵۰ (تنومندترین رزمنده غیرمحاصره خودی) + زره ۲/آسیب ۸ + استخدام‌ناپذیر؛ مرگ = شکست (`t_lord_death` از 0.22.0). تست تازه `t_lord_warrior` در `lordCases`.
+
+- **ردیف 424 (§8.1) — چادر محاصره (C-MIL-58، vacuous):** نه `siegetent` نه `tent` نه `siegeTent` در موتور است (همان شواهد C-MIL-38) + پین ردیف در `t_siegetent_absence`. ماشین‌ها بی‌خدمه می‌مانند (شمار خدمه فقط در جدول مرجع BALANCE).
+
+- تست: ۱ تست تازه (`t_lord_warrior`) + پین‌ها (هزینه‌ها در `t_data_buildings_file`؛ ردیف 424 در `t_siegetent_absence`) + به‌روزرسانی عمدی `t_iron_chain` (چوب ۵۰→۶۵، سنگ ۲۰→۳۰: زرادخانه ارزان شد)؛ 434/434 سینک ×۲ + ۵/۵ ناهمگام؛ بازپین عمدی ۴ هش رگرسیون (needRax واقعی: combat-melee/tower-defense/siege-catapult/garrison-tower) + ۱ ری‌پلی مرجع (barracks+armoury در ref-solo-001؛ `b621bd25`).
+
+- **فلیپ‌ها:** ردیف‌های 414/415/424 + بند 226 → کامل. شمارش ماشینی: 235 کامل/101 ناقص/123 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط fallback وکتوری موردانتظار)؛ کارت‌های ۵چوب/۱۵سنگ؛ ساخت واقعی هر دو (چوب ۱۲۰→۱۱۵، سنگ ۴۰→۲۵؛ buildLeft صفر)؛ ۵۰/۵۰ thumb سالم (بی‌blank)؛ سوئیت 434 سبز در صفحه.
+
+## 0.168.0 (اکتبر 2026) — اصطبل و اسب + هزینه مرجع پست + مسیریابی vacuous
+
+- **ردیف 416 (§8.1) — هزینه مرجع پست مزدور (C-MIL-56):** هزینه بنا ۲۵چوب+۱۰سنگ (0.166.0) → ۱۰چوب مرجع + `source` مرجع؛ پین کاتالوگ در `t_mercpost` (سوئیت 433/433). انحراف 0.166.0 بسته شد.
+
+- **ردیف 419 (§8.1) — اصطبل (C-STABLE-1):** بنای `stable` (۳×۲/جان۱۵۰/۲۰چوب+۴۰۰طلا مرجع/ساخت۶۰تیک/یکتا/town) + رندر اصطبل (نعل نما + نقطه‌های اسب‌های آماده) + کارت پالت/هاور (`main.meta.stable` + onlyOne)/قفل + نام fa/en. تست در `t_stable`.
+
+- **ردیف 870 (§18.1) — مدل اسب و گیت شوالیه (C-STABLE-2):** ۴ اسب به‌ازای هر اصطبل سالم (`HORSES_PER_STABLE`) + شارژ یک‌به‌یک هر ۶۰۰ تیک (`HORSE_REFILL_TICKS`؛ `stepStables` در stepSim و حلقه MP) + `requiresHorse` روی شوالیه (صف روی سربازخانه می‌ماند؛ مصرف در `queueHire`/`hireUnit`؛ برگشت در `cancelTrain`/`refundEntry` + ویرانی صف + `undoLastBuild`) + گیت‌های NO_STABLE/NO_HORSE در `validateHire` + نام‌ها/پیام‌های fa/en + قفل کارت (ترکیب با قفل سلاح — رفع باگ بازنویسی قفل). انحراف ثبت‌شده: بی‌اصطبلِ جا‌دار در برگشت = سوختن اسب. تست در `t_stable` (+ سیم‌کشی `t_hire_roster` با اصطبل).
+
+- **بندهای 227/228 (§19.2) — غیبت ناوگراف چندلایه (C-PATH-6/7، vacuous):** نه لایه wallTop/tower/tunnel، نه HPA، نه flow-field، نه separation در موتور است؛ مسیریاب همان A* تک‌لایه زمینی است. تست تازه `t_navgraph_absence`؛ ردیف‌های qa-plan: `C-PATH-6/7` → `pass`.
+
+- تست: ۲ تست تازه (`t_stable` + `t_navgraph_absence`) + به‌روزرسانی پین‌ها (۵۰→۵۱ بنا؛ `t_mercpost` پین هزینه؛ `t_hire_roster` سیم‌کشی اصطبل + طلا ۲۷۰۰)؛ 433/433 سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش (موجودی/شمارش اسب فقط برای stable میکس می‌شود). رگرسیون حین کار: کسر مضاعف سلاح در `hireUnit` (کپی‌خط در splice — سبز شدن `t_hire_needs_weapon`/`t_pikeman`/هش combat-melee)؛ بازنویسی قفل کارت شوالیه توسط قفل سلاح (preLocked)؛ regex خلأ تونل که `tunnelerguild` را می‌گرفت.
+
+- **فلیپ‌ها:** ردیف‌های 416/419/870 + بندهای 227/228 → کامل. شمارش ماشینی: 231 کامل/104 ناقص/124 انجام‌نشده (مجموع 459).
+
+- راستی‌آزمایی زنده: بوت تمیز (فقط fallback وکتوری موردانتظار)؛ کارت شوالیه پیش از ساخت قفل با «Build a stable first»؛ ساخت اصطبل (۲۰چوب+۴۰۰طلا کسر شد)؛ ۴ سفارش شوالیه → اسب ۴→۰ + قفل «No horses ready»؛ شارژ پس از ۶۰۰ تیک (۰→۱ + آنلاک)؛ ۷۳/۷۳ thumb سالم (اصطبل: نعل طلایی)؛ بوم در این محیط خالی می‌ماند (محدودیت شناخته‌شده).
+
+
+## 0.167.0 (اکتبر 2026) — انجمن‌ها: Engineer/Tunneler Guild + سه یگان §9.3
+
+- **ردیف 129 (§8.1) — انجمن مهندسین (C-GUILD-1):** بنای `engineerguild` (۳×۲/جان۱۵۰/۱۰چوب+۱۰۰طلا مرجع/ساخت۶۰تیک/یکتا/town) + میزبانی صف طلایی مهندس/نردبان‌بر (`trainHostOf`/`guildOf`) + ذخیره/هش آینه mercpost + کارت پالت/هاور/قفل NO_ENG_GUILD + رندر تالار (چرخ‌دنده نما) + نام fa/en. تست در `t_guilds`.
+
+- **ردیف 130 (§8.1) — انجمن حفاران (C-GUILD-2):** بنای `tunnelerguild` (همان مشخصات؛ رندر طاق تونل + کلنگ) + میزبانی صف طلایی حفار + همان سیم‌کشی ذخیره/هش/پالت/قفل (NO_TUN_GUILD). تست در `t_guilds`.
+
+- **بند 172 (§9.3) — مهندس (C-GUILD-3):** یگان طلایی (gold 30 مرجع ✅/غذا ۰/بی‌سلاح؛ hp۵۵/dmg۵/armor۱/سرعت۳/trainTicks ۶۰) + استخدام فقط با انجمن زنده (NO_ENG_GUILD) + پرچم rally خودکار. انحراف ثبت‌شده: اداره/ساخت محاصره در موتور نیست (ماشین‌ها بی‌خدمه‌اند — تصمیم 0.161.0). تست در `t_guilds`.
+
+- **بند 173 (§9.3) — نردبان‌بر (C-GUILD-4):** یگان طلایی (gold ۴ 🟡/غذا ۰؛ hp۲۰/dmg۴/سرعت۳.۸/trainTicks ۳۰) + ارزان‌ترین کل فهرست (t_slave محدود به سربازخانه شد) + سقف نقش‌ها سالم (کندتر از قاتل ۴.۶، تندتر از صلیبی ۲.۴). انحراف: عبور از دیوار/نردبان در موتور نیست (vacuous — 0.160.0). تست در `t_guilds`.
+
+- **بند 174 (§9.3) — حفار (C-GUILD-5):** یگان طلایی (gold ۳۰ مرجع ✅/غذا ۰؛ hp۴۰/dmg۶/trainTicks ۵۰) + NO_TUN_GUILD. انحراف: حفر زیر دیوار در موتور نیست (vacuous — 0.161.0). تست در `t_guilds`.
+
+- تست: ۱ تست تازه (`t_guilds`: بنا+یگان+گیت+صف+پرچم+ذخیره) + به‌روزرسانی ۱۳ نقطه پین (۲۰→۲۳ استخدامی/۲۵→۲۸ یگان/۴۸→۵۰ بنا/۱۶→۱۹ مزدور بی‌شیت + بازنویسی ۱۰ assertion غیبت‌مکانیک: یگان هست، مکانیک نیست)؛ 431/431 سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش (صف انجمن مشروط mix می‌شود). رگرسیون حین کار: جای ثابت (16,1) برای انجمن TERRAIN خورد (siteNear)؛ یک assertion غیبت (`یگان حفاری نیست`) جا مانده بود.
+
+- **فلیپ‌ها:** ردیف‌های 417/418/501/502/503 → کامل (+ اصلاح پانوشت سطر 422: مهندس یگان است ولی اپراتور محاصره نیست). شمارش ماشینی: 226 کامل/106 ناقص/127 انجام‌نشده (مجموع 459).
+
+- راستی‌آزمایی زنده: بوت تمیز (فقط fallback وکتوری موردانتظار + ۳ شیت تازه)؛ قفل کارت‌ها با پیام فارسی پیش از ساخت؛ هر دو انجمن ساخته شدند (hp۱۵۰)؛ نردبان‌بر ۲۰→۱۶ فقط طلا + تحویل در درِ ستاد؛ پرچم rally مهندس از صف فرمان + تحویل به پرچم (۴۰→۱۰ فقط طلا)؛ ۷۲/۷۲ thumb سالم؛ بوم سیاه در snapshot (محدودیت شناخته‌شده).
+
+
+
+## 0.166.0 (اکتبر 2026) — سه‌قلوی §9.1: تحویل از campfire + پست مزدور + پرچم تجمع
+- **بند 168 (§9.1) — ظهور در campfire (C-MIL-53):** تحویل صف آموزش با ستاد زنده = ظهور در درِ ستاد (`keepDoorOf`: حلقه ۶تایی دور ردپا) + `orderMove` تا نقطه کلیک؛ بی‌ستاد = رفتار قدیمی (ظهور در نقطه، بی‌فرمان). انحراف ثبت‌شده: متن «تا barracks» — مقصد نقطه کلیک/پرچم است، نه barracks. تست تازه `t_campwalk`؛ ردیف qa-plan: `C-MIL-53` → `pass`.
+- **بند 169 (§9.1) — پست مزدور (C-MIL-54):** بنای `mercpost` (۳×۲/جان۱۵۰/۲۵چوب+۱۰سنگ/ساخت۶۰تیک/یکتا) + `trainHostOf` (مزدور mercدار با پست زنده = صف روی پست) + `chargedCost`/`refundEntry` (کسر/بازپرداخت فقط `mercGold` = طلا+غذای قدیم با نرخ ۱:۱؛ بی‌غذا/بی‌سلاح/بی‌پیش‌نیاز) + ذخیره (صف + پرچم merc) و هش مشروط + کارت/هاور بها و قفل طلایی در پالت. انحراف: هزینه مرجع ۱۰ wood نیست. تست تازه `t_mercpost`؛ ردیف qa-plan: `C-MIL-54` → `pass`.
+- **بند 170 (§9.1) — پرچم تجمع (C-MIL-55):** `rallyKey/Point/setRally` (کلید مالک:نوع، در-bounds) + فرمان `rally` از صف sim/ورودی MP/ری‌پلی (آینه disband) + تحویل صف به پرچم (وگرنه نقطه کلیک) + ذخیره سازگار (قدیمی بی‌پرچم = خالی؛ دست‌کاری = SaveError) و هش مشروط + Shift+۱..۷ (پرچم نوع مسلح در خانه هاور؛ هر ۷ کلید یک کار) + `drawRally` + نام‌های fa/en. guildهای engineer/tunneler غایب‌اند (vacuous)؛ cathedral در persist دست‌نخورده ماند. تست تازه `t_rally`؛ ردیف qa-plan: `C-MIL-55` → `pass`.
+- تست: 3 تست تازه (`t_campwalk`/`t_mercpost`/`t_rally` + هلپر `simT`)؛ 430/430 سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش (صف پست/پرچم مشروط میکس می‌شوند؛ پین ری‌پلی سبز). رگرسیون حین کار: `simC` صف آموزش را پیش نمی‌برد (هلپر `simT`)؛ مسیر قدیمی arabianBow بی‌سلاح است (INSUFFICIENT نه NEEDS_WEAPON)؛ `setRally` به import تست‌ها اضافه شد؛ جایگزینی کور simC→simT چهار جای اضافه را گرفت (برگردانده شد).
+- **فلیپ‌ها:** بندهای 168/169/170 → کامل. شمارش ماشینی: 221 کامل/106 ناقص/132 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای fallback وکتوری)؛ تحویل slinger در درِ ستاد + move به سلول کلیک‌شده (40,40)؛ کسر طلایی ۴۸→۲۱ با غذای ثابت + تحویل مزدور در درِ ستاد؛ پرچم rally زنده (۰:slinger) + جابه‌جایی با فرمان + ۶۷ thumb سالم؛ بوم سیاه در snapshot (محدودیت شناخته‌شده — getImageData درون‌صفحه‌ای).
+
+## 0.165.0 (اکتبر 2026) — مسیریابی ۲: بسته‌شدن مسیر + ضربدر قرمز + هزینه راه
+- **بند 229 (§19.2) — بسته‌شدن مسیر (C-MIL-50):** دروازه باز = گذرگاه خودی، بسته = سد هر دو جناح، ویران‌شده هرگز گذرگاه نیست، تصرف‌شده = باز برای دشمن سولو (موتور موجود: `toggleGate`/`occForSide`/`stepGateCapture` + تست‌های t_gate_open_close/t_gate_closed_siege/t_gatecapture)؛ drawbridge بالا/پایین + خندق ممنوع مگر با drawbridge + غرق‌شدن حین حفر در موتور نیستند (vacuous — مکمل t_moatdraw_absence/t_tunnelmoat). تست تازه `t_gateclosure` (باز/بسته/ویران در occ و walkable و findPath + خلأ پل/خندق/تونل‌زن)؛ ردیف qa-plan: `C-MIL-50` → `pass`.
+- **بند 230 (§19.2) — ضربدر قرمز (C-MIL-51):** شکست NO_PATH (move/patrol) = نشان گذرای `nopath` روی خانه مقصد (`failOrder` + سقف FX_CAP؛ نه در هش، نه در ذخیره — مثل clash/shot) + `drawNoPath` (ضربدر قرمز محوشونده ۳۰تیکی روی مقصد، مکمل «×» بالای سر)؛ مقصد بالای دیوار با پله بی‌مصداق است (نه stairs نه ladderman/siegetower — مکمل t_stairs_absence؛ کرسر fortify برج‌ها از 0.161.0 هست). تست تازه `t_redx` (حلقه + دروازه بسته → failed + نشان دقیقاً روی مقصد + خلأ پله)؛ ردیف qa-plan: `C-MIL-51` → `pass`.
+- **بند 250 (§19.2) — هزینه راه (C-MIL-52، vacuous):** نه پله (۱٫۵×) نه نردبان (۳×) نه تونل (۲×) نه جدول هزینه در موتور است؛ مسیریاب یک‌هزینه است (هر گام ۱). تست تازه `t_roadcost` (نبود جدول/بنا/یگان/ضریب + طول = منهتن+۱ در زمین باز + برابری با BFS مستقل دور مانع)؛ ردیف qa-plan: `C-MIL-52` → `pass`.
+- تست: 3 تست تازه؛ 427/427 سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش (fx در هش/ذخیره نیست). رگرسیون حین کار: import پویا در page_eval به مسیر src نمی‌رسید (پایه URL iframe) — با قلاب `window.__slice01.runTests` اجرا شد؛ اسنپ‌شات تمام‌سیاه (محدودیت شناخته‌شده محیط) — رندر با getImageData درون‌صفحه‌ای تأیید شد.
+- **فلیپ‌ها:** بندهای 229/230/250 → کامل. شمارش ماشینی: 218 کامل/106 ناقص/135 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای fallback وکتوری موردانتظار) + سوئیت 427 سبز ×۲ در صفحه + بج «تست: 432/432»؛ نشان nopath زنده روی بوم (پیکسل قرمز ۱→۲۲۱۳ با تزریق ۱۰۰ نشان و بازگشت به ۱ پس از پاک‌سازی، بدون خطای کنسول)؛ بوم سیاه در snapshot/toDataURL (محدودیت شناخته‌شده — getImageData درون‌صفحه‌ای ۳۸۱هزار پیکسل غیرسیاه نشان داد).
+
+## 0.164.0 (اکتبر 2026) — فرمان‌های ویژه ۲: گشت ۱۰نقطه‌ای + انحلال + پرتاب گاو تربوشه + غیبت حفر/ساخت
+- **بند 237 (§10.2) — گشت پیشرفته ۱۰نقطه‌ای (C-MIL-46):** حلقه `order.pts/pi` (تا `PATROL_MAX=۱۰`) + `orderPatrolAppend` (شیفت‌کلیک روی گشت فعال = ته حلقه؛ FULL/OUT_OF_BOUNDS/LORD_KEEP) + شاخه‌های `queueOrder`/`shiftQueue` (FULL = رد نشانگر، گشت می‌ماند) + `patrolStep` چرخه‌ای با مهاجرت ذخیره قدیمی بی‌pts + رندر چندضلعی حلقه + دکمه/هاور/وضعیت fa/en (`main.hover.patrolAdd`) + ذخیره سازگار + هش شرطی (قدیمی بی‌حلقه بی‌churn) + دلیل تازه `FULL` در `ORDER_FA`. تست تازه `t_patrol10` (حلقه + سقف + چرخه کامل + مهاجرت + ذخیره/هش + گیت‌ها)؛ ردیف qa-plan: `C-MIL-46` → `pass`.
+- **بند 246 (§10.4) + §9.1 — انحلال یگان (C-MIL-47):** `disbandUnit` (یگان خودی زنده، نه Lord؛ گاریسون اول آزاد می‌شود) — ستاد زنده + جا در مسکن/سقف جمعیت = `workers+۱`، وگرنه ناپدید (`vanished`)؛ `DISBAND_FA` (OK/INVALID/NOT_OWNED/LORD) + رویداد `game.ev.disband` + دکمه «انحلال» (پنهان با فقط-Lord؛ همه-Lord = deny قرمز) + فرمان `disband` از صف sim/ورودی MP/ری‌پلی + ذخیره (workers) و هش (حذف یگان + workers، هر دو از قبل در طرح‌اند). تست تازه `t_disband` (بازگشت + ناپدید بی‌ستاد/مسکن‌پر + ارباب/بیگانه/تهی + گاریسون + MP + ذخیره)؛ ردیف qa-plan: `C-MIL-47` → `pass`.
+- **بند 244 (§10.4) — پرتاب گاو با تربوشه و شمار گله (C-MIL-48):** `isCowSiege` (محاصره مستقرشونده: منجنیق+تربوشه) در هر ۳ گزینش UI (دکمه/هدف‌گیری/کلیک) + شمار گله روی آیکن (`ui.unit.firecow` با `{n}` از `herdCows`) + بردِ هر سلاح از تعریف خودش (پیش‌بررسی کلیک + `fireCow` از قبل) + fa/en. تست تازه `t_launchcow` (گزینش + شمار + برد ۱۱ (تربوشه ✓/منجنیق OUT_OF_RANGE) + مصرف از گله + ابر)؛ ردیف qa-plan: `C-MIL-48` → `pass`.
+- **بندهای 242/243 (§10.4) — غیبت حفر و ساخت (C-MIL-49، vacuous):** نه tunneler نه engineer نه فرمان dig/build نه ورودی تونل/چادر در موتور است (مکمل `t_tunnel_absence`/`t_siegetent_absence` برای §12.3/§12.1). تست تازه `t_digbuild_absence`؛ ردیف qa-plan: `C-MIL-49` → `pass`.
+- تست: 4 تست تازه؛ 424/424 سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش (میکس شرطی pts + پین‌های ری‌پلی سبز). رگرسیون حین کار: ویرایش چندمرحله‌ای `main.js` دو خط سرگردان در ابتدای فایل انداخت (بوت می‌خوابید) — با جراحی خطی + acorn هر ۹ فایل سالم شد؛ `buildState` در persist حلقه pts را جا انداخته بود (تست ذخیره قرمز) — با آینه serialize اصلاح شد؛ گاوداری `tryPlace` در ۳۰،۳۰ TERRAIN بود (تست مرده `t_firecow_treb` که هرگز به فهرستی وصل نشده این را لو نداده بود) — با جست‌وجوی نقطه معتبر از `validate` اصلاح شد (t_firecow_treb بیرون دامنه 0.164.0 دست‌نخورده ماند).
+- **فلیپ‌ها:** بندهای 237/242/243/244/246 + §9.1 (خط 486) → کامل. شمارش ماشینی: 215 کامل/108 ناقص/136 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای fallback وکتوری موردانتظار) + تیک‌خور؛ گشت ۱۰نقطه‌ای واقعی (حلقه ۴تایی، نمایه ۲، یگان در راه) + دکمه «گشت» با متن شیفت‌کلیک؛ انحلال با دکمه واقعی (کارگر ۴→۵ + «۱ یگان منحل شد (۰ ناپدید)» + مخفی با فقط-ارباب)؛ دکمه «پرتاب گاو 🐄 (۳)» برای تربوشه + پرتاب واقعی (گاو ۳→۲ + ابر + برچسب (۲))؛ پیکسل بوم سیاه/شفاف (محدودیت شناخته‌شده محیط).
+
+## 0.163.0 (اکتبر 2026) — ارباب + حمله به موضع: هات‌کی L + قانون Keep + بمباران + غیبت دات AI
+- **بند 249 (§10.5) — هات‌کی Lord (C-MIL-42):** L = رفتن به Lord خودی (انتخاب + فوکس ۱٫۵× + پیام `main.lord.goto`)؛ Shift+L = گردش چرخه‌ای (`lordFocusIds/Next` خالص در selection.js؛ تک = خودش، تهی = پیام `main.lord.none`)؛ کلید قابل‌remap (`DEFAULT_KEYS.lord="KeyL"` + دکمه `keyLordBtn` + نام fa/en `system.a11y.key.lord`)؛ ویرایشگر/تماشا بی‌اثر. تست تازه `t_lord_hotkey` (پیش‌فرض/remap/برچسب + خالص)؛ ردیف qa-plan: `C-MIL-42` → `pass`.
+- **بند 247 (§10.5) — قانون Keep ارباب در تک‌نفره (C-MIL-43):** `isSoloLord` + `lordKeepGate` (حاشیه `LORD_KEEP_MARGIN=1`) در orderMove/orderPatrol/queueOrder (دلیل `LORD_KEEP` + deny در کلیک/هاور کلیک زمینی؛ attackmove/attackpos معاف‌اند) + `lordReturnStep` در stepCombat (فقط سولو، بدون rng، سفارش حمله بازیکن مقدم، در راه Keep = بی‌صدور مجدد؛ شعاع `LORD_FLEE_RADIUS=8`)؛ MP معاف (بند ۵۸۳ «کنترل کامل» دست‌نخورده). تست تازه `t_lord_keep` (دروازه‌ها + حاشیه + MP + بازگشت + استثنا + بی‌دشمن)؛ ردیف qa-plan: `C-MIL-43` → `pass`.
+- **بند 240 (§10.4) — حمله به اینجا (C-MIL-44):** kind تازه «attackpos» (`orderAttackPos` + `bombardPos` + `attackposStep`؛ صف/MP/ری‌پلی آینه + ذخیره سازگار + هش شرطی)؛ دوربردِ در برد = بمباران پاششی نقطه (`ATTACKPOS_SPLASH=1.5`، فقط با دشمن در پاشش، مهمات/صلح/استقرار/کمینه‌برد رعایت، تلافی قربانی)؛ میلی = یورش attackmoveوار + ماندگاری پس از رسیدن؛ دکمه «حمله به اینجا» + هاور/وضعیت fa/en + دایره مشعل رندر (شعاع + ۴ مشعل). انحراف ثبت‌شده: موتور پرتابه LoS ندارد (آنی) پس پشت دیوار هم می‌خورد. تست تازه `t_attackpos` (بمباران بی‌تعقیب + میلی + نامعتبر + صف + ذخیره)؛ ردیف qa-plan: `C-MIL-44` → `pass`.
+- **بند 248 (§10.5) — غیبت Lord حریف AI (C-MIL-45، vacuous):** نه یورش (۱۴۴ ترکیب پرسونالیتی/سید/شمارش)، نه موج (۶ موج)، نه کاتالوگ (بی‌ailord) هیچ Lord دشمنی ندارد (arabLord فقط پرسونالیتی است، نه یگان) پس دات قدرت آبی/زرد بی‌مصداق است. تست تازه `t_ailord_absence`؛ ردیف qa-plan: `C-MIL-45` → `pass`.
+- تست: 4 تست تازه؛ 420/420 سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش (میکس شرطی attackpos + پین‌های ری‌پلی سبز). رگرسیون حین کار: دو انتساب تک‌خطی، سر/دم import را انداخت (بوت خوابید) — با بازسازی ماشینی از exportها + acorn هر ۸ فایل سالم شد؛ تست t_lord_keep اول به‌خطا فرض کرد ارباب همیشه داخل Keep اسپاون می‌شود (حلقه خروج صفرتایی + attackmove فعال = بازگشت نیامد) — با cancelOrder پس از راهبری، قطعی شد.
+- **فلیپ‌ها:** بندهای 240/247/248/249 → کامل. شمارش ماشینی: 209 کامل/108 ناقص/142 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای fallback وکتوری موردانتظار) + تیک‌خور بدون خطا؛ فشار واقعی L = انتخاب ارباب + «پرش به ارباب»؛ کلیک «حمله به اینجا» = «کلیک بعدی: حمله به اینجا (بمباران نقطه)»؛ دکمه «رفتن به Lord: KeyL» در پنل کلیدها؛ پیکسل بوم سیاه/شفاف (محدودیت شناخته‌شده محیط).
+
+## 0.162.0 (اکتبر 2026) — فرمان‌های مستقیم: حمله کلیکی + گشت + وی‌پوینت + بوکمارک
+- **بند 225 (§10.4) — حمله کلیکی کامل (C-MIL-39):** کلیک روی ساختمان دشمن با یگان منتخب = `attackPick` خالص در combat.js (دشمن = سولو مالک AI و نه دروازه — acquire سولو دروازه را نادیده می‌گیرد؛ MP مالک دیگر؛ گیت‌های NOT_OWNED/NOT_TARGET/INVALID از `ATTACK_FA`) + اجرا با فرمان attackmove موجود (بی‌تغییر sim/MP/هش) + نامعتبر = دلیل + deny + هاور قرمز «حمله» روی یگان/بنای دشمن با منتخب + کرسر کراس‌قرمز (data-URL) + نام fa/en (`main.hover.attack`). مسلح attackmove هم همین‌جا مصرف می‌شود؛ بنای خودی دست‌نخورده می‌ماند. شیفت‌کلیک = ته صف (بند 238). تست تازه `t_attack_bld` (گزینش + ۳ گیت + درز applyCmd + درگیری ۳۰۰تیکه)؛ ردیف qa-plan: `C-MIL-39` → `pass`.
+- **بند 236 (§10.2) — گشت رفت‌وبرگشتی (C-MIL-40):** `orderPatrol(state,u,c,r)` در combat.js (A = جای فعلی، B = کلیک؛ فرمان صریح: ترک برج/جمع منجنیق/پاک‌شدن صف) + kind تازه «patrol» با {c,r,pc,pr} + `patrolStep` در stepCombat (درگیری attackmoveوار، وگرنه گام مثل followOrder؛ رسیدن = تعویض سرها، نه پایان) + فرمان `order` از صف sim/ورودی MP/ری‌پلی (orderKind/queue) + دکمه «گشت» (pendingKind تک‌بار، SHIFT نگهش می‌دارد) + هاور/وضعیت fa/en (`main.hover.patrol`/`main.order.nextPatrol`/`game.orderKind.patrol`/`ui.unit.patrol`) + ذخیره سازگار (سر دوم فقط patrol؛ قدیمی بی‌گشت) + هش شرطی (فقط patrol می‌خواند — پین‌های موجود سبز). تست تازه `t_patrol` (صدور + تعویض سر + بازگشت + ذخیره + لغو با فرمان صریح)؛ ردیف qa-plan: `C-MIL-40` → `pass`.
+- **بند 238 (§10.2) — صف وی‌پوینت (C-MIL-41):** `u.wp` (آرایه {kind,c,r}؛ غایب = بی‌صف) + `queueOrder` (فرمان فعال/صف‌دار = ته صف، وگرنه صریح) + `shiftQueue` (پس از رسیدن/پایان عقب‌نشینی؛ ورودی بد = پرش تحمل‌پذیر) + شیفت‌کلیک روی زمین/دشمن/بنا (move/attackmove/patrolِ در انتظار؛ SHIFT حالت مسلح را نگه می‌دارد) + پاک‌شدن صف با فرمان صریح/عقب‌نشینی/لغو/گاریسون/استقرار/نگهبانی/شکست/آزادی + ذخیره/هش شرطی (قدیمی سازگار). تست تازه `t_waypoints` (ترتیب B→C + ذخیره + پاک‌شدن با جایگزینی)؛ ردیف qa-plan: `C-MIL-41` → `pass`.
+- **بند 235 (§10.1) — بوکمارک دوربین (C-UI-15):** Ctrl+Alt+عدد (۱..۹) ذخیره + Alt+عدد فراخوانی + Alt+چرخ گردش چرخه‌ای (انحراف ثبت‌شده از «چرخ = گردش»: چرخ خالی زوم می‌ماند تا نشکند) + خالص `bookmarkSet/Get/Cycle` در selection.js + گذرا و UI-side (ریست با بازی/بارگذاری تازه، مثل ctrlGroups) + پیام fa/en (`main.bookmark.saved/recall/empty`). تست تازه `t_bookmark` (اعتبار + کپی + گردش)؛ ردیف qa-plan: `C-UI-15` → `pass`.
+- تست: 4 تست تازه؛ 416/416 سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش (میکس شرطی patrol/wp + پین‌های ری‌پلی سبز). رگرسیون حین کار: پیش‌نمایه ۶ بار رفرش ناموفق داد («never requested generator data» — باگ سکویی/throttle تب، نه کد: هر ۱۰ فایل با acorn سالم پارش شدند)؛ پس از بهبودی سوئیت همان دور اول ۴۱۶/۴۱۶ سبز شد.
+- **فلیپ‌ها:** بندهای 225/235/236/238 → کامل. شمارش ماشینی: 205 کامل/108 ناقص/146 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای fallback وکتوری موردانتظار) + جای‌گذاری سربازخانه/برج + ۱۵۱۰ تیک بدون خطا؛ گشت زنده رفت‌وبرگشتی (سرباز ۵٫۵‚۱٫۵ → نزدیک B و بازگشت، فرمان فعال ماند)؛ حمله زنده به برج دشمن (۲۵۰→۰، ویران شد)؛ بوکمارک (ذخیره + زوم + فراخوانی = بازگشت دقیق نما)؛ دکمه «گشت» در DOM؛ کرسر/کلیک مصنوعی: pointermove اجرا و کرسر ریست شد ولی کلیک مصنوعی در این محیط به هندلر نمی‌رسد (محدودیت شناخته‌شده — درز کلیک با تست applyCmd + بازبینی کد پوشش داده شد)؛ پیکسل بوم سیاه/شفاف (محدودیت شناخته‌شده).
+
+## 0.161.0 (اکتبر 2026) — استحکامات مستقیم + بستن غیبت‌های تونل/حفر/چادر
+- **بند 559 (§10.2) — کلیک مستقیم fortify (C-UI-14):** کلیک مستقیم روی برج خودی با یگان منتخب = `fortifyPick` خالص در combat.js (فقط دوربرد خودیِ زنده؛ گیت‌های NOT_TOWER/NOT_OWNED/UNDER_CONSTRUCTION/NOT_RANGED/FULL/INVALID از `GARRISON_FA`) + اجرا با فرمان garrison موجود (بی‌تغییر sim/MP/هش — فقط گزینش ids) + شاخه pointerup در main.js (نامعتبر = دلیل قرمز + deny؛ همان ضربدر قرمز دفترچه) + هاور fortify/fortifyFoe + نام fa/en (`main.hover.fortify/fortifyFoe`). تست تازه `t_fortify` (گزینش + درز applyCmd + ۶ گیت)؛ ردیف qa-plan: `C-UI-14` → `pass`.
+- **ردیف 413 (§8.1) — دیوارها و پله:** دیوار بلند/کوتاه/کنگره (0.155.0) + پله vacuous (0.160.0) — ردیف کامل شد، بدون تغییر کد.
+- **بندهای 297/298/299/300 (§12.3) — غیبت تونل (C-MIL-37):** نه tunneler نه dig نه ورودی تونل — هر ۴ خلا؛ برج‌ها میدان زیرکنی ندارند. تست تازه `t_tunnel_absence`؛ ردیف qa-plan: `C-MIL-37` → `pass`.
+- **بند 275 (§11.6) — غیبت رابط حفر (C-CONST-24):** نه خندق نه طرح نه فرمان حفر؛ ستون `canDigMoat` (277) داده می‌ماند ولی بی‌مصرف؛ `dig`/`digmoat` ناشناس = INVALID. تست تازه `t_digux_absence`؛ ردیف qa-plan: `C-CONST-24` → `pass`.
+- **بندهای 292/293/294/295 (§12.1) — غیبت چادر و اداره (C-MIL-38):** نه tent نه engineer نه shield؛ ماشین‌ها بی‌خدمه کار می‌کنند (شمار خدمه فقط در جدول مرجع `BALANCE.siege` — تصمیم ثبت‌شده)؛ شکنندگی چادر و هینت سپر بی‌مصداق‌اند. تست تازه `t_siegetent_absence`؛ ردیف qa-plan: `C-MIL-38` → `pass`.
+- تست: 4 تست تازه؛ 412/412 سینک x2 + 5/5 ناهمگام؛ بدون بازپین هش (خالص/غیبت + فرمان موجود) + پین‌های ری‌پلی سبز. رگرسیون حین کار: swordsman یگان دشمن است (side: enemy) — گزینش fortify با soldier؛ شمار خدمه رم در UNITS نیست (در `BALANCE.siege.machines` است)؛ جای‌گذاری برج دشمن با owner=9 رد می‌شود (الگوی t_gatecapture: ساخت خودی + چرخش owner).
+- **فلیپ‌ها:** بندهای 275/292/293/294/295/297/298/299/300/559 + ردیف 413 (§8.1) → کامل. شمارش ماشینی: 201 کامل/109 ناقص/149 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای fallback وکتوری موردانتظره) + جای‌گذاری کلبه/برج + ۲۵۰ تیک بدون خطا؛ کلیک مصنوعی PointerEvent در این محیط به هندلر.canvas نمی‌رسد (کنترل: کلیک زمین خالی هم بی‌اثر بود) — درز کلیک با بازبینی کد + تست applyCmd پوشش داده شد؛ پیکسل بوم سیاه (محدودیت شناخته‌شده).
+## 0.160.0 (اکتبر 2026) — بستن غیبت‌های فاز ۵: پله + خندق/پل + سواربرج + روغن/قیر
+- **بندهای 269-272 (§11.3/§11.4) — غیبت پله (C-CONST-22):** نه بنای stairs نه لایه ارتفاع/wallTop در موتور است — هر ۴ گزاره خلا؛ استقرار در برج آنی و بی‌نیاز از دیوار مجاور/پله می‌ماند (انحراف ثبت‌شده از «ورود از طریق دیوار»). تست تازه `t_stairs_absence`؛ ردیف qa-plan: `C-CONST-22` → `pass`.
+- **بند 264 (§11.1) + ردیف Drawbridge (§8.1) + بندهای 276/278/279 (§11.6) — غیبت خندق و پل (C-CONST-23):** نه moat نه drawbridge نه طرح حفر در موتور است؛ زمین کم‌ارتفاع/بلند ندارد (۴ تایل چمن/آب/سنگ/واحه)؛ حذف/پرکردن خندق گزاره خلاست. تست تازه `t_moatdraw_absence`؛ ردیف qa-plan: `C-CONST-23` → `pass`.
+- **بندهای 281-283 (§11.7) — غیبت محاصره سواربرج (C-MIL-35):** نه engineer نه mangonel نه شکاف mounted در موتور است — هر ۳ گزاره خلا؛ آتش برج‌ها فقط سلاح خودی + گاریسون دوربرد؛ منجنیق/تربوشه/بالیستا گاریسون نمی‌شوند (`NOT_RANGED` — پین رفتاری). تست تازه `t_towermounted`؛ ردیف qa-plan: `C-MIL-35` → `pass`.
+- **بند 274 (§11.5) + ردیف‌های Pitch/Oil (§8.1) + بندهای 284-287 (§11.8) + اثر موضع و Pour Oil (§10.3/§10.4) — غیبت روغن و قیر (C-MIL-36):** نه pitch/oil نه smelter/pitchrig/brazier نه engineer نه فرمان pour در موتور است؛ آستانه‌های موضعی ۱/۳ بی‌مصداق‌اند؛ آتش موتور (0.148.0) زنجیره قیر ندارد. تست تازه `t_oil_absence`؛ ردیف qa-plan: `C-MIL-36` → `pass`.
+- تست: 4 تست تازه؛ 408/408 سینک x2 + 5/5 ناهمگام؛ بدون بازپین هش (پین‌های غیبت خالص؛ هیچ میکس تازه‌ای نیست) + پین‌های ری‌پلی سبز. تنها بازمانده فاز ۵: بند 275 (رابط کاربری حفر خندق — حماسه سامانه خندق).
+- **فلیپ‌ها:** بندهای 264/269/270/271/272/274/276/278/279/281/282/283/284/285/286/287 + ردیف‌های §8.1 ‏(Drawbridge/Pitch/Oil) + ردیف‌های §10 ‏(اثر موضع/ Pour Oil) → کامل. شمارش ماشینی: 190 کامل/111 ناقص/158 انجام‌نشده (مجموع 459).
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای fallback وکتوری موردانتظار) + جای‌گذاری کلبه/برج + ۶۴۰ تیک بدون خطا؛ پیکسل بوم در این محیط سیاه است (محدودیت شناخته‌شده).
+## 0.159.0 (اکتبر 2026) — روش‌های تصرف + برج‌های مربع/گرد + پین مهمات
+- **بند 296 (§12.2) — روش‌های تصرف دروازه (C-MIL-33):** فقط پیاده مدعی است — `stepGateCapture` مدعی siege (ram/catapult/trebuchet/ballista) را کنار می‌گذارد؛ assassin صریحاً می‌گیرد (پین)؛ laddermen/siege-tower در موتور نیستند (vacuous). تست تازه `t_gatecapture_methods`؛ ردیف qa-plan: `C-MIL-33` → `pass`.
+- **بند 268 (§11.3) + ردیف‌های جدول 126/127 — برج‌های مربع/گرد (C-CONST-21):** بناهای `squaretower` (3x3/35سنگ مرجع/جان460/سقف36 مرجع/سلاح8) + `roundtower` (3x3/40سنگ مرجع/جان600/سقف36 مرجع/سلاح8)؛ هر دو fortified + پاسگاه + خانواده‌برج (قاتل صفر/تیر نصف/تعمیر سنگی/Strong Walls) + رندر/پالت/نام fa/en؛ تونل‌مصونیت vacuous + mounted vacuous. انحراف ثبت‌شده: تعمیر یکنواخت 1سنگ/100HP در برابر 1/45 و 1/50 مرجع. تست تازه `t_squaretower` + به‌روزرسانی پین‌های `t_towers` (پاسگاه 4→6) و `t_data_buildings_file` (45→47)؛ ردیف qa-plan: `C-CONST-21` → `pass`.
+- **ردیف 18.4 مهمات — پین 10 سنگ = 20 سنگ‌پرتابه (C-MIL-34):** ثابت‌های `AMMO_RESUPPLY_STONE/ROCKS` (از 0.149.0) + سقف‌ها (catapult 20، trebuchet 10) + خالی = توقف شلیک + کسر از stockpile؛ ballista بی‌مهمات (guess، ژاولین نامحدود). تست تازه `t_ammorocks`؛ ردیف qa-plan: `C-MIL-34` → `pass`.
+- تست: 3 تست تازه؛ 404/404 سینک x2 + 5/5 ناهمگام؛ بدون بازپین هش (کاتالوگ/میکس شرطی + پین‌های ری‌پلی سبز). رگرسیون حین کار: پین `t_towerguard` (خانواده 4→6)؛ NEEDS_WEAPON (37 کماندار ذخیره کمان می‌خواهد — با spawnUnit دور زده شد چون تمرکز تست سقف گاریسون است نه استخدام)؛ سقف schema منابع (food/gold ۲۰۰۰ = INVALID_SCHEMA — در سقف ۵۰۰ ماند).
+- **فلیپ‌ها:** بندهای 268/296 + ردیف‌های جدول 126/127 + ردیف 18.4 مهمات → کامل. شمارش ماشینی: 169 کامل/111 ناقص/179 انجام‌نشده.
+- راستی‌آزمایی زنده: بوت تمیز (فقط هشدارهای fallback وکتوری موردانتظار) + جای‌گذاری مربعی/گرد + استخدام/گاریسون زنده + زنجیره دروازه + تصرف واقعی (مالک 9 + باز + رویداد)؛ پیکسل بوم در این محیط شفاف است (محدودیت شناخته‌شده).
+## 0.158.0 (اکتبر ۲۰۲۶) — تصرف دروازه و ستون حفر و اعداد گودال
+- **بند ۲۶۳ (§۱۱.۱) — تصرف gatehouse (C-CONST-20):** ماشه فقط ردپای دروازه سالم تکمیل‌شده («به بالای آن برسد» — مجاورت = حمله عادی، وگرنه نبرد دروازه می‌خوابید؛ تصمیم ثبت‌شده)؛ مالک بیگانه + بازشدن + رویداد `game.ev.gateCapture` + پاک‌سازی هدف/مسیر. سولو: دشمن→۹ (حریف AI) / خودی→۰؛ MP: اسلات مهاجم. پرچم سرخ روی دروازه دشمن‌دار (رندر)؛ گذر دشمن سولو از تصرف‌شده باز (اثر جزئی بند ۱۱۴۶ — ناقص می‌ماند)؛ acquire سولو دروازه را نادیده می‌گیرد (AI دروازه نمی‌سازد)؛ MP دست‌نخورده. تست‌های تازه `t_gatecapture` + `t_gatereach` + `t_gatemulti`؛ ردیف qa-plan: `C-CONST-20` → `pass`.
+- **بند ۲۷۷ (§۱۱.۶) — ستون حفر خندق (C-MIL-30):** `canDigMoat` از جدول‌های مرجع ۹.۶/۹.۷: بله = archer/bowman/spearman/slave/maceman/pikeman/arabianBow، بقیه خیر (soldier≈Swordsman؛ crusader/lord/healer/wardog غیرمرجع guess-false). ستون نردبان دست‌نخورده (بندهای نردبان جدا). تست تازه `t_digcolumn`؛ ردیف qa-plan: `C-MIL-30` → `pass`.
+- **بند ۲۸۰ (§۱۱.۶) — تونل زیر خندق (C-MIL-31):** نه tunneler/engineer نه moat در موتور است — گزاره خلا (همان الگوی vacuous). تست تازه `t_tunnelmoat`؛ ردیف qa-plan: `C-MIL-31` → `pass`.
+- **بند ۲۹۰ (§۱۸.۳) — اعداد گودال (C-MIL-32):** محاصره سبک (catapult/trebuchet/ballista) هزینه ۱ (Catapult مرجع ۱ ✅؛ بقیه guess هم‌رده) + رم ۱۷ آسیب/گودال با مصرف کامل (۹×۱۷=۱۵۳ ≥ جان ۱۵۰ ✅ مرجع Ram ۹) + siege tower غایب (vacuous)؛ پیاده ۱/۲/۳ (مرجع ✅) دست‌نخورده. تصمیم 0.155.0 («ناقص می‌ماند») با این نگاشت لغو شد. تست تازه `t_pitnumbers` + به‌روزرسانی پین `t_killpit`؛ ردیف qa-plan: `C-MIL-32` → `pass`.
+- تست: ۶ تست تازه؛ ۴۰۱/۴۰۱ سینک ×۲ + ۵/۵ ناهمگام؛ بدون بازپین هش (owner/open/charges از قبل در هش بودند) + پین‌های ری‌پلی سبز. رگرسیون حین کار: ماشه مجاورت نبرد دروازه را می‌خواباند (t_ramrow/t_ram_bonus/t_gate_toggle_invalid) → فقط-ردپا.
+- **فلیپ‌ها:** بندهای ۲۶۳/۲۷۷/۲۸۰/۲۹۰ → کامل. شمارش ماشینی: ۱۶۴ کامل/۱۱۱ ناقص/۱۸۴ انجام‌نشده.
+
+## 0.157.0 (اکتبر ۲۰۲۶) — دروازه و دیوار و دیده‌بانی
+- **بند ۲۵۷ (§۱۱.۱) — نیاز دروازه برای کارگران (C-CONST-17):** عبور نظامی از دروازه (t_gate_mission موجود) + تولید با حلقه دیواری بی‌تغییر می‌ماند — اقتصاد تلپورتی است و دیوار کارگر را حبس نمی‌کند (انحراف ثبت‌شده). تست تازه `t_gate_workers` (برابری تولید حلقه بی‌دروازه/بادروازه)؛ ردیف qa-plan: `C-CONST-17` → `pass`.
+- **بند ۲۵۸ (§۱۱.۱) — جهت دروازه (C-CONST-18):** دروازه ۱×۱ متقارن است و جهت بی‌معناست؛ هر ۴ ضلع دیوار می‌پذیرد (anchorToAny). تست تازه `t_gate_sides4` (اتصال N/S/E + کلبه در W)؛ ردیف qa-plan: `C-CONST-18` → `pass`.
+- **بند ۲۵۹ (§۱۱.۲) — ساخت دیوار با درگ (C-CONST-19):** رها = ساخت تایل‌به‌تایل از صف + هزینه کافی (مقیاس چوبی ۲چوب/خانه — انحراف ثبت‌شده از stone دفترچه)؛ خط کم‌بضاعت کلاً قرمز (تعامل با بند ۲۶۰). تست تازه `t_walldrag` + پین‌های موجود `t_wallline_queue`/`t_wallline_preview`؛ ردیف qa-plan: `C-CONST-19` → `pass`.
+- **بند ۲۶۷ (§۱۱.۳) — جزئیات دیده‌بانی (C-MIL-29):** ارزان (فقط ۱۰ سنگ) + سقف ۵ (کوچک‌ترین تازه‌ها) + بی‌پشتیبانی محاصره (`canGarrisonType` ضد siege → NOT_RANGED) + تونل‌زنی vacuous (یگان tunneler/engineer در موتور نیست — ثبت‌شده). تست تازه `t_lookout`؛ ردیف qa-plan: `C-MIL-29` → `pass`.
+- بند ۳۰۱ (§۱۲.۴) حین امکان‌سنجی بررسی شد: تربوشه از 0.152.0 گاوافکن است (cowCd=۱۵۰، `needsDeploy`) و در همان نسخه کامل شده — خارج از محدوده این نسخه.
+- تست: ۴ تست تازه؛ ۳۹۵/۳۹۵ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (گیت‌های خالص + پین‌های کاتالوگ/رفتاری) + پین‌های ری‌پلی سبز.
+- **فلیپ‌ها:** بندهای ۲۵۷/۲۵۸/۲۵۹/۲۶۷ → کامل. شمارش ماشینی: ۱۶۰ کامل/۱۱۱ ناقص/۱۸۸ انجام‌نشده.
+## 0.156.0 (اکتبر ۲۰۲۶) — برتری برج + رم one-shot + خط قرمز + سگ‌های جنگی
+- **بند ۲۶۱ (§۱۱.۳) — برتری دفاعی برج‌ها (C-CONST-15):** `TOWER_FAMILY` (tower/lookout/perimeter/defence) + `towerGuardDmg` در زنجیره `fightTarget` — assassin ضد برج صفر + تیر دوربرد غیرمحاصره ضد برج نصف (guess)؛ نردبان در موتور نیست (vacuous ثبت‌شده) + بونوس برد گاریسون از 0.45.0 (ثبت‌شده). تست تازه `t_towerguard`؛ ردیف qa-plan: `C-CONST-15` → `pass`.
+- **بند ۲۶۲ (§۱۸.۳) — قدرت/مقاومت Ram (C-MIL-27):** `ramStrikeDmg` (یک ضربه = یک خانه دیوار تک‌لایه wall/lowwall/crenwall تا سقف maxHp؛ دروازه/برج همان ×۳) + `ramResistDmg` (تیر دوربرد غیرمحاصره یک‌چهارم کف ۱ + ballista ×۲ + ضربه نزدیک ×۲) + `RAM_ONESHOT_WALLS`؛ مصونیت آتش vacuous است (آتش موتور فقط ساختمان می‌سوزاند — ثبت‌شده). پین‌های عمدی `t_ram_bonus`/`t_siege_vs_wall` سبز ماندند. تست تازه `t_ramrow`؛ ردیف qa-plan: `C-MIL-27` → `pass`.
+- **بند ۲۶۰ (§۱۱.۲) — خط دیوار قرمز کامل (C-CONST-16):** `blockLineIfAnyInvalid` خالص در wallline.js + سیم‌کشی `buildWallLine`/pointerup — هر تایل خراب = کل خط قرمز + رها هیچ (صدای رد + پیام `main.wall.lineBlocked`). تست تازه `t_wallpreview`؛ ردیف qa-plan: `C-CONST-16` → `pass`.
+- **بندهای ۲۸۸/۲۸۹ (§۱۱.۹) — سگ‌های جنگی در قفس (C-MIL-28):** بنای `dogcage` (۲×۲/۱۰چوب+۱۰۰طلا مرجع/۴سگ) + یگان `wardog` (جان۲۵/آسیب۵/سرعت۴٫۶/aggro۱۴ — guess، فقط از قفس، noHire) + فرمان `release` (kind سرور ۲۲، هر ۳ آینه) + `stepKennels` (۱ سگ/۹۰۰تیک) + گزینه اتاق No Dogs (بیت o+24؛ گیت جای‌گذاری + رهاسازی) + رندر/پالت/متا/نام fa/en + فیکس باگ lobby (۴ خط noDogs که noRush می‌نوشتند). تست تازه `t_wardogs` + پین `t_data_buildings_file` ‏۴۴→۴۵ + پین `t_data_units_file` ‏۲۴→۲۵ + لمس `t_merc_sprites` برای wardog؛ ردیف qa-plan: `C-MIL-28` → `pass`.
+- تست: ۴ تست تازه؛ ۳۹۱/۳۹۱ سینک + ۵/۵ ناهمگام؛ ۱ بازپین عمدی هش رگرسیون (garrison-tower ‏39400bc8: تیر آرچر/گاریسون ضد برج نصف شد — اثر موردانتظار بند ۲۶۱) + پین‌های ری‌پلی سبز.
+- **فلیپ‌ها:** بندهای ۲۶۰/۲۶۱/۲۶۲/۲۸۸/۲۸۹ → کامل. شمارش ماشینی: ۱۵۶ کامل/۱۱۴ ناقص/۱۸۹ انجام‌نشده.
+## 0.155.0 (اکتبر ۲۰۲۶) — برج‌های تازه + دیوارهای تازه + تعمیر + گودال کشتار
+- **بندهای ۱۲۳/۱۲۴/۱۲۵ (§۸.۱) — برج‌های تازه (کاتالوگ + گاریسون چندبرجی):** `lookout` (۲×۲/۱۵۰/۱۰سنگ/برد۹/سقف۵ — سقف ۵ مرجع ✅)، `perimeter` (۲×۲/۳۰۰/۱۰سنگ/برد۷/سقف۸ 🔧)، `defence` (۳×۳/۴۵۰/۱۵سنگ/برد۸/سقف۱۲ 🔧 — مقاوم‌تر) + سقف داده‌محور (`garrisonCap` در داده؛ `isGarrisonPost`/`garrisonCapFor` در combat؛ برج همان ۴) + سیم‌کشی فرمان garrison/MP/ذخیره/هش (شرطی — بی‌churn برای قدیمی) + رندر (شاخه برج + نقطه‌های چندردیفه) + پالت/متا/نام fa/en. تست تازه `t_towers`؛ ردیف qa-plan: `C-CONST-12` → `pass`.
+- **بندهای ۲۶۵/۲۶۶ (§۱۱.۲) + ۱۶۶ (§۱۸.۳) — دیوارهای تازه (کاتالوگ):** `lowwall` (۱×۱/۲۴ = ۴۰٪ دیوار ۶۰/۱چوب) + `crenwall` (۱×۱/۷۲/۲چوب)؛ هر دو مستحکم و لنگردار (خانواده بارو در رندر به هم وصل می‌شوند)؛ درگ خط فقط دیوار می‌ماند (ثبت‌شده) + پالت/نام fa/en. تست تازه `t_walls`؛ ردیف qa-plan: `C-CONST-13` → `pass`.
+- **بند ۲۱۰ (§۱۸.۳) — تعمیر (تغییر sim — از Crusader 2):** `repairCost` خالص (مستحکم ۱سنگ/۱۰۰HP مرجع + بقیه ۱چوب/۵۰HP guess؛ دست‌کم ۱) + `validateRepair`/`repairBuilding` (INVALID/NOT_OWNED/FULL/UNDER_CONSTRUCTION/INSUFFICIENT) + فرمان `repair` از صف/MP/سرور (id الحاقی ۲۱) + دکمه 🛠 (جریان مسلح demolishوار + خط نبرد) + نام/دلیل fa/en. تست تازه `t_repair`؛ ردیف qa-plan: `C-CONST-14` → `pass`.
+- **بندهای ۱۳۲ (§۸.۱) + ۲۷۳ (§۱۱.۵) — گودال کشتار (تغییر sim):** بنای `killpit` (۱×۱/۴۰/۶چوب مرجع/۳شارژ) + `PIT_COST` (سبک ۱/شوالیه+شمشیرزن ۲/نیزه‌دار+محاصره+ارباب ۳) + `stepKillpits` در پایان نبرد (ماشه مرکز-روی-ردپا؛ دوست ایمن؛ شارژ ناکافی = عبور؛ صفر = ویرانی/آزادی زمین؛ صلح No Rush خاموش؛ مستقر بیرون) + شارژ در هش/ذخیره شرطی (قدیمی = پر) + رندر کم‌رنگ (انحراف ثبت‌شده از «نامرئی برای دشمن» — بیابان مه ندارد) + پالت/هاور شارژ/نام fa/en. بند ۲۹۰ (اعداد Ram ۹ و...) ناقص می‌ماند (مقیاس وب فرق دارد — ثبت‌شده). تست تازه `t_killpit`؛ ردیف qa-plan: `C-MIL-26` → `pass`.
+- تست: ۴ تست تازه؛ ۳۸۷/۳۸۷ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (همه میکس‌ها شرطی + سناریوهای موجود بنای تازه ندارند) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (کارت ۳ برج + نقطه‌های گاریسون، دیوارهای تازه، دکمه 🛠 + تعمیر واقعی، گودال + مرگ دشمن + هاور شارژ، بوت تمیز — فقط هشدارهای fallback وکتوری موردانتظار). ردیف‌های qa-plan‏: `C-CONST-12` + `C-CONST-13` + `C-CONST-14` + `C-MIL-26` → `pass`.
+- **فلیپ‌ها:** بندهای ۱۲۳/۱۲۴/۱۲۵/۱۳۲/۱۶۶/۲۱۰/۲۶۵/۲۶۶/۲۷۳ → کامل. شمارش ماشینی: ۱۴۹ کامل/۱۱۷ ناقص/۱۹۳ انجام‌نشده.
+## 0.154.0 (اکتبر ۲۰۲۶) — موضع تهاجمی + ستاد سنگی + کلیدهای سرعت + واحه و مزارع
+- **بند ۵۶۸ (§۱۰.۳) — موضع تهاجمی E (تغییر sim):** `engageStep` (کسب لنگرِ پست با دید aggro — بی‌churn، افسار ۴۰/۴۲، بازگشت به پست، زنجیره هدف؛ محاصره و موج دشمن مسیر قدیمی) + `provokeRetaliation` خالص و MP-امن (قربانی تهاجمیِ بی‌هدفِ غیرموج که از بیرون دیدش تیر پرتابی می‌خورد، ضارب را بی‌افسار شکار می‌کند؛ ضارب مستقر/برج = شکار خود برج؛ درگیری فعال/تن‌به‌تن/محاصره/صلح = بی‌واکنش) + `huntId` در sim (پاک‌سازی در موضع/فرمان/رسیدن؛ ذخیره قدیمی = نیست؛ هش شرطی) + کلید E (از 0.153.0). تست تازه `t_aggressive`؛ ردیف qa-plan: `C-MIL-25` → `pass`.
+- **بند ۴۰۵ (§۸.۱) — ستاد سنگی (کاتالوگ + مسکن):** ردیف دوم جدول (۲۰ سنگ) = گام بعدی ستاد: بنای `stonekeep` جدا (۴×۴، جان ۸۰۰، یکتا، ساخت ۱۵۰ تیک) + مسکن ۱۰ (`TUNING.housing.stonekeep`؛ انباشت با ستاد ۸+۱۰ — guess، مرجع ارتقاست) + ستادبه‌حساب‌آمدن برای قفل پالت (`hasLiveKeep`) + کارت پالت + نام fa/en. تست تازه `t_stonekeep` (پین `t_data_buildings_file` ‏۳۷→۳۸)؛ ردیف qa-plan: `C-CONST-11` → `pass`.
+- **بند ۸۱۸ (§۱۷) — کلیدهای سرعت بازی (UI-side):** دو کنش قابل‌تغییر `speedUp`/`speedDown` با پیش‌فرض NumpadAdd/NumpadSubtract + `cycleSpeed` خالص (پله بالا/پایین با توقف در مرز — برخلاف چرخش دکمه) + دکمه‌های remap در تنظیم کلیدها + گیت MP/تماشا + نام fa/en. تست تازه `t_speed_hotkeys`؛ ردیف qa-plan: `C-UI-13` → `pass`.
+- **بند ۱۰۷ (§۱.۲) — واحه و مزارع نزدیک آن (تغییر زمین + قانون ساخت):** زمین `T_OASIS=۳` سیدساز و متقارن (مرکز {۳،۴،۶}×۱۰ + شکل به‌علاوه، پس از محوطه‌ها؛ بیرون مستطیل گوشه ولی در شعاع همه مزارع آزمونی و نقاط استخدام) + قانون `NO_OASIS` در `validate` برای هر ۵ بنای دسته farm (چبی‌شف ≤۸ از لبه ردپا؛ آسیاب/نانوایی معاف؛ ردپا روی واحه = TERRAIN) + عبور آزاد واحه (pathfind/combat-walkable) + رندر وکتوری (برکه + نخل) + رنگ مینی‌مپ + قلم ویرایشگر (تایل ۳، با گردش سند) + پین‌ها. تست تازه `t_oasis` (پین `t_mapedit_validate` با تایل ۴)؛ ردیف qa-plan: `C-FOOD-6` → `pass`. بند ۵۶۹ (روغن) می‌ماند — سامانه smelter/pour غایب است.
+- تست: ۴ تست تازه؛ ۳۸۳/۳۸۳ سینک + ۵/۵ ناهمگام؛ ۲ بازپین عمدی هش با ثبت علت (`ai-skirmish`: زمین واحه + بازگشت تهاجمی؛ ری‌پلی مرجع `ref-solo-001` با `gameVersion` ‏۰٫۱۵۴٫۰) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (کارت ستاد سنگی در پالت، دکمه‌های تندتر/کندتر + نامپد ± با توقف در مرز و متن دکمه، براش واحه در ویرایشگر، واحه زنده ۵خانه‌ای + پوند/نخل در رندر + پیکسل مینی‌مپ، دلیل NO_OASIS زنده، بوت تمیز — فقط هشدارهای fallback وکتوری موردانتظار). ردیف‌های qa-plan‏: `C-MIL-25` + `C-CONST-11` + `C-UI-13` + `C-FOOD-6` → `pass`.
+## 0.153.0 (اکتبر ۲۰۲۶) — هویت آغازین + فاصله ذخیره خودکار + موضع تدافعی + شعاع پابرجا
+- **بند ۱۰۴ (§۱.۱) — هویت آغازین (UI + نیروهای شروع؛ بالانس پیش‌فرض بی‌تغییر):** کاتالوگ `IDENTITIES` در `combat.js` (none/crusader/arab + `validIdentity`) + `spawnStartingForce` (رایگان/بی‌نیاز از سربازخانه، مارپیچ قطعی دور ستاد: صلیبی ۵ کماندار+۷ سرباز، عربی ۵ کماندار عرب+۷ برده، none = رفتار امروز) + سلکت منوی سولو `identSel` (ماندگاری `scw.identity`) + پارامتر `identity` در `newGame`/`createRecorder`/`newSoloFromSeed`/`replayLogOf` (لاگ قدیمی = بی‌نیرو) + `state.ident` در serialize/checkCore/buildState (قدیمی = none) + پرتره پروفایل و نام هویت روی هاور ستاد + نام fa/en. تست تازه `t_identity`؛ ردیف qa-plan: `C-UI-12` → `pass`.
+- **بند ۱۱۷ (§۱.۳) — فاصله ذخیره خودکار (UI-side + گیت حلقه):** `AUTOSAVE_OPTIONS` (خاموش/۳۰ثانیه/۲دقیقه/۵دقیقه = ۰/۳۰۰/۱۲۰۰/۳۰۰۰ تیک) + `validAutosave`/`autosaveTicks`/`autosaveDue` خالص در `persist.js` + سلکت منو `autosaveSel` (ماندگاری `scw.autosave`، پیش‌فرض رفتار امروز) + گیت حلقه با `autosaveDue` (خاموش = بی‌ذخیره). سرعت بازی از پیش بود (SPEEDS ‏[۱،۲،۴] + دکمه). تست تازه `t_autosave`؛ ردیف qa-plan: `C-PERS-9` → `pass`.
+- **بند ۵۶۷ (§۱۰.۳) — موضع تدافعی W (تغییر sim):** `STANCES.DEFEND` + `DEFEND_RADIUS=۲۰`/`DEFEND_DROP=۲۲` + پست `homeX/homeR` (ظهور/موضع تازه/رسیدن به مقصد/پاسگاه/خروج از برج؛ ذخیره قدیمی = جای فعلی) + `defendStep` (کسب لنگرِ پست با دید aggro، افسار، بازگشت به پست، محاصره مثل نگهبانی فقط ساختمان) + گیت‌های `setStance`/sim/MP/ذخیره + هش شرطی (فقط یگان تدافعی mix می‌شود — بی‌churn برای بقیه) + دکمه «تدافعی» + کلید W (و Q/E برای پابرجا/تهاجمی، قابل‌تغییر در تنظیم کلیدها) + نام fa/en. تست‌های تازه `t_defensive` + `t_defend_save`؛ ردیف qa-plan: `C-MIL-24` → `pass`.
+- **بند ۵۶۶ (§۱۰.۳) — شعاع پابرجا Q (تغییر sim جزئی):** سقف کسب خودکار ۸ برای `hold` در `acquire` (engage/guard/AI دست‌نخورده) + بازنام‌گذاری hold به پابرجا/Stand Ground (دکمه‌ها و STANCE_FA؛ defend می‌شود دفاعی/Defensive) + کلید Q. بند ۵۶۸ (تهاجمی) ناقص می‌ماند (بازگشت‌به‌پست + شعاع ۴۰ باز — ثبت‌شده). تست تازه `t_stand`؛ همان ردیف `C-MIL-24`.
+- تست: ۵ تست تازه؛ ۳۷۹/۳۷۹ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (هش شرطی پست تدافعی + سقف دید قطعی بدون rng + هویت/ذخیره/UI بی‌اثر بر هش‌های موجود) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (شروع عربی با ۱۲ نیرو، دکمه تدافعی + Q/W/E واقعی، هاور ستاد با پرتره و نام هویت، سلکت‌های هویت/ذخیره با ماندگاری، بوت تمیز — فقط هشدارهای fallback وکتوری موردانتظار). ردیف‌های qa-plan: `C-UI-12` + `C-PERS-9` + `C-MIL-24` → `pass`.
+- **فلیپ‌ها:** بندهای ۱۰۴/۱۱۷/۵۶۶/۵۶۷ → کامل. شمارش ماشینی: ۱۳۷ کامل/۱۲۰ ناقص/۲۰۲ انجام‌نشده.
+
+## 0.152.0 (اکتبر ۲۰۲۶) — بالیستای آتشین + ردیف Manor + نام اولین اجرا
+- **بند ۱۱۵۵ (§۱۹.۳) — بالیستای آتشین (تغییر sim+داده):** یگان `ballista` در `data/units.json` (سربازخانه، ۸۰غ+۱۲۰ط، جان۱۰۰/زره۱/آسیب۶/ریلود۲۵/برد۹/کمینه۳، محاصره ×۲ ضد ساختمان، استقرار اجباری، بی‌مهمات مثل دژکوب، بی‌سلاح، آموزش۱۵۰) + گیت خالص `noFortDmg` در `fightTarget` (سازه مستحکم wall/tower/gate → ۰ خسارت؛ بنای دیگر/ویرانه/یگان دست‌نخورده) + بولین `noVsFort` در اسکیما + رندر وکتوری محاصره‌وار (بی‌شیت) + کارت خودکار + نام fa/en. تست تازه `t_ballista` (کاتالوگ + گیت خالص + دیوار سالم/کلبه خورده واقعی + استخدام)؛ ردیف qa-plan: `C-MIL-23` → `pass`.
+- **بند ۴۰۴ (§۸.۱) — ردیف Manor (پین پیوست، بدون تغییر sim):** برچسب «Small stone gatehouse» مرجع Free با توضیح Keep است (مسکن ۸ + پنل مالیات + پیش‌نیاز همه‌ساخت) — هر سه جدا مدل‌اند و پیاده‌اند: ستاد رایگانِ پیش‌قرارگرفته + مسکن ۸ + قفل `keepLocked` + مالیات ۱۲سطحه. تست تازه `t_manor_row`؛ ردیف qa-plan: `C-CONST-10` → `pass`.
+- **بند ۱۰۳ (§۱.۱) — نام اولین اجرا (UI-side، بدون تغییر sim):** تابع خالص تزریق‌پذیر `firstRunAsk(get)` در `profile.js` (حافظه خالی/خراب = true؛ پروفایل معتبر/نام جنگی قدیمی = false) + سیم‌کشی بوت در `main.js` (بی‌پروفایل = منو روی صفحه شناسه + فوکوس ورودی نام). تست تازه `t_first_run`؛ ردیف qa-plan: `C-UI-11` → `pass`.
+- **به‌روزرسانی پین‌ها:** `t_hire_roster` ۱۹→۲۰ (نقطه +[۱۳,۱۱]؛ کمک‌هزینه ۹۵۰/۱۰۵۰ سر جایش — مجموع ۸۵۵غ/۹۱۲ط)، `t_merc_sprites` (شیت‌ها ۱۱؛ بالیستا محاصره‌وار بی‌شیت مثل دژکوب/منجنیق/تربوشه)، `t_data_units_file` ۲۳→۲۴، `t_slave` (شمارش ۱۹→۲۰؛ برده همچنان ارزان‌ترین).
+- تست: ۳ تست تازه؛ ۳۷۴/۳۷۴ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (کاتالوگ تازه + گیت قطعی بدون rng + پین/UI بی‌اثر بر sim) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (۲۰ کارت مزدور با بالیستا، حافظه پاک + رفرش = صفحه شناسه با فوکوس نام، بوت تمیز — فقط هشدارهای fallback وکتوری موردانتظار). ردیف‌های qa-plan‏: `C-MIL-23` + `C-CONST-10` + `C-UI-11` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۱۱۵۵/۴۰۴/۱۰۳ → کامل؛ بند ۶۷۵ → کامل (تربوشه گاوافکن است — یادداشت 0.142.0 کهنه بود؛ پوشش در `t_trebuchet`). شمارش ماشینی: ۱۳۳ کامل/۱۲۳ ناقص/۲۰۳ انجام‌نشده.
+
+## 0.151.0 (اکتبر ۲۰۲۶) — فلاخن‌انداز + نیزه‌دار زرهی + شلیک حین حرکت سواره + صلاح‌الدین
+- **بند ۵۱۱ (§۹.۵) — فلاخن‌انداز (تغییر داده):** یگان `slinger` در `data/units.json` (سربازخانه، ۱۵غ+۱۲ط، جان۳۰/آسیب۸/ریلود۱۴/برد۳٫۵/سرعت۳٫۶، فلاخن خودش `equip []` بی‌نیاز از زرادخانه، آموزش۴۰) + نقش دوربرد (`t_roster_roles`: زوبین‌دار همچنان پرآسیب‌ترین/کندترین — پین گسترش‌یافته) + رندر وکتوری (بی‌شیت، fallback خودکار) + کارت خودکار نوار مزدورها + نام fa/en. تست تازه `t_slinger`؛ ردیف qa-plan: `C-MIL-20` → `pass`.
+- **بند ۱۱۵۴ (§۱۹.۳) — نیزه‌دار زرهی و ضعف ساختمانی عرب (تغییر داده + فرمول):** یگان `pikeman` (سربازخانه، ۴۵غ+۳۵ط، جان۸۰/زره۲/آسیب۷/ریلود۱۱/برد۱٫۶/سرعت۲٫۶، شمشیر زرادخانه `requiresWeapon`، پاداش ۱٫۵× ضد ساختمان، آموزش۷۰) + ضریب اختیاری `weakVsBld` در `dmgVs` (شمشیرزن عرب ۰٫۵× ضد ساختمان؛ پیش‌فرض ۱ — بقیه دست‌نخورده) + هر دو پرچم در اسکیما + رندر وکتوری + نام fa/en. هر دو عدد guess (دفترچه عدد نمی‌دهد). تست تازه `t_pikeman` + آینه `t_data_driven_units`؛ ردیف qa-plan: `C-MIL-21` → `pass`.
+- **بند ۵۱۳ (§۹.۵) — شلیک حین حرکت سواره (تغییر sim + داده):** پرچم `fireOnMove` روی `horseArcher` + شاخه `move` در `stepCombat` (هدفِ در برد از `resolveTarget`/`inRange`، فقط ضربه، بی‌تعقیب، ادامه حرکت؛ قطعی و MP-امن، صلح از `strike`) + بولین در اسکیما. چرخش دور حریف = میکروی بازیکن با همین فرمان‌ها (بازی میکروی خودکار ندارد — ثبت‌شده). تست تازه `t_horsearcher` (سواره می‌زند و می‌رود/کماندار پیاده نه + قطعیت)؛ ردیف qa-plan: `C-MIL-22` → `pass`.
+- **§۱۸.۵ — صلاح‌الدین (تغییر config؛ بند ۷۴۴ همچنان ناقص):** هفتمین شخصیت `personalities.saladin` (یورش ۱۳۵۰تیکی ۴نفره: `raidAtMul=۰٫۹`/`sizeAdd=+۱`، اقتصاد ۱٫۲×، کارگر ۰٫۹×) با زوج بیابان `troops={ranged arabianBow, melee slinger, rangedP 1/2}`؛ شاخه `troops` ژنریک بود (بدون تغییر sim) + نام/توصیف fa/en + گزینه خودکار منوی شخصیت؛ ذخیره/ری‌پلی سازگار. تست تازه `t_saladin` + گسترش `t_ai_personality_plan`؛ ردیف qa-plan: `C-AI-7` → `pass`.
+- **به‌روزرسانی پین‌ها:** `t_hire_roster` ۱۷→۱۹ (نقاط +[۹,۱۱]/[۱۱,۱۱]، کمک‌هزینه ۹۵۰/۱۰۵۰؛ مجموع ۷۷۵غ/۷۹۲ط)، `t_merc_sprites` ۱۴→۱۶ (شیت‌ها ۱۱؛ وکتوری: برده/کماندار عرب/آتش‌افکن/فلاخن‌انداز/نیزه‌دار)، `t_data_units_file` ۲۱→۲۳، `t_slave` (شمارش ۱۷→۱۹؛ برده همچنان ارزان‌ترین)، `t_data_driven_units` (آینه فرمول با `weakVsBld`).
+- تست: ۴ تست تازه؛ ۳۷۱/۳۷۱ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (کاتالوگ تازه + شاخه قطعی بدون rng + ضرایب قطعی) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (۱۹ کارت مزدور با ۲ تازه، ۷ گزینه شخصیت با صلاح‌الدین، بوت تمیز — فقط هشدارهای fallback وکتوری موردانتظار). ردیف‌های qa-plan‏: `C-MIL-20/21/22` + `C-AI-7` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۵۰۹ (کماندار عرب — پیاده‌سازی 0.150.0، فلیپ جامانده)/۵۱۱/۵۱۳/۱۱۵۴ → کامل. شمارش ماشینی: ۱۲۹ کامل/۱۲۶ ناقص/۲۰۴ انجام‌نشده.
+
+## 0.150.0 (اکتبر ۲۰۲۶) — تربوشه + کماندار عرب + آتش‌افکن + ارباب عرب
+- **بند ۵۷۸ (§۱۲.۲) — تربوشه (تغییر داده+رندر؛ نیمه trebuchet — بدون تغییر sim):** یگان `trebuchet` در `data/units.json` (سربازخانه، ۱۰۰غ+۱۵۰ط، جان۱۵۰/آسیب۸/برد۱۲/کمینه۴، محاصره ×۳ ضد ساختمان، استقرار اجباری، `cowCd=۱۵۰`، `ammoCap=۱۰`، آموزش۲۰۰، بی‌سلاح)؛ مسیرهای ژنریک گاو/مهمات/نبرد بدون تغییر + بازوی بلندتر در `drawSiege` + نام fa/en. تست تازه `t_trebuchet`؛ ردیف qa-plan: `C-MIL-17` → `pass`.
+- **§۹.۵ — کماندار عرب (تغییر داده؛ پیش‌نیاز بند ۱۰۰):** یگان `arabianBow` (سربازخانه، ۳۰غ+۲۰ط، جان۴۵/آسیب۶/ریلود۱۵/برد۶، کمان خودش `equip []`، آموزش۵۰) + نقش دوربردی (`t_roster_roles`) + رندر وکتوری + نام fa/en. تست تازه `t_arabianbow`؛ ردیف qa-plan: `C-MIL-18` → `pass`.
+- **بندهای ۵۱۵/۲۵۴ (§۱۲.۲/§۱۹.۳) — آتش‌افکن و پاشش ناحیه‌ای (تغییر sim+داده):** یگان `firethrower` (سربازخانه، ۳۰غ+۲۵ط، جان۴۰/آسیب۶/برد۲.۲، مشعل‌دار بی‌سلاح، آموزش۵۰) + `splashHit` در `fightTarget` (پس از ضربه مستقیم به یگان: همان خسارت به همه دشمنان زنده شعاع ۱.۵؛ بی‌زنجیره، فقط دشمن، مستقر بیرون) + عدد `splash` در اسکیما + رندر وکتوری + نام fa/en. تست تازه `t_firethrower`؛ ردیف qa-plan: `C-MIL-19` → `pass`.
+- **بند ۱۰۰ (§۱۸.۵) — ارباب عرب (تغییر config+هوش):** ششمین شخصیت `personalities.arabLord` (همان جدول گرگ: یورش ۱۵۰۰تیکی ۳نفره + اقتصاد خنثی) با زوج عربی `troops={ranged arabianBow, melee slave, rangedP 5/12}`؛ شاخه troops در یورش با همان drawهای قطعی (`aiRaidUnitType` خالص و exportشده؛ گرگ دست‌نخورده) + شکل `troops` در اسکیما + نام/توصیف fa/en + گزینه خودکار منوی شخصیت؛ ذخیره/ری‌پلی سازگار. تست تازه `t_arablord` + گسترش `t_ai_personality_plan`؛ ردیف qa-plan: `C-AI-6` → `pass`.
+- **به‌روزرسانی پین‌ها:** `t_hire_roster` ۱۴→۱۷ (نقاط +[۱۳,۹]/[۵,۱۱]/[۷,۱۱]، کمک‌هزینه ۹۰۰/۱۰۰۰)، `t_merc_sprites` ۱۲→۱۴ (شیت‌ها ۱۱؛ وکتوری: برده/کماندار عرب/آتش‌افکن)، `t_data_units_file` ۱۸→۲۱، `t_slave` (شمارش ۱۴→۱۷).
+- تست: ۴ تست تازه؛ ۳۶۷/۳۶۷ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (کاتالوگ/پروفایل تازه + splash قطعی بدون rng) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (۱۷ کارت مزدور با ۳ تازه، ۶ گزینه شخصیت با ارباب عرب، بوت تمیز). ردیف‌های qa-plan‏: `C-MIL-17/18/19` + `C-AI-6` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۵۷۸/۵۱۵/۱۱۵۸/۱۱۰۶ → کامل. شمارش ماشینی: ۱۲۶ کامل/۱۲۸ ناقص/۲۰۵ انجام‌نشده.
+
+## 0.149.0 (اکتبر ۲۰۲۶) — گزینه No Rush اتاق + مهمات منجنیق + خط زمانی موج‌ها + برده مشعل‌دار
+- **بند ۷۳۰ (§۱۴.۲) — گزینه اتاق «No Rush» (تغییر sim+سرور+کلاینت):** `PEACE_TICKS=۱۸۰۰` (۳ دقیقه، guess — دفترچه عدد نمی‌دهد) + `state.rules={noRush:false}`/`peaceUntil` + گیت `peaceActive` در `strike` (صفر خسارت در صلح) + دلیل تازه `NORUSH` در `fireCow` (fa/en) + گیت NORUSH در `queueHire` + یخ `stepTraining` در صلح + هش شرطی (mix ۳؛ بدون churn) + serialize/checkCore/buildState سازگار؛ سرور: بیت o+23 + پخش در roster/start/room (هر ۳ آینه)؛ کلاینت: چک‌باکس `mpNoRushInput` + کمک `mpRulesOf` در هر ۳ مسیر شروع + برچسب 🕊️ روی اتاق + شمارش صلح در HUD. تست تازه `t_norush`؛ ردیف qa-plan: `C-MP-4` → `pass`.
+- **بند ۵۷۸ (§۱۲.۲) — مهمات منجنیق (تغییر sim+داده؛ نیمه catapult — نیمه trebuchet مانده):** `ammoCap=۲۰` در `data/units.json` + `u.ammo` پر با سقف در `spawnUnit` + مصرف ۱/شلیک و گیت بی‌شلیک (بدون نشست cooldown) در `fightTarget` + فرمان `resupplyAmmo` («۱۰ stone = ۲۰ rocks»؛ دلایل OK/INVALID/NOT_OWNED/NO_STONE/FULL) در sim + آینه MP + kind تازه در هر ۳ آینه سرور (الحاقی، id ۲۰) + دکمه «تأمین سنگ» با شمارش مهمات + serialize/checkCore/buildState سازگار (قدیمی = پر) + هش شرطی (بدون churn). تست تازه `t_catapult_ammo`؛ ردیف qa-plan: `C-MIL-15` → `pass`.
+- **بند ۱۱۷۴ (§۱۹.۴) — خط زمانی موج‌ها (بدون تغییر sim؛ نیمه timeline — نیمه signpost در C-CONST-8):** تابع خالص `waveTimeline(state)` (۵ ردیف done/current/upcoming + نشان end: locked/final/victory/defeat) + نوار متنی کنار `waveBtn` (فقط سولو، فقط‌خواندنی) + نام fa/en. تست تازه `t_wavetimeline`؛ ردیف qa-plan: `C-UI-10` → `pass`.
+- **بند ۱۷۷ (§۱۲.۲/§۹.۵) — برده مشعل‌دار (تغییر sim+داده؛ نقشه‌راه #۱۷۷/#۲۵۴؛ #۱۰۰ مانده):** یگان `slave` در `data/units.json` (سربازخانه، ۱۰غ+۵ط ارزان‌ترین، جان۲۵/آسیب۳/سرعت۳.۶/آموزش۳۰، `equip []` بی‌سلاح، پرچم `torch`) + اشتعال قطعی بنای چوبی تکمیل‌شده در `fightTarget` (سنگی هرگز؛ در صلح No Rush خاموش) + بولین `torch` در اسکیما + رندر وکتوری (بی‌شیت، fallback خودکار) + کارت خودکار نوار مزدورها + نام fa/en. به‌روزرسانی پین‌ها: `t_hire_roster` ۱۳→۱۴، `t_merc_sprites` ۱۱→۱۲ با معافیت وکتوری، `t_data_units_file` ۱۷→۱۸. تست تازه `t_slave`؛ ردیف qa-plan: `C-MIL-16` → `pass`.
+- تست: ۴ تست تازه؛ ۳۶۳/۳۶۳ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (میکس‌های شرطی؛ اشتعال قطعی مشعل بدون rng) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (چک‌باکس و برچسب 🕊️ اتاق No Rush، دکمه تأمین سنگ با شمارش، نوار خط زمانی کنار دکمه موج، کارت برده با بندانگشتی وکتوری، بوت تمیز بدون خطای کنسول). ردیف‌های qa-plan‏: `C-MP-4` + `C-MIL-15` + `C-MIL-16` + `C-UI-10` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۵۱۰/۷۳۰/۱۱۷۴ → کامل؛ بندهای ۵۷۸/۱۱۵۸ → ناقص (نیمه trebuchet / آسیب ناحیه‌ای Fire Thrower مانده). شمارش ماشینی: ۱۲۳ کامل/۱۳۰ ناقص/۲۰۶ انجام‌نشده.
+
+## 0.148.0 (اکتبر ۲۰۲۶) — سیم آتش + چاه/حوض آب + گزینه Strong Walls اتاق
+- **بند ۲۱۵ (§۱۸.۴) — سیم آتش (تغییر sim+داده):** بخش تازه `TUNING.fire` (اشتعال ۰٫۱/ضربه + سوختن ۲٪/s + گسترش ۲۰٪/s تا شعاع ۲ tile + سنگی ایمن؛ اشتعال guess — دفترچه عدد نمی‌دهد) + پرچم `flammable` روی ۱۶ بنای چوبی (سنگی/دفاعی بیرون‌اند)؛ اشتعال در `strike` با draw بی‌حالت (rng جلو نمی‌رود) + `stepFire` در چرخه نبرد (خاموشی با چاه/حوض ← سوختن ← گسترش به همسایه؛ بنای سوخته کار می‌کند) + `b.fire` در serialize/checkCore/buildState (سازگار) + هش شرطی (بدون churn) + شعله نمایشی `drawFire` + برچسب هاور 🔥 در fa/en + رویدادهای `ev.ignite`/`ev.fireOut`. تست تازه `t_fire`؛ ردیف qa-plan: `C-FIRE-1` → `pass`.
+- **بند ۴۵۹ (§۸.۵) — چاه آب (تغییر sim+داده):** بنای `well` در `data/buildings.json` (۱×۱/۳۰طلا/جان۶۰/۶۰تیک/town، بدون flammable) + ۱ چاه‌بان (`workersNeeded`) + شعاع خاموشی ۱۰ از کاتالوگ (`extinguish`) + پالت/متا/تولتیپ fa/en + `drawWell`. تست تازه `t_well`؛ ردیف qa-plan: `C-FIRE-2` → `pass`.
+- **بند ۴۶۰ (§۸.۵) — حوض آب (تغییر sim+داده):** بنای `waterpot` (۲×۲/۶۰طلا/جان۱۰۰/۹۰تیک/town، بدون flammable) + ۳ حوض‌بان + شعاع خاموشی ۱۴ (کارآمدتر از چاه) + پالت/متا/تولتیپ fa/en + `drawWaterpot`. تست تازه `t_waterpot`؛ ردیف qa-plan: `C-FIRE-3` → `pass`.
+- **بند ۳۷۰ (§۱۴.۲) — گزینه اتاق «Strong Walls» (تغییر sim+سرور+کلاینت):** پرچم `fortified` روی دیوار/برج/دروازه + گیت `strongWallDmg` در `fightTarget` (غیرمحاصره→۰ خسارت ضد مستحکم؛ محاصره/غیرمستحکم/ویرانه/یگان دست‌نخورده) + `state.rules={strongWalls:false}` + هش شرطی (mix ۲؛ بدون churn) + serialize/checkCore/buildState سازگار؛ سرور: بیت o+22 + پخش در roster/start/room (هر ۳ آینه)؛ کلاینت: چک‌باکس `mpStrongWallsInput` + کمک `mpRulesOf` در هر ۳ مسیر شروع + برچسب 🧱 روی اتاق. تست تازه `t_strongwalls`؛ ردیف qa-plan: `C-MP-3` → `pass`.
+- تست: ۴ تست تازه؛ ۳۵۹/۳۵۹ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (drawهای آتش بی‌حالت؛ میکس‌های شرطی) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (چک‌باکس Strong Walls، دکمه‌های پالت چاه/حوض + تولتیپ، سوختن ۵۰۰→۴۹۰، خاموشی با چاه، بوت تمیز بدون خطای کنسول). ردیف‌های qa-plan‏: `C-FIRE-1/2/3` + `C-MP-3` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۴۵۹/۴۶۰/۴۶۱/۴۶۲ (۴۶۱/۴۶۲ تکراری باغ/تندیس/چوبه/سیاه‌چال — بسته شدند)/۷۲۷/۱۰۱۶ → کامل؛ بند ۱۱۵۴ → ناقص (Strong Walls انجام شد؛ پاداش Pikeman ضد ساختمان مانده). شمارش ماشینی: ۱۱۵ کامل/۱۲۹ ناقص/۲۱۵ انجام‌نشده.
+
+## 0.147.0 (اکتبر ۲۰۲۶) — هزینه مرجع کلبه/بناهای دینی + محبوبیت/خزانه کاتب + گزینه No-Cow اتاق
+- **بند ۴۵۵ (§۸.۵) — هزینه مرجع کلبه (تغییر داده):** `hut` در `data/buildings.json` ‏۱۰→۶ چوب (مسکن +۸ از `TUNING.housing.hut` دست‌نخورده)؛ تست تازه `t_hovel_cost` (کاتالوگ + کسر ۶) + به‌روزرسانی پین‌های `t_const_cost`/`t_build_time`/`t_const_wall_anchor`/`t_const_gate_anchor`/`t_demolish`/`t_demolish_refund` (غرامت کلبه ۳→۲چ)/`t_mp_econ_isolation` + بازپین عمدی ۲ هش رگرسیون (`eco-wood`/`policy-tax`: چوب بیشتر در چرخه)؛ ردیف qa-plan: `C-CONST-9` → `pass`.
+- **بندهای ۴۵۶–۴۵۸ (§۸.۵) — هزینه مرجع بناهای دینی (تغییر داده):** `chapel` ‏۱۰چوب→۲۵۰طلا + `church` ‏۲۰چوب+۱۰سنگ→۵۰۰طلا + `cathedral` ‏۲۰چوب+۴۰سنگ→۱۰۰۰طلا (ظرفیت ۲۰/۵۰/۱۰۰ + کشیش ۱ + پاداش پله‌ای/ثابت مذهب از داده دست‌نخورده)؛ تست تازه `t_chapel_costs` (کاتالوگ + کسر/رد) + طلای کمکی در تست‌های مذهب (`t_priest_bless`/`t_bless_decay`/`t_bless_dilution`/`t_bless_appendix`/`t_religion_bonus`/`t_blackmonk_hire`/`t_hire_roster`) + پین `t_data_buildings_file`؛ ردیف qa-plan: `C-CONST-9` → `pass`.
+- **بند ۴۱۹ (§۳.۳) — محبوبیت و خزانه کاتب (بدون تغییر sim):** ۲ بخش تازه `scribeReports` (محبوبیت فعلی/هدف از econ+popTarget + خزانه موجودی/درآمد از treasuryInfo؛ خالص و MP-aware) + لیبل‌های fa/en (`sec.popularity/sec.treasury/now/target/balance`)؛ رندر ژنریک اورلی دست‌نخورده. گسترش `t_scribe` (۸ بخش + ترتیب + مقادیر + MP + لیبل‌ها)؛ ردیف qa-plan: `C-UI-9` → `pass`.
+- **بند ۳۰۳ (§۱۲.۴) — گزینه اتاق «No Cow Throwing» (تغییر sim+سرور+کلاینت):** `state.rules={noCow:false}` در createState (سولو همیشه مجاز) + گیت مقدم `fireCow` با دلیل تازه `NOCOW` (fa/en، الحاق به انتهای `FIRECOW_FA`) در sim و آینه MP + هش شرطی (فقط فعال mix می‌شود) + serialize/checkCore/buildState سازگار (قدیمی → مجاز)؛ سرور: پرچم `noCow` در `mpCreate` → بیت o+21 + پخش در `mpRoster` (هر ۳ آینه: `game-logic.js` + ۲ `index.html`)؛ کلاینت: چک‌باکس `mpNoCowInput` + نگاشت `api.room/watchInfo.noCow` در هر ۶ مسیر (create/join/rejoin/watch/roster/start/room) + قوانین در هر ۳ شروع (`startMpGame`/اتصال‌مجدد/تماشا) + پنهانی `firecowBtn` + برچسب 🚫🐄 روی اتاق. تست تازه `t_nocow` (گیت + INVALID هم NOCOW + آینه + MP + نام‌ها + ذخیره/سازگاری/رد خراب + تفکیک هش)؛ ردیف qa-plan: `C-MP-2` → `pass`.
+- تست: ۳ تست تازه + گسترش `t_scribe`؛ ۳۵۵/۳۵۵ سینک + ۵/۵ ناهمگام؛ ۲ بازپین عمدی هش با ثبت علت. راستی‌آزمایی زنده (اورلی ۸بخشی کاتب، چک‌باکس و برچسب No-Cow، قیمت پالت کلیسا، بوت تمیز بدون خطای کنسول). ردیف‌های qa-plan‏: `C-CONST-9` + `C-UI-9` + `C-MP-2` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۴۵۵/۴۵۶/۴۵۷/۴۵۸/۳۰۳ + حاشیه §۱۲.۴ → کامل (حاشیه‌های stronghold_crusader_checklist_status.txt؛ شمارش: ۹۹ کامل/۱۱۶ ناقص/۲۴۴ انجام‌نشده).
+
+## 0.146.0 (اکتبر ۲۰۲۶) — عطاری+شفادهنده + undo آخرین ساخت + چهره/گزارش کاتب + تابلوی راهنما
+- **بند ۱۴۲ (§۸.۵/§۱۲.۴) — عطاری و شفادهنده (تغییر sim+داده):** بنای `apothecary` در `data/buildings.json` (۲×۲/۲۰چوب+۱۵۰طلا/جان۸۰/۶۰تیک/town) + یگان `healer` در `data/units.json` (خودی/جان۳۰/سرعت۳٫۲/dmg/range/aggro صفر/noHire، بدون cost/trainTicks) + `TUNING.disease.healDrain=15`؛ `healthyApoth` (تکمیل‌شده+سالم+خودی+کارگردار، MP-aware) + `stepHealers` در چرخه نبرد (هر عطاری ۱ healer با homeBld، جست‌وجوی نزدیک‌ترین ابر، پراکنده healDrain/تیک، بازگشت به خانه)؛ هر عطاری سالم ۱ واحد از آسیب ابر به یگان خودی کم می‌کند (کف صفر؛ side دشمن و مالک دیگر بیرون). استثنای اسکیمای non-combatant برای noHire (آینه building/requires و dmg/range صفر). پالت/متا/drawApothecary (صلیب سبز) + شفادهنده از fallback وکتوری. تست تازه `t_apothecary_healer`؛ ردیف qa-plan: `C-ECON-25` → `pass`.
+- **بند ۱۵۱ (§۳.۱) — undo آخرین ساخت (تغییر sim):** `state.undo={bld,owner}` تک‌سطحی (createState + serialize/checkCore/buildState + پاک‌سازی ارجاع مرده)؛ `undoLastBuild` در combat.js (بازپرداخت کامل هزینه به کیسه پرداخت‌کننده با سقف + بازپرداخت کامل صف آموزش + آزادی occ + رویداد ev.undone)؛ فرمان `undo` در sim.js + آینه MP در main.js + `undo:1` در MP_KINDS هر ۳ آینه و MP_KIND_LIST؛ دکمه ↩ کنار تخریب. تست تازه `t_undo` (بازپرداخت/اشغال/INVALID تکراری+ویرانه/ستاد/NOT_OWNED/MP/ذخیره)؛ ردیف qa-plan: `C-CONST-7` → `pass`.
+- **بند ۱۶۴ (§۳.۲) — چهره و گزارش کاتب (بدون تغییر sim):** `scribeMood` خالص سه‌باندی (glad‎≥۷۵/content‎≥۵۰/grim) + `scribeReports` خالص MP-aware (۶ بخش مالیات/جیره/انبار/میخانه/مذهب/ترس از infoهای موجود)؛ دکمه 📜 با چهره زنده کنار policyEl + اورلی گزارش‌ها (الگوی بازار) + بستن با Esc. تست تازه `t_scribe` (باندها + ۶ بخش + خلوص)؛ ردیف qa-plan: `C-UI-8` → `pass`.
+- **بند ۴۷۳ (§۸.۷) — تابلوی راهنما + کلید S (بدون تغییر sim):** بنای `signpost` (۱×۱/۵چوب/town) + توابع خالص `signEdge` (۴ نقطه میانی [شمال،جنوب،غرب،شرق]) و `signDir` (نزدیک‌ترین لبه) + `drawSignpost` (تیرک + پیکان)؛ کنش تازه `sign` با پیش‌فرض KeyS (remap خودکار) + چرخه دوربین با `renderer.focus`. خط ۱۱۷۴ دست‌نخورده ماند (timeline جدا). تست تازه `t_signpost`؛ ردیف qa-plan: `C-CONST-8` → `pass`.
+- **به‌روزرسانی پین‌ها:** `t_data_units_file` ‏۱۶→۱۷، `t_data_buildings_file` ‏۳۳→۳۵ (پین کهنه بود).
+- تست: ۴ تست تازه؛ ۳۵۲/۳۵۲ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (میکس صریح‌فیلدی؛ محتوای تازه فقط) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (اورلی کاتب ۶بخشی + چهره، چرخه دوربین S، بندانگشتی عطاری/تابلو، دکمه ↩، بوت تمیز بدون خطای کنسول). ردیف‌های qa-plan‏: `C-ECON-25` + `C-CONST-7` + `C-CONST-8` + `C-UI-8` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۱۴۲/۱۵۱/۱۶۴/۴۷۳ + حاشیه‌های ۸.۵/۱۲.۴/۱۸.۴ → کامل (حاشیه‌های stronghold_crusader_checklist_status.txt؛ شمارش: ۹۴ کامل/۱۱۷ ناقص/۲۴۸ انجام‌نشده).
+
+## 0.145.0 (اکتبر ۲۰۲۶) — امتیاز ترس → سطح + سقف جمعیت/نیرو + سقف بیکار آتش + پرچم Keep
+- **بند ۹۷ (§۱۸.۵) — هر ۴ امتیاز = ۱ سطح (تغییر عمدی sim):** مقادیر `fearGood`/`fearBad` امتیاز بودند نه سطح (باغ ۲، تندیس ۱، چوبه ۱، سیاه‌چال ۲ — داده دست‌نخورده)؛ حالا `fearLevel = trunc(خام/ptsPerLevel)` با `ptsPerLevel=4` تازه در `TUNING.fear` (+ اسکیما) و گیره ∓۵؛ `fearRaw` جمع خام امتیاز ماند و `fearNext` امتیازی شد (تهی {۴،۴}؛ باغ {۲،۶}؛ سقف {null،۶}؛ کف {۴،null}). پنل/خط سیاست همان اعداد را نشان می‌دهند (حالا معنای امتیازی). به‌روزرسانی عمدی `t_good_things`/`t_bad_things`/`t_fear_sign`/`t_fear_next` + helper تازه `putNear` (جای‌گذاری قطعی مارپیچی با اعتبارسنجی کامل — بناهای ترس بیرون محوطه چمن تضمینی می‌افتادند).
+- **بند ۱۰۱ (§۱۸.۵) — سقف جمعیت/نیرو (تغییر sim+داده):** `TUNING.population` تازه (crusader ۲۰۰۰، extreme ۱۰٬۰۰۰، campIdleMax ۲۴ + اسکیما)؛ شمارش خالص MP-aware `popTotal` = استخر کارگران همان مالک + یگان‌های زنده غیرسناریویی‌اش (موج‌ها side=enemy بیرون سقف‌اند — guess؛ مرجع فقط عدد را می‌دهد). در سقف: هر ۳ چرخه مهاجرت (سولو/MP/AI) بسته + سررسیده قطار آموزش در صف می‌ماند (بدون بازپرداخت/رویداد) تا جا باز شود؛ هسته `spawnUnit` گیت نشد تا `spawnLord` همیشه کار کند. Extreme (۱۰٬۰۰۰) فقط پین داده است — حالتی در بازی نیست. تست تازه `t_pop_caps` (پین ۲۰۰۰/۱۰٬۰۰۰/۲۴ + شمارش/مرز + گیت سولو/MP + صف قطار + شاخه AI)؛ بخش تازه qa-plan: POP-001 (ردیف C-POP-1).
+- **بند ۶۷ (§۴) — سقف ۲۴ بیکار کنار آتش (تغییر sim):** مهاجرت تازه فقط اگر استخر آزاد < ۲۴ باشد (هر ۳ چرخه)؛ کارگران گماشته‌شده شمرده نمی‌شوند. تست تازه `t_camp_idle` (۲۴ بسته/۲۳ باز + آینه MP)؛ ردیف qa-plan: C-CAMP-4.
+- **بند ۱۰۲ (§۱۹.۱) — پرچم Keep (بدون تغییر sim):** helper خالص `keepLocked` (نبود ستاد زنده همان مالک) کنار `hasLiveKeep` + سیم‌کشی در قفل پالت `main.js`؛ برش در `t_keep_gates` (قفل/باز/قفل‌مجدد + ایزولاسیون مالک)؛ ردیف qa-plan: C-KEEP-3.
+- **به تعویق افتاده (صادقانه):** #۹۸ نزدیک‌ترین تحویل (بدون مدل حامل — همه واریزها مرکزی/تلپورتی‌اند پس قانون «نزدیک‌ترین» مشاهده‌ناپذیر است)، #۹۹ موجودیت role (معماری بزرگ دهقان↔کارگر↔سرباز)، #۱۰۰ نگهبانان لرد عرب (سیستم پایه نگهبانان لرد وجود ندارد).
+- تست: ۲ تست تازه + ۴ تست به‌روز؛ ۳۴۸/۳۴۸ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (رگرسیون‌ها/ری‌پلی مرجع بنای ترس یا جمعیت سقفی ندارند) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (بوت تمیز، بدون خطای کنسول). ردیف‌های qa-plan‏: `C-FEAR-6` + `C-POP-1` + `C-CAMP-4` + `C-KEEP-3` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۹۷/۱۰۱/۱۰۲/۶۷ → کامل (حاشیه‌های stronghold_crusader_checklist_status.txt).
+
+## 0.144.0 (اکتبر ۲۰۲۶) — پرتره لردها به‌جای ایموجی + نام پیش‌فرض انگلیسی تصادفی
+- **پرتره‌ها:** ۲۹ تصویر `src/arg/assets/lords/` (Baibars تا The-Wolf) جایگزین ۱۲ ایموجی پروفایل شدند؛ `PROFILE_LORDS` (فایل+نام) در `profile.js` + `PROFILE_LOGOS` به‌عنوان آینه فایل‌ها (طول ۲۹) + `lordPortraitSrc/lordPortraitHTML/lordName` (مسیر از ریشه ژنراتور چون `<img>` داینامیک در DOM ریشه تزریق می‌شود؛ `onerror` = پنهان‌شدن امن). گرید انتخاب، roster لابی/تماشا/بازی (`lobby.js` + ۳ نقطه `main.js`) و `profileBadgeHTML` همه پرتره می‌کشند؛ استایل دایره‌ای `.plogo/.rosterLogo img` + گرید تصویری با `.sel`.
+- **نام پیش‌فرض:** `PROFILE_RANDOM_NAMES` (نام‌های انگلیسی هم‌مرتبه با پرتره‌ها، همه ≤۱۲ نویسه و معتبر) + `randomDefaultName()`؛ `defaultProfile()`/`loadProfile()` و fallback تالار (`online.js`) و `warName()` به‌جای «بی‌نام» نام انگلیسی تصادفی می‌دهند (پروفایل‌های ذخیره‌شده دست‌نخورده).
+- **سرور:** `LOGOS_MAX` ‏۱۲→۲۹ در هر ۳ آینه (بایت اسلات همان ۱ بایت؛ لوگوهای قدیمی ۰..۱۱ معتبر و حالا پرتره نشان می‌دهند؛ بدون تغییر state/مهاجرت).
+- تست: تازه `t_profile_lords` (۲۹ یکتا + مسیر + نامعتبر تهی + ۵۰ نام تصادفی معتبر + پیش‌فرض) + به‌روزرسانی `t_profile_name_logo` (۰..۲۸، بدون «بی‌نام»)؛ ردیف qa-plan‏: `C-UI-7` → ‏`pass`.
+## 0.143.0 (اکتبر ۲۰۲۶) — گیت پوشش رشوه + پله‌های پاداش میخانه + پین‌های پیوست مذهب و ترس
+- **بند ۹۳ (§۱۸.۵) — رشوه فقط با پوشش کامل (تغییر عمدی sim):** helper خالص `bribeAffordable` (خزانه ≥ کارگران×(−نرخ)؛ سطح رایگان/مالیات همیشه) + گیت در `taxPop` و هر دو بلوک کسر (solo/MP): خزانه کم = نه کسر، نه اثر (پایان پرداخت جزئی). آینه‌ها: `treasuryInfo.perMin` و `netPerMinute` طلا صفر وقتی پوشش نیست. تست: برش جزئی در `t_bribe_effect` (خزانه ۲/هزینه ۴ → ۵۲ + دست‌نخورده + MP) + به‌روزرسانی عمدی `t_balance_bribe` (کف صفر → ماندن ۲).
+- **بند ۹۴ (§۱۸.۵) — پله‌های ale (تغییر عمدی sim):** ‏`innBonus` خطی → پله مرجع ۲۵/۵۰/۷۵/۱۰۰٪ → ۲/۴/۶/۸ (۰٫۲۵/۰٫۵/۰٫۷۵/۱ × fullBonus)؛ پوشش (`min(100, کارا×۳۰/جمعیت)`) و `innInfo` دست‌نخورده. تست تازه `t_ale_steps` (مرزهای ۲۴/۲۵، ۴۹/۵۰، ۷۳/۷۵ که خطی را رد می‌کنند + هدف + MP)؛ `t_inn_cheer` بدون تغییر سبز.
+- **بند ۹۵ (§۱۸.۵) — فرمول تبرک (بدون تغییر sim):** پیاده‌سازی 0.123–0.125 عین پیوست بود (min-form + ۲۰/۵۰/۱۰۰ + پنجره ۱۲۰۰/۶۰۰)؛ پین پیوست تازه `t_bless_appendix` (داده + مرز ۵۹۹/۶۰۰/۱۱۹۹/۱۲۰۰ + جمع سه‌نوعی + MP).
+- **بند ۹۶ (§۱۸.۵) — قرارداد علامت ترس (بدون تغییر sim):** پیاده‌سازی 0.130.0 عین پیوست بود (کار ۱∓۰٫۰۵، حمله ±۵٪)؛ پین تقاطع تازه `t_fear_sign` (باغ: کار↓/حمله↑؛ چوبه: برعکس + داده ۵٪).
+- تست: ۳ تست تازه + ۲ تست به‌روز؛ ۳۴۵/۳۴۵ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (رگرسیون‌ها/ری‌پلی رشوه/میخانه ندارند) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (گیت رشوه + پله ale + بوت تمیز، بدون خطای کنسول). ردیف‌های qa-plan‏: `C-ECON-23/24` + `C-RELIG-4` + `C-FEAR-5` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۹۳/۹۴/۹۵/۹۶ → کامل (حاشیه‌های stronghold_crusader_checklist_status.txt).
+## 0.142.0 (اکتبر ۲۰۲۶) — انبار چندنوعی هر خانه + طلای ۱۲ سطح مالیات + دباغی و چرم + رقابت گاو و پرتاب‌گاو
+- **بند ۸۳ (§۶.۱) — هر خانه انبار تا ۴ نوع (نمایشی، بدون تغییر sim):** خانواده store ‏[wood,stone,gold,leather] ‏(STOCKPILE_TYPES)؛ `stockpileInterior` خالص MP-aware ‏(مقدار/سقف/سهم/رنگ هر نوع) + `stockpilePiles` ‏(برش میله هر خانه) + میله‌های `drawStockpile` + هاور per-type ‏(الگوی granary-87). تست تازه `t_stockpile_squares` ‏(۴ ردیف + سهم + خلوص + سقف با انبار + برش MP).
+- **بند ۸۸ (§۶.۵) — طلای هر سطح مالیات (دفترچه نمی‌گوید — همه حدس):** پین هر ۱۲ سطح (طلا/کارگر/۵۰تیک + محبوبیت): ‏generousBribe ‎-۱/+۷، ‏largeBribe ‎-۱/+۵، ‏smallBribe ۰/+۳، ‏none ۰/+۱، ‏low/average/high/mean/extortionate ‏۱+/۲-..۱۲-، ‏downrightCruel/evenCrueler ‏۲+/۱۶-..۲۰-، ‏cruellerThanCruel ‏۳+/۲۴- + رفتار دلتای هر ۱۲ (۴ کارگر × ۵۰ تیک) + آینه `treasuryInfo`. جدول ۱۲سطحه در numbers-registry ‏(جایگزین سطرهای ۴سطحه). تست تازه `t_tax_rates`.
+- **بند ۲۰۰ — دباغی (گاو ← چرم، منبع تازه):** بنای `tannery` در `data/buildings.json` ‏(۲×۲/۱۵چوب/۳۰تیک/۱کارگر/industry‏، econ‏: ۱گاو←۱چرم/۵۰تیک) + چرخه اختصاصی solo/MP ‏(پیشرفت تا آستانه؛ بی‌گاو = ‏starved) + ‏`takeCow` ‏(بند ۹۲)؛ منبع `leather` همه‌جا ‏(startRes/AI/mpStartRes/clamp/سقف ۵۰۰ از خانواده store/هش شرطی بدون churn/ذخیره با سازگاری) + بازار (خرید ۱۲/فروش ۵، تب منابع) + پالت/متا/هاور/drawTannery + آیکون ۲۴×۲۴ دستی ‏(drive-by‏: fallback ‏`assets/resources/leather.png` هیچ‌وقت فایل نداشت — مانند 0.137.1). تست تازه `t_tannery_leather` ‏(کاتالوگ + انتظار با گله خالی + ۲ چرخه + خواب شیر (رقابت) + سقف + ذخیره + MP) + به‌روزرسانی `t_starting_goods`/`t_market_rates`/`t_market_tabs`/`t_data_buildings_file`.
+- **بند ۹۲ — رقابت گاو (پنیر/چرم/پرتاب):** ‏`takeCow`/`herdCows` ‏(پرگاوترین dairy سالم خودی، تساوی = کمترین id؛ ویرانه/بیگانه نه) — مصرف رقیب شیردوشی را تا رشد دوباره می‌خواباند؛ دباغی و پرتاب از همین مسیر می‌خورند. **پرتاب گاو:** ‏`fireCow` ‏(۷ دلیل: OK/INVALID/NOT_SIEGE/NOT_DEPLOYED/COOLDOWN/NO_COW/OUT_OF_RANGE‏) + ‏cowCd=۱۵۰ منجنیق + ابر بیماری ‏TUNING.disease ‏(شعاع ۴/۳۰۰تیک/هر ۶تیک ۱HP مستقیم، همه طرف‌ها) + ‏stepClouds در چرخه نبرد + ورودی MP ‏firecow ‏(الحاق به MP_KINDS/MP_KIND_LIST هر ۳ آینه، بدون تغییر شناسه‌های قبلی) + هش/ذخیره شرطی + دکمه firecowBtn و هدف‌گیری + قوس نمایشی و رویداد. تست‌های تازه `t_cow_take` و `t_firecow_cloud` ‏(دلایل رد + پرتاب + سردی + ابر/آسیب + persist/hash).
+- **ناقص ثبت‌شده:** بند ۲۱۴ (ابر هست، خنثی‌سازی healer/apothecary نیست) و بند ۳۰۱ (پرتاب فقط با منجنیق؛ trebuchet در بازی نیست).
+- تست: ۵ تست تازه + ۴ پین به‌روز؛ ۳۴۲/۳۴۲ سینک + ۵/۵ ناهمگام؛ بدون بازپین هش (میکس‌های شرطی؛ محتوای تازه فقط) + پین‌های ری‌پلی سبز. راستی‌آزمایی زنده (جای‌گذاری دباغی/انبار/لبنیاتی، پرتاب و ابر، بدون خطای کنسول؛ یادداشت محیطی: readback بوم ۲بعدی در این پیش‌نمایش صفر می‌دهد پس وارسی پیکسلی ممکن نبود — رفتار از state خوانده شد). ردیف‌های qa-plan‏: `C-ECON-19/20/21/22` → ‏`pass`.
+- **فلیپ‌ها:** بندهای ۸۳/۸۸/۲۰۰/۹۲ → کامل؛ بندهای ۲۱۴/۳۰۱ → ناقص (حاشیه‌های stronghold_crusader_checklist_status.txt).
+
+## 0.141.0 (اکتبر ۲۰۲۶) — بازگشت به بازی پس از رفرش + تماشای میهمان + فهرست بازی‌ها
+- **سرور (state نسخه ۵، مهاجرت با حفظ تالار+ابری):** توکن ۱۶هگز هر اسلات (مدرک مالکیت پس از قطع اتصال) + لاگ حلقه‌ای ۵۱۲KB ورودی هر اتاق (seq/slot/kind/tick/args با فشرده‌سازی و اخراج کهنه‌ها) + فرااتاق (baseSeq/شروع/پایان/آخرین‌فعالیت/برنده). RPCهای تازه: `mpRejoin` (توکن)، `mpWatch` (میهمان بدون اسلات؛ خصوصی با رمز)، `mpLive` (بازی‌های جاری+تمام‌شده)، `mpSync` (صفحه‌های ۳۰۰تایی + `tooOld`)، `mpFinish` (ثبت پایان + پیام `end`). پیام‌های تازه `gone`/`back` (قطع/برگشت بی‌ویرانی)؛ `left` فقط واگذاری عمدی. قطع اتصال وسط بازی اسلات را نگه می‌دارد؛ جاروی تنبل اتاق بی‌اتصالِ ۲۴ساعت‌بی‌فعالیت. اندازه state: ۱۷٬۸۳۳٬۴۳۲ بایت.
+- **کلاینت:** نشست `scw.mpsess.v1` + «بازی‌های من» `scw.mygames.v1` (سقف ۲۰)؛ جعبه ادامه پس از رفرش + کپی کد؛ اتصال‌مجدد خودکار سوکت پس از قطعی گذرا؛ همگام‌سازی عقب‌ماندگی (صفحه‌های sync به mpPending + جلو‌بردن ۳۰۰تیک/فریم با نوار پیشرفت؛ بنچمارک: ۰٫۰۲ms/تیک)؛ حالت تماشا (slot=‎-۱، ارسال بسته، پنل‌های بازیکن اول)؛ فهرست بازی‌های فعال با نقطه اتصال و دکمه تماشا/ادامه؛ مسیر `#/room/CODE` و `#/watch/CODE` (selfhost؛ در iframe پرچنس localStorage مسیر اصلی است).
+- **زیرساخت حیاتی:** ایمپورت `server-plugin` در `main.pjs` ریشه (پیش‌نیاز `root.createServerSocket` — بدون آن سوکت پلتفرم هیچ‌وقت ساخته نمی‌شد و MP روی پرچنس کاملاً قطع بود) + آینه بلوک سرور در ریشه `index.html` (پلتفرم فقط همان را می‌خواند؛ منبع حقیقت `src/arg/index.html`، آینه‌ها: `server/game-logic.js` + ریشه).
+- **رفع باگ drive-by:** ورودی‌های `food` و `demolish` را کلاینت می‌فرستاد ولی سرور رد می‌کرد (`MP_KINDS`) — توقف غذا و تخریب در MP کار نمی‌کرد؛ حالا لاگ/پخش می‌شوند.
+- تست: هارنس منطق سرور ۵۳/۵۳ سبز (توکن/تماشا/رمز/اخراج سالم/جارو/مهاجرت v4) + ۴ تست تازه سوئیت (`t_mp_session`، `t_mygames_list`، `t_live_row`، `t_mygame_row`): ۳۳۷/۳۳۷ + ناهمگام ۵/۵. بدون بازپین هش (sim دست‌نخورده) + ری‌پلی مرجع سبز. راستی‌آزمایی زنده کامل در شبیه‌ساز (ایجاد/شروع/قطع/اتصال‌مجدد/رفرش/تماشا/فهرست). ردیف qa-plan: `C-MP-1` → `pass`. بدون فلیپ نقشه‌راه (§۲۱.۲ همچنان ناقص: رأی توقف/سرعت و چت مانده).
+
+## 0.140.0 (اکتبر ۲۰۲۶) — قیمت‌های بازار نهایی شد: پین ۱۰ نرخ + مبنا (فاز ۱ بند ۹۱)
+- **مبنا (دفترچه قیمت نمی‌دهد — همه حدس متوازن):** پله بر عمق تولید: خام ارزان (چوب ۵، فراوان‌ترین + شروع ۱۲۰) < سنگ ۸ (دروازه آغل) < آهن ۱۰ (ورودی سلاح‌سازی) < نظامی ۲۰ (محصول نهایی + قفل mid). زنجیره غذا: گندم ۲ (ماده خام، ارزان‌ترین) < آرد ۵ (فرآوری آسیاب) < آبجو ۸ (انتهای زنجیره ale→محبوبیت، ارزشمندترین غذا)؛ غذای پایه ۴؛ رازک ۴ (کشت مزرعه‌ای مثل گندم ولی زنجیره طولانی‌تر). هم‌رده‌های نظامی (شمشیر/کمان) عمداً هم‌قیمت‌اند. فروش همه در ۰٫۴–۰٫۵ خرید (قاعده 0.117.0) و اکیداً کمتر (بدون آربیتراژ حتی لبه سقف). طلای آغازین ۶۰: بسته‌های early (چوب ۲۵ط، غذا ۲۰ط) در دسترس، بسته شمشیر ۱۰۰ط = هدف پس‌انداز mid.
+- تست تازه `t_market_rates` (پین هر ۱۰ نرخ + صحیح/مثبت + sell<buy اکید + پله خام<...<نظامی + زنجیره غذا + هم‌قیمتی نظامی): هر تغییر قیمت حالا عمدی و ثبت‌شده است.
+- بدون تغییر sim/داده (فقط پین) → بدون بازپین هش + ری‌پلی مرجع سبز. ۳۳۳ تست سینک سبز + ناهمگام ۵/۵ سبز.
+- **فلیپ بند ۹۱ → کامل** (ردیف qa-plan: `C-MARKET-8` → `pass`).
+
+## 0.139.0 (اکتبر ۲۰۲۶) — قفل مرحله‌ای بازار: شمشیر/کمان فقط از میانه بازی (فاز ۱ بند ۸۹)
+- **سیم‌کشی:** مفهوم تازه مرحله (`marketStage` خالص MP-aware: early پیش‌فرض؛ mid با سربازخانه سالمِ تکمیل‌شده خودی؛ late با کلیسای جامع — نگاشت milestoneها داده‌محور در `TUNING.market.stages` با پیش‌فرض کد) + `minStage` هر نرخ (شمشیر/کمان `mid`، بقیه early) + `tradeLocked` + مردود تازه `STAGE` در `tradeQuote` (پس از گیت بازار، پیش از استطاعت) که `applyTrade` و دکمه‌های UI را هم گیت می‌کند. 🔧 حدس ثبت‌شده: دفترچه مرحله‌ها را تعریف نمی‌کند.
+- **نما:** نشان 🔒 روی ردیف کالای قفل با تولتیپ نام مرحله (`main.market.locked` + `game.stage.*` در fa/en)؛ دکمه‌های Buy/Sell قفل از همان مسیر قبلی `disabled` + تولتیپ `game.trade.STAGE`.
+- **داده/اسکیما:** `stages` و `minStage` در `tuning.json` + عبورداد در `CONFIG.MARKET` (آینه داده حفظ شد) + اعتبارسنجی (minStage∈early/mid/late؛ stages آبجکت mid/late→بنا) در `validateTuningFile`.
+- تست تازه `t_market_stage` (داده/رتبه + early/mid/late + نیمه‌کاره/ویرانه/بیگانه + خلوص + برش MP + گیت رفتاری buy/sell/apply بدون تکان منابع + UNKNOWN ماندن گوشت + کلیدهای fa/en) + ۲ کیس رد در `t_tuning_reject`.
+- بدون بازپین هش (هیچ مسیر sim قفل را صدا نمی‌زند) + ری‌پلی مرجع سبز. ۳۳۲ تست سینک سبز + ناهمگام ۵/۵ سبز.
+- **فلیپ بند ۸۹ → کامل** (ردیف qa-plan: `C-MARKET-7` → `pass`).
+
+## 0.138.1 (اکتبر ۲۰۲۶) — هم‌راستایی آغل گاو با دفترچه: ۵ چوب + ۱ کارگر + گیت staffed
+- **اصلاح 0.138.0 (که حدس بود):** هزینه `oxtether` ۱۰→۵ چوب در `data/buildings.json` (source حالا مرجع دفترچه) + `workersNeeded` تازه = ۱ برای آغل (گاوبان؛ خط ویژه کنار inn/religion، بدون ورودی RATES) + `hasOxTether` حالا `staffed !== false` هم می‌خواهد — آغل بی‌کارگر گیت را باز نمی‌کند (با تخصیص حریصانه، معدنِ زودترساخته سهم را می‌گیرد). رفتار UI/نما دست‌نخورده (هزینه از کاتالوگ می‌آید).
+- تست: پین `workersNeeded` + کیس بی‌کارگر (خلوص helper + رفتاری: با ۱ کارگر معدن سهم می‌گیرد، آغل `staffed:false` و سنگ ۴۰ می‌ماند) در `t_ox_tether`؛ `t_stone_produce` چوب ۱۰۰ (۱۵+۵)؛ کاتالوگ ۵ چوب.
+- **بازپین عمدی:** `eco-wood` (هزینه کمتر → چوب بیشتر در مسیر) `054a4a9b`→`c8c3c87f` (دابل‌ران پایدار)؛ ۷ هش دیگر دست‌نخورده. ری‌پلی مرجع سبز.
+- ۳۳۱ تست سینک سبز (دابل‌ران) + ناهمگام ۵/۵ سبز.
+- **فلیپ §۶.۲ → کامل** (هر دو ردیف دفترچه: نیاز معدن + سطر Ox Tether؛ ردیف qa-plan: `C-ECON-18` به‌روز شد).
+
+## 0.138.0 (اکتبر ۲۰۲۶) — آغل گاو: معدن سنگ بدون آن کار نمی‌کند (فاز ۱ بند ۸۴)
+- **سیم‌کشی:** بنای تازه `oxtether` در `data/buildings.json` (۲×۲/۱۰چوب/۳۰تیک/hp۶۰، industry، بدون econ/worker = تأسیسات همیشه-staffed مثل بازار) + `hasOxTether` خالص MP-aware در `economy.js` (سالمِ تکمیل‌شده خودی) + گیت در هر دو چرخه (`stepEconomy`/`stepPlayerEconomy`): معدن بی‌آغل `starved` و فریز پیشرفت؛ چرخه AI دست‌نخورده (ساده‌سازی ثبت‌شده: AI معامله/آغل ندارد).
+- **نما:** `drawOxtether` (نرده‌چوبی + کاه + ۲ گاو قطعی) + گاو و سورتمه سنگ کنار معدنِ دارای آغلِ کارا + کارت پالت/تامب + متا و هاور fa/en («نیاز به آغل گاو»).
+- تست تازه `t_ox_tether` (گیت solo/MP + نیمه‌کاره/ویرانه/بیگانه + خلوص)؛ `t_stone_produce` و `t_stone_save_compat` با آغل به‌روز شدند؛ `t_data_buildings_file` ۳۲ بنا.
+- **بازپین عمدی:** سناریوی `eco-wood` حالا آغل هم می‌سازد (نیت سناریو حفظ شد) → هش `53493ac6` به `054a4a9b`؛ ۷ هش دیگر دست‌نخورده. ری‌پلی مرجع سبز (معدن ندارد).
+- ۳۳۱ تست سینک سبز + ناهمگام ۵/۵ سبز + راستی‌آزمایی تصویری (آغل و گاوها) و جای‌گذاری زنده.
+- **فلیپ بند ۸۴ → کامل** (ردیف qa-plan: `C-ECON-18` → `pass`).
+- دامنه: فاصله آغل‌-معدن مدل نشده (هر آغل خودی کافی است)؛ نیاز آهن به آغل نه (بند می‌گوید معدن).
+
+## 0.137.2 (اکتبر ۲۰۲۶) — رفع شبح زمین پس از پن/زوم (باگ گزارش کاربر)
+- **علت:** `drawTerrainLayer` در `render.js` بازرسم را روی بوم خارج‌صحنه بازیافتی (`tCache`) بدون پاک‌سازی انجام می‌داد — هرجا لوزی تازه کوچک‌تر/جابه‌جا بود (زوم‌اوت، پن به لبه، fit، ریسایز بزرگ‌تر)، پیکسل‌های قاب قبلی می‌ماندند و زمین دوتایی («کشیده») دیده می‌شد.
+- **رفع (فقط نما):** `clearRect` با ترنسفورم واحد پیش از `paintTerrain` روی بوم خارج‌صحنه (یک خط + کامنت). sim/هش/ذخیره/ری‌پلی دست‌نخورده.
+- تست رگرسیون تازه `t_terrain_cache_no_ghost` (بوم ۱۱۲×۸۴ + پن دور + بازرسم پیاپی؛ مرکز باید پس‌زمینه تیره شود): پیش از رفع با پیکسل آب کهنه (46,111,142) رد می‌شد، پس از رفع سبز.
+- ۳۳۰ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش + ری‌پلی مرجع سبز + راستی‌آزمایی تصویری زنده (تخت و سه‌بعدی، پس از زوم‌اوت+پن+fit: تک‌نقشه تمیز). بدون فلیپ نقشه‌راه (ردیف qa-plan: `C-SYS-16` → `pass`).
+
+## 0.137.1 (اکتبر ۲۰۲۶) — بازی در preview ریشه + رفع باگ بوت + آیکون‌های غذا
+- **پوسته preview:** ریشه `index.html` (قالب خالی) → لودر تمام‌صفحه بازی: fetch بدنه/استایل `src/arg/index.html` (بازنویسی مسیرها، حذف اسکریپت‌ها، بدون دست‌زدن به پلاگین سرور) + تزریق در سطح body (نه خروجی موتور — موتور DOM خروجی را بازنویسی می‌کند) + ایمپورت `game/main.js`. راستی‌آزمایی زنده: منو + شروع solo + اسنپ‌شات نقشه. (قاب cross-origin جواب نداد: ناوبری iframe به `/src/*` صفحه ۴۰۴ زنده را می‌گیرد؛ فقط fetch/import سرو می‌شود.)
+- **رفع باگ بوت standalone (حیاتی):** `main.js` از `eatMeter` بدون ایمپورت استفاده می‌کرد (جامانده از 0.100.0) — بوت در `refreshPanel` می‌مرد؛ یعنی بازی مستقل از 0.100.0 بالا نمی‌آمد و سوئیت هم نمی‌گرفتش (تست‌ها مستقیم از advisor ایمپورت می‌کنند). audit: فقط همین یکی جامانده بود.
+- **۳ آیکون غذا:** `meat/cheese/apples` در `icons.gen.js` نبودند و fallback فایلی‌شان هم هیچ‌وقت وجود نداشت → تصاویر شکسته؛ وکتور ۲۴×۲۴ دستی افزوده شد.
+- ابزار عیب‌یابی نگه‌داشته‌شده: `bootGuarded` (گزارش خطا به والد) + pingهای `arg-alive/ping/dom`.
+- ۳۲۹ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش + ری‌پلی مرجع سبز. بدون فلیپ نقشه‌راه (ردیف qa-plan: `C-SYS-15` → `pass`).
+
+## 0.137.0 (اکتبر ۲۰۲۶) — بازرگان بازار: با ساخت بازار می‌آید (فاز ۱ بند ۹۰)
+- **سیم‌کشی:** `marketTrader` خالص MP-aware در `market.js` (شمار بازارهای سالمِ تکمیل‌شده خودی = شمار بازرگانان؛ نیمه‌کاره/ویرانه/بیگانه نه) + پیکره نمای بازرگان (ردا + سر + کیسه) کنار دکه در `drawMarket`. تست تازه `t_market_trader` (غیبت/حضور/شمار ۲/ویرانه + برش MP + خلوص) + راستی‌آزمایی تصویری زنده (پیکره آبی‌کنار دکه در اسنپ‌شات).
+- **فلیپ بند ۹۰ → کامل** (ردیف qa-plan: `C-MARKET-6` → `pass`).
+- ۳۲۹ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (فقط نما؛ sim/ذخیره/ری‌پلی دست‌نخورده) + ری‌پلی مرجع سبز.
+- دامنه: فقط حضور نمایشی بازرگان (بعد: Ox tether بند ۸۴ یا کالاهای نامعامله‌پذیر بند ۸۹).
+
+## 0.136.0 (اکتبر ۲۰۲۶) — هاور انبارغذا: سقف برداشته و داخل دیده می‌شود (فاز ۱ بند ۸۷)
+- **سیم‌کشی:** `granaryInterior` خالص MP-aware در `advisor.js` (۴ ستون به ترتیب داده + رنگ متمایز هر نوع + تا ۴ کیسه ≈۲۵ واحدی + کم‌رنگ برای خاموش) + `granaryOpen` در `render.js` (نشانگر غیرگوست روی ردپای انبار سالمِ تکمیل‌شده) + `drawGranary` با سقف بالارفته و شیب جلوی حذف‌شده و کیسه‌های داخل + خط هاور انبار با گزارش دقیق (`main.hover.granary` fa/en). تست تازه `t_granary_hover` (مرز کیسه‌ها/رنگ‌ها/on-off/خلوص + برش MP) + راستی‌آزمایی تصویری زنده (برش سقف و کیسه‌های رنگی در اسنپ‌شات).
+- **فلیپ بند ۸۷ → کامل** (ردیف qa-plan: `C-GRAN-7` → `pass`).
+- ۳۲۸ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (فقط نما؛ sim/ذخیره/ری‌پلی دست‌نخورده) + ری‌پلی مرجع سبز + راستی‌آزمایی کلید تازه هر دو زبان.
+- دامنه: فقط نمایش داخل انبار (بعد: بازرگان بازار بند ۹۰).
+
+## 0.135.0 (اکتبر ۲۰۲۶) — گزارش دقیق غذا: مقدار دقیق هر نوع (فاز ۱ بند ۸۶)
+- **سیم‌کشی:** `foodReport` خالص MP-aware در `advisor.js` (ردیف هر نوع از `FOOD_TYPES` داده: مقدار دقیق + روشن/خاموش + جمع/دوام آینه `foodInfo`) + `report` در `policySummary` + سربرگ گزارش در `granaryOverlay` (جمع/دوام/انواع دقیق، fa/en) بالای ردیف‌های موجود. تست تازه `t_food_report` (ترتیب داده/مقادیر دقیق/روشن‌خاموش/آینه/خلوص/خلاصه + برش MP).
+- **فلیپ بند ۸۶ → کامل** (ردیف qa-plan: `C-GRAN-6` → `pass`).
+- ۳۲۷ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (فقط نما؛ sim/ذخیره/ری‌پلی دست‌نخورده) + ری‌پلی مرجع سبز + راستی‌آزمایی کلید تازه هر دو زبان.
+- دامنه: فقط گزارش متنی دقیق (بعد: هاور سقف انبار بند ۸۷).
+
+## 0.134.0 (اکتبر ۲۰۲۶) — توقف/شروع مصرف هر نوع غذا از انبار (فاز ۱ بند ۸۵)
+- **سیم‌کشی:** `offFood` در وضعیت (solo + برش MP؛ قدیمی → []) + فرمان `food` در `applyCmd` (تاگل، اعتبارسنج نوع) و آینه `applyMpInput` + `eatOneUnit(bag, off)` در هر ۲ حلقه خوردن + `foodVariety` فقط انواع روشن + `offFood` در ذخیره/اعتبارسنج (ناشناخته/تکراری رد) و هش (خالی = هیچ) + ردیف‌های `foodRows` در `granaryOverlay` (موجودی + روشن/خاموش، fa/en) با همان مسیر فرمان/MP. تست تازه `t_food_toggle` (تاگل/INVALID + خوردن/تنوع + sim + ذخیره/قدیمی/اسنپ‌شات + MP) + ۲ دست‌کاری تازه در `t_save_reject` + `offFood` در `snapOf`.
+- **فلیپ بند ۸۵ → کامل** (ردیف qa-plan: `C-GRAN-5` → `pass`).
+- ۳۲۶ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (offFood همه‌جا خالی) + ری‌پلی مرجع سبز + پارس ۱۳ فایل + راستی‌آزمایی کلیدهای تازه هر دو زبان.
+- دامنه: فقط توقف مصرف (بعد: گزارش دقیق غذا بند ۸۶).
+
+## 0.133.0 (اکتبر ۲۰۲۶) — پنل Fear Factor: تعداد لازم برای سطح بعد (فاز ۱ بند ۸۲)
+- **سیم‌کشی:** `fearRaw` (جمع بدون گیره) + `fearNext` خالص MP-aware (`up` = بار خوب تا lv+۱ / `down` = بار بد تا lv−۱؛ در سقف/کف null) + `next` در `fearInfo`/`policySummary` و سگمنت «ترس {سطح} (↑{n} ↓{n})» در خط سیاست (fa/en؛ راستی‌آزمایی زنده هر دو زبان بدون آکولاد). هر چهار چیز از دکمه‌های پالت (0.131.0/0.132.0) قابل ساخت‌اند — نگاشت دکمه‌ها: پالت Town Buildings. تست تازه `t_fear_next` (۴ دکمه + ↑/↓ تهی/باغ/سقف/کف + پنل/خلاصه + MP).
+- **فلیپ بند ۸۲ → کامل** (ردیف qa-plan: `C-FEAR-4` → `pass`).
+- ۳۲۵ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (بدون تغییر sim) + ری‌پلی مرجع سبز.
+- دامنه: فقط شمارش و نمایش (بعد: توقف/شروع مصرف غذا بند ۸۵).
+
+## 0.132.0 (اکتبر ۲۰۲۶) — چیزهای بد: چوبه دار و سیاه‌چال، کار ↑ و محبوبیت/روحیه ↓ (فاز ۱ بند ۸۱)
+- **سیم‌کشی:** `gallows` (۱×۱، ۵۰ طلا، `fearBad` ۱) + `dungeon` (۲×۲، ۴۰ طلا، `fearBad` ۲) در کاتالوگ (town، چمن، بدون کارگر/تولید؛ بزرگ‌تر هم کل هم به‌ازای هر واحد ارزان‌تر: ۲۰<۵۰) + دکمه پالت + تولتیپ `main.meta.fearBad` (fa/en) + نام fa/en. سطح منفی از همان سیم‌کشی 0.130.0 (کار ۱.۰۵×/سطح، حمله −۵٪/سطح، محبوبیت −۱/سطح). تست تازه `t_bad_things` (کاتالوگ/هزینه + سطح −۱/−۳ و هدف + چوب بالای ۱۱۵ + گیره −۹→−۵ + ویرانه/MP + نبرد واقعی) + آبشار کاتالوگ (۲۹→۳۱) و پین «نه خوب‌وبد هم‌زمان» در `t_fear_scale`.
+- **فلیپ بند ۸۱ → کامل** (ردیف qa-plan: `C-FEAR-3` → `pass`).
+- ۳۲۴ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (سناریوهای موجود چیز بد ندارند) + ری‌پلی مرجع سبز.
+- دامنه: فقط چیزهای بد (بعد: پنل «لازم برای سطح بعد» بند ۸۲).
+
+## 0.131.0 (اکتبر ۲۰۲۶) — چیزهای خوب: باغ و تندیس، محبوبیت/روحیه ↑ و کار ↓ (فاز ۱ بند ۸۰)
+- **سیم‌کشی:** `garden` (۲×۲، ۲۰ طلا، `fearGood` ۲) + `statue` (۱×۱، ۳۰ طلا، `fearGood` ۱) در کاتالوگ (town، چمن، بدون کارگر/تولید؛ بزرگ‌تر هم کل هم به‌ازای هر واحد ترس ارزان‌تر: ۱۰<۳۰) + دکمه پالت + تولتیپ `main.meta.fearGood` (fa/en) + نام fa/en. سطح ترس از همان سیم‌کشی 0.130.0 می‌آید (`fearLevel`/کار/حمله/محبوبیت + سگمنت ترس در خط سیاست). تست تازه `t_good_things` (کاتالوگ/هزینه/بزرگ‌تر-ارزان‌تر + سطح ۲/۳ و هدف + کندی چوب زیر ۱۱۵ + گیره ۱۱→۵ + نیمه‌کاره/ویرانه/MP + نبرد واقعی: دشمن با ترس بیشتر می‌خورد) + آبشار کاتالوگ (۲۷→۲۹).
+- **فلیپ بند ۸۰ → کامل** (ردیف qa-plan: `C-FEAR-2` → `pass`).
+- ۳۲۳ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (سناریوهای موجود باغ ندارند) + ری‌پلی مرجع سبز.
+- دامنه: فقط چیزهای خوب (بعد: چیزهای بد بند ۸۱).
+
+## 0.130.0 (اکتبر ۲۰۲۶) — مقیاس ترس ∓۵: بهره‌وری کار + روحیه/حمله (فاز ۱ بند ۷۹)
+- **سیم‌کشی:** بخش `fear` در `TUNING` (بازه ∓۵ + `workPct` ۵ + `attackPct` ۵ + `popPer` ۱ — عین §۵.۷/جدول Attack Rating؛ اعتبارسنج فایل/اسکیمای مشترک/آینه) + `fearLevel` (جمع `fearGood`/`fearBad` کاتالوگ بناهای سالمِ تکمیل‌شده خودی، گیره ∓۵) + اثرها: `fearWorkCoef` (۱∓۰.۰۵×سطح در هر ۴ حلقه تولید solo/MP؛ چرخه آبجو و رشد گاو بیرون) + `fearAttackMult` (۱±۰.۰۵×سطح در ضربه نیروهای `fightTarget`؛ برج/گاریسون/منجنیق بیرون) + `fearPop` در `popTarget` + `fearInfo` در `policySummary` و سگمنت «ترس» در خط سیاست (fa/en). هنوز هیچ بنایی بار ترس ندارد → سطح همیشه ۰ و سیم‌کشی دقیقاً خنثی (۱ و ×۱). تست تازه `t_fear_scale` (بازه/فرمول‌ها/خلوص/MP/پنل + پین «بدون بار»).
+- **فلیپ بند ۷۹ → کامل** (ردیف qa-plan: `C-FEAR-1` → `pass`).
+- ۳۲۲ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش + ری‌پلی مرجع سبز.
+- دامنه: فقط مقیاس + اثرها (ورودی‌ها با چیزهای خوب/بد بندهای ۸۰/۸۱ می‌آیند).
+
+## 0.129.0 (اکتبر ۲۰۲۶) — مست‌های میخانه: هر میخانه کارا ۲ مست (فاز ۱ بند ۷۸)
+- **سیم‌کشی:** `drunkardsPerInn` ۲ (حدس) در `TUNING.inn` (اعتبارسنج/آینه) + `drunkards()` خالص MP-aware (شمار میخانه‌های سروکننده × سرانه — آینه `innCoverage`؛ بدون میدان تازه → بدون تغییر ذخیره/هش‌مدل/ری‌پلی) + `drunkards` در `innInfo`/`policySummary` و سگمنت «{n} مست» در خط سیاست (fa/en). تست تازه `t_drunkards` (۰/۲/۴/۰ + خلوص + پنل/خلاصه + ویرانه/MP).
+- **فلیپ بند ۷۸ → کامل** (ردیف qa-plan: `C-INN-6` → `pass`).
+- ۳۲۱ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش + ری‌پلی مرجع سبز.
+- دامنه: فقط شمار نمایشی مست‌ها (بعد: مقیاس ترس ∓۵ بند ۷۹).
+
+## 0.128.0 (اکتبر ۲۰۲۶) — رقیق‌شدن پوشش میخانه: inn بیشتر با رشد جمعیت (فاز ۱ بند ۷۷، فلیپ)
+- **فلیپ بند ۷۷ → کامل (بدون کد):** پوشش `innCoverage` (= کارا×۳۰/جمعیت) ذاتاً با رشد جمعیت می‌افتد — با همان سیم‌کشی 0.109.0 و همان تست (`t_inn_cheer`: ۱ میخانه کارا برای ۱۲۰ کارگر = ۲۵٪ → +۲، هدف ۵۳). ردیف qa-plan: `C-INN-5` → `pass`.
+- ۳۲۰ تست سینک سبز + ناهمگام ۵/۵ سبز (بدون تغییر کد)؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط فلیپ (بعد: مست‌ها بند ۷۸).
+
+## 0.127.0 (اکتبر ۲۰۲۶) — راهب جنگجو: استخدام پشت کلیسای جامع (فاز ۱ بند ۷۶)
+- **سیم‌کشی:** یگان `blackmonk` در کاتالوگ (جان ۷۰/آسیب ۹/سرعت ۲.۶/هزینه ۴۰غذا+۶۰طلا/آموزش ۸۰تیک — حدس؛ مرجع فقط جان نسبی ۳۰۰۰۰ می‌دهد؛ سرعت ۲.۶ تا قفل «صلیبی کندترین پیاده» نماند) + `requires/building: cathedral` (اسکیما/آینه) + `hasCathedral`/`NO_CATHEDRAL` (دروازه `validateHire` + قفل کارت + fa/en) + میزبان صف `cathedralOf`/`trainHostOf` (صف/لغو/پیشرفت روی جامع) + شیت اسپرایت رویه‌ای ۱۲۸×۱۶۰ (۴جهت×۴حالت+مرگ) در `UNIT_DATA` + `assets/units/blackmonk.png`. تست تازه `t_blackmonk_hire` (قفل/صف/تحویل/حریف/ویرانه/نام en) + آبشار فهرست (۱۲→۱۳، مزدور ۱۰→۱۱).
+- **فلیپ بند ۷۶ → کامل** (ردیف qa-plan: `C-RELIG-5` → `pass`).
+- ۳۲۰ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (سناریوهای موجود راهب ندارند) + ری‌پلی مرجع سبز.
+- دامنه: فقط استخدام راهب (بعد: رقیق‌شدن پوشش میخانه بند ۷۷).
+
+## 0.126.0 (اکتبر ۲۰۲۶) — پاداش مذهب در هدف محبوبیت: پله + ثابت (فاز ۱ بند ۷۵)
+- **سیم‌کشی:** `steps`/`stepBonus` (۲۵→+۲ … ۱۰۰→+۸ عین جدول §۵.۵) + `churchBonus` ۱/`cathedralBonus` ۲ (عین متن §۳.۵ — ⚠️ جدول ساختمان‌ها هر دو را +۲ می‌گوید، متن ملاک شد) در `TUNING.religion` (اعتبارسنج/اسکیما/آینه) + `religionWorking`/`religionBonus` خالص MP-aware در `popTarget` (ثابت حضور در شکاف فرسایش می‌ماند) + پاداش در `religionInfo` و خط سیاست (fa/en). تست تازه `t_religion_bonus` (پله‌ها/ثابت‌ها/هدف ۶۱/شکاف ۵۲/MP).
+- **فلیپ بند ۷۵ → کامل** (ردیف qa-plan: `C-RELIG-4` → `pass`).
+- ۳۱۹ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (سناریوهای موجود بنای دینی ندارند) + ری‌پلی مرجع سبز.
+- دامنه: فقط پاداش (بعد: راهب جنگجو بند ۷۶).
+
+## 0.125.0 (اکتبر ۲۰۲۶) — درصد تبرک‌شده: رقیق‌شدن با جمعیت + پنل مذهب (فاز ۱ بند ۷۴)
+- **سیم‌کشی:** `religionInfo` خالص MP-aware (کل/کارا/درصد/پنجره، آینه `innInfo`) در `policySummary` + سگمنت «مذهب {کارا}/{کل} (تبرک {٪})» در خط `policyEl` (fa/en). فرمول پوشش (ظرفیت جمعی/جمعیت) همان 0.123.0 است — با رشد جمعیت درصد می‌افتد و با بنای بیشتر برمی‌گردد. تست تازه `t_bless_dilution` (۱۰۰→۵۰→۱۰۰→۷۰٪ + خلاصه + شکاف).
+- **فلیپ بند ۷۴ → کامل** (ردیف qa-plan: `C-RELIG-3` → `pass`).
+- ۳۱۸ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش + ری‌پلی مرجع سبز.
+- دامنه: فقط نمایش درصد (بعد: پاداش Church/Cathedral بند ۷۵).
+
+## 0.124.0 (اکتبر ۲۰۲۶) — فرسایش تبرک: چرخه دائمی تبرک/انقضا (فاز ۱ بند ۷۳)
+- **سیم‌کشی:** `blessEveryTicks` ۱۲۰۰ + `blessDurationTicks` ۶۰۰ (= ۶۰ ثانیه مرجع ✅ در ۱۰Hz) در `TUNING.religion` (با اعتبارسنج فایل/اسکیما/آینه) + پنجره خالص `blessActive(tick)` (الگوی رویدادهای بند ۷۰/۷۱ — بدون میدان تازه → بدون تغییر ذخیره/هش‌مدل/ری‌پلی) در `religionCoverage` (شکاف = ۰ ولی کشیش سر جایش). تست تازه `t_bless_decay` (مرزهای ۵۹۹/۶۰۰/۱۱۹۹/۱۲۰۰ + ۱۰۰→۰→۱۰۰ در تیک ۵۰/۷۰۰/۱۲۰۰).
+- **فلیپ بند ۷۳ → کامل** (ردیف qa-plan: `C-RELIG-2` → `pass`).
+- ۳۱۷ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش + ری‌پلی مرجع سبز.
+- دامنه: فقط فرسایش (بعد: رقیق‌شدن + نمایش درصد بند ۷۴).
+
+## 0.123.0 (اکتبر ۲۰۲۶) — تبرک کشیش‌ها: سه ساختمان دینی (فاز ۱ بند ۷۲)
+- **سیم‌کشی:** کاتالوگ `chapel/church/cathedral` (هزینه/زمان حدسی، town، چمن) + بخش داده `TUNING.religion` (ظرفیت ۲۰/۵۰/۱۰۰ = مرجع §۵.۵ ✅ + کشیش ۱، با اعتبارسنج فایل/اسکیما/آینه) + `RELIGION`/`RELIGION_TYPES`/`religionCoverage` خالص MP-aware (بنای سالم+تکمیل‌شده+کشیش‌دار؛ بدون کارا = ۰) در `economy.js` + کشیش در `workersNeeded` + پالت ساخت و `main.meta.religion` (fa/en). تست تازه `t_priest_bless` (۳ بنا/کشیش/پوشش ۱۰۰-۵۰/برش MP/نام en).
+- **فلیپ بند ۷۲ → کامل** (ردیف qa-plan: `C-RELIG-1` → `pass`).
+- ۳۱۶ تست سینک سبز + ناهمگام ۵/۵ سبز؛ بدون بازپین هش (صفر تغییر sim موجود) + ری‌پلی مرجع سبز. نمایش درصد در بند ۷۴، پاداش در بند ۷۵.
+- دامنه: فقط تبرک پایه (بعد: فرسایش تبرک بند ۷۳).
+
+## 0.122.0 (اکتبر ۲۰۲۶) — شیر و بیماری: تغییر موقت محبوبیت (فاز ۱ بند ۷۱، فلیپ)
+- **فلیپ بند ۷۱ → کامل (بدون کد):** شیر (۱۸۰۰–۲۰۰۰/−۳) و بیماری (۲۲۰۰–۲۴۵۰/−۳) با همان چارچوب 0.121.0 سیم‌اند — همان داده (`TUNING.events`)، همان تست (`t_events`: پنجره‌ها/اثر/خلاصه/خلوص)، همان بازپین‌ها. ردیف qa-plan: `C-ECON2-9` → `pass`.
+- ۳۱۵ تست سینک سبز + econ ۵۵ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط فلیپ (بعد: مذهب §۵.۵).
+
+## 0.121.0 (اکتبر ۲۰۲۶) — رویدادهای موقت §۵.۴: نمایشگاه سیار + چارچوب (فاز ۱ بند ۷۰)
+- **سیم‌کشی:** بخش داده `TUNING.events` (نمایشگاه ۱۵۰۰–۱۸۰۰/هر ۲۰۰۰تیک +۴؛ شیر ۱۸۰۰–۲۰۰۰/−۳؛ بیماری ۲۲۰۰–۲۴۵۰/−۳ — 🔧 حدس) + `activeEvents`/`eventBonus` خالص از tick (بدون میدان تازه → بدون تغییر ذخیره/فرمت ری‌پلی؛ در MP سراسری) در `popTarget` + `events` در `policySummary` + پسوند خط campEl (fa/en). تست تازه `t_events` (پنجره‌ها/تکرار/خلاصه/نام‌ها/خلوص).
+- **فلیپ بند ۷۰ → کامل** (ردیف qa-plan: `C-ECON2-8` → `pass`). شیر/بیماری با همین سیم‌کشی‌اند — فلیپ بند ۷۱ جدا.
+- ۳۱۵ تست سینک سبز + econ ۵۵ + ناهمگام ۵/۵ سبز. **بازپین عمدی ۱ هش** (`ai-skirmish`: fe5a5362→78375c69 — پنجره نمایشگاه در بازه سناریو) **+ ری‌پلی مرجع** (5214e835→66c8ce1c، پایدار در دوباره‌اجرا)؛ ۷ هش دیگر سبز.
+- دامنه: فقط رویدادها (بعد: فلیپ بند ۷۱).
+
+## 0.120.0 (اکتبر ۲۰۲۶) — اثر منفی ازدحام: −۲ به هدف محبوبیت (فاز ۱ بند ۶۹)
+- **فلیپ بند ۶۹ → کامل:** جمعیت > مسکن = `CROWD_POP` (−۲ 🔧 حدس از `TUNING.crowding`، بخش داده‌محور تازه با اعتبارسنج فایل/اسکیما/آینه) در `popTarget` (MP-aware)؛ تست تازه `t_crowding_pop` (مرز/رفع/برش MP) + آبشار `t_inn_cheer` (هدف جزئی ۵۵←۵۳ چون ۱۲۰>۴ شلوغ است).
+- ۳۱۴ تست سینک سبز + econ ۵۴ + ناهمگام ۵/۵ سبز. **بازپین عمدی ۱ هش** (`econ-chain`: b43c82a5→9d7a78e1 — سناریو با ۶ کارگر/سقف ۴ شلوغ است، پایدار در دوباره‌اجرا)؛ ۷ هش دیگر + ری‌پلی مرجع سبز (ری‌پلی هرگز شلوغ نمی‌شود). ردیف qa-plan: `C-ECON2-7` → `pass`.
+- دامنه: فقط جریمه ازدحام (بعد: رویدادهای §۵.۴).
+
+## 0.119.0 (اکتبر ۲۰۲۶) — هشدار بی‌رحم‌ترین مالیات: فقط کوتاه‌مدت (فاز ۱ بند ۶۸)
+- **فلیپ بند ۶۸ → کامل:** مالیات `cruellerThanCruel` (سقف درآمد ۳ طلا/کارگر) حالا هشدار مشاور `crueller` می‌دهد («همه درآمد دهقانان گرفته می‌شود — فقط کوتاه‌مدت»، fa/en) که در همان خط `warnEl` موجود می‌نشیند؛ خالص و کم‌اولویت‌ترین (سقف ۵ سر جایش). تست تازه `t_crueller_warn` + ردیف qa-plan: `C-TAX-7` → `pass`.
+- ۳۱۳ تست سینک سبز + econ ۵۳ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط هشدار (بعد: رویدادهای §۵.۴).
+## 0.118.0 (اکتبر ۲۰۲۶) — چرخه ساختمان: Idle←NeedsWorker←Waiting←Working (فاز ۱ بند ۵۳)
+- **فلیپ بند ۵۳ → کامل:** نیمه‌کاره (`buildLeft`) ← بی‌کارگر (`staffed=false`) ← انتظار ورودی (پیشرفت صفر + `starved`) ← کار + تحویل به مخزن مرکزی (بدون موجودی محلی)؛ تست تازه `t_building_lifecycle` آسیاب را از هر چهار حالت می‌گذراند (۲ گندم ← ۲ آرد در مخزن). حمل فیزیکی/Carrying بیرون است — انبار متمرکز (بند ۲۶) + ردیف qa-plan: `C-ECON-17` → `pass`.
+- ۳۱۳ تست سینک سبز + econ ۵۳ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط چرخه (بعد: قاعده فروش).
+## 0.117.0 (اکتبر ۲۰۲۶) — فروش ≈ ۴۰–۵۰٪ خرید برای هر ۱۰ نرخ (فاز ۱ بند ۵۶)
+- **فلیپ بند ۵۶ → کامل:** سه پرت‌افتاده (منبع حدس): فروش سنگ ۳←۴، آبجو ۳←۴، خرید گندم ۳←۲ — حالا هر ۱۰ نرخ در ۰٫۴–۰٫۵ است + تست تازه `t_market_sell_ratio` (بازه + سه اصلاح + آینه داده) + ردیف qa-plan: `C-MARKET-5` → `pass`. قیمت‌گذاری مرجع (سنگ ۲۰) مال بند ۹۱ است.
+- ۳۱۳ تست سینک سبز + econ ۵۳ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی (هیچ سناریویی trade ندارد).
+- دامنه: فقط قاعده فروش (بعد: چرخه ساختمان).
+
+## 0.116.0 (اکتبر ۲۰۲۶) — رازک ۱←۱ آبجو + نرخ‌های تولیدکننده (فاز ۱ بندهای ۴۸ و ۵۰)
+- **فیکس بند ۴۸:** آبجوسازی ۲ رازک ← ۱ آبجو بود، شد ۱←۱ (= قانون مرجع `hopsRule`)؛ یک مزرعه رازک دقیقاً یک آبجوسازی را اشباع می‌کند. آبشار: `t_beer_chain` (رازک ۲۰) + بازنویسی نیمه قحطی `t_brewery_starved` (با ۱:۱، رازک=۱ دیگر قحطی نیست — صفر شد).
+- **فلیپ بند ۵۰ → کامل:** نرخ واحد/ثانیه از کاتالوگ (۱۰ تیک/ثانیه): نانوایی ۰٫۸۹≈۰٫۸ + باغ ۰٫۵ + شکارچی/لبنیاتی ۰٫۳ + ترتیب نان > سیب > پنیر (= `producerRates` مرجع) + تست تازه `t_producer_rates` + ردیف qa-plan: `C-ECON-16` → `pass`. شکار بی‌رویه/مهاجرت بیرون است (واحد حیوان نداریم).
+- ۳۱۰ تست سینک سبز + econ ۵۱ + ناهمگام ۵/۵ سبز؛ **بدون بازپین هش** (هیچ سناریوی رگرسیون/ری‌پلی آبجوسازی ندارد)؛ ری‌پلی مرجع سبز.
+- دامنه: فقط بندهای ۴۸ و ۵۰ (بعد: مزرعه گندم/ماه/مصرف).
+
+## 0.115.0 (اکتبر ۲۰۲۶) — زرادخانه انبار مرکزی سلاح است (فاز ۱ بند ۴۱)
+- **فلیپ بند ۴۱ → کامل:** هر زرادخانه/کمان‌سازی سالم +۵۰۰ به سقف هر سه خانواده سلاح (iron/swords/bows از `TUNING.caps.armoury`)؛ سلاح‌ها در مخزن مشترک‌اند (بدون موجودی محلی، مثل stockpile بند ۲۶)؛ ویرانی سقف را برمی‌گرداند و مازاد را می‌تراشد. زره‌های چرم/فلزی هنوز منبع نیستند — با زنجیره‌های سلاح آینده به همین خانواده می‌پیوندند.
+- ۳۰۹ تست سینک سبز (۱ جدید: `t_armoury_store` — سقف ۵۰۰/۱۰۰۰ + تراش ویرانی + آینه داده؛ ردیف qa-plan: `C-ECON-15` → `pass`). econ ۵۰ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط فلیپ زرادخانه (بعد: نرخ‌های تولید).
+
+## 0.114.0 (اکتبر ۲۰۲۶) — باغ سیب → سیب: سومین غذای واقعی + هر ۹ حلقه بند ۴۰ (فاز ۱ بند ۴۰)
+- **باغ سیب:** بنای تازه `orchard` (۱سیب/۲۰تیک ≈ ۰٫۵/ثانیه مرجع 🔧 از کاتالوگ) + منبع `apples` در همه‌جا (شروع/MP/AI، سقف ۵۰۰ + گروه granary، گیره‌ها، هش، سازگاری ذخیره) + پوشش تنوع ۴نوعی در `t_food_types` (جمع ۱۰/＋۳/ترتیب پنیر→سیب).
+- **فلیپ بند ۴۰ → کامل:** هر ۹ حلقه با کارگر مخصوص (hunter/dairy+۳گاو/apple/wheat/mill/baker/hops/brewer/innkeeper) + مصرف ترتیبی و تنوع داده‌محور + ردیف qa-plan: `C-ECON-14` → `pass`.
+- ۳۰۸ تست سینک سبز (`t_orchard_apples`/`t_apples_save_compat` از کار ناتمام + تنوع ۴نوعی) + بازپین عمدی هر ۸ هش + ری‌پلی مرجع (mix سیب، پایدار در دوباره‌اجرا: 5214e835). econ ۴۹ + ناهمگام ۵/۵ سبز.
+- دامنه: پایان خوشه غذاهای تازه (بعد: زرادخانه §۷.۲).
+
+## 0.113.0 (اکتبر ۲۰۲۶) — گاوداری → پنیر با ۳ گاو (فاز ۱ بند ۴۰، حلقه ۲/۳)
+- **لبنیاتی:** بنای تازه `dairy` (۳×۲، ۲۰چوب، ۱ کارگر) + منبع `meat`-وار `cheese` در همه‌جا + چرخه دودویی داده‌محور (`needsCows`/`cowGrowthTicks` در RATES؛ حلقه عمومی skip می‌کند): نخست رشد گاو (۱/۱۰۰تیک کارگری تا ۳) بعد شیردوشی ۱/۳۳تیک؛ گاوها سرمایه‌اند. گاوها در ذخیره/هش/اعتبارسنج (بازه ۰..۳، فقط dairy) + سازگاری قدیمی. رقابت پنیر/زره‌چرم/پرتاب‌گاو بیرون دامنه است (بند جدا) و قیمت بازار پنیر مال بند قیمت‌گذاری.
+- ۳۰۶ تست سینک سبز (۲ جدید: `t_dairy_cheese` (رشد/شیردوشی/توقف بی‌کارگر/ذخیره/ردها)/`t_cheese_save_compat`؛ پین‌ها به‌روز؛ ردیف qa-plan: `C-ECON-13` → `pass`). econ ۴۸ + ناهمگام ۵/۵ سبز. **بازپین عمدی هر ۸ هش + ری‌پلی مرجع** (mix پنیر، پایدار در دوباره‌اجرا: 883b0f9f).
+- دامنه: فقط پنیر/گاوداری (بعد: باغ سیب).
+
+## 0.112.0 (اکتبر ۲۰۲۶) — شکارچی → گوشت: دومین غذای واقعی (فاز ۱ بند ۴۰، حلقه ۱/۳)
+- **لوله‌کشی مشترک انواع غذا:** منبع تازه `meat` در همه‌جا (RESOURCES/fa/en، شروع/MP/AI، سقف ۵۰۰ + گروه granary، گیره‌ها، هش، سازگاری ذخیره قدیمی→صفر) + `foodTotal`/`eatOneUnit` (مصرف از نخستین نوع موجود به ترتیب داده + قحطی/دوام/هشدار روی جمع) + تنوع زنده شد (۲ نوع = +۱). شکار بی‌رویه/مهاجرت گوزن بیرون دامنه است (واحد حیوان نداریم) و قیمت بازار گوشت مال بند قیمت‌گذاری است.
+- **شکارچی:** بنای تازه `hunterpost` (۲×۲، ۲۰چوب، ۱ کارگر، ۱گوشت/۳۳تیک ≈ ۰٫۳/ثانیه مرجع 🔧) + پالت/تولتیپ/نام fa/en خودکار از کاتالوگ.
+- ۳۰۴ تست سینک سبز (۳ جدید: `t_hunter_meat`/`t_food_types`/`t_meat_save_compat`؛ پین‌های کاتالوگ ۲۲بنا/انواع/سقف‌ها/گرانری/ست‌آغازین به‌روز؛ ردیف qa-plan: `C-ECON-12` → `pass`). econ ۴۷ + ناهمگام ۵/۵ سبز. **بازپین عمدی هر ۸ هش** (mix گوشت در هش، پایدار در دوباره‌اجرا) **+ ری‌پلی مرجع** (d61f492d، پایدار).
+- دامنه: فقط گوشت/شکارچی (بعد: لبنیاتی + گاوها).
+
+## 0.111.0 (اکتبر ۲۰۲۶) — فلیپ‌های انتظار: قحطی ورودی + دهقان آزاد (فاز ۱ بندهای ۵۴ و ۵۵)
+- **بند ۵۴:** بدون ماده خام ساختمان منتظر می‌ماند (پیشرفت صفر + پرچم `starved` + ازسرگیری) و کارگر در ساختمان می‌ماند (`staffed` در قحطی حفظ می‌شود — پین تازه در `t_bakery_starved`)؛ هر دو از قبل پیاده بودند.
+- **بند ۵۵:** بدون دهقان آزاد ساختمان جدید کار نمی‌کند — عین `t_noWorker` (هفتمین ساختمان idle)؛ فلیپ بدون کد.
+- ۳۰۱ تست سینک سبز (۱ پین تازه) + econ ۴۵ + ناهمگام ۵/۵؛ بدون تغییر sim/هش/ذخیره/ری‌پلی (ردیف‌ها: `C-ECON-10`/`C-ECON-11` → `pass`).
+- دامنه: فقط دو فلیپ (پایان خوشه ۴۹/۵۱/۵۲/۵۴/۵۵ — بعد: زنجیره‌های غذا/سلاح §۷).
+
+## 0.110.0 (اکتبر ۲۰۲۶) — فلیپ‌های پیوست: hint آسیاب + فرمول محبوبیت (فاز ۱ بندهای ۴۹ و ۵۲)
+- **بند ۴۹ (فلیپ بدون کد):** ورودی تکراری پیوست §۱۸ همان hint بند ۳۳ است — همان سیم‌کشی (`millSupport()` = ۱۲/۳)، همان تست (`t_mill_support`)؛ ردیف تازه `C-FOOD-5` فقط ارجاع می‌دهد.
+- **بند ۵۲ (فرمول محبوبیت):** شروع ۵۰ (سولو/سازنده) + جمع اثرها با گیره ۰..۱۰۰ + حرکت پلکانی ۲/ماه — هر سه از قبل پیاده بودند؛ تست تازه `t_popularity_formula` پین می‌کند (شروع/بازه ۶۰ ترکیب/سقف ۶۷/کف ۱۲/گام).
+- ۳۰۱ تست سینک سبز (۱ جدید) + econ ۴۵؛ بدون تغییر sim/هش/ذخیره/ری‌پلی (ردیف‌ها: `C-FOOD-5`/`C-ECON2-6` → `pass`).
+- دامنه: فقط دو فلیپ (بندهای ۵۴/۵۵: انتظار ورودی و دهقان آزاد).
+
+## 0.109.0 (اکتبر ۲۰۲۶) — پاداش پوششی میخانه: هر کارا ۳۰ نفر تا سقف +۸ (فاز ۱ بند ۵۱)
+- **سیم‌کشی مرجع ✅:** پاداش تخت +۳ حذف شد؛ `innBonus`/`innCoverage` خالص MP-aware در sim (`fullBonus × پوشش/۱۰۰`، پوشش کامل = +۸) + `TUNING.inn` تازه (`fullBonus: 8`، `perInn: 30` جای `popBonus`) + اعتبارسنج فایل/اسکیما/آینه؛ `innInfo` هم از همان داده می‌خواند (+`bonus` در خط سیاست fa/en) و تولتیپ سقف را نشان می‌دهد. ردیف واگرایی `#ale/inn` حل شد.
+- ۳۰۰ تست سینک سبز (آبشاری: `t_inn_cheer` (۶۱ کامل/۵۵ جزئی/۵۳ بی‌سرو)/`t_inn_panel` (پاداش ۸ + برش MP ۴/۸)/`t_tuning_file`/`t_tuning_reject`/`t_data_driven_tuning`/`t_tuning_vs_reference`؛ ردیف qa-plan: `C-INN-4` → `pass`). econ ۴۴ + ناهمگام ۵/۵ سبز؛ **بدون بازپین هش** (سناریوها/ری‌پلی میخانه ندارند)؛ ری‌پلی مرجع سبز.
+- دامنه: فقط پاداش پوششی (بند ۴۹: hint تکراری آسیاب؛ بند ۵۲: فرمول محبوبیت).
+
+## 0.108.0 (اکتبر ۲۰۲۶) — معاملات فقط بسته ۵تایی (فاز ۱ بند ۳۹)
+- **سیم‌کشی مرجع:** `TUNING.market.lot` ۱۰←۵ (= ۵ manbook؛ ردیف واگرایی `#market` در `t_tuning_vs_reference` حل شد — خرید سنگ ۸≠۲۰ مال بند قیمت‌گذاری آینده است). عنوان پنل/راهنما (fa/en) و سربرگ ⚖ خودکار با بسته تازه می‌خوانند.
+- ۳۰۰ تست سینک سبز (آبشاری: `t_market_buy_sell` (۳۵طلا/۱۰۵چوب/فروش ۵تایی)/`t_market_save` (۳۵سنگ/۴۶۰طلا)/`t_tuning_file`/`t_tuning_vs_reference`؛ `t_market_caps` بی‌تغییر ماند (تراش ۳/۲ مستقل از بسته)؛ ردیف‌های qa-plan: `C-MARKET-4` → `pass` + `C-ECON-8` به‌روز). econ ۴۴ + ناهمگام ۵/۵ سبز؛ **بدون بازپین هش** (هیچ سناریوی رگرسیون/ری‌پلی trade ندارد)؛ ری‌پلی مرجع سبز.
+- دامنه: فقط بسته ۵تایی (پایان خوشه بازار ۳۶–۳۹).
+
+## 0.107.0 (اکتبر ۲۰۲۶) — لیست قیمت ترازو + کلیک→Buy/Sell (فاز ۱ بندهای ۳۷ و ۳۸)
+- **سربرگ ⚖ (بند ۳۷):** خط «لیست قیمت خرید/فروش — بسته Nتایی» بالای ردیف‌ها (بسته از `CONFIG.MARKET` می‌آید، داده‌محور) + نرخ هر ردیف مثل قبل؛ کلیدهای fa/en.
+- **کلیک→Buy/Sell (بند ۳۸):** ردیف‌ها کلیک‌شدنی‌اند (`data-msel` + هایلایت `sel`) و دکمه‌های خرید/فروش فقط برای کالای برگزیده نمایش داده می‌شوند؛ تعویض تب انتخاب را به نخستین کالای تب برمی‌گرداند. منطق انتخاب در هلپر خالص `marketSelected` (نخستین امن/تهی=null) که UI هم همان را صدا می‌زند.
+- ۳۰۰ تست سینک سبز (۱ جدید: `t_market_select` — هلپر + سربرگ/hint در fa/en؛ ردیف‌های qa-plan: `C-MARKET-2`/`C-MARKET-3` → `pass`) + static (شناسه‌ها + شاخه‌ها + `t()`) چون کلیک DOM در پیش‌نمایش ریشه ممکن نیست. econ ۴۴ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط سربرگ و انتخاب (بند ۳۹: بسته ۵تایی).
+
+## 0.106.0 (اکتبر ۲۰۲۶) — سه تب پنل trade: غذا/منابع/کالای نظامی (فاز ۱ بند ۳۶)
+- **تب‌ها در داده:** `TUNING.market.tabs` (غذا ۵کالا/منابع ۳کالا/نظامی ۲کالا = افراز ۱۰ نرخ) + اعتبارسنج افراز در `validateTuningFile` و اسکیما (`checkMarketTabs` مشترک برای MARKET/TUNING) + `CONFIG.MARKET.tabs` + هلپر خالص `marketTabOf`.
+- **UI:** نوار سه‌تب در `marketOverlay` (الگوی `sel` دکمه‌های مالیات) + پالایش ردیف‌ها بر تب فعال (UI-side) + عنوان‌های fa/en.
+- ۲۹۹ تست سینک سبز (۱ جدید: `t_market_tabs` — سه تب/افراز/نامعتبر/نمونه عضویت؛ پین تب‌ها در `t_tuning_file` + ۳ نگهبان در `t_tuning_reject` + آینه در `t_data_driven_tuning` + خرابی دهم اسکیما؛ ردیف qa-plan: `C-MARKET-1` → `pass`). econ ۴۳ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط تب‌ها (بند ۳۷: لیست قیمت ترازو؛ بند ۳۸: کلیک→Buy/Sell).
+
+## 0.105.0 (اکتبر ۲۰۲۶) — گزارش خزانه در خط سیاست (فاز ۱ بند ۳۵)
+- **`treasuryInfo` خالص (MP-aware):** موجودی طلا + درآمد مالیاتی در دقیقه — آینه فرمول sim (`workers × goldPerWorker × ۶۰۰ / POP_PERIOD`، مثل `netPerMinute`) + سطح جاری؛ در `policySummary` و خط سیاست fa/en (بخش «خزانه N (‎±M/دقیقه)» پس از مالیات).
+- ۲۹۸ تست سینک سبز (۱ جدید: `t_treasury_report` — تازه/آینه فرمول/خلوص/خلاصه سیاست/اثر واقعی ۵۰تیک/برش MP؛ ردیف qa-plan: `C-TAX-6` → `pass`). econ ۴۲ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط گزارش خزانه (بند ۳۶: سه تب بازار).
+
+## 0.104.0 (اکتبر ۲۰۲۶) — اسلایدر ۱۲سطحی مالیات از Generous Bribe تا Crueller than Cruel (فاز ۱ بند ۳۴)
+- **۱۲ سطح با اثرهای مرجع** (+۷/+۵/+۳/+۱/−۲/−۴/−۶/−۸/−۱۲/−۱۶/−۲۰/−۲۴): سه رشوه + none + هشت مالیات؛ طلا نزدیک‌ترین صحیح به مرجع است (کسرها مال بند ۸۸). `TAX` از لیترال ۵تایی به حلقه داده‌محور روی TAX_IDS برگشت؛ شرط خزانه خالی بند ۲۱ حالا «هر سطح پولی» است.
+- **UI:** ۱۲ دکمه مالیات (نام‌های fa/en تازه) + اسلایدر ۰..۱۱ با سقف داده‌محور؛ پیش‌فرض none در جایگاه ۳.
+- ۲۹۷ تست سینک سبز (آبشاری: `t_tax_default`/`t_tax_slider`/`t_bribe_effect` (سه سطح)/`t_tax` (gold=۶۴)/`t_balance_bribe`/`t_policy_summary` (۶۰ ترکیب)/`t_policy_info`/`t_tuning_file`/`t_tuning_reject`/`t_balance_reference_not_wired` (نمونه سوم حذف — سیم‌کشی شد)/`t_tuning_vs_reference` (ردیف مقیاس ۱۲سطحی)؛ ردیف‌های qa-plan: `C-TAX-4`/`C-TAX-5` → `pass`). **بازپین عمدی ۱ هش** (`policy-tax`: 49583fb8→a3745c02، پایدار در دوباره‌اجرا)؛ ری‌پلی مرجع سبز ماند.
+- دامنه: فقط مقیاس ۱۲سطحی (بند ۳۵: Treasury report؛ بند ۸۸: کسرهای طلا).
+
+## 0.103.0 (اکتبر ۲۰۲۶) — hint آسیاب: ۱۲ نانوا + ۳ مزرعه + زنجیره ۱→۱→۸ (فاز ۱ بندهای ۳۳ و ۴۶)
+- **توازن دوباره نانوایی:** ۲آرد→۱غذا/۱۵تیک به ۱آرد→۸غذا/۹۰تیک برگشت (= ۱گندم→۱آرد→۸نان مرجع؛ بند ۴۶ هم با همین نسخه کامل شد). حالا یک آسیاب دقیقاً ۱۲ نانوا و ۳ مزرعه را اشباع می‌کند.
+- **`millSupport()` خالص داده‌محور** (مشتق از RATES زنده) + hint در تولتیپ آسیاب (fa/en `main.meta.millSupport`).
+- ۲۹۷ تست سینک سبز (۱ جدید: `t_mill_support` — اشتقاق از RATES + پین ۱۲/۳ + تطابق manbook؛ پین‌های `t_bakery_chain`/`t_bakery_starved`/`t_rates_from_config` به‌روز + ردیف واگرایی #bread-chain حل شد؛ ردیف‌های qa-plan: `C-FOOD-3`/`C-FOOD-4` → `pass`). **بازپین عمدی ۱ هش رگرسیون** (`econ-chain`: 10389b95→05233bc5، پایدار در دوباره‌اجرا)؛ ری‌پلی مرجع سبز ماند.
+- دامنه: فقط زنجیره نان/hint (بند ۳۴: اسلایدر ۱۲سطحی مالیات).
+
+## 0.102.0 (اکتبر ۲۰۲۶) — چسبیدگی انبار غذای اضافه (فاز ۱ بند ۳۲)
+- **فلیپ بدون تغییر کد:** قانون `anchorToSame` بند ۲۸ از اول برای انبارغذا هم بود و `t_stockpile_adjoin` دو انبارغذای چسبیده را پین کرده بود؛ این نسخه فقط ردیف را کامل می‌کند (بخش `GRAN-001`، ردیف qa-plan: `C-GRAN-4` → `pass`).
+- ۲۹۶ تست سینک سبز، بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط فلیپ (بند ۳۳: hint آسیاب).
+
+## 0.101.0 (اکتبر ۲۰۲۶) — سه عدد غذا در خط سیاست (فاز ۱ بند ۳۱)
+- **`foodInfo` خالص (MP-aware):** موجودی غذا + مدت دوام (دقیقه، با نرخ مصرف جاری — آینه فرمول `netPerMinute`) + تعداد انواع (از `foodVariety`)؛ هر سه در خط سیاست fa/en.
+- ۲۹۶ تست سینک سبز (۱ جدید: `t_food_info` — تازه/پس‌سیم/فرمول دوام/خلوص/خلاصه سیاست/برش MP؛ ردیف qa-plan: `C-GRAN-3` → `pass`). econ ۴۱ + ناهمگام ۵/۵ سبز؛ بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط سه عدد (بند ۳۲: چسبیدگی granary اضافه — از قبل با بند ۲۸ کامل است، فلیپ جدا می‌خواهد).
+
+## 0.100.0 (اکتبر ۲۰۲۶) — نشانگر سبز مصرف (فاز ۱ بند ۳۰)
+- **`eatGauge`/`eatMeter` خالص (MP-aware):** کسر پرشدن انباشت مصرف (`eatAcc/EAT_THRESHOLD` — هر بار پر شدن = ۱ واحد غذا؛ جمعیت بیشتر/جیره بالاتر = پرشدن سریع‌تر، همان انباشت sim) + میله متنی ۵خانه‌ای 🟢▓░ در خط سیاست.
+- ۲۹۵ تست سینک سبز (۱ جدید: `t_eat_gauge` — آینه آستانه + میله خالی/نیمه/پر + خلوص + خلاصه سیاست + برش MP؛ ردیف qa-plan: `C-GRAN-2` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط نشانگر (بند ۳۱: سه عدد غذا).
+
+## 0.99.0 (اکتبر ۲۰۲۶) — پنل جیره در انبار غذا (فاز ۱ بند ۲۹)
+- **کلیک خنثی روی انبار غذای خودی = پنل جیره** (`granaryOverlay` با همان ۵ دکمه `data-rat` مسیر فرمان جیره + هایلایت sel همگام + بستن/Esc، الگوی نوار مزدورها/بازار؛ عنوان fa/en `ui.granary.title`).
+- ۲۹۴ تست سینک سبز (بدون تست تازه: همان مسیر فرمان `t_ration_extra` + سیم‌کشی استاتیک راستی‌آزمایی شد — شناسه‌ها در index.html، شاخه‌های toggle، ترجمه fa/en؛ بخش تازه `GRAN-001` با ردیف qa-plan: `C-GRAN-1` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط پنل جیره (بند ۳۰: نشانگر سبز مصرف).
+
+## 0.98.0 (اکتبر ۲۰۲۶) — گسترش چسبیده انبار/انبارغذا (فاز ۱ بند ۲۸)
+- **قانون تازه `anchorToSame`:** انبار و انبارغذا (`buildings.json` + اسکیما + تولتیپ fa/en `main.meta.anchorSame`): اولی آزاد، دومی به بعد فقط چسبیده از ۴ جهت به هم‌نوع سالم خودی (اولیه/دشمن/ویرانه/قطری لنگر نیست)؛ در گوست پیش‌نمایش و همان مسیر `validate` همه مصرف‌کننده‌ها (پالت/دیوارخطی/MP/AI) اعمال می‌شود.
+- ۲۹۴ تست سینک سبز (۱ جدید: `t_stockpile_adjoin` — قانون در داده + اولی آزاد + ANCHOR دور/قطری + نوع دیگر لنگر نیست + ویرانه لنگر نیست؛ ردیف qa-plan: `C-STOCK-3` → `pass`). هش‌ها سبز ماندند (سناریوها دو انبار هم‌نوع ندارند).
+- دامنه: فقط چسبیدگی انبار/انبارغذا (بند ۲۹: سطح جیره از granary).
+
+## 0.97.0 (اکتبر ۲۰۲۶) — نوار تقریبی منابع + دقیق با کلیک (فاز ۱ بند ۲۷)
+- **دیدن = تقریبی:** نوار منابع (`resEl`) به‌صورت پیش‌فرض زیر ۵۰ دقیق و ۵۰+ گرد به دهگان با ~ نشان می‌دهد (`approxRes` خالص در advisor)؛ کلیک روی نوار به مقدار دقیق می‌رود و برمی‌گردد (حالت UI-side، بدون اثر sim/ذخیره/هش) + راهنمای title در هر دو زبان.
+- ۲۹۳ تست سینک سبز (۱ جدید: `t_resbar_approx` — مرز ۵۰/گرد بالا-پایین/سرریز/منفی/کسری؛ کلیدهای title در fa/en راستی‌آزمایی شدند؛ ردیف qa-plan: `C-STOCK-2` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط نوار منابع (بند ۲۸: چسبیدگی گسترش).
+
+## 0.96.0 (اکتبر ۲۰۲۶) — انبار مرکزی واحد (فاز ۱ بند ۲۶)
+- **پین رفتار موجود (بدون تغییر sim):** همه تولیدها (چوب/رازک/…) در همان مخزن مشترک می‌ریزند و هیچ بنایی موجودی محلی نگه نمی‌دارد؛ سقف همان `capFor` پلکانی است (پایه + انبار/انبارغذا/زرادخانه).
+- ۲۹۲ تست سینک سبز (۱ جدید: `t_stockpile_central` — دو زنجیره/یک مخزن + نبود کلید کالایی در بناها؛ بخش تازه `STOCK-001` با ردیف qa-plan: `C-STOCK-1` → `pass`). بدون تغییر هش/ذخیره/ری‌پلی.
+- **صادقانه:** سلول‌های فیزیکی چندنوعی (هر خانه تا ۴ نوع، بند انجام‌نشده §۶.۱) بیرون است — مخزن منطقی واحد است.
+- دامنه: فقط مخزن مرکزی (بند ۲۷: تقریبی/دقیق).
+
+## 0.95.0 (اکتبر ۲۰۲۶) — نرخ یکسان نوشیدن + صف مهماندار شلوغ (فاز ۱ بند ۲۵)
+- **پین رفتار موجود (بدون تغییر sim):** همه میخانه‌ها با همان چرخه داده (`INN.beerEveryTicks`) می‌نوشند؛ حلقه به ترتیب id آبجو برمی‌دارد پس کمبود اول به قدیمی‌ترها می‌رسد و بقیه همان چرخه بی‌سرو می‌مانند (صف مهماندار شلوغ)؛ با آبجوی کافی همه یک چرخه سرو می‌شوند.
+- ۲۹۱ تست سینک سبز (۱ جدید: `t_inn_drink_rate` — ۲ میخانه/۱ آبجو → فقط قدیمی‌تر + پیشرفت یکسان چرخه، سپس ۲ آبجو → هر دو؛ ردیف qa-plan: `C-INN-3` → `pass`). بدون تغییر هش/ذخیره/ری‌پلی.
+- **صادقانه:** ترتیب فاصله از stockpile بیرون است — انبار متمرکز است و موجودیت stockpile مکانی ندارد؛ با آمدن انبار مکانی، صف از ترتیب id به ترتیب فاصله می‌رود (بند ۲۶–۲۸).
+- دامنه: فقط نرخ/صف (بند ۲۶: stockpile متمرکز).
+
+## 0.94.0 (اکتبر ۲۰۲۶) — پنل Inn: بشکه‌ها، میخانه‌های کارا، پوشش (فاز ۱ بند ۲۴)
+- **تابع خالص `innInfo`:** بشکه‌ها (آبجوی انبار) + کارا/کل (خودیِ سالمِ تکمیل‌شده) + پوشش ٪ = کارا×۳۰نفر (perInn مرجع `BALANCE.economy.inn.perInn`) روی جمعیت، با سقف ۱۰۰ و خلأ صفرکارگر = ۱۰۰؛ MP-aware و بدون جهش state.
+- **نمایش:** `policySummary` حالا `inn` دارد و خط سیاست (`policyEl`) در هر دو زبان بخش میخانه را نشان می‌دهد.
+- ۲۹۰ تست سینک سبز (۱ جدید: `t_inn_panel` — خلوص + پیش/پس‌سیم + پوشش ۱۰۰/۵۰/تهی + خلاصه سیاست + برش MP با دشمن/ویرانه؛ ردیف qa-plan: `C-INN-2` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط پنل نمایشی — پاداش پوششی جدول مرجع (۲۵٪→+۲ تا ۱۰۰٪→+۸) همچنان بیرون است (مدل فعلی +۳ ثابت؛ ردیف واگرایی پابرجاست).
+
+## 0.93.0 (اکتبر ۲۰۲۶) — میخانه کارا: آبجو + مهماندار (فاز ۱ بند ۲۳)
+- **مهماندار از استخر:** هر میخانه `keepers=۱` کارگر از داده (`TUNING.inn`) می‌گیرد (`workersNeeded` + تخصیص حریصانه موجود)؛ بدون کارگر آزاد = بی‌کارگر = بدون سرو (هشدار «ساختمان بی‌کارگر» مشاور از قبل همین حالت را اعلام می‌کرد). مهماندار مثل بقیه کارکنان دهان هم هست.
+- **نمایش:** تولتیپ پالت میخانه حالا «۱ مهماندار» را هم نشان می‌دهد (fa/en `main.meta.inn`).
+- ۲۸۹ تست سینک سبز (۱ جدید: `t_innkeeper_required` — صفر کارگر/۴ کارگر + خوانایی served/innServed؛ `t_tuning_file`/`t_tuning_reject`/`t_data_driven_tuning` با keepers؛ ردیف qa-plan: `C-INN-1` → `pass`). بدون تغییر هش/ذخیره/ری‌پلی (سناریوها میخانه ندارند — سوئیت سبز ماند).
+- دامنه: فقط شرط مهماندار (بند ۲۴: پنل Inn).
+
+## 0.92.0 (اکتبر ۲۰۲۶) — اسلایدر مالیات و کلید پنل ستاد (فاز ۱ بند ۲۲)
+- **اسلایدر دوسویه:** `taxSlider` در کارت مالیات با نگاشت خالص `taxIndex`/`taxAt` (داده‌محور از TAX_IDS)؛ حرکت آن همان فرمان `tax` دکمه‌ها را می‌فرستد (سولو/MP/تماشا مثل دکمه) و هر refresh با سطح جاری همگام می‌شود.
+- **کلید H:** کنش تازه `keep` در سامانه remap کلیدها (پیش‌فرض `KeyH` + دکمه ضبط در تنظیمات + برچسب fa/en)؛ فشردن آن به کارت مالیات اسکرول و اسلایدر را فوکوس می‌کند (کلیدهای جهت‌دار بومی اسلایدر بعدش کار می‌کنند).
+- ۲۸۸ تست سینک سبز (۱ جدید: `t_tax_slider`؛ `t_a11y_keys` با keep به‌روز شد؛ ردیف qa-plan: `C-TAX-3` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- دامنه: فقط اسلایدر/کلید (بند ۲۳: میخانه کارا).
+
+## 0.91.0 (اکتبر ۲۰۲۶) — اثر مشروط رشوه به خزانه (فاز ۱ بند ۲۱)
+- **خزانه خالی = بدون اثر اضافی:** پرداخت ماهانه رشوه (۱ طلا/کارگر با کف صفر) از قبل بود؛ حالا اثر محبوبیتی +۵ هم مشروط به `gold > 0` شد (`taxPop` در `popTarget`، MP-aware). هشدار متنی «رشوه با خزانه خالی» مشاور از قبل همین حالت را اعلام می‌کرد.
+- ۲۸۷ تست سینک سبز (۱ جدید: `t_bribe_effect` با ۵۲/۵۷ + پرداخت + کف صفر + برش MP؛ ردیف qa-plan: `C-TAX-2` → `pass`). بدون تغییر هش/ذخیره/ری‌پلی (سناریوها رشوهِ بی‌پول ندارند — سوئیت سبز ماند).
+- دامنه: فقط اثر مشروط (بند ۲۲: اسلایدر + کلید H).
+
+## 0.90.0 (اکتبر ۲۰۲۶) — پیش‌فرض و علامت‌های مالیات (فاز ۱ بند ۲۰)
+- **پیش‌فرض No Taxes:** مالیات آغازین سولو (`createState`) و MP (`createMpPlayer`) از `low` به `none` برگشت؛ مالیات مثبت (low/normal/high) حالا همه منفی‌اند (low −۲ عین مرجع) و رشوه مثبت (+۵) ماند. اثر none هم +۱ شد (= مرجع؛ ردیف واگرایی #20 حل شد، ۸ ردیف ماند).
+- **آبشاری پین‌ها:** t_popRise ۶۱ و t_ration_extra با مبنای none +۱ (سناریوهای بی‌مالیات‌صریح عین قبل ماندند، چون +۱ِ none جای ۰ِ low نشست) + بازپین هش‌ها در صورت تغییر.
+- **صادقانه‌ها:** مقیاس ۱۲سطحی مرجع (بند ۳۴) و مبالغ طلایی هر سطح (بند ۸۸: دفترچه نمی‌گوید) بیرون‌اند؛ ۵ سطح فعلی با اثرهای مرجع کامل شد.
+- ۲۸۶ تست سینک سبز (۱ جدید: `t_tax_default`؛ ردیف qa-plan: `C-TAX-1` → `pass`).
+- دامنه: فقط پیش‌فرض/علامت‌ها (بند ۲۱: رشوه ماهانه).
+
+## 0.89.0 (اکتبر ۲۰۲۶) — پنج سطح جیره با اثرهای مرجع (فاز ۱ بند ۱۹)
+- **جیره ۵سطحی عین جدول خط ۲۰۹:** None −۸ / Half −۴ / Full ۰ / Extra +۴ / Double +۸ + سطح تازه Extra (مصرف ×۱٫۵ = foodNum ۳) + دکمه پنجم در پنل (fa/en). ردیف واگرایی extra حل شد؛ مقیاس انباشت مصرف (۲ در برابر ۱) مال بند ۴۳ ماند.
+- **آبشاری پین‌ها به‌روز شد** (جزئیات در تست‌ها): t_popRise ۶۲، t_starve ۴۴، t_balance_bribe ۵۷، t_inn_cheer ۵۵/۵۲، خلاصه سیاست ۲۵ ترکیب + بازپین هش‌های رگرسیون/ری‌پلی مرجع (در صورت تغییر).
+- **باگ فرآیندی:** الحاق بدنه تست در میانه تابع دیگر (خطای خودم، با جراحی ساختاری اصلاح + parse OK شد) — درس: بدنه تست تازه همیشه با انکر «انتهای تابع قبلی» الصاق شود، نه میانه آن.
+- ۲۸۵ تست سینک سبز (۱ جدید: `t_ration_extra`؛ ردیف qa-plan: `C-FOOD-2` → `pass`).
+- دامنه: فقط سطوح جیره (بند ۲۰: مالیات).
+
+## 0.88.0 (اکتبر ۲۰۲۶) — ورودی تنوع غذا (فاز ۱ بند ۱۸)
+- **بخش تازه `foodVariety` در `data/tuning.json`:** فهرست کالاهای خوردنی (`["food"]`) + جدول پاداش شمار انواع (`[0,1,2,3]` = ۱ نوع → +۰ … ۴ نوع → +۳، عین جدول §۵.۱). اعتبارسنج `validateTuningFile` (فهرست ناتهی + ۴ پاداش) + اسکیما (عضویت خوردنی‌ها در منابع شناخته‌شده) + تست‌های رد.
+- **سیم‌کشی:** تابع خالص `foodVariety(state, owner)` (شمار انواع با موجودی > ۰، MP-aware) در `popTarget` + تنوع در خلاصه سیاست مشاور و خط سیاست پنل (fa/en). آبجو شمرده نمی‌شود (پوشش میخانه جداست) و گندم/آرد/رازک واسطه‌اند.
+- **صادقانه‌ها:** امروز فقط «غذا» خوردنی نهایی است پس پاداش همیشه +۰ است و هیچ پینی عوض نشد (هر ۸ رگرسیون + ری‌پلی مرجع سبز ماندند) — ساختار آماده است و تنوع واقعی با حلقه‌های شکار/لبنیات/باغ (بند ۴۰) می‌آید.
+- ۲۸۴ تست سینک سبز (۱ جدید: `t_food_variety` با تهی/آبجو/آینه‌داده/MP/سیم‌کشی‌هدف/خلوص؛ ردیف qa-plan: `C-FOOD-1` → `pass`).
+- دامنه: فقط ورودی تنوع (بند ۱۹: پنج سطح جیره).
+
+## 0.87.0 (اکتبر ۲۰۲۶) — نشانگر قرمز ازدحام (فاز ۱ بند ۱۷)
+- **پرچم `crowded` در `campGauge`:** جمعیت > مسکن (خالص/مشتق، MP-aware)؛ خط campEl با کلاس `camp-crowd` قرمز توپر می‌شود (متمایز از درخشش هاله نامحبوبی). علت تخریب خانه در sim (تست: کلبه خراب شد → ۱۰>۴) و راه‌حل «مسکن بیشتر» (تست: با کلبه ۱۰<۱۲) پوشش داده شد؛ هشدار متنی ازدحام مشاور از قبل بود.
+- **صادقانه‌ها:** اثر محبوبیتی ازدحام (۵.۳) بند جداست (نقشه‌راه #69)؛ disband (علت دوم) مکانیک ندارد و با فاز ۹ می‌آید (#171). بدون تغییر sim/هش/ذخیره/ری‌پلی (هر ۸ رگرسیون سبز ماندند).
+- ۲۸۳ تست سینک سبز (۱ جدید: `t_crowding_flag` با مرز + MP + تخریب/راه‌حل؛ ردیف qa-plan: `C-CAMP-3` → `pass`).
+- دامنه: فقط نشانگر ازدحام (بند ۱۸: انواع غذا).
+
+## 0.86.0 (اکتبر ۲۰۲۶) — مسکن ستاد و Hovel +۸ (فاز ۱ بند ۱۶)
+- **کلبه +۸ شد (`data/tuning.json`):** ستاد مسکن اولیه ۸ می‌داد (تأیید شد) و هر Hovel حالا +۸ ظرفیت می‌دهد = عین دفترچه §۴ (پایه ۴ + ستاد ۸ + هر کلبه ۸). نیمه‌کاره/ویرانه مسکن نمی‌دهد (قاعده موجود 0.39.0، حالا با تست). ردیف واگرایی `t_tuning_vs_reference` به «حل‌شده» برگشت (۹ ردیف ماند).
+- **بازپین عمدی (ثبت‌شده):** فقط ۲ هش از ۸ عوض شد (`eco-wood` و `policy-tax` — هر دو کلبه دارند و سقف در هش mix می‌شود)؛ دابل‌ران پایدار. ۶ هش دیگر و ری‌پلی مرجع (`d34ddfa3`) بی‌تغییر ماندند (سناریوی مرجع کلبه ندارد).
+- **صادقانه‌ها:** Manor/Stone keep جدا نداریم (یک نوع keep با ۸) — ⚠️ §۸.۱ با فاز ساختمان‌ها می‌آید؛ سقف ۲۴ بیکار (خط ۱۷۶) و ازدحام (خط ۱۷۹) بندهای بعدی‌اند.
+- ۲۸۲ تست سینک سبز (۱ جدید: `t_hovel_housing` با ستاد/۲ کلبه/نیمه‌کاره/ویرانه + داده‌محوری؛ ردیف qa-plan: `C-HOME-1` → `pass`).
+- دامنه: فقط مسکن (بند ۱۷: ازدحام/… — ادامه فاز ۱).
+
+## 0.85.0 (اکتبر ۲۰۲۶) — هاله قرمز و سرعت ترک (فاز ۱ بند ۱۵)
+- **هاله در `campGauge`:** میدان تازه `halo` (خالص/مشتق: محبوبیت زیر ۵۰ = `red`، وگرنه `none` — همان آستانه نمایشی §۵)؛ خط campEl با کلاس `camp-red` می‌درخشد (CSS درخشش قرمز کنار قاعده popEl). سرعت ترک همان پیشرفت چرخه مهاجرت است با جهت −۱ (در خط با ▼ دیده می‌شود) — بدون میدان تازه، بدون تغییر ذخیره/هش/ری‌پلی (هر ۸ رگرسیون سبز ماندند).
+- ۲۸۱ تست سینک سبز (۱ جدید: `t_camp_halo` با مرز ۵۰/۴۹ + خلوص + برش MP + سناریوی ترک ۱۰۰تیکی؛ ردیف qa-plan: `C-CAMP-2` → `pass`).
+- دامنه: فقط هاله/ترک (بند ۱۶: مسکن Keep/Hovel).
+
+## 0.84.0 (اکتبر ۲۰۲۶) — آتش اردو و نشانگر رشد (فاز ۱ بند ۱۴)
+- **نشانگر خالص `campGauge` در `economy.js`:** پیشرفت چرخه مهاجرت (`tick % MIG_PERIOD` از TUNING) + جهت (+۱ ورود/−۱ ترک/۰ خنثی با همان شرط‌های حلقه مهاجرت) + شمار بیکاران کنار آتش (استخر آزاد). مشتق از tick است — بدون میدان تازه، پس بدون تغییر ذخیره/هش/ری‌پلی (هر ۸ رگرسیون سبز ماندند). رفتار ورود خودش از قبل بود (هر ۱۰۰ تیک +۱)؛ این بند چرخه «چرخش کامل = ۱ دهقانِ منتظر کار» را نشان‌دار و تست‌پذیر کرد.
+- **نمایش:** خط تازه `campEl` در کارت آمار (درصد + پیکان جهت + بیکاران، fa/en با کلیدهای `main.camp.line` و `ui.stats.campfire`) که در هر refresh نقاشی می‌شود.
+- **صادقانه‌ها:** سرعت‌گرفتن نشانگر با محبوبیت (خط ۱۷۵) و سقف ۲۴ بیکار (خط ۱۷۶) بندهای جداگانه نقشه‌راه‌اند و اینجا نیامدند؛ هاله قرمز/سرعت ترک (خط ۱۷۷) بند ۱۵ است.
+- ۲۸۰ تست سینک سبز (۲ جدید: `t_camp_gauge` با خنثی/ورود/ترک/MP + `t_camp_arrival` با چرخش کامل ۱۰۰تیکی؛ ردیف qa-plan: `C-CAMP-1` → `pass`).
+- دامنه: فقط نشانگر آتش و ورود (بند ۱۵: هاله قرمز/ترک).
+
+## 0.83.0 (اکتبر ۲۰۲۶) — کالاهای اولیه و کاروان (فاز ۱ بند ۱۳)
+- **ست آغازین پین شد** (`t_starting_goods`: چوب ۱۲۰/غذا ۱۲۰/طلا ۶۰/سنگ ۴۰/گندم ۲۰، بقیه صفر — همان `state.js` امروز، بدون تغییر توازن) + **رویداد رسیدن کاروان** در هر سه نقطه شروع (`newSoloFromSeed`/`newGame`/`startMpGame` با کلید `game.ev.caravan` در fa/en). رویداد کاملاً نمایشی است (خارج هش/ذخیره مثل `events`؛ هر ۸ رگرسیون سبز ماندند). نمایش «بالا-چپ تا ساخت انبار» با همان نوار منابع زنده پوشش داده شده و سقف پایه-تا-انبار هم از قبل تست دارد؛ **گاری تصویری از بالای صفحه آینده است** (کار رندر، بدون placeholder).
+- ۲۷۸ تست سینک سبز (۱ جدید) + فاز ناهمگام ۵/۵ (ردیف qa-plan: `C-KEEP-2` → `pass`).
+- دامنه: فقط کالاهای اولیه (بند ۱۴: آتش اردو/دهقان).
+## 0.82.0 (اکتبر ۲۰۲۶) — قراردادن Keep الزامی (فاز ۱ بند ۱۲)
+- **گیت ستاد در لایه فرمان:** `hasLiveKeep(state, owner)` تازه در `construction.js` + دلیل `NO_KEEP` (با متن fa/en) در `applyCmd` (صف سولو/ری‌پلی)، ورودی MP (`applyMpInput`)، پیش‌نمایش گوست/خط دیوار و قفل کارت‌های پالت (کلاس `locked` موجود + title). **هسته `validate`/`tryPlace` عمداً دست‌نخورده ماند** (primitive تست‌ها/سناریوها/AI مستقیم می‌زنند — ۱۴۲ مصرف‌کننده)؛ سقوط ستاد دوباره قفل می‌کند و تخریب ستاد از قبل ممنوع بود (`KEEP`، تست موجود). بنچ هم از این پس با ستاد واقعی می‌سنجد (`placeKeep` در `buildBenchWorld`).
+- **صادقانه‌ها:** هر ۸ هش رگرسیون بی‌تغییر ماندند (سناریوها صف خالی دارند)؛ ری‌پلی مرجع هم ستاد دارد. AI از `validate` مستقیم می‌سازد و بی‌ستاد هم می‌سازد (بیرون دامنه — مال فاز AI)؛ جای‌گذاری مجدد ستاد پس از سقوط مکانیک ندارد (شکست/حذف اسلات دنبال می‌شود). تست تکراری منع تخریب (موجود بود) حذف شد.
+- ۲۷۷ تست سینک سبز (۳ جدید: `t_keep_gates` با NO_KEEP/بازگشایی/قفل‌مجدد، `t_keep_owner_isolation` خالص، `t_keep_first` ترتیب آغازین؛ تست‌های صف/دیوار/سناریو با ستاد پیش‌شرط) + فاز ناهمگام ۵/۵ (ردیف qa-plan: `C-KEEP-1` → `pass`).
+- دامنه: فقط ستاد الزامی (بند ۱۳: کالاهای اولیه).
+## 0.81.0 (اکتبر ۲۰۲۶) — عملکرد زیر بودجه فریم (فاز ۰ بند ۱۱)
+- **دامنه صادقانه:** بودجه (`BENCH_BUDGET`: ۳ms/تیک، ۳۰۰ تیک/ثانیه)، بنچ headless و داور خالص از 0.58.0 بودند و `t_bench_budget` آن‌ها را در سوئیت نگه می‌داشت؛ این بند فقط حلقه DoD را بست: پین **قطعیت بنچ** (`t_bench_determinism`: هم‌سید = هش یکسان، سید متفاوت = دنیای متفاوت — زمان‌دیواری در هش نیست) + فلیپ چک‌باکس. بودجه عمداً گشاد است (گیت روی روند تغییرات، نه دستگاه ضعیف)؛ رندر قاب با کیفیت خودکار سه‌سطحی جدا پوشش داده شده (`t_fidelity_levels`).
+- ۲۷۴ تست سینک سبز + فاز ناهمگام ۵/۵ (ردیف qa-plan: `C-PERF-1` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی (هر ۸ رگرسیون سبز ماندند).
+- دامنه: فقط بودجه فریم (فاز ۱ بند ۱۲: Keep الزامی).
+## 0.80.0 (اکتبر ۲۰۲۶) — ذخیره/بارگذاری درست (فاز ۰ بند ۱۰)
+- **دامنه صادقانه:** هسته ذخیره (سریال/اعتبار/مهاجرت v1→v2) با بند ۶ کامل شده بود و این نسخه آن را دست نزد؛ بند ۱۰ سطح‌های ماندگاریِ بدون پوشش را بست: رفت‌وبرگشت **اسلات ری‌پلی** (`saveReplaySlot`/`loadReplaySlot` با نگه‌دار/برگردان اسلات واقعی کاربر در تست) + رد خراب/نامعتبر/غایب، **تأیید ناهمگام تکه‌تکه** (`verifyReplayAsync` — همان مسیر دکمه «تأیید» UI: هش برابر runReplay + پیشرفت یکنوا + ok:false برای لاگ نامعتبر/هش نادرست)، و **اطلاعات اسلات** (`slotInfo`: غایب/تیک‌دار/متن‌خراب با تیک null). بدون تغییر sim/هش/ذخیره/ری‌پلی.
+- ۲۷۳ تست سینک سبز (۲ جدید: `t_replay_slot`، `t_save_slotinfo`) + فاز ناهمگام ۵/۵ (`t_replay_verify_async` جدید؛ ردیف qa-plan: `C-PERS-8` → `pass`). هر ۸ رگرسیون سبز ماندند.
+- بیرون دامنه ماند (سطح UI، تست‌ناپذیر هدلس): نگهبان‌های ذخیره/بارگذاری حین MP و تماشا، پیام‌های saveStatus — بازبینی چشمی، بدون تغییر رفتار.
+- دامنه: فقط سطح‌های ذخیره/بارگذاری (بند ۱۱: عملکرد زیر بودجه فریم).
+## 0.79.0 (اکتبر ۲۰۲۶) — نمایش در UI: tooltip، پنل، هشدار مشاور (فاز ۰ بند ۹)
+- **ماژول خالص `game/advisor.js`:** `taxInfo`/`rationInfo` (آینه TAX/RATIONS از TUNING با نام چندزبانی)، `policySummary` (سیاست جاری مالک، MP-aware) و `advisorWarnings` (۵ هشدار اولویت‌دار با سقف: رشوه با خزانه خالی، قحطی غذا، ساختمان بی‌کارگر، انتظار ورودی، ازدحام مسکن — فقط خودیِ سالمِ تکمیل‌شده). فقط‌خواندنی (خلوص با تست) و بدون عدد hard-code — همه اعداد از `data/tuning.json` لودشده می‌آیند.
+- **Tooltip داده‌محور:** دکمه‌های مالیات/جیره `title` زنده گرفتند (طلا/کارگر + اثر محبوبیت؛ مضرب مصرف × + اثر محبوبیت) — در بوت و با هر تغییر زبان تازه می‌شوند.
+- **پنل:** خط `policyEl` در کارت مالیات/جیره (خلاصه اثر سطح جاری) + خط `warnEl` در کارت آمار (هشدارهای مشاور، پنهان وقتی خالی)؛ هر دو در `refreshPanel` نقاشی می‌شوند.
+- **صادقانه‌ها:** هشدار صوتی مشاور (roadmap #434) همچنان آینده است — این بند هشدار متنی را پوشش می‌دهد؛ پنل‌های گزارش کامل (Popularity/Food/Religion/...) با فازهای بعدی می‌آیند (roadmap #419).
+- ۲۷۱ تست سبز (۴ جدید: `t_policy_info` با نام fa/en، `t_policy_summary` با ۲۰ ترکیب + برش MP، `t_advisor_warnings` با ۵ سناریو + ایزولاسیون مالک + سقف، `t_advisor_pure`؛ ردیف qa-plan: `C-UI-6` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی (هر ۸ رگرسیون سبز ماندند).
+- دامنه: فقط نمایش UI (بند ۱۰: ذخیره/بارگذاری درست).
+## 0.78.0 (اکتبر ۲۰۲۶) — تست خودکار + نخستین ری‌پلی مرجع (فاز ۰ بند ۸)
+- **ری‌پلی مرجع:** `data/replays/ref-solo-001.json` (نسخه‌دار) — سناریوی سولوی سید ۱۳۳۷ تا تیک ۱۶۰۰ با ۹ فرمان ثابت (۵ ساخت + مالیات + ۲ استخدام از صف + دستور حرکت با شناسه‌های قطعی ۲٬۳ + یورش ۱۵۰۰) و هش پایانی پین‌شده `d34ddfa3`. `replay.js` لودر shipped (`fetchRefReplay` با fail-fast، همان مکانیزم سرو ماژول‌ها) + اعتبارسنج خالص `validateRefReplay` (نسخه/نام/هش/فرمان ناتهی + قوانین لاگ زنده) + تأییدکننده `verifyRefReplay` (بازپخش + مقایسه هش) گرفت.
+- **سوئیت:** آرتیفکت در import تست‌ها بارگذاری می‌شود (الگوی لودرهای data.js — نبود/خرابی = fail-fast)؛ ۵ تست جدید: `t_replay_ref_file` (فرمت + رفت‌وبرگشت JSON)، `t_replay_ref_reject` (نسخه/نام/هش/فرمان/ریشه)، `t_replay_ref_hash` (بازپخش = پین‌شده)، `t_replay_ref_determinism` (دابل‌ران)، `t_replay_ref_tamper` (جابه‌جایی فرمان/پین اشتباه می‌افتد). نیمه اول بند (تست خودکار واحد/سناریو) با همان سوئیت ۲۶۲تایی موجود پوشش داده شده بود.
+- **صادقانه‌ها:** فقط سولو (MP ورودی شبکه‌ای دارد — مثل لاگ زنده)؛ بازپین عمدی با تغییر sim طبق رویه note آرتیفکت (الگوی هش‌های رگرسیون).
+- ۲۶۷ تست سبز (ردیف qa-plan: `C-SYS-14` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی (هر ۸ رگرسیون سبز ماندند).
+- دامنه: فقط ری‌پلی مرجع و تست‌هایش (بند ۹: نمایش در UI).
+## 0.77.0 (اکتبر ۲۰۲۶) — رفتار طبق جدول داده‌ها، بدون hard-code (فاز ۰ بند ۷)
+- **داده‌محوری:** `data/tuning.json` (نسخه‌دار) تنها منبع حقیقت تنظیمات پیاده‌شده sim شد: ۵ سطح مالیات و ۴ سطح جیره (با `nameKey` و getter تنبل نام چندزبانی — الگوی ساختمان/واحد) + میخانه + اثر موجودی غذا + زمان‌بندی (آستانه/دوره‌ها/مهاجرت) + مسکن + سقف‌ها (پایه + سه گروه انبار/انبارغذا/سلاح) + بازار (بسته + ۱۰ نرخ) + صف آموزش. مقادیر عین پیاده‌شده‌اند (خروجی‌گرفته از کد زنده، نه رونویسی دستی)؛ `economy.js` و `config.js` فقط از لودر `game/data.js` می‌خوانند (fetch نسبی + `validateTuningFile` خالص + fail-fast) و `CONFIG.TUNING` همان مرجع لودر است — هیچ لیترال موازی در کد نماند.
+- **اعتبار:** اسکیما `validateTuning` را روی سند خام می‌خواهد (شناسه‌های دقیق سطوح — سطح جاافتاده = خطای fail-fast، نه رفتار خاموش‌متفاوت + عضویت سقف‌ها در منابع شناخته‌شده) و بوت همان `validateConfig` را روی داده لودشده اجرا می‌کند.
+- **صادقانه‌ها:** مقادیر مرجع دفترچه در `data/balance.json` عمداً فرق دارند (همه `status=reference`) — ۱۰ ردیف واگرایی با مالک فاز ۱ در تست پین شد (none ‏۲≠۱، جیره ۴≠۵ سطح و مدل مصرف ۲≠۱، بسته ۱۰≠۵، سنگ ۸≠۲۰، میخانه ساده≠پوششی، ماه ۵۰تیک≠۶۰ثانیه، سقف غذا ۵۰۰≠۲۵۰، زنجیره ۲→۲/۲→۱≠۱→۱→۸، شروع ۱۲۰/۱۲۰/۶۰≠۱۰۰/۴۰، کلبه ۴≠۸ دفترچه). سیم‌کشی هر جدول با بند خودش در فازهای بعدی می‌آید و همان تست را به‌روز می‌کند. بیرون دامنه ماند (پارامتر موتور در کد، با تست پین): ثابت‌های نبرد (نگهبانی/عقب‌نشینی/گاریسون/موج آخر)، شروع state، پارامترهای AI، fallbackهای دفاعی `lot`/`queueCap`.
+- ۲۶۲ تست سبز (۴ جدید: `t_tuning_file` با نام fa/en، `t_tuning_reject`، `t_data_driven_tuning` آینه کامل، `t_tuning_vs_reference` با ۱۰ ردیف مالک‌دار؛ `t_schema_catches` به ۹ خرابی عمدی رسید؛ ردیف qa-plan: `C-SYS-13` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی (هر ۸ رگرسیون سبز ماندند).
+- دامنه: فقط داده‌محوری تنظیمات (بند ۸: تست خودکار + ری‌پلی مرجع).
+## 0.76.0 (اکتبر ۲۰۲۶) — ذخیره کامل وضعیت sim با نسخه‌گذاری فرمت (فاز ۰ بند ۶)
+- **کامل‌شده:** ویرانه‌ها (`destroyed`) حداقل‌نگاشت می‌مانند و برمی‌گردند — پیش‌تر هر ذخیره با ویرانه در load می‌شکست (`hp:0` رد می‌شد) و اشغال زمین ویرانه اشتباه بازسازی می‌شد؛ `served` میخانه می‌ماند (پیش‌تر هدف محبوبیت/هش پس از load می‌لغزید)؛ `staffed`/`starved` و `workerCap`/`freeWorkers` می‌مانند تا هش بلافاصله پس از load برابر باشد (همه هر تیک بازمحاسبه می‌شوند)؛ یگان‌های مرده از اسنپ‌شات کنار می‌روند (منطقاً رفته‌اند؛ هش هم نادیده‌شان می‌گیرد). فرمت همان v2 ماند (میدان‌های جدید اختیاری با پیش‌فرض سازگار → ذخیره قدیمی با پیش‌فرض createState بارگذاری می‌شود).
+- **باگ‌های یافته‌شده با تست در همین نسخه:** هش ویرانه زنده با بارگذاری‌شده فرق داشت چون `staffed` ویرانه (که assignStaff هر تیک می‌بیند) ذخیره نمی‌شد + ویرانه دستی `hp` کامل نگه می‌داشت (ویرانی جنگی صفر می‌کرد) + میخانه ویران‌شده `served` نگه می‌داشت (هش می‌دید، popTarget نه) — هر سه اصلاح شدند (`demolishBuilding` حالا `hp=0`/`served=false` می‌گذارد مثل `destroyBuilding`؛ `served` ویرانه همیشه false). بیرون ذخیره ماند (طراحی‌شده، خارج هش): fx نمایشی، flashTick، path، px/pr، وقایع‌نگار events، نشست MP (ذخیره فقط سولو).
+- ۲۵۸ تست سبز (۵ جدید: `t_save_ruins`، `t_save_inn_served`، `t_save_derived_parity` با سازگاری قدیمی، `t_save_full_roundtrip` با همان‌سانی بایت‌به‌بایت JSON + ۶۰ تیک آینده یکسان، `t_save_reject_v2fields`؛ ۴ جهش فاز جدید؛ ردیف‌های qa-plan: `C-PERS-6/7` → `pass`). بدون تغییر رفتار قابل‌مشاهده (ویرانه دستی حالا hp صفر — فقط داده ویرانه که پیش‌تر ذخیره‌ناپذیر بود).
+- دامنه: فقط ذخیره کامل (بندهای ۷–۱۱ DoD هر بند).
+## 0.75.0 (اکتبر ۲۰۲۶) — جدول‌های توازن ۱۸.۲–۱۸.۸ در فایل داده (فاز ۰ بند ۵)
+- **داده‌محوری:** `data/balance.json` (نسخه‌دار) هر ۷ جدول را با برچسب منشأ هر عدد (manbook/community/verified/fixup) نگه می‌دارد: HP و hitsToKill و ماتریس تن‌به‌تن و کلاس‌های زره و رتبه‌های سرعت و برد/بارگذاری ۱۰ سلاح و ارتفاع/دقت/سرعت بازی (۱۸.۲)، هزینه/HP/ظرفیت دیوار و برج و تعمیر و گودال (۱۸.۳)، ۸ ماشین محاصره و مهمات و زمان ساخت و تونل و آتش (۱۸.۴)، ماه و ۱۲ سطح مالیات و جیره و زنجیره‌ها و میخانه و مذهب و رشد جمعیت و ترس و بازار ۲۰ کالایی و شروع بازی و handicap (۱۸.۵)، مدل ارزش سرباز (۱۸.۶)، وزن‌های امتیاز مأموریت (۱۸.۷)، هزینه‌ها و پرشدن Tactical Aid (۱۸.۸). لودر `game/data.js` با همان الگو (fetch نسبی ماژول + fail-fast) + `validateBalanceFile` خالص (بخش‌های ۷گانه + گشت بازگشتی برچسب‌ها).
+- **صادقانه‌ها:** همه بخش‌ها `status=reference` اند — sim امروز از این جدول‌ها نمی‌خواند و اعداد پیاده‌شده سر جایشان‌اند (سیم‌کشی رفتاری با بندهای فازهای بعدی و DoD بند ۷). سه واگرایی نمونه در تست پین شد: سرعت swordsman (۲٫۲ در برابر ۱٫۰)، خرید چوب (۵ در برابر ۴)، سطوح مالیات (۵ در برابر ۱۲). اسکیما لازم نشد (داده مرجع بدون شکل sim).
+- ۲۵۳ تست سبز (۳ جدید: `t_balance_file` با نمونه‌های ۱۸.۲–۱۸.۸، `t_balance_reject`، `t_balance_reference_not_wired`؛ ردیف qa-plan: `C-SYS-12` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی (سازگار با 0.74.0؛ هر ۸ رگرسیون سبز ماندند).
+- دامنه: فقط نشاندن جدول‌ها در داده (بند ۶: ذخیره کامل وضعیت).
+## 0.74.0 (اکتبر ۲۰۲۶) — کاتالوگ واحد از فایل داده (فاز ۰ بند ۴)
+- **داده‌محوری:** `data/units.json` تنها منبع حقیقت آمار ۱۵ یگان شد (با فیلدهای نمونه دفترچه خط ۱۲۱۹: `building`/`goldCost`/`equip`/`hp`/`speedClass`/`armorClass`/`canClimbLadder`/`canDigMoat` + همه میدان‌های sim و `nameKey`)؛ `combat.js` فقط از لودر `game/data.js` می‌خواند (همان الگوی بند ۳: fetch نسبی ماژول + getter تنبل نام چندزبانی + fail-fast) و `UNITS` را re-export می‌کند — همه مصرف‌کننده‌ها (پالت استخدام، صف آموزش، ذخیره، رندر، MP، ری‌پلی) بدون تغییر کد همان داده را می‌بینند.
+- **صادقانه‌ها:** مقادیر عین پیاده‌شده‌اند (خروجی‌گرفته از UNITS زنده، نه رونویسی دستی)؛ `hp` در مقیاس پیاده‌شده (~۳۰–۱۵۰) است نه ۱۵۰۰۰ نمایشی مثال؛ `speedClass`/`armorClass` برچسب موقت از روی اعداد فعلی‌اند (نگاشت واقعی با بند ۵ و جدول‌های ۱۸.۲–۱۸.۸)؛ `canClimbLadder`/`canDigMoat` همه‌جا `false` چون مکانیک نردبان/خندق در sim نیست (فازهای محاصره)؛ `building`/`goldCost`/`equip` آینه `requires`/`cost.gold`/`requiresWeapon` اند و اسکیما همین آینگی را اجبار می‌کند.
+- **اعتبار:** اسکیما `nameKey` + آینه‌بودن سه‌تایی + `speedClass`/`armorClass` + بولین‌بودن پرچم‌ها را می‌خواهد و بوت همان `validateConfig` را روی داده لودشده اجرا می‌کند.
+- ۲۵۰ تست سبز (۳ جدید: `t_data_units_file` با نام fa/en + نمونه crossbowman، `t_data_units_reject`، `t_data_driven_units`؛ ردیف qa-plan: `C-SYS-11` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی (سازگار با 0.73.0؛ هر ۸ رگرسیون سبز ماندند).
+- دامنه: فقط کاتالوگ واحدها (جدول‌های ۱۸.۲–۱۸.۸ = بند ۵).
+## 0.73.0 (اکتبر ۲۰۲۶) — کاتالوگ ساختمان از فایل داده (فاز ۰ بند ۳)
+- **داده‌محوری:** `data/buildings.json` تنها منبع حقیقت آمار ۲۱ ساختمان شد (با فیلدهای نمونه دفترچه: `category` در ۶ دسته بخش ۸، `placement`، `needs`، `nameKey`)؛ `config.js` فقط از لودر `game/data.js` می‌خواند (fetch نسبی ماژول + getter تنبل نام چندزبانی + fail-fast با پیام روشن). توازن بدون دست‌زدن به منطق ممکن است.
+- **صادقانه‌ها:** مقادیر عین پیاده‌شده‌اند (خروجی‌گرفته از CONFIG زنده، نه رونویسی دستی)؛ `placement` همه‌جا `{terrain:"grass"}` و `needs` همه‌جا `[]` است چون کد امروز همین‌طور رفتار می‌کند (جای‌گذاری سخت‌گیرانه/oxTether در فاز ۱ می‌آیند)؛ هزینه/کارگر quarry همان ۱۵/۱ پیاده‌شده است نه ۲۰/۳ نمایشی مثال.
+- **اعتبار:** اسکیما `nameKey`/`category`/`placement`/`needs` را می‌خواهد و بوت همان `validateConfig` را روی داده لودشده اجرا می‌کند؛ پالت/اقتصاد/ذخیره/ری‌پلی بدون تغییر رفتار همان داده را می‌خوانند.
+- ۲۴۷ تست سبز (۳ جدید: `t_data_buildings_file` با نام fa/en، `t_data_buildings_reject`، `t_data_driven_rates`؛ ردیف qa-plan: `C-SYS-10` → `pass`). بدون تغییر sim/هش/ذخیره/ری‌پلی (سازگار با 0.72.0).
+- دامنه: فقط ساختمان‌ها (واحدها = بند ۴، جدول‌های ۱۸.۲–۱۸.۸ = بند ۵).
+
+## 0.72.0 (اکتبر ۲۰۲۶) — قطعیت کامل sim: RNG سیددار + نقطه‌ثابت + ترتیب پین‌شده (فاز ۰ بند ۲)
+- **RNG:** جریان سریال‌شدنی `state.rng` در `rng.js` (`rngNext`/`rngInt`/`rngPick` + مقداردهی `seedSimRng` + draw بی‌حالت `statelessRand`)؛ `null` = هنوز مصرف نشده و نخستین draw تنبل از `mapSeed` مشتق می‌شود (بازی تازه و ذخیره قدیمی بدون تغییر کد، همه مسیرها: سولو/MP/ری‌پلی). در ذخیره می‌ماند (اعتبارسنجی uint32 + رد دست‌کاری، ۲ جهش فاز) و در `stateHash` mix می‌شود. `aiRandAt` به همان فرمول متمرکز رفت (دنباله بی‌تغییر). ممیزی: هیچ `Math.random`/`Date.now` در مسیر sim نیست (فقط backoff لابی/آنلاین، سید تصادفی UI، زمان‌سنج بنچ/ابزار).
+- **نقطه‌ثابت:** موقعیت‌های منطقی Q6 شدند (`qpos` در `combat.js`: `spawnUnit`/`followPath`/`moveSlide` کوانتیزه می‌کنند — دقیقاً نمایش‌پذیر در باینری و JSON)؛ منابع/HP/خسارت/کول‌داون/تیک‌ها صحیح بودند و با تست پین شدند. `t_hz_from_config` به کران نیم‌کوانتوم (۱/۶۴) به‌روز شد.
+- **ترتیب ثابت:** قرارداد کامل تیک در `sim.js` ثبت و با `t_sim_full_mirror` (آینه stepSim با حلقه دستی اقتصاد→آموزش→نبرد→AI) پین شد؛ حلقه MP در `main.js` همان ترتیب را دارد (یادداشت آینه) و ورودی‌ها با seq مرتب‌اند.
+- ۲۴۴ تست سبز (۵ جدید؛ ردیف qa-plan: `C-CLOCK-9` → `pass`). **۸ هش رگرسیون عمداً بازپین شدند** (mix شدن rng + Q6) — دابل‌ران پایدار. بدون تغییر رفتار قابل‌مشاهده (Q6 حداکثر ۱/۱۲۸ تایل ≈ زیرپیکسل).
+
+## 0.71.0 (اکتبر ۲۰۲۶) — گام‌ثابت جدا از رندر + درون‌یابی نمایشی (فاز ۰ بند ۱)
+- **sim/render:** ساعت گام‌ثابت `alpha()` می‌دهد (انباشت، نیم‌گام، pause، سقف جبران)؛ sim هر تیک موقعیت قبلی رندر (`px/pr`، کاملاً نمایشی، خارج هش/ذخیره) را snapshot می‌کند — حلقه MP هم همین را می‌کند؛ رندر با `interpPos` خالص بین دو تیک lerp می‌کند (پیش‌فرض ۱ = رفتار قبلی)؛ نرخ منطق از `HZ` هاردکد در `combat.js` به `CONFIG.TICK_HZ` منتقل شد (بدون تغییر رفتار: همان ۱۰؛ پیشنهاد ۲۰Hz دفترچه نیاز به بازتوازن همه نرخ‌هاست و بیرون این بند است). نوار fps حالا «• NHz sim» نشان می‌دهد.
+- **باگ‌های یافته‌شده با تست در همین نسخه:** `interpPos` در alpha=۰ موقعیت فعلی برمی‌گرداند (باید قبلی) + تایپی `pr` که همیشه `r` می‌داد — هر دو با تست خالص گرفته و اصلاح شدند.
+- ۲۳۹ تست سبز (۵ جدید: `t_clock_alpha`، `t_hz_from_config`، `t_interp_prev`، `t_interp_pure`، `t_interp_not_in_hash_save`؛ ردیف‌های qa-plan: `C-CLOCK-7/8` → `pass`) + راستی‌آزمایی زنده (۴۹۶px اختلاف فریم alpha۰/۱، میانه متفاوت از هر دو سر). بدون تغییر sim/هش/ذخیره/ری‌پلی (سازگار با 0.70.2).
+
 ## 0.70.2 (اکتبر ۲۰۲۶) — بازرسی ورک‌فلو + آزمون سرتاسری ۴نفره
 - **باگ بحرانی MP:** هدف‌یابی رقابتی برد نداشت؛ ارباب‌ها/یگان‌ها از تیک ۰ به آن سر نقشه می‌دویدند و ۴ بازیکن بدون ورودی تا تیک ≈۹۰۰ حذف می‌شدند. اکنون برد `aggro` مثل سولو + تست `t_mp_no_rush`. **هش MP با ۰٫۷۰٫۱ ناسازگار است** (همه بازیکنان یک نسخه).
 - تشخیص desync که مرده بود فعال شد (مقایسه هش همتا با هش خودم، پیام «ناهمگامی»)؛ صف خروجی ورودی‌ها (سقف نرخ سرور ۳۰/۱۰s دیگر ورودی را بی‌صدا نمی‌اندازد)؛ پیش‌اعتبارسنجی محلی ساخت در MP با دلیل فارسی.

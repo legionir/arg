@@ -16,12 +16,12 @@
 import { t } from "./i18n.js";
 import { lazyTable } from "./lazytext.js";
 import { CONFIG } from "./config.js";
-import { UNITS, validateHire, spawnUnit } from "./combat.js";
-import { capFor } from "./economy.js";
+import { UNITS, validateHire, spawnUnit, peaceActive, mercpostOf, mercGoldOf, keepDoorOf, rallyPoint, orderMove, guildOf, guildKindOf, isGuildUnit, GUILD_BUILDINGS, stableWithHorse, stableHorses, restoreHorse } from "./combat.js";
+import { capFor, atPopCap } from "./economy.js";
 import { T_GRASS } from "./terrain.js";
 import { nearestWalkable } from "./pathfind.js";
 
-export const TRAIN_FA = lazyTable("game.train", ["OK", "QUEUE_FULL", "NOT_OWNED", "BAD_QUEUE", "NO_BARRACKS"]);
+export const TRAIN_FA = lazyTable("game.train", ["OK", "QUEUE_FULL", "NOT_OWNED", "BAD_QUEUE", "NO_BARRACKS", "NORUSH"]);
 
 // مدت آموزش یک نوع (تیک). پیش‌فرض امن برای نوع‌های بی‌فیلد (دشمن/ارباب).
 export function trainTimeOf(type) {
@@ -42,6 +42,54 @@ export function barracksOf(state, owner) {
   }
   return best;
 }
+// میزبان صف راهب جنگجو (فاز ۱ بند ۷۶): کلیسای جامع سالمِ همان مالک.
+export function cathedralOf(state, owner) {
+  owner = owner == null ? 0 : owner;
+  let best = null;
+  for (const b of state.buildings) {
+    if (b.type !== "cathedral" || b.destroyed) continue;
+    if (b.buildLeft > 0) continue;
+    if ((b.owner == null ? 0 : b.owner) !== owner) continue;
+    if (!best || b.id < best.id) best = b;
+  }
+  return best;
+}
+// میزبان صف (0.166.0 — §9.1/بند 169؛ انجمن از 0.167.0 — §9.3): مزدور mercدار با پست زنده،
+// یگان انجمن روی بنای انجمن همان مالک؛ وگرنه از requires: سربازخانه/جامع.
+export function trainHostOf(state, owner, type) {
+  const def = UNITS[type];
+  if (def && def.merc === true && mercpostOf(state, owner)) return mercpostOf(state, owner);
+  const gk = guildKindOf(def);
+  if (gk && guildOf(state, owner, gk)) return guildOf(state, owner, gk);
+  if (def && def.requires === "cathedral") return cathedralOf(state, owner);
+  return barracksOf(state, owner);
+}
+
+// هزینه واقعی کسرشده یک سفارش (0.166.0 — §9.1/بند 169؛ انجمن از 0.167.0): مسیر طلایی/انجمن فقط طلا،
+// وگرنه غذا+طلا+سلاح. خالص؛ روی پرچم ورودی صف (e.merc) یا نوع یگان (انجمن راه‌برگشت ندارد) سوار است.
+export function chargedCost(type, useMerc) {
+  const def = UNITS[type];
+  if (useMerc && def) {
+    const gold = def.merc === true ? mercGoldOf(type) : ((def.cost && def.cost.gold) || 0);
+    return { food: 0, gold, weapon: null };
+  }
+  if (!def || !def.cost) return { food: 0, gold: 0, weapon: null };
+  return { food: def.cost.food || 0, gold: def.cost.gold || 0, weapon: def.requiresWeapon || null };
+}
+
+// بازپرداخت کامل یک ورودی صف با سقف جاری (الگوی cancelTrain؛ مشترک لغو/ویرانی/بی‌جا).
+function refundEntry(state, owner, e) {
+  const ch = chargedCost(e.type, e.merc === true || isGuildUnit(e.type)); // انجمن راه‌برگشت legacy ندارد (0.167.0)
+  const res = resOf(state, owner);
+  const mp = state.mp && state.mp.enabled;
+  const pseudo = mp ? { buildings: state.buildings, mp: { enabled: true } } : state;
+  res.food = Math.min(capFor(pseudo, "food", mp ? owner : undefined), res.food + ch.food);
+  res.gold = Math.min(capFor(pseudo, "gold", mp ? owner : undefined), res.gold + ch.gold);
+  if (ch.weapon) {
+    res[ch.weapon] = Math.min(capFor(pseudo, ch.weapon, mp ? owner : undefined), (res[ch.weapon] || 0) + 1);
+  }
+  if (UNITS[e.type] && UNITS[e.type].requiresHorse) restoreHorse(state, owner);
+}
 
 // کانتینر منابع همان منطق hireUnit (MP جدا، سولو خودی/AI جدا).
 function resOf(state, owner) {
@@ -54,12 +102,17 @@ function resOf(state, owner) {
 // سفارش آموزش: اعتبارسنجی خشک + کسر اتمی + push. c/r = نقطه تحویل خواسته‌شده.
 export function queueHire(state, terrain, W, H, c, r, type, owner) {
   owner = owner == null ? 0 : owner;
+  // صلح No Rush (0.149.0 — §۱۴.۲/بند ۷۳۰): سفارش تازه در صلح ممنوع.
+  if (peaceActive(state)) {
+    state.rejected++;
+    return { ok: false, reason: "NORUSH" };
+  }
   const v = validateHire(state, terrain, W, H, c, r, type, owner);
   if (!v.ok) {
     state.rejected++;
     return v;
   }
-  const b = barracksOf(state, owner);
+  const b = trainHostOf(state, owner, type);
   if (!b) {
     state.rejected++;
     return { ok: false, reason: "NO_BARRACKS" };
@@ -71,12 +124,22 @@ export function queueHire(state, terrain, W, H, c, r, type, owner) {
     return { ok: false, reason: "QUEUE_FULL" };
   }
   const def = UNITS[type];
+  const useMerc = (def.merc === true && b.type === "mercpost") || GUILD_BUILDINGS.includes(b.type);
+  const ch = chargedCost(type, useMerc);
   const res = resOf(state, owner);
-  res.food -= def.cost.food;
-  res.gold -= def.cost.gold;
-  if (def.requiresWeapon) res[def.requiresWeapon]--;
+  res.food -= ch.food;
+  res.gold -= ch.gold;
+  if (ch.weapon) res[ch.weapon]--;
+  if (def.requiresHorse) {
+    const sh = stableWithHorse(state, owner);
+    if (!sh) {
+      state.rejected++;
+      return { ok: false, reason: "NO_HORSE" };
+    }
+    sh.horses = stableHorses(sh) - 1;
+  }
   const total = trainTimeOf(type);
-  b.train.push({ type, c, r, left: total, total });
+  b.train.push({ type, c, r, left: total, total, ...(useMerc ? { merc: true } : {}) });
   state.placed++;
   return { ok: true, reason: "OK", bld: b.id, idx: b.train.length - 1 };
 }
@@ -85,7 +148,7 @@ export function queueHire(state, terrain, W, H, c, r, type, owner) {
 export function cancelTrain(state, bldId, idx, owner) {
   owner = owner == null ? 0 : owner;
   const b = state.buildings.find((x) => x.id === bldId && !x.destroyed);
-  if (!b || b.type !== "barracks") {
+  if (!b || (b.type !== "barracks" && b.type !== "cathedral" && b.type !== "mercpost" && !GUILD_BUILDINGS.includes(b.type))) {
     state.rejected++;
     return { ok: false, reason: "BAD_QUEUE" };
   }
@@ -98,20 +161,7 @@ export function cancelTrain(state, bldId, idx, owner) {
     return { ok: false, reason: "BAD_QUEUE" };
   }
   const [e] = b.train.splice(idx, 1);
-  const def = UNITS[e.type];
-  if (def && def.cost) {
-    const res = resOf(state, owner);
-    const mp = state.mp && state.mp.enabled;
-    const pseudo = mp ? { buildings: state.buildings, mp: { enabled: true } } : state;
-    for (const k of ["food", "gold"]) {
-      res[k] = Math.min(capFor(pseudo, k, mp ? owner : undefined), res[k] + def.cost[k]);
-    }
-    if (def.requiresWeapon) {
-      res[def.requiresWeapon] = Math.min(
-        capFor(pseudo, def.requiresWeapon, mp ? owner : undefined),
-        (res[def.requiresWeapon] || 0) + 1);
-    }
-  }
+  refundEntry(state, owner, e);
   return { ok: true, reason: "OK", type: e.type };
 }
 
@@ -130,56 +180,44 @@ function deliverySpot(state, terrain, W, H, c, r) {
 export function stepTraining(state, terrain) {
   const W = CONFIG.GRID_W, H = CONFIG.GRID_H;
   for (const b of state.buildings) {
-    if (b.type !== "barracks" || !Array.isArray(b.train) || !b.train.length) continue;
+    if ((b.type !== "barracks" && b.type !== "cathedral" && b.type !== "mercpost" && !GUILD_BUILDINGS.includes(b.type)) || !Array.isArray(b.train) || !b.train.length) continue;
     const owner = b.owner == null ? 0 : b.owner;
     if (b.destroyed) {
-      // ویرانی با صف مانده = بازپرداخت خودکار همه (قطعی، با سقف).
-      const mp = state.mp && state.mp.enabled;
-      const pseudo = mp ? { buildings: state.buildings, mp: { enabled: true } } : state;
-      const res = resOf(state, owner);
+      // ویرانی با صف مانده = بازپرداخت خودکار همه (قطعی، با سقف؛ مسیر طلایی همان طلا را).
       let n = 0;
       for (const e of b.train) {
-        const def = UNITS[e.type];
-        if (!def || !def.cost) continue;
-        for (const k of ["food", "gold"]) {
-          res[k] = Math.min(capFor(pseudo, k, mp ? owner : undefined), res[k] + def.cost[k]);
-        }
-        if (def.requiresWeapon) {
-          res[def.requiresWeapon] = Math.min(
-            capFor(pseudo, def.requiresWeapon, mp ? owner : undefined),
-            (res[def.requiresWeapon] || 0) + 1);
-        }
-        n++;
+        if (UNITS[e.type]) { refundEntry(state, owner, e); n++; }
       }
       b.train.length = 0;
       if (n > 0) state.events.push(t("game.ev.trainRefund", { count: n }));
       continue;
     }
     if (b.buildLeft > 0) continue; // نیمه‌کاره پیش نمی‌رود
+    // صلح No Rush (0.149.0): صفِ در جریان یخ می‌زند (پیش نمی‌رود) ولی
+    // بازپرداخت ویرانی بالا دست‌نخورده است — تولید تازه‌ای بیرون نمی‌آید.
+    if (peaceActive(state)) continue;
     const head = b.train[0];
     head.left--;
     if (head.left > 0) continue;
+    if (atPopCap(state, owner)) continue; // سقف جمعیت (بند ۱۰۱): سررسیده در صف می‌ماند تا جا باز شود
     b.train.shift();
-    const spot = deliverySpot(state, terrain, W, H, head.c, head.r);
+    // تحویل (0.166.0 — §9.1/بندهای 168/170): نیرو در درِ ستاد (campfire) ظاهر
+    // می‌شود و تا مقصد راه می‌رود: پرچم تجمع نوع اگر هست، وگرنه نقطه کلیک‌شده.
+    // بی‌ستاد = رفتار قدیمی (ظهور در نقطه تحویل). همه قطعی و MP-امن.
+    const door = keepDoorOf(state, terrain, W, H, owner);
+    const spot = door || deliverySpot(state, terrain, W, H, head.c, head.r);
     if (!spot) {
       // جایی برای تحویل نیست — هزینه برمی‌گردد تا پول نسوزد.
-      const def = UNITS[head.type];
-      if (def && def.cost) {
-        const res = resOf(state, owner);
-        const mp = state.mp && state.mp.enabled;
-        const pseudo = mp ? { buildings: state.buildings, mp: { enabled: true } } : state;
-        for (const k of ["food", "gold"]) {
-          res[k] = Math.min(capFor(pseudo, k, mp ? owner : undefined), res[k] + def.cost[k]);
-        }
-        if (def.requiresWeapon) {
-          res[def.requiresWeapon] = Math.min(
-            capFor(pseudo, def.requiresWeapon, mp ? owner : undefined),
-            (res[def.requiresWeapon] || 0) + 1);
-        }
-      }
+      refundEntry(state, owner, head);
       state.events.push(t("game.ev.trainFail", { unit: UNITS[head.type] ? UNITS[head.type].name : head.type }));
       continue;
     }
-    spawnUnit(state, head.type, spot[0] + 0.5, spot[1] + 0.5, owner);
+    const unit = spawnUnit(state, head.type, spot[0] + 0.5, spot[1] + 0.5, owner);
+    if (door) {
+      const rp = rallyPoint(state, owner, head.type);
+      if (rp) orderMove(state, unit, rp[0], rp[1]);
+      else if (Number.isInteger(head.c) && Number.isInteger(head.r)) orderMove(state, unit, head.c, head.r);
+    }
   }
 }
+

@@ -24,7 +24,7 @@ body { text-align: start; }
 #layout { display: flex; gap: var(--sp-3); padding: var(--sp-3); flex: 1; min-height: 0; overflow: hidden; }
 #boardWrap { position: relative; flex: 1; min-width: 0; min-height: 0; border: 1px solid var(--line-1); border-radius: var(--r-lg);
   overflow: hidden; background: var(--bg-0); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.02); }
-#board { display: block; cursor: crosshair; }
+#board { display: block; cursor: crosshair; touch-action: none; } /* پینچ/درگ بازی، نه زوم صفحه (0.223.0 — C-MOB-1) */
 #side { width: var(--side-w); flex-shrink: 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--sp-3); padding-inline-end: 2px; }
 #minimapCard { text-align: center; }
 #minimap { width: 100%; max-width: 150px; aspect-ratio: 1; height: auto; border: 1px solid var(--line-2); border-radius: var(--r-md);
@@ -41,18 +41,33 @@ body { text-align: start; }
 #buildBar #buildPal { flex-direction: row; overflow-x: auto; padding: 3px; scroll-padding-inline: 3px; scroll-snap-type: x proximity; }
 #buildBar #buildPal > .bcard { scroll-snap-align: start; }
 #buildBar .bcard, #mercsOverlay .bcard { width: 14.5rem; flex: 0 0 auto; }
-#mercsOverlay, #marketOverlay { position: absolute; inset: 0; z-index: var(--z-overlay); background: var(--glass); backdrop-filter: blur(4px);
-  display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); overflow-x: auto; }
-#mercsTitle, #marketTitle { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--gold-400); white-space: nowrap; }
+#mercsOverlay, #marketOverlay, #granaryOverlay, #reportsOverlay { position: absolute; inset: 0; z-index: var(--z-overlay); background: var(--glass); backdrop-filter: blur(4px);
+  display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); overflow: hidden; }
+#mercsTitle, #marketTitle, #granaryTitle, #reportsTitle { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--gold-400); white-space: nowrap; }
+.ovHead { display: flex; align-items: center; gap: var(--sp-3); flex: 0 0 auto; min-height: 1.9rem; }
+.ovHint { flex: 1; min-width: 0; text-align: end; font-size: var(--fs-xs); color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ovHead button { flex: 0 0 auto; }
+.ovBody { display: flex; align-items: center; gap: var(--sp-3); flex: 1; min-width: 0; min-height: 0; overflow-x: auto; padding: 3px; }
 #mercsOverlay #unitPal { flex-direction: row; flex: 1; min-width: 0; }
 #trainQueueEl { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 12rem; flex: 0 0 auto; }
 #marketRows { display: flex; gap: var(--sp-2); flex: 1; min-width: 0; overflow-x: auto; }
-#mercsClose, #marketClose { flex: 0 0 auto; }
+#reportsRows { display: flex; gap: var(--sp-2); flex: 1; min-width: 0; overflow-x: auto; }
+#reportsRows .mrow { flex-direction: column; align-items: flex-start; gap: 0; }
+#mercsClose, #marketClose, #granaryClose, #reportsClose { flex: 0 0 auto; }
+
+/* ---- Foe card (0.274.0): پنل پادشاه دشمن جای کارت ساختمان‌ها و آمار ---- */
+#foeCard { flex: 1; min-width: 0; margin: 0; display: flex; gap: var(--sp-3); align-items: center; }
+#foeCard img#foeFace { width: 4.5rem; height: 4.5rem; flex: 0 0 auto; object-fit: cover; border-radius: var(--r-md);
+  border: 1px solid var(--line-2); background: var(--bg-0); }
+#foeCard .foeInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+#foeCard .foeInfo h2 { margin: 0; font-size: var(--fs-sm); color: var(--gold-400); }
+#foeClose { flex: 0 0 auto; }
 
 /* ---- Status bar ---- */
 #statusbar { display: flex; gap: var(--sp-4); align-items: center; padding: 0.45rem var(--sp-4); background: var(--bg-2);
   border-block-start: 1px solid var(--line-1); font-size: var(--fs-sm); flex-wrap: wrap; }
 #statusEl b.ok { color: var(--ok); } #statusEl b.bad { color: var(--danger); }
+#statusEl img.lordFace { width: 1.5em; height: 1.5em; object-fit: cover; border-radius: 50%; border: 1px solid var(--line-2); background: var(--bg-0); vertical-align: -0.4em; margin-inline-end: 0.3rem; }
 #fpsEl { color: var(--text-4); font-size: var(--fs-xs); }
 #statusIcons { display: flex; gap: var(--sp-1); margin-inline-start: auto; }
 #statusIcons button { padding: 0.25rem 0.55rem; background: transparent; border-color: transparent; display: inline-grid; place-items: center; color: var(--text-2); }
@@ -111,4 +126,18 @@ body { text-align: start; }
 }
 @media (max-width: 480px) {
   #statusbar { gap: var(--sp-2); }
+}
+/* HUD جمع‌شونده موبایل (0.224.0 — C-MOB-4): در 480px نوار بالا پشت دکمه ☰ می‌رود */
+#hudMenuBtn { display: none; }
+@media (max-width: 480px) {
+  #hudMenuBtn { display: inline-block; }
+  body:not(.hud-open) #topbar > :is(#profileBadgeEl,#menuBtn,#tickEl,#pauseBtn,#speedBtn,#resetBtn,#waveBtn,#waveTimelineEl,#mclockEl,[data-fit],[data-flat],.lang-switch) { display: none; }
+}
+/* پنل کشویی موبایل (0.224.0 — C-MOB-5): در 800px سایدبار شیت پایین + نقشه تمام‌قد */
+#sheetToggleBtn { display: none; }
+@media (max-width: 800px) {
+  #sheetToggleBtn { display: inline-block; position: absolute; inset-inline-start: var(--sp-2); bottom: var(--sp-2); z-index: var(--z-overlay); }
+  body:not(.sheet-open) #side { display: none; }
+  body.sheet-open #side { position: fixed; inset-inline: 0; bottom: 0; z-index: var(--z-overlay); max-height: 52dvh; overflow-y: auto; background: var(--bg-2); border-top: 1px solid var(--line-2); padding: var(--sp-2) var(--sp-3); }
+  body.sheet-open #boardWrap { min-height: 60vh; height: 60vh; }
 }

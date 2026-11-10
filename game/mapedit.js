@@ -2,7 +2,7 @@
 //
 // مدل: نقشه سفارشی = سید پایه + وصله‌ها (patches) روی زمین سیدساز.
 // سند: {v:1, name, seed, patches:{idx:tile}} که idx = r*W+c و tile یکی از
-// ۰=چمن/۱=آب/۲=سنگ است. همین فشردگی در ذخیره، ری‌پلی و خروجی/ورودی می‌ماند
+// ۰=چمن/۱=آب/۲=سنگ/۳=واحه است. همین فشردگی در ذخیره، ری‌پلی و خروجی/ورودی می‌ماند
 // (نه کل آرایه ۴۰۹۶تایی)؛ بازسازی همیشه قطعی است: makeTerrain(seed) + patches.
 // پاک‌کن = حذف وصله (برگشت به تایل سید)، پس «نقاشی چمن روی چمن سید» وصله
 // نمی‌سازد و سند لاغر می‌ماند.
@@ -11,7 +11,7 @@
 // spawnLord + startAI) قابل‌بازی‌بودن را ثابت می‌کند — نه با حدس هندسی.
 import { CONFIG } from "./config.js";
 import { lazyTable } from "./lazy.js";
-import { makeTerrain, T_GRASS, T_WATER, T_ROCK } from "./terrain.js";
+import { makeTerrain, T_GRASS, T_WATER, T_ROCK, T_OASIS } from "./terrain.js";
 import { createState } from "./state.js";
 import { placeKeep } from "./construction.js";
 import { spawnLord } from "./combat.js";
@@ -21,7 +21,7 @@ export const MAP_V = 1;
 export const MAP_NAME_MAX = 24;
 export const PATCH_CAP = 2048; // سقف وصله یکتا (نیمی از نقشه؛ ضد نفخ)
 export const CUSTOM_KEY = "scw.customMap"; // تنها اسلات محلی نقشه سفارشی
-export const TILE_NAMES = lazyTable({ [T_GRASS]: "system.map.tile.grass", [T_WATER]: "system.map.tile.water", [T_ROCK]: "system.map.tile.rock" });
+export const TILE_NAMES = lazyTable({ [T_GRASS]: "system.map.tile.grass", [T_WATER]: "system.map.tile.water", [T_ROCK]: "system.map.tile.rock", [T_OASIS]: "system.map.tile.oasis" });
 export const BRUSHES = [1, 2, 4, 8, 16, 32]; // اندازه قلم مربعی (پوشش «گرید ۸…۳۲»)
 
 function W() { return CONFIG.GRID_W; }
@@ -133,7 +133,7 @@ export function validateMapDoc(o) {
     if (!Array.isArray(e) || e.length !== 2) return { ok: false, reason: "BAD_PATCH" };
     const [idx, tile] = e;
     if (!Number.isInteger(idx) || idx < 0 || idx >= n) return { ok: false, reason: "BAD_PATCH" };
-    if (tile !== 0 && tile !== 1 && tile !== 2) return { ok: false, reason: "BAD_TILE" };
+    if (tile !== T_GRASS && tile !== T_WATER && tile !== T_ROCK && tile !== T_OASIS) return { ok: false, reason: "BAD_TILE" };
   }
   return { ok: true, reason: "OK" };
 }

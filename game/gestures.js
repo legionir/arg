@@ -24,6 +24,15 @@ export function pinchZoom(z0, d0, d1) {
   return Math.min(PINCH_ZOOM_MAX, Math.max(PINCH_ZOOM_MIN, z));
 }
 
+
+
+// گام زوم صفحه‌کلید (0.173.0 — §3.2/بند 159: Z نزدیک، Shift+Z دور): همان
+// ضرایب چرخ موس (۱٫۱۲ نزدیک / ۰٫۸۹ دور) با همان سقف [۰٫۳، ۳]. خالص.
+export function zoomStep(z0, dirIn) {
+  if (!(z0 > 0)) return z0;
+  const z = z0 * (dirIn ? 1.12 : 0.89);
+  return Math.min(PINCH_ZOOM_MAX, Math.max(PINCH_ZOOM_MIN, z));
+}
 // نقطه میانی دو انگشت (مرکز پینچ). خالص.
 export function pinchMid(x0, y0, x1, y1) {
   return { x: (x0 + x1) / 2, y: (y0 + y1) / 2 };
@@ -55,4 +64,35 @@ export function dragMovedFar(x0, y0, x, y) {
 // پن تازه از روی نقطه فشار + آفست ذخیره‌شده دوربین. خالص.
 export function panForDrag(panX0, panY0, x0, y0, x, y) {
   return { panX: panX0 + (x - x0), panY: panY0 + (y - y0) };
+}
+
+// اسکرول صفحه‌کلید و لبه (0.176.0 — §3.1/بند 154: جهت‌دار + لبه صفحه).
+// گام جهت‌دار ۵۶px؛ حاشیه لبه ۱۰px با گام ۱۰px بر فریم. ریاضیات خالص؛
+// main.js روی renderer.view اعمال + markDirty می‌کند (UI-side؛ sim بی‌خبر).
+export const ARROW_PAN_STEP = 56;
+export const EDGE_PAN_MARGIN = 10;
+export const EDGE_PAN_STEP = 10;
+
+// دلتای پن برای کلید جهت‌دار (code). ناشناخته = null. خالص.
+export function arrowPanDelta(code) {
+  switch (code) {
+    case "ArrowLeft": return { dx: ARROW_PAN_STEP, dy: 0 };
+    case "ArrowRight": return { dx: -ARROW_PAN_STEP, dy: 0 };
+    case "ArrowUp": return { dx: 0, dy: ARROW_PAN_STEP };
+    case "ArrowDown": return { dx: 0, dy: -ARROW_PAN_STEP };
+    default: return null;
+  }
+}
+
+// جهت پن لبه (−۱/۰/۱ هر محور) از موقعیت نشانگر در قاب w×h؛
+// بیرون قاب = نزدیک‌ترین لبه. خالص.
+export function edgePanDir(x, y, w, h, margin) {
+  const m = margin == null ? EDGE_PAN_MARGIN : margin;
+  if (!(w > 0) || !(h > 0) || !(m >= 0)) return { dx: 0, dy: 0 };
+  let dx = 0, dy = 0;
+  if (x < m) dx = 1;
+  else if (x >= w - m) dx = -1;
+  if (y < m) dy = 1;
+  else if (y >= h - m) dy = -1;
+  return { dx, dy };
 }
