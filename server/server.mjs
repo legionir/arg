@@ -183,7 +183,10 @@ function appendDesyncDump(body) {
 // ---- فایل استاتیک ----
 // فهرست مجاز: فقط ریشه‌های خود بازی سرو می‌شوند. server/ (کد و state.bin با هش رمز اتاق‌ها)،
 // .git، مستندات و هر چیز دیگر هرگز از HTTP خارج نمی‌شوند.
-const PUBLIC_DIRS = new Set(["game", "styles", "assets"]);
+// data/ = کاتالوگ‌های JSON که game/data.js با fetch می‌خواند؛ از tools/ فقط کتابخانه‌های خالص
+// «*-lib.mjs» (ایمپورت سوئیت درون‌مرورگری) سرو می‌شوند، نه اسکریپت‌های CLI.
+const PUBLIC_DIRS = new Set(["game", "styles", "assets", "data"]);
+const PUBLIC_TOOL = /^[a-z0-9-]+-lib\.mjs$/;
 const PUBLIC_FILES = new Set(["index.html", "VERSION", "favicon.ico", "robots.txt"]);
 const COMPRESSIBLE = new Set([".html", ".js", ".mjs", ".css", ".json", ".svg"]);
 const gzCache = new Map(); // file -> { key, buf }
@@ -192,6 +195,7 @@ function isPublic(rel) {
   const parts = rel.split(path.sep).filter(Boolean);
   if (parts.some((x) => x.startsWith("."))) return false;
   if (parts.length === 1) return PUBLIC_FILES.has(parts[0]);
+  if (parts[0] === "tools") return parts.length === 2 && PUBLIC_TOOL.test(parts[1]);
   return PUBLIC_DIRS.has(parts[0]);
 }
 

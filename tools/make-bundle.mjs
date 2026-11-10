@@ -45,7 +45,7 @@ function addFile(rel) {
 }
 addFile("index.html");
 addFile("VERSION");
-for (const d of ["game", "styles", "assets"]) {
+for (const d of ["game", "styles", "assets", "data"]) {
   const dir = path.join(SRC, d);
   if (!fs.existsSync(dir)) { console.error("[bundle] skip missing dir: " + d); continue; }
   for (const rel of walk(dir, d)) files.push({ name: rel, data: fs.readFileSync(path.join(SRC, rel)) });

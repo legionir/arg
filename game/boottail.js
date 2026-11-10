@@ -20,7 +20,7 @@ export function createBootTail({ getState, getProfile, getMenuRelabelFns, refres
   }
   // نسخه انتشار از تنها منبع (فرایند انتشار را ببین)
   fetch("VERSION").then((r) => r.text()).then((txt) => {
-    const v = txt.trim();
+    const v = txt.trim().replace(/^"|"$/g, "");
     if (/^\d+\.\d+\.\d+$/.test(v)) { $("verEl").textContent = v; const mv = $("menuVerEl"); if (mv) mv.textContent = v; }
   }).catch(() => { /* پیش‌نمایش بدون service worker: نسخه نمایشی می‌ماند */ });
   // ماتریس سازگاری (0.58.0 — #۲۷): رندر در کارت راهنما + هشدار اگر required کم است.
