@@ -6,9 +6,9 @@ export default {
     "main.battle.defeat": "شکست! ارگ ویران شد — «شروع دوباره» بزن",
     "main.battle.demolish": "کلیک بعدی: تخریب — روی ساختمان خودت کلیک کن (ارگ نه؛ یک‌سوم هزینه برمی‌گردد)",
     "main.battle.repair": "کلیک بعدی: تعمیر — روی ساختمان آسیب‌دیده خودت کلیک کن (هزینه سنگ/چوب متناسب با آسیب)",
-    "main.battle.desync": "⚠ ناهمگامی: {d}",
+    "main.battle.desync": "ناهمگامی: {d}",
     "main.battle.mpOver": "بازی تمام شد.",
-    "main.battle.mpWon": "بردی! 🏆",
+    "main.battle.mpWon": "بردی!",
     "main.battle.peace": "🕊️ صلح: {s} ثانیه تا پایان (حمله و سربازگیری بسته)",
     "main.wave.timeline": "خط موج‌ها: {done}/{total} تمام — جاری: {cur}",
     "main.clock.title": "زمان مأموریت (از شروع Citadel+انبار غذا)",
@@ -21,7 +21,7 @@ export default {
     "main.cloud.saved": "ابری ذخیره شد (تیک {tick})",
     "main.cloud.saving": "در حال ذخیره ابری…",
     "main.compat.label": "سازگاری دستگاه:",
-    "main.compat.missing": "⚠ برخی نیازهای پایه نیست!",
+    "main.compat.missing": "برخی نیازهای پایه نیست!",
     "main.cost.free": "رایگان",
     "main.ed.brushOne": "۱ خانه",
     "main.ed.capMark": "(سقف!)",
@@ -58,7 +58,7 @@ export default {
     "main.bookmark.empty": "بوکمارک {slot} خالی است (Ctrl+Alt+{slot} ذخیره می‌کند)",
     "main.hover.alarm": "زنگ خطر — کلیک: تجمع ارتش در ({c}، {r})",
     "main.hover.attackMove": "حمله‌در‌حرکت — کلیک: یورش به ({c}، {r})",
-    "main.hover.attack": "حمله ⚔ — کلیک: یورش به این هدف",
+    "main.hover.attack": "حمله — کلیک: یورش به این هدف",
     "main.hover.patrol": "گشت — کلیک: رفت‌وبرگشت تا ({c}، {r})",
     "main.hover.patrolAdd": "گشت — شیفت‌کلیک: افزودن نشانگر ({c}، {r}) (نشانگر {n} از ۱۰)",
     "main.hover.attackpos": "حمله به اینجا — کلیک: بمباران ({c}، {r})",
@@ -93,7 +93,7 @@ export default {
     "main.hover.starved": "در انتظار ورودی ({res})",
     "main.hover.quarryNoOx": "نیاز به آغل گاو — معدن کار نمی‌کند",
     "main.hover.unstaffed": "بدون کارگر، تولید متوقف",
-    "main.hover.burning": "🔥 در حال سوختن",
+    "main.hover.burning": "در حال سوختن",
     "main.keys.press": "کلید را بزن…",
     "main.listSep": "، ",
     "main.map.custom": "سفارشی (سید دستی/تصادفی)",
@@ -269,7 +269,7 @@ export default {
     "main.order.group": "{n} یگان — کلیک روی نقشه: دستور جمعی",
     "main.firecow.needReady": "یک منجنیق مستقر انتخاب کن",
     "main.order.guarding": "نگهبانی از {name}",
-    "main.order.inTower": "مستقر در برج 🏰 — کلیک روی نقشه: خروج و حرکت",
+    "main.order.inTower": "مستقر در برج — کلیک روی نقشه: خروج و حرکت",
     "main.order.mission": "مأموریت: {kind} ({mission})",
     "main.order.mobile": "منجنیق سیار — بدون شلیک؛ دکمه استقرار",
     "main.order.nextAttackMove": "کلیک بعدی: حمله‌در‌حرکت",
@@ -284,10 +284,10 @@ export default {
     "main.policy.summary": "مالیات {tax} ({gold} طلا/کارگر، {tpop}) • خزانه {trGold} ({trRate}/دقیقه) • جیره {rat} (×{mult}، {rpop}) • غذا {types} نوع ({fpop}) • {stock} واحد (~{lasts} دقیقه) • کاروانسرا {winn}/{tinn} ({bar} بشکه، پوشش {cov}٪، {ibonus}، {drunk} مست) • مذهب {blw}/{blt} (تبرک {blcov}٪، {blbonus}) • ترس {flv} (↑{fup} ↓{fdn}) • مصرف {meter}",
     "main.policy.taxTip": "{name} — {gold} طلا/کارگر هر ۵ ثانیه، محبوبیت {pop}",
     "main.pop": "{p} {dir} (هدف {target})",
-    "main.camp.line": "🔥 {pct}٪ {dir} • {waiting} بیکار",
-    "main.event.fair": "🎪 نمایشگاه سیار",
-    "main.event.lion": "🦁 حمله شیر",
-    "main.event.disease": "🤒 بیماری",
+    "main.camp.line": "{pct}٪ {dir} • {waiting} بیکار",
+    "main.event.fair": "نمایشگاه سیار",
+    "main.event.lion": "حمله شیر",
+    "main.event.disease": "بیماری",
     "main.profile.logoTitle": "لوگوی {n}",
     "main.profile.nameInvalid": "نام باید ۱ تا ۱۲ نویسه (فارسی/لاتین/رقم/فاصله/خط) باشد",
     "main.replay.bar": "📼 {label}: تیک {tick} از {upto}{end} (ورودی بسته است؛ Esc = خروج)",
@@ -361,12 +361,12 @@ export default {
     "main.unknown": "؟",
     "main.wall.lineBlocked": "خط دیوار مسدود شد — بخشی از مسیر نامعتبر است",
     "main.wall.line": "خط دیوار: <b>{len} خانه</b> (سالم {ok}، سقف {max}) — رها = ساخت، Esc = لغو",
-    "main.warn.bribeEmpty": "⚠ خزانه خالی — رشوه اثر ندارد",
-    "main.warn.crowding": "⚠ ازدحام: {w} نفر > {cap} مسکن",
-    "main.warn.famine": "⚠ غذا تمام شد — جیره را کم کن",
-    "main.warn.starved": "⚠ {n} ساختمان در انتظار ورودی",
-    "main.warn.unstaffed": "⚠ کمبود کارگر در {n} ساختمان",
-    "main.warn.crueller": "⚠ بی‌رحم‌ترین مالیات: همه درآمد دهقانان گرفته می‌شود — فقط کوتاه‌مدت",
+    "main.warn.bribeEmpty": "خزانه خالی — رشوه اثر ندارد",
+    "main.warn.crowding": "ازدحام: {w} نفر > {cap} مسکن",
+    "main.warn.famine": "غذا تمام شد — جیره را کم کن",
+    "main.warn.starved": "{n} ساختمان در انتظار ورودی",
+    "main.warn.unstaffed": "کمبود کارگر در {n} ساختمان",
+    "main.warn.crueller": "بی‌رحم‌ترین مالیات: همه درآمد دهقانان گرفته می‌شود — فقط کوتاه‌مدت",
     "main.wave.noRoom": "جایی برای ورود دشمن نیست!",
     "main.workers": "{free} آزاد / {workers} / سقف {cap}",
   },
@@ -376,9 +376,9 @@ export default {
     "main.battle.defeat": "Defeat! Your keep is destroyed — press “Restart”",
     "main.battle.demolish": "Next click: demolish — click one of your buildings (not the citadel; a third of the cost is refunded)",
     "main.battle.repair": "Next click: repair — click one of your damaged buildings (stone/wood cost scales with damage)",
-    "main.battle.desync": "⚠ Out of sync: {d}",
+    "main.battle.desync": "Out of sync: {d}",
     "main.battle.mpOver": "Game over.",
-    "main.battle.mpWon": "You won! 🏆",
+    "main.battle.mpWon": "You won!",
     "main.battle.peace": "🕊️ Peace: {s}s left (no attacks, no training)",
     "main.wave.timeline": "Wave timeline: {done}/{total} done — current: {cur}",
     "main.clock.title": "Mission time (since Citadel+granary)",
@@ -391,7 +391,7 @@ export default {
     "main.cloud.saved": "Saved to cloud (tick {tick})",
     "main.cloud.saving": "Saving to cloud…",
     "main.compat.label": "Device compatibility:",
-    "main.compat.missing": "⚠ Some basic requirements are missing!",
+    "main.compat.missing": "Some basic requirements are missing!",
     "main.cost.free": "Free",
     "main.ed.brushOne": "1 tile",
     "main.ed.capMark": "(limit!)",
@@ -428,7 +428,7 @@ export default {
     "main.bookmark.empty": "Bookmark {slot} is empty (Ctrl+Alt+{slot} saves)",
     "main.hover.alarm": "Alarm — click: rally the army at ({c}, {r})",
     "main.hover.attackMove": "Attack-move — click: charge to ({c}, {r})",
-    "main.hover.attack": "Attack ⚔ — click: charge this target",
+    "main.hover.attack": "Attack — click: charge this target",
     "main.hover.patrol": "Patrol — click: ping-pong to ({c}, {r})",
     "main.hover.patrolAdd": "Patrol — shift-click: add marker ({c}, {r}) (marker {n} of 10)",
     "main.hover.attackpos": "Attack here — click: bombard ({c}, {r})",
@@ -463,7 +463,7 @@ export default {
     "main.hover.starved": "Waiting for input ({res})",
     "main.hover.quarryNoOx": "Needs ox tether — quarry idle",
     "main.hover.unstaffed": "No workers — production halted",
-    "main.hover.burning": "🔥 Burning",
+    "main.hover.burning": "Burning",
     "main.keys.press": "Press a key…",
     "main.listSep": ", ",
     "main.map.custom": "Custom (manual/random seed)",
@@ -639,7 +639,7 @@ export default {
     "main.order.group": "{n} units — click the map: group order",
     "main.firecow.needReady": "Select a deployed catapult",
     "main.order.guarding": "Guarding {name}",
-    "main.order.inTower": "Garrisoned in tower 🏰 — click the map: leave and move",
+    "main.order.inTower": "Garrisoned in tower — click the map: leave and move",
     "main.order.mission": "Mission: {kind} ({mission})",
     "main.order.mobile": "Catapult mobile — cannot fire; press Deploy",
     "main.order.nextAttackMove": "Next click: attack-move",
@@ -654,10 +654,10 @@ export default {
     "main.policy.summary": "Tax {tax} ({gold} gold/worker, {tpop}) • Treasury {trGold} ({trRate}/min) • Rations {rat} (×{mult}, {rpop}) • Food {types} types ({fpop}) • {stock} units (~{lasts} min) • Caravanserai {winn}/{tinn} ({bar} barrels, {cov}% coverage, {ibonus}, {drunk} drunkards) • Faith {blw}/{blt} ({blcov}% blessed, {blbonus}) • Fear {flv} (↑{fup} ↓{fdn}) • Use {meter}",
     "main.policy.taxTip": "{name} — {gold} gold/worker every 5s, popularity {pop}",
     "main.pop": "{p} {dir} (target {target})",
-    "main.camp.line": "🔥 {pct}% {dir} • {waiting} idle",
-    "main.event.fair": "🎪 Travelling Fair",
-    "main.event.lion": "🦁 Lion attack",
-    "main.event.disease": "🤒 Disease",
+    "main.camp.line": "{pct}% {dir} • {waiting} idle",
+    "main.event.fair": "Travelling Fair",
+    "main.event.lion": "Lion attack",
+    "main.event.disease": "Disease",
     "main.profile.logoTitle": "Logo {n}",
     "main.profile.nameInvalid": "The name must be 1 to 12 characters (letters/digits/space/dash)",
     "main.replay.bar": "📼 {label}: tick {tick} of {upto}{end} (input locked; Esc = exit)",
@@ -731,12 +731,12 @@ export default {
     "main.unknown": "?",
     "main.wall.lineBlocked": "Wall line blocked — part of the path is invalid",
     "main.wall.line": "Wall line: <b>{len} tiles</b> ({ok} valid, max {max}) — release = build, Esc = cancel",
-    "main.warn.bribeEmpty": "⚠ Treasury empty — bribe has no effect",
-    "main.warn.crowding": "⚠ Crowding: {w} workers > {cap} housing",
-    "main.warn.famine": "⚠ Food exhausted — lower rations",
-    "main.warn.starved": "⚠ {n} buildings waiting for input",
-    "main.warn.unstaffed": "⚠ {n} buildings short of workers",
-    "main.warn.crueller": "⚠ Cruellest tax: takes all peasant income — short-term only",
+    "main.warn.bribeEmpty": "Treasury empty — bribe has no effect",
+    "main.warn.crowding": "Crowding: {w} workers > {cap} housing",
+    "main.warn.famine": "Food exhausted — lower rations",
+    "main.warn.starved": "{n} buildings waiting for input",
+    "main.warn.unstaffed": "{n} buildings short of workers",
+    "main.warn.crueller": "Cruellest tax: takes all peasant income — short-term only",
     "main.wave.noRoom": "No room for the enemy to enter!",
     "main.workers": "{free} free of {workers} · cap {cap}",
   },

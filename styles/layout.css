@@ -40,7 +40,10 @@ body { text-align: start; }
 #buildScroll { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 #buildBar #buildPal { flex-direction: row; overflow-x: auto; padding: 3px; scroll-padding-inline: 3px; scroll-snap-type: x proximity; }
 #buildBar #buildPal > .bcard { scroll-snap-align: start; }
-#buildBar .bcard, #mercsOverlay .bcard { width: 14.5rem; flex: 0 0 auto; }
+#buildBar .bcard, #mercsOverlay .bcard { width: 12.5rem; flex: 0 0 auto; }
+/* کارت فشرده (0.289.0): شرح بلند یک‌خطی می‌شود؛ متن کامل در تولتیپ و روی کارت انتخاب‌شده/هاور */
+#buildBar .bcard .bmeta { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; line-clamp: 1; overflow: hidden; }
+#buildBar .bcard.sel .bmeta, #buildBar .bcard:focus-visible .bmeta { -webkit-line-clamp: 3; line-clamp: 3; }
 #mercsOverlay, #marketOverlay, #granaryOverlay, #reportsOverlay { position: absolute; inset: 0; z-index: var(--z-overlay); background: var(--glass); backdrop-filter: blur(4px);
   display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); overflow: hidden; }
 #mercsTitle, #marketTitle, #granaryTitle, #reportsTitle { font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--gold-400); white-space: nowrap; }
@@ -148,3 +151,8 @@ body:not(.dev) :is(#tickEl, #waveBtn, #fpsEl, .stat:has(#placedEl), .stat:has(#r
 
 /* ---- Tile accent (0.286.0): thin turquoise band under the top bar, echoing the citadel frieze ---- */
 #topbar { box-shadow: inset 0 -2px 0 var(--tile-line); }
+/* گوشی باریک (0.289.0 — T10): نوار آیکون‌ها از صفحه بیرون نزند؛ آیکون‌ها جا می‌شوند یا به خط بعد می‌روند */
+@media (max-width: 480px) {
+  #statusIcons { flex: 1 1 100%; min-width: 0; flex-wrap: wrap; justify-content: space-between; gap: 0; margin-inline-start: 0; }
+  #statusIcons button { padding: 0.25rem 0.3rem; min-width: 2.2rem; min-height: 2.2rem; }
+}

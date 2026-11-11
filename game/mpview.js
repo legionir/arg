@@ -24,6 +24,9 @@ export function createMpViewUI({ getMpSession, getState }) {
   function paintMp(api) {
     const conn = $("mpConn"), box = $("mpRosterEl"), list = $("mpListEl");
     if (conn) conn.textContent = api.connected ? t("main.mp.connected") : t("main.mp.disconnected");
+    // نوار قطع اتصال (0.289.0 — T10): وسط بازی چندنفره، تا اتصال دوباره برقرار شود.
+    const nb = $("netBanner");
+    if (nb) nb.hidden = api.connected || !(api.room && api.room.started);
     if (!box) return;
     // حالت تماشا (0.141.0): اتاقی ندارم ولی بازی میهمان را می‌بینم.
     if (!api.room && api.watchInfo) {

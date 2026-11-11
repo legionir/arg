@@ -9,7 +9,7 @@ import { endSummary, endSummaryHTML } from "../endsummary.js";
 import { shouldWelcome, WELCOME_KEY } from "../welcome.js";
 
 function foeCases() {
-  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary, t_welcome];
+  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary, t_welcome, t_mid_goals];
 }
 
 // کارت حریف صفحه راه‌اندازی (0.281.0): هر هفت فرمانروا پرتره یکتا + جمله دوزبانه دارند.
@@ -128,3 +128,32 @@ function t_caravan_filter() {
   return { name: "فیلتر کاروان", pass: true, detail: "fa/en" };
 }
 export { foeCases };
+
+// T14 (0.289.0): هدف‌های میان‌مدت، هشدار یورش نزدیک و شرط برد — خالص.
+import { MID_GOALS, nextGoal, raidEta, hintBuilding as hb14 } from "../hints.js";
+import { aiRaidPlan as plan14 } from "../ai.js";
+function t_mid_goals() {
+  const st = { buildings: [], units: [], tick: 0 };
+  must(nextGoal(st) === "ui.goal.granary", "هدف اول انبار غذاست");
+  must(hb14("ui.goal.bread") === "bakery" && hb14("ui.goal.army") === null, "نگاشت هدف به کارت");
+  const add = (type, n = 1) => { for (let i = 0; i < n; i++) st.buildings.push({ type, hp: 1, maxHp: 1 }); };
+  add("granary"); add("wheatfarm"); add("mill");
+  must(nextGoal(st) === "ui.goal.bread", "زنجیره نان بدون نانوایی کامل نیست");
+  add("bakery"); add("market"); add("wall", 8);
+  must(nextGoal(st) === "ui.goal.walls", "دیوار بدون دروازه بسته نیست");
+  add("gate"); add("armoury"); add("chapel");
+  must(nextGoal(st) === "ui.goal.army", "لشکر هشت‌نفره");
+  for (let i = 0; i < 8; i++) st.units.push({ type: "spearman", side: "player" });
+  must(nextGoal(st) === null, "همه هدف‌ها برآورده");
+  for (const lang of ["fa", "en"]) for (const g of MID_GOALS) must(withLang(lang, () => t("ui.goal." + g.key)).indexOf("ui.goal") < 0, "متن " + lang + " " + g.key);
+  const ai = { active: true, dormant: false, raidsSent: 0, difficulty: "normal" };
+  const at = plan14(ai, 0).at;
+  must(raidEta({ ai, tick: at - 2000 }) === null, "دور: بدون هشدار");
+  must(raidEta({ ai, tick: at - 450 }) === 50, "۴۵ ثانیه → گرد به ۵۰");
+  must(raidEta({ ai, tick: at + 5 }) === null, "گذشته: بدون هشدار");
+  must(raidEta({ ai: { ...ai, dormant: true }, tick: at - 100 }) === null, "حریف خاموش");
+  must(raidEta({ ai, tick: at - 100, mp: { enabled: true } }) === null, "چندنفره");
+  must(raidEta({ ai: { ...ai, raidsSent: 99 }, tick: 0 }) === null, "یورشی نمانده");
+  must(!!document.getElementById("raidEl") && !!document.getElementById("winEl"), "عنصرهای هشدار و شرط برد");
+  return { name: "t_mid_goals", pass: true, detail: "۷ هدف + هشدار یورش" };
+}

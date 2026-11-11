@@ -13,7 +13,7 @@ import { REASON_FA, keepLocked } from "./construction.js";
 import { TAX_IDS } from "./data.js";
 import { armyBreakdown, pruneSet, resolveSet } from "./selection.js";
 import { clockText } from "./missions.js";
-import { hintBuilding, nextHint } from "./hints.js";
+import { hintBuilding, nextHint, nextGoal, raidEta } from "./hints.js";
 import { missionByKey, missionOutro } from "./campaign.js";
 import { getLang } from "./i18n.js";
 import { endSummaryHTML } from "./endsummary.js";
@@ -259,8 +259,8 @@ export function createPanelUI({ getState, getMpSession, getReplayWatch, getSound
     // هدف بعدی (onboarding): فقط سولوی زنده؛ با رسیدن به همه نقاط عطف پنهان می‌شود.
     const hintEl = $("hintEl");
     if (hintEl) {
-      const hk = (getMpSession() || getReplayWatch() || getEditor() || getState().defeated || getState().victorious) ? null : nextHint(getState());
-      if (hk) { const txt = t("ui.hint.prefix") + " " + t(hk); if (hintEl.textContent !== txt) { hintEl.textContent = txt; hintEl.title = txt; } }
+      const hk = (getMpSession() || getReplayWatch() || getEditor() || getState().defeated || getState().victorious) ? null : (nextHint(getState()) || nextGoal(getState()));
+      if (hk) { const txt = t(hk.startsWith("ui.goal.") ? "ui.goal.prefix" : "ui.hint.prefix") + " " + t(hk); if (hintEl.textContent !== txt) { hintEl.textContent = txt; hintEl.title = txt; } }
       hintEl.hidden = !hk;
       // کارت ساختمانِ مورد اشاره هایلایت می‌شود و (یک‌بار به‌ازای هر راهنما) به دید می‌آید.
       const hb = hintBuilding(hk);
@@ -276,6 +276,15 @@ export function createPanelUI({ getState, getMpSession, getReplayWatch, getSound
         }
       }
     }
+    // هشدار یورش نزدیک + شرط برد نبرد آزاد (0.289.0 — T14): فقط سولوی زنده.
+    const raidEl = $("raidEl"), winEl = $("winEl");
+    const soloLive = !(getMpSession() || getReplayWatch() || getEditor());
+    if (raidEl) {
+      const eta = soloLive ? raidEta(getState()) : null;
+      if (eta != null) { const txt = t("ui.raid.soon", { n: faNum(eta) }); if (raidEl.textContent !== txt) raidEl.textContent = txt; }
+      raidEl.hidden = eta == null;
+    }
+    if (winEl) winEl.hidden = !soloLive || !!getLastMissionKey() || getState().defeated || getState().victorious;
     if (!getMpSession()) online.maybeReport(getState()); // ثبت پیروزی در تالار مشترک (0.23.0؛ فقط یک‌بار)
     pruneMercs(); // سربازخانه میزبان نوار مزدورها ویران شده؟ بستن خودکار
     pruneMarket(); // بازار میزبان پنل معامله ویران شده؟ بستن خودکار

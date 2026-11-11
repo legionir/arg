@@ -29,6 +29,7 @@ export function createPaletteUI({ renderer, PALETTE }) {
       btn.className = "bcard"; btn.dataset.b = key;
       btn.innerHTML = `<canvas class="bthumb" width="128" height="112"></canvas>` +
         `<span class="binfo">${buildingInfoHTML(key, def)}</span>`;
+      btn.title = (btn.querySelector(".bmeta") || {}).textContent || ""; // کارت فشرده: شرح کامل در تولتیپ
       bp.appendChild(btn);
     }
     for (const [key, def] of Object.entries(UNITS)) {
@@ -37,6 +38,7 @@ export function createPaletteUI({ renderer, PALETTE }) {
       btn.className = "bcard"; btn.dataset.u = key;
       btn.innerHTML = `<canvas class="bthumb" width="96" height="84"></canvas>` +
         `<span class="binfo">${unitInfoHTML(def)}</span>`;
+      btn.title = (btn.querySelector(".bmeta") || {}).textContent || "";
       up.appendChild(btn);
     }
     paintThumbs();
