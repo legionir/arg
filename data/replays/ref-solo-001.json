@@ -1,7 +1,7 @@
 {
   "v": 1,
   "name": "ref-solo-001",
-  "gameVersion": "1.0.0-rc.1",
+  "gameVersion": "1.0.0-rc.2",
   "seed": 1337,
   "uptoTick": 1600,
   "expectHash": "b621bd25",

@@ -27,3 +27,12 @@ export function wireRivalCard(doc) {
   paint();
   return paint;
 }
+
+// جمله‌ی فرمانروای حریف سولو در لحظه‌ی یورش نزدیک ("raid")، شکست بازیکن ("lose") یا پیروزی بازیکن ("win").
+// خالص؛ بدون حریف AI فعال رشته‌ی خالی. فقط نما.
+export function rivalLine(state, kind) {
+  const ai = state && state.ai;
+  if (!ai || !ai.active || (state.mp && state.mp.enabled)) return "";
+  const k = CONFIG.AI.personalities[ai.personality] ? ai.personality : CONFIG.AI.defaultPersonality;
+  return t("game.personality." + k + "." + kind);
+}

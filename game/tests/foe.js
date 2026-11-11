@@ -4,12 +4,12 @@ import { t, withLang } from "../i18n.js";
 import { must, fresh, mpFresh, aiFreshPers } from "./fixtures.js";
 import { foeKingFor, foePanelData, isCaravanMsg, PERSONALITY_LORD } from "../foeinfo.js";
 import { UNITS } from "../combat.js";
-import { rivalCardData } from "../rivalcard.js";
+import { rivalCardData, rivalLine } from "../rivalcard.js";
 import { endSummary, endSummaryHTML } from "../endsummary.js";
 import { shouldWelcome, WELCOME_KEY } from "../welcome.js";
 
 function foeCases() {
-  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary, t_welcome, t_mid_goals];
+  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary, t_welcome, t_mid_goals, t_rival_lines];
 }
 
 // کارت حریف صفحه راه‌اندازی (0.281.0): هر هفت فرمانروا پرتره یکتا + جمله دوزبانه دارند.
@@ -156,4 +156,20 @@ function t_mid_goals() {
   must(raidEta({ ai: { ...ai, raidsSent: 99 }, tick: 0 }) === null, "یورشی نمانده");
   must(!!document.getElementById("raidEl") && !!document.getElementById("winEl"), "عنصرهای هشدار و شرط برد");
   return { name: "t_mid_goals", pass: true, detail: "۷ هدف + هشدار یورش" };
+}
+
+// T14 (0.291.0): جمله‌ی فرمانروا هنگام یورش/شکست/پیروزی برای هر هفت نفر و هر دو زبان.
+function t_rival_lines() {
+  for (const k of Object.keys(CONFIG.AI.personalities)) {
+    for (const kind of ["raid", "lose", "win"]) {
+      for (const lang of ["fa", "en"]) {
+        const line = withLang(lang, () => rivalLine({ ai: { active: true, personality: k } }, kind));
+        must(line && line.indexOf("game.personality") < 0, k + "." + kind + " " + lang);
+      }
+    }
+  }
+  must(rivalLine({ ai: { active: false } }, "raid") === "", "حریف خاموش = بی‌جمله");
+  must(rivalLine({ ai: { active: true }, mp: { enabled: true } }, "win") === "", "چندنفره = بی‌جمله");
+  must(!!document.getElementById("defeatLord") && !!document.getElementById("victoryLord"), "جای جمله روی بنرها");
+  return { name: "t_rival_lines", pass: true, detail: "۷ فرمانروا × ۳ جمله × ۲ زبان" };
 }

@@ -14,6 +14,7 @@ import { TAX_IDS } from "./data.js";
 import { armyBreakdown, pruneSet, resolveSet } from "./selection.js";
 import { clockText } from "./missions.js";
 import { hintBuilding, nextHint, nextGoal, raidEta } from "./hints.js";
+import { rivalLine } from "./rivalcard.js";
 import { missionByKey, missionOutro } from "./campaign.js";
 import { getLang } from "./i18n.js";
 import { endSummaryHTML } from "./endsummary.js";
@@ -251,6 +252,11 @@ export function createPanelUI({ getState, getMpSession, getReplayWatch, getSound
       if (!ban.hidden && !ban.dataset.stats) { ban.dataset.stats = "1"; ul.innerHTML = endSummaryHTML(getState(), viewSlotOf(getMpSession())); }
       else if (ban.hidden && ban.dataset.stats) { delete ban.dataset.stats; ul.innerHTML = ""; }
     }
+    // جمله‌ی فرمانروا روی بنر پایان (0.291.0)
+    for (const [id, kind] of [["defeatLord", "lose"], ["victoryLord", "win"]]) {
+      const el = $(id);
+      if (el) { const line = rivalLine(getState(), kind); if (el.textContent !== line) el.textContent = line; el.hidden = !line; }
+    }
     // بنر تازه‌نمایان: فوکوس روی دکمه‌اش (یک‌بار؛ نه در هر refresh) تا صفحه‌کلید/صفحه‌خوان در بنر بیفتد
     for (const [ban, btn] of [[defeatBanner, defeatRestartBtn], [victoryBanner, victoryRestartBtn]]) {
       if (!ban.hidden && !ban.dataset.focused) { ban.dataset.focused = "1"; btn.focus({ preventScroll: true }); }
@@ -281,7 +287,7 @@ export function createPanelUI({ getState, getMpSession, getReplayWatch, getSound
     const soloLive = !(getMpSession() || getReplayWatch() || getEditor());
     if (raidEl) {
       const eta = soloLive ? raidEta(getState()) : null;
-      if (eta != null) { const txt = t("ui.raid.soon", { n: faNum(eta) }); if (raidEl.textContent !== txt) raidEl.textContent = txt; }
+      if (eta != null) { const txt = t("ui.raid.soon", { n: faNum(eta) }) + " — " + rivalLine(getState(), "raid"); if (raidEl.textContent !== txt) raidEl.textContent = txt; }
       raidEl.hidden = eta == null;
     }
     if (winEl) winEl.hidden = !soloLive || !!getLastMissionKey() || getState().defeated || getState().victorious;

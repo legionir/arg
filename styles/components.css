@@ -217,3 +217,4 @@ label.lbl { margin: 0; white-space: nowrap; }
 #netBanner { position: fixed; inset-block-start: 0.6rem; inset-inline: 0; margin-inline: auto; width: max-content; max-width: 92vw; z-index: var(--z-banner);
   padding: 0.45rem 1rem; border-radius: var(--r-md); background: var(--danger-strong); color: #fff; font-size: var(--fs-sm); box-shadow: 0 6px 18px rgb(0 0 0 / 0.4); }
 #netBanner[hidden] { display: none; }
+.end-quote { font-style: italic; color: var(--gold-300); margin-block: 0.4rem; }
