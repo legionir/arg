@@ -234,7 +234,7 @@
       },
       "speedRanks": {
         "source": "fixup",
-        "note": "دفترچه فقط رتبه داده؛ اعداد تبدیل رتبه به tile/s اند. ناسازگاری ثبت‌شده: جدول Fire Thrower و Arabian Swordsman را Very Fast نوشته ولی متن عرب را کمی سریع‌تر از اروپایی می‌داند و ویکی‌ها Fire Thrower را کند می‌دانند",
+        "note": "اعداد تبدیل رتبه سرعت به tile/s اند.",
         "ranks": [
           {
             "rank": "extremelySlow",
@@ -509,7 +509,7 @@
       ],
       "repair": {
         "source": "community",
-        "note": "در Crusader اصلی تعمیر نیست (از Crusader 2) — اگر نمی‌خواهید حذفش کنید",
+        "note": "تعمیر تصمیم طراحی خود ماست — اگر نمی‌خواهید حذفش کنید",
         "per100hp": [
           "perimeter",
           "defence"
@@ -883,7 +883,7 @@
         ]
       },
       "market": {
-        "note": "قیمت‌ها در Crusader اصلی ثابت به نظر می‌رسند. دفترچه نمی‌گوید.",
+        "note": "قیمت‌ها ثابت‌اند (تصمیم طراحی).",
         "rows": [
           {
             "good": "wood",
