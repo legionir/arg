@@ -1,6 +1,6 @@
 // Post-process AI building art: key out the flat magenta background, crop, scale to the isometric
 // footprint and write assets/buildings/<name>.png (. Runs in headless Chromium (no extra deps).
-//   node tools/ai-art/post.mjs <manifest-of-raws.json>
+//   node tools/ai-art/post.mjs <raws.json> [outDir=assets/buildings]   → also writes <outDir>/metrics.json (pre-scale bbox)
 // raws manifest: [{ "name": "hut", "src": "/path/raw.jpg", "w": 2, "h": 2 }]  (w,h = building footprint in tiles)
 import fs from "node:fs";
 import path from "node:path";
@@ -12,7 +12,8 @@ const pw = createRequire(import.meta.url)("/opt/node22/lib/node_modules/playwrig
 const TILE_W = 28;       // CONFIG.TILE_W
 const SS = 3;            // stored at 3× the zoom-1 size so zooming in stays crisp
 const list = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
-const outDir = path.join(root, "assets/buildings");
+const outDir = process.argv[3] ? path.resolve(process.argv[3]) : path.join(root, "assets/buildings");
+const metrics = {};
 fs.mkdirSync(outDir, { recursive: true });
 
 const browser = await pw.chromium.launch({ args: ["--no-sandbox"] });
@@ -55,9 +56,11 @@ for (const it of list) {
     let cur = c, cx0 = x0, cy0 = y0, cw = bw, ch = bh;
     while (cw * 0.5 > o.width) { const t = document.createElement("canvas"); t.width = Math.round(cw / 2); t.height = Math.round(ch / 2); const tx = t.getContext("2d"); tx.imageSmoothingQuality = "high"; tx.drawImage(cur, cx0, cy0, cw, ch, 0, 0, t.width, t.height); cur = t; cx0 = 0; cy0 = 0; cw = t.width; ch = t.height; }
     ox.drawImage(cur, cx0, cy0, cw, ch, 0, 0, o.width, o.height);
-    return { url: o.toDataURL("image/png"), w: o.width, h: o.height };
+    return { url: o.toDataURL("image/png"), w: o.width, h: o.height, bw, bh, area: sizes[best] / (W * H) };
   }, { b64, mime, target: Math.round(base * SS * (it.fit || 1.08)) });
   fs.writeFileSync(path.join(outDir, it.name + ".png"), Buffer.from(res.url.split(",")[1], "base64"));
+  metrics[it.name] = { bw: res.bw, bh: res.bh, area: res.area, w: res.w, h: res.h };
   console.log(it.name, res.w + "x" + res.h);
 }
+fs.writeFileSync(path.join(outDir, "metrics.json"), JSON.stringify(metrics, null, 1) + "\n");
 await browser.close();
