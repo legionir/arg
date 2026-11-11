@@ -79,8 +79,8 @@ function t_campaign_page() {
       const rows = document.querySelectorAll("#campaignList .mrow");
       must(rows.length === 10, "۱۰ ردیف مأموریت، شد " + rows.length);
       const heads = document.querySelectorAll("#campaignList .mrow-head");
-      must(heads.length === 6 && !heads[0].disabled, "اولی باز است");
-      for (let i = 1; i < 6; i++) must(heads[i].disabled === true, "ردیف " + i + " قفل است");
+      must(heads.length === 10 && !heads[0].disabled, "اولی باز است");
+      for (let i = 1; i < 10; i++) must(heads[i].disabled === true, "ردیف " + i + " قفل است");
       must(heads[0].textContent.indexOf(missionName(MISSIONS[0], getLang())) >= 0, "نام مأموریت اول در ردیف هست");
     }
     let p = campaignLoad();
