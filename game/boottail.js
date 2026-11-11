@@ -19,6 +19,10 @@ export function createBootTail({ getState, getProfile, getMenuRelabelFns, refres
     if (pni) pni.focus({ preventScroll: true });
   }
   window.__argBooted = true; // نگهبان بوت index.html: صفحه «بارگذاری نشد» دیگر لازم نیست
+  // بازی آفلاین (0.282.0): service worker ساخته tools/gen-sw.mjs؛ در حالت تست/توسعه ثبت نمی‌شود.
+  if ("serviceWorker" in navigator && /^https?:$/.test(window.location.protocol) && !/[?&](dev|test|nosw)(=|&|$)/.test(window.location.search)) {
+    navigator.serviceWorker.register("sw.js").catch(() => { /* بدون SW هم بازی کامل کار می‌کند */ });
+  }
   // ابزارهای توسعه (شمارنده تیک، موج دستی، fps، شمار ساخته/ردشده) فقط با ?dev یا ?test دیده می‌شوند.
   if (/[?&](dev|test)(=|&|$)/.test(window.location.search)) document.body.classList.add("dev");
   // نسخه انتشار از تنها منبع (فرایند انتشار را ببین)

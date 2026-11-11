@@ -38,6 +38,7 @@ const MIME = {
   ".mjs": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
@@ -187,7 +188,7 @@ function appendDesyncDump(body) {
 // «*-lib.mjs» (ایمپورت سوئیت درون‌مرورگری) سرو می‌شوند، نه اسکریپت‌های CLI.
 const PUBLIC_DIRS = new Set(["game", "styles", "assets", "data"]);
 const PUBLIC_TOOL = /^[a-z0-9-]+-lib\.mjs$/;
-const PUBLIC_FILES = new Set(["index.html", "VERSION", "favicon.ico", "robots.txt"]);
+const PUBLIC_FILES = new Set(["index.html", "VERSION", "favicon.ico", "robots.txt", "sw.js", "manifest.webmanifest"]);
 const COMPRESSIBLE = new Set([".html", ".js", ".mjs", ".css", ".json", ".svg"]);
 const gzCache = new Map(); // file -> { key, buf }
 

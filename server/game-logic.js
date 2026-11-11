@@ -1,5 +1,5 @@
 // منطق سرور بازی (ارگ) — ساخته tools/sync-server.mjs؛ دستی ویرایش نکن.
-// منبع حقیقت: index.html، <script type="text/x-server-plugin"> (خطوط 26 تا 1056).
+// منبع حقیقت: index.html، <script type="text/x-server-plugin"> (خطوط 28 تا 1058).
 // عینی‌بودن = رفتار سرور شخصی و پرچنس یکسان است.
 //
 // بارگذاری: این فایل مستقیم import نمی‌شود؛ server.mjs آن را به‌صورت متن

@@ -1,0 +1,17 @@
+{
+  "name": "ارگ — Arg",
+  "short_name": "Arg",
+  "description": "Citadel-building strategy in the Land of Seven Winds · بازی استراتژی قلعه‌سازی در سرزمین هفت‌باد",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0e13",
+  "theme_color": "#0f151c",
+  "lang": "fa",
+  "dir": "rtl",
+  "icons": [
+    { "src": "assets/ui/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "assets/ui/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

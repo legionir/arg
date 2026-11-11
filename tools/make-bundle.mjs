@@ -50,7 +50,7 @@ for (const d of ["game", "styles", "assets", "data"]) {
   if (!fs.existsSync(dir)) { console.error("[bundle] skip missing dir: " + d); continue; }
   for (const rel of walk(dir, d)) files.push({ name: rel, data: fs.readFileSync(path.join(SRC, rel)) });
 }
-for (const f of ["server/server.mjs", "server/game-logic.js", "server/package.json", "server/README.md",
+for (const f of ["sw.js", "manifest.webmanifest", "server/server.mjs", "server/game-logic.js", "server/package.json", "server/README.md",
   "tools/sync-server-lib.mjs", "tools/sync-server.mjs", "tools/desync-lib.mjs",
   "tools/desync-diff.mjs", "tools/make-bundle.mjs", "tools/zip-store-lib.mjs"]) addFile(f);
 files.push({ name: "README-SERVER.txt", data: new TextEncoder().encode(TOP_README) });
