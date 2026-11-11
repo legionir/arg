@@ -145,3 +145,6 @@ body { text-align: start; }
 /* ---- Dev-only HUD (0.279.0): hidden for players, shown with ?dev / ?test ---- */
 body:not(.dev) :is(#tickEl, #waveBtn, #fpsEl, .stat:has(#placedEl), .stat:has(#rejectedEl)) { display: none; }
 #hudMenuBtn .sb-ic, #sheetToggleBtn .sb-ic { width: 1.15rem; height: 1.15rem; vertical-align: middle; }
+
+/* ---- Tile accent (0.286.0): thin turquoise band under the top bar, echoing the citadel frieze ---- */
+#topbar { box-shadow: inset 0 -2px 0 var(--tile-line); }

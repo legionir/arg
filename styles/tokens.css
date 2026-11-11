@@ -54,6 +54,8 @@
   --gold-500: #d9a93a;
   --gold-bg: rgb(240 199 94 / 0.12);
   --gold-line: rgb(240 199 94 / 0.55);
+  --tile-400: #2aa6ab;  /* turquoise tile accent (plateau art direction) */
+  --tile-line: rgb(42 166 171 / 0.55);
   --ok:   #34d27b;
   --ok-bg: rgb(52 210 123 / 0.12);
   --ok-strong: #1f6b43;
