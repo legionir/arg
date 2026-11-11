@@ -16,6 +16,7 @@ import { hudShouldCollapse, setHudOpen, toggleHud } from "./mobilehud.js"; // ن
 import { sheetShouldOverlay, setSheetOpen, toggleSheet } from "./mobilesheet.js"; // پنل کشویی موبایل (0.224.0 — C-MOB-5) // قفل بیداری موبایل (0.223.0 — C-MOB-3)
 // سوئیت تست فقط با ?test یا فراخوانی قلاب بار می‌شود (game/testui.js) — بازیکن کد تست را نمی‌گیرد.
 import { showTests, paintTestResults, paintCompat } from "./testui.js";
+import { wireRivalCard } from "./rivalcard.js";
 import { createModals } from "./modal.js";
 import { createFlatView } from "./flatview.js";
 import { createPaletteUI } from "./paletteui.js";
@@ -1142,6 +1143,7 @@ function boot() {
   const flat = viewFrameUI.flat, frame = viewFrameUI.frame, minimapUI = viewFrameUI.minimapUI;
 
   // دم بوت (0.272.0 — C-CLN-92): استخراج مکانیکی به game/boottail.js — بدون تغییر منطق.
+  const paintRivalCard = wireRivalCard(); // کارت حریف صفحه تک‌نفره (0.281.0)
   createBootTail({ getState: () => state, getProfile: () => profile, getMenuRelabelFns, refreshPanel, setTick, assignStaff, showMenu, getMenuNavApi, $, paintCompat, saveStatus, policy, keyUI, soundUI, flat, renderer, paintSeed, paintReplayStatus, paintReplayBar, paintMp, lobby, paintMarket, paintTrain, getEditor, syncEditorPanel, edCounts, online, frame });
 
   // آزمون خودکار: ?test در URL یا فراخوانی دستی

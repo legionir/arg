@@ -106,3 +106,11 @@ input.range { flex: 1; min-width: 0; accent-color: var(--gold-400); height: 1.6r
 }
 
 .opts .input { flex: 1 1 8rem; }
+
+/* ---- Rival card on the skirmish setup page (0.281.0) ---- */
+.rival-card { display: flex; gap: var(--sp-3); align-items: center; padding: var(--sp-3); border: 1px solid var(--gold-line); border-radius: var(--r-lg); background: var(--gold-bg); }
+.rival-card img { width: 4.5rem; height: 4.5rem; flex: 0 0 auto; border-radius: var(--r-md); }
+.rival-info { min-width: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
+.rival-info b { color: var(--gold-300); font-size: var(--fs-lg); }
+.rival-info q { color: var(--text-2); font-style: italic; quotes: '«' '»'; }
+:root[lang="en"] .rival-info q { quotes: '“' '”'; }

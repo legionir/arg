@@ -4,9 +4,27 @@ import { t, withLang } from "../i18n.js";
 import { must, fresh, mpFresh, aiFreshPers } from "./fixtures.js";
 import { foeKingFor, foePanelData, isCaravanMsg, PERSONALITY_LORD } from "../foeinfo.js";
 import { UNITS } from "../combat.js";
+import { rivalCardData } from "../rivalcard.js";
 
 function foeCases() {
-  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter];
+  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card];
+}
+
+// کارت حریف صفحه راه‌اندازی (0.281.0): هر هفت فرمانروا پرتره یکتا + جمله دوزبانه دارند.
+function t_rival_card() {
+  const faces = new Set();
+  for (const k of Object.keys(CONFIG.AI.personalities)) {
+    const c = rivalCardData(k);
+    must(c.key === k && c.name.length > 0 && c.desc.length > 0, "نام/منش " + k);
+    must(c.quote.length > 8 && c.quote.indexOf("game.personality") < 0, "جمله فارسی " + k);
+    const en = withLang("en", () => rivalCardData(k));
+    must(en.quote.length > 8 && en.quote !== c.quote && en.quote.indexOf("game.personality") < 0, "جمله انگلیسی " + k);
+    must(c.face.indexOf("assets/portraits/" + k + ".svg") === 0, "پرتره " + k);
+    faces.add(c.face);
+  }
+  must(faces.size === 7, "هفت پرتره یکتا");
+  must(rivalCardData("nope").key === CONFIG.AI.defaultPersonality, "شناسه نامعتبر = پیش‌فرض");
+  return { name: "t_rival_card", pass: true, detail: "۷ فرمانروا × (نام/منش/جمله fa+en/پرتره)" };
 }
 
 function t_foe_ai_king() {

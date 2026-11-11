@@ -1398,11 +1398,12 @@ self.rpc = {
     <section class="menu-page" data-page="solo" hidden aria-labelledby="mp-solo-t">
       <header class="page-head"><button type="button" class="page-back" data-go="home" aria-label="" data-i18n-aria-label="ui.nav.back" data-i18n-title="ui.nav.back" title="بازگشت"><svg aria-hidden="true"><use href="#i-back"/></svg></button><h2 id="mp-solo-t" data-i18n="ui.nav.solo"></h2></header>
       <div class="page-body">
-        <button id="soloBtn" type="button" class="btn-cta" data-i18n="ui.menu.solo">⚔️ شروع تک‌نفره</button>
+        <button id="soloBtn" type="button" class="btn-cta" data-i18n="ui.menu.solo">شروع تک‌نفره</button>
       <div class="field-row"><label class="lbl" for="diffSel" data-i18n="ui.menu.difficulty">درجه سختی حریف:</label>
         <select id="diffSel" class="select"><option value="easy" data-i18n="ui.menu.diff.easy">آسان — یورش دیرتر و کوچک‌تر، اقتصاد حریف کندتر</option><option value="normal" data-i18n="ui.menu.diff.normal">معمولی</option><option value="hard" data-i18n="ui.menu.diff.hard">سخت — یورش زودتر و بزرگ‌تر، اقتصاد حریف تندتر</option></select></div>
       <div class="field-row"><label class="lbl" for="persSel" data-i18n="ui.menu.personality">شخصیت حریف:</label>
         <select id="persSel" class="select"><option value="artan" data-i18n="ui.menu.pers.artan">آرتان مرزبان</option></select></div>
+      <div id="rivalCard" class="rival-card" aria-live="polite"><img id="rivalFace" alt="" width="72" height="72" draggable="false"><div class="rival-info"><b id="rivalName"></b><div class="lbl" id="rivalDesc"></div><q id="rivalQuote"></q></div></div>
       <div class="field-row"><label class="lbl" for="identSel" data-i18n="ui.menu.identity">هویت (نیروهای اولیه):</label>
         <select id="identSel" class="select"><option value="none" data-i18n="ui.menu.ident.none">بدون نیروی اولیه</option><option value="crusader" data-i18n="ui.menu.ident.crusader">لشکر مرزبانی (۵ کماندار + ۷ سرباز)</option><option value="arab" data-i18n="ui.menu.ident.arab">لشکر کویر (۵ کماندار کویر + ۷ چریک)</option></select></div>
       <div class="card">
