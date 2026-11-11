@@ -246,6 +246,39 @@ export function createRenderer(canvas) {
   const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
 
   // دکور زمین (فایل؛ فقط روی تایل غیرقابل‌بازی تا با occupancy دروغ نگوید)
+  // نخل (palm=true) یا بوته گز — وکتوری، بدون اثر occupancy.
+  function drawPalm(pts, palm, h) {
+    const z = view.zoom, x = (pts[0].x + pts[2].x) / 2 + (h - 0.5) * 10 * z, y = (pts[0].y + pts[2].y) / 2 + (h - 0.5) * 4 * z;
+    ctx.beginPath();
+    ctx.ellipse(x + 3 * z, y + 1, 7 * z, 2.6 * z, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fill();
+    if (!palm) {
+      for (const [dx, dy, rr] of [[-3, -3, 4], [3, -3.5, 4.4], [0, -6, 4.6]]) {
+        ctx.beginPath();
+        ctx.arc(x + dx * z, y + dy * z, rr * z, 0, Math.PI * 2);
+        ctx.fillStyle = dy < -5 ? "#7d9a52" : "#647f42";
+        ctx.fill();
+      }
+      return;
+    }
+    const th = 17 * z, tx = x + (h - 0.5) * 5 * z, ty = y - th;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.quadraticCurveTo(x + (h - 0.5) * 2 * z, y - th * 0.5, tx, ty);
+    ctx.strokeStyle = "#7a5a34";
+    ctx.lineWidth = Math.max(1.2, 2.4 * z);
+    ctx.stroke();
+    ctx.lineWidth = Math.max(1.2, 2 * z);
+    for (const [dx, dy, col] of [[-9, 1, "#3f7d33"], [9, 1, "#356b2b"], [-7, -5, "#4c9440"], [7, -5, "#3f7d33"], [0, -8, "#57a349"], [-4, 4, "#356b2b"], [4, 4, "#2f6027"]]) {
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.quadraticCurveTo(tx + dx * 0.6 * z, ty + (dy - 4) * z, tx + dx * z, ty + dy * z);
+      ctx.strokeStyle = col;
+      ctx.stroke();
+    }
+  }
+
   function drawDecor(kind, variant, cx, cy, dw, dh) {
     const img = getSprite(`assets/environment/${kind}-${variant}.png`);
     if (!img) { tIncomplete = true; return; }
@@ -356,6 +389,16 @@ export function createRenderer(canvas) {
     ctx.ellipse(cx, cy + 2, (Math.abs(B.x - D.x) / 2) * 0.85 + 2, (Math.abs(C.y - A.y) / 2) * 0.42 + 2, 0, 0, Math.PI * 2);
     ctx.fillStyle = `rgba(0,0,0,${alpha})`;
     ctx.fill();
+  }
+
+  // نوار جان یکدست (0.288.0): پر سبز/زرد/قرمز بر پایه سلامت؛ قاب سرخ = دشمن، تیره = خودی.
+  function hpBar(bx, by, bw, bh, frac, foe) {
+    ctx.fillStyle = foe ? "#7a1410" : "rgba(0,0,0,0.78)";
+    ctx.fillRect(bx - 1, by - 1, bw + 2, bh + 2);
+    ctx.fillStyle = "rgba(20,14,8,0.85)";
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.fillStyle = frac > 0.6 ? "#3fbf5f" : frac > 0.3 ? "#e8b930" : "#e0463a";
+    ctx.fillRect(bx, by, bw * Math.max(0, Math.min(1, frac)), bh);
   }
 
   // شست‌وشوی آسیب روی صفحه بالا + ترک در آسیب سنگین
@@ -487,6 +530,147 @@ export function createRenderer(canvas) {
     ctx.stroke();
     damageWash([up(a, ph), up(b2, ph), up(c, ph), up(d, ph)], 1 - b.hp / b.maxHp, det);
     return { topY: m.y - colH - 7 * z };
+  }
+
+  // ایوان (0.288.0): طاق تیزه‌دار با قاب کاشی روی یک نما — P,Q پایه و Pt,Qt لبه بام.
+  function drawIwan(P, Q, Pt, Qt, u0, u1, vTop, tile) {
+    const fp = (u, v) => lerp(lerp(P, Q, u), lerp(Pt, Qt, u), v);
+    const um = (u0 + u1) / 2, vs = vTop * 0.62, pad = (u1 - u0) * 0.16;
+    if (tile) poly([fp(u0 - pad, 0), fp(u1 + pad, 0), fp(u1 + pad, Math.min(0.97, vTop + 0.1)), fp(u0 - pad, Math.min(0.97, vTop + 0.1))], "#2aa6ab", "rgba(0,0,0,0.35)", 1);
+    const a = fp(u0, 0), b = fp(u1, 0), a1 = fp(u0, vs), b1 = fp(u1, vs), tip = fp(um, vTop);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(a1.x, a1.y);
+    const c1 = fp(u0, vTop * 0.92), c2 = fp(u1, vTop * 0.92);
+    ctx.quadraticCurveTo(c1.x, c1.y, tip.x, tip.y);
+    ctx.quadraticCurveTo(c2.x, c2.y, b1.x, b1.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.closePath();
+    ctx.fillStyle = "#1c130b";
+    ctx.fill();
+    ctx.strokeStyle = tile ? "#f0c75e" : "rgba(0,0,0,0.5)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // شکارگاه (0.288.0): سکوی کوبیده + چادر پوستی + چارچوب خشک‌کردن پوست.
+  function drawHunterpost(b, def, det) {
+    const z = view.zoom;
+    const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
+    groundShadow(A, B, C, D, 0.2);
+    poly([A, B, C, D], shade(def.base, 18), "rgba(0,0,0,0.35)", 1);
+    const q = (u, v) => lerp(lerp(A, B, u), lerp(D, C, u), v);
+    // چادر مخروطی
+    const t0 = q(0.12, 0.42), t1 = q(0.5, 0.2), t2 = q(0.6, 0.62), t3 = q(0.22, 0.84);
+    const tm = mid(t0, t2), th = Math.max(8, 20 * z), apex = { x: tm.x, y: tm.y - th };
+    poly([t0, t3, apex], def.top, "rgba(0,0,0,0.4)", 1);
+    poly([t3, t2, apex], shade(def.top, -24), "rgba(0,0,0,0.4)", 1);
+    poly([t2, t1, apex], shade(def.top, -38), "rgba(0,0,0,0.4)", 1);
+    const e0 = lerp(t3, t2, 0.36), e1 = lerp(t3, t2, 0.64);
+    poly([e0, e1, lerp(mid(e0, e1), apex, 0.5)], "#1c130b", null, 0);
+    line(apex, { x: apex.x - 2 * z, y: apex.y - 4 * z }, def.dark, Math.max(1, 1.4 * z));
+    line(apex, { x: apex.x + 2 * z, y: apex.y - 4 * z }, def.dark, Math.max(1, 1.4 * z));
+    // چارچوب پوست
+    const r0 = q(0.7, 0.72), r1 = q(0.92, 0.5), rh = Math.max(6, 14 * z);
+    const up = (p, h) => ({ x: p.x, y: p.y - h });
+    line(r0, up(r0, rh), def.dark, Math.max(1.2, 1.8 * z));
+    line(r1, up(r1, rh), def.dark, Math.max(1.2, 1.8 * z));
+    line(up(r0, rh), up(r1, rh), def.dark, Math.max(1.2, 1.8 * z));
+    poly([up(lerp(r0, r1, 0.15), rh * 0.92), up(lerp(r0, r1, 0.85), rh * 0.92), up(lerp(r0, r1, 0.75), rh * 0.3), up(lerp(r0, r1, 0.25), rh * 0.3)], "#b0703c", "rgba(0,0,0,0.4)", 1);
+    if (det) { // اجاق
+      const h = q(0.82, 0.2);
+      ctx.beginPath();
+      ctx.ellipse(h.x, h.y, 3.2 * z, 1.6 * z, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "#3a2c1c";
+      ctx.fill();
+    }
+    damageWash([A, B, C, D], 1 - b.hp / b.maxHp, det);
+    return { topY: Math.min(apex.y - 4 * z, r1.y - rh) };
+  }
+
+  // گاوداری (0.288.0): آغل نرده‌ای + سایه‌بان خشتی + گاو شیرده و سطل.
+  function drawDairy(b, def, det) {
+    const z = view.zoom;
+    const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
+    groundShadow(A, B, C, D, 0.22);
+    poly([A, B, C, D], "#b9a06c", "rgba(0,0,0,0.3)", 1);
+    const q = (u, v) => lerp(lerp(A, B, u), lerp(D, C, u), v);
+    const up = (p, h) => ({ x: p.x, y: p.y - h });
+    // سایه‌بان در سوی دور (نیمه A-B)
+    const s0 = q(0.04, 0.04), s1 = q(0.62, 0.04), s2 = q(0.62, 0.5), s3 = q(0.04, 0.5), sh = Math.max(7, 17 * z);
+    poly([s3, s2, up(s2, sh), up(s3, sh)], def.dark, "rgba(0,0,0,0.4)", 1);
+    poly([s1, s2, up(s2, sh), up(s1, sh)], shade(def.base, -22), "rgba(0,0,0,0.4)", 1);
+    drawIwan(s3, s2, up(s3, sh), up(s2, sh), 0.3, 0.7, 0.78, false);
+    poly([up(s0, sh), up(s1, sh), up(s2, sh), up(s3, sh)], def.top, "rgba(0,0,0,0.4)", 1);
+    // نرده
+    const fence = [[q(0.62, 0.04), B], [B, C], [C, D], [D, q(0.04, 0.5)]];
+    for (const [p, r] of fence) {
+      line(up(p, 2 * z), up(r, 2 * z), "#6b4a2a", Math.max(1, 1.5 * z));
+      line(up(p, 5 * z), up(r, 5 * z), "#6b4a2a", Math.max(1, 1.5 * z));
+    }
+    for (const p of [B, C, D, lerp(B, C, 0.5), lerp(C, D, 0.5)]) line(p, up(p, 6.5 * z), "#6b4a2a", Math.max(1.5, 2 * z));
+    if (det) {
+      const o = q(0.6, 0.76);
+      drawOx(o.x, o.y, z * 0.95, ((b.id || 0) % 2) === 0);
+      const pl = q(0.86, 0.6);
+      poly([{ x: pl.x - 2.2 * z, y: pl.y - 4 * z }, { x: pl.x + 2.2 * z, y: pl.y - 4 * z }, { x: pl.x + 1.7 * z, y: pl.y }, { x: pl.x - 1.7 * z, y: pl.y }], "#e8e0cc", "rgba(0,0,0,0.45)", 1);
+    }
+    damageWash([A, B, C, D], 1 - b.hp / b.maxHp, det);
+    return { topY: s0.y - sh };
+  }
+
+  // دار (0.288.0): سکوی چوبی + تیر و بازو و طناب.
+  function drawGallows(b, def, det) {
+    const z = view.zoom;
+    const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
+    groundShadow(A, B, C, D, 0.22);
+    const q = (u, v) => lerp(lerp(A, B, u), lerp(D, C, u), v);
+    const up = (p, h) => ({ x: p.x, y: p.y - h });
+    const a = q(0.12, 0.12), b2 = q(0.88, 0.12), c = q(0.88, 0.88), d = q(0.12, 0.88), ph = Math.max(2, 5 * z);
+    poly([d, c, up(c, ph), up(d, ph)], def.dark, "rgba(0,0,0,0.4)", 1);
+    poly([b2, c, up(c, ph), up(b2, ph)], shade(def.base, -22), "rgba(0,0,0,0.4)", 1);
+    poly([up(a, ph), up(b2, ph), up(c, ph), up(d, ph)], def.top, "rgba(0,0,0,0.4)", 1);
+    if (det) for (const t of [0.33, 0.66]) line(up(lerp(a, b2, t), ph), up(lerp(d, c, t), ph), "rgba(0,0,0,0.2)", 1);
+    const post = up(q(0.3, 0.4), ph), H = Math.max(10, def.height * 1.5 * z), w = Math.max(1.6, 2.6 * z);
+    const top = up(post, H), arm = { x: top.x + 9 * z, y: top.y + 4.5 * z };
+    line(post, top, def.dark, w);
+    line(top, arm, def.dark, w);
+    line(up(post, H * 0.72), lerp(top, arm, 0.45), def.dark, Math.max(1, 1.6 * z));
+    line(arm, { x: arm.x, y: arm.y + H * 0.34 }, "#d9c48a", Math.max(1, 1.1 * z));
+    ctx.beginPath();
+    ctx.ellipse(arm.x, arm.y + H * 0.34 + 2.4 * z, 1.7 * z, 2.4 * z, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = "#d9c48a";
+    ctx.lineWidth = Math.max(1, 1.1 * z);
+    ctx.stroke();
+    damageWash([up(a, ph), up(b2, ph), up(c, ph), up(d, ph)], 1 - b.hp / b.maxHp, det);
+    return { topY: top.y };
+  }
+
+  // سیاه‌چال (0.288.0): بلوک سنگی کوتاه با در میله‌دار و دریچه آهنی روی بام.
+  function drawDungeon(b, def, det) {
+    const z = view.zoom;
+    const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
+    groundShadow(A, B, C, D, 0.3);
+    const dy = -def.height * z;
+    const At = { x: A.x, y: A.y + dy }, Bt = { x: B.x, y: B.y + dy }, Ct = { x: C.x, y: C.y + dy }, Dt = { x: D.x, y: D.y + dy };
+    poly([D, C, Ct, Dt], def.dark, "rgba(0,0,0,0.45)", 1);
+    poly([B, C, Ct, Bt], shade(def.base, -22), "rgba(0,0,0,0.45)", 1);
+    if (det) for (const t of [0.35, 0.7]) { // رج سنگ
+      line(lerp(D, Dt, t), lerp(C, Ct, t), "rgba(0,0,0,0.18)", 1);
+      line(lerp(B, Bt, t), lerp(C, Ct, t), "rgba(0,0,0,0.18)", 1);
+    }
+    drawIwan(B, C, Bt, Ct, 0.34, 0.66, 0.82, false);
+    for (const t of [0.42, 0.5, 0.58]) line(lerp(B, C, t), lerp(lerp(B, C, t), lerp(Bt, Ct, t), 0.62), "#9aa0a6", Math.max(1, 1.1 * z));
+    poly([At, Bt, Ct, Dt], def.top, "rgba(0,0,0,0.45)", 1);
+    const ins = (u, v) => lerp(lerp(At, Bt, u), lerp(Dt, Ct, u), v);
+    const g = [ins(0.3, 0.3), ins(0.7, 0.3), ins(0.7, 0.7), ins(0.3, 0.7)];
+    poly(g, "#17110b", "rgba(0,0,0,0.6)", 1);
+    for (const t of [0.25, 0.5, 0.75]) {
+      line(lerp(g[0], g[1], t), lerp(g[3], g[2], t), "#9aa0a6", Math.max(1, 1.2 * z));
+      line(lerp(g[0], g[3], t), lerp(g[1], g[2], t), "#9aa0a6", Math.max(1, 1.2 * z));
+    }
+    damageWash([At, Bt, Ct, Dt], 1 - b.hp / b.maxHp, det);
+    return { topY: At.y };
   }
 
   function drawHut(b, def, det) {
@@ -689,9 +873,8 @@ export function createRenderer(canvas) {
     poly([D, C, Ct, Dt], def.dark, "rgba(0,0,0,0.45)", 1);
     poly([B, C, Ct, Bt], shade(def.base, -22), "rgba(0,0,0,0.45)", 1);
     // درِ بزرگ روی نمای راست
-    const d0 = lerp(B, C, 0.30), d1 = lerp(B, C, 0.70);
-    const dh = Math.min(15 * view.zoom, (C.y - Ct.y) * 0.85);
-    poly([d0, d1, { x: d1.x, y: d1.y - dh }, { x: d0.x, y: d0.y - dh }], "#2e2118", null, 0);
+    drawIwan(B, C, Bt, Ct, 0.32, 0.68, 0.8, true);
+    tileBand(D, Dt, C, Ct, 0.88);
     // شمشیرهای متقاطع روی نمای چپ
     const s0 = lerp(lerp(D, Dt, 0.62), lerp(C, Ct, 0.62), 0.30);
     const s1 = lerp(lerp(D, Dt, 0.30), lerp(C, Ct, 0.30), 0.70);
@@ -2113,6 +2296,10 @@ export function createRenderer(canvas) {
     };
     opening(B, C, Bt, Ct);
     opening(D, C, Dt, Ct);
+    for (const [P, Pt] of [[B, Bt], [D, Dt]]) { // سردر کاشی (0.288.0)
+      tileBand(P, Pt, C, Ct, 0.8);
+      line(lerp(P, Pt, 0.92), lerp(C, Ct, 0.92), "#f0c75e", Math.max(1, 1.2 * view.zoom));
+    }
     poly([At, Bt, Ct, Dt], def.top, "rgba(0,0,0,0.45)", 1);
     const mc = mid(At, Ct);
     const ridgeW = Math.max(3, 7 * view.zoom);
@@ -2186,6 +2373,10 @@ export function createRenderer(canvas) {
     else if (b.type === "keep" || b.type === "stonekeep") topY = drawKeep(b, def, tick, det).topY;
     else if (b.type === "orchard" || b.type === "garden") topY = drawGrove(b, def, det).topY;
     else if (b.type === "statue") topY = drawStatue(b, def, det).topY;
+    else if (b.type === "hunterpost") topY = drawHunterpost(b, def, det).topY;
+    else if (b.type === "dairy") topY = drawDairy(b, def, det).topY;
+    else if (b.type === "gallows") topY = drawGallows(b, def, det).topY;
+    else if (b.type === "dungeon") topY = drawDungeon(b, def, det).topY;
     else if (b.type === "woodcutter") topY = drawWoodcutter(b, def, det).topY;
     else if (b.type === "quarry") topY = drawQuarry(b, def, det, oxAt(b, state)).topY;
     else if (b.type === "oxtether") topY = drawOxtether(b, def, det).topY;
@@ -2248,6 +2439,13 @@ export function createRenderer(canvas) {
       ctx.stroke();
       }
       ctx.restore();
+    }
+    // نوار جان بنا (0.288.0): فقط بنای آسیب‌دیده‌ی تکمیل‌شده، در زوم کافی.
+    if (!(b.buildLeft > 0) && !b.destroyed && b.hp < b.maxHp && view.zoom >= 0.45 && real.w * real.h > 1) {
+      const bw = Math.max(16, 14 * (b.w + b.h) * 0.5 * view.zoom);
+      const cx = (cs(b.c, b.r).x + cs(b.c + b.w, b.r + b.h).x) / 2;
+      const ow = b.owner == null ? 0 : b.owner;
+      hpBar(cx - bw / 2, topY - 8, bw, 4, b.hp / b.maxHp, ow === CONFIG.AI.owner || ow === 9);
     }
     // شعله آتش (0.148.0 — §۱۸.۴): بنای در حال سوختن شعله سوسوزن می‌گیرد
     // (در نمای تخت هم — بالای ردپا؛ نمایشیِ محض).
@@ -2414,10 +2612,7 @@ export function createRenderer(canvas) {
       const bh = view.zoom >= 0.7 ? 4 : 3;
       const bx = p.x - bw / 2, by = p.y - rad * 0.4 - rad - 6;
       hpTop = by;
-      ctx.fillStyle = "rgba(0,0,0,0.7)";
-      ctx.fillRect(bx, by, bw, bh);
-      ctx.fillStyle = u.side === "player" ? "#2ecc71" : "#e74c3c";
-      ctx.fillRect(bx, by, bw * frac, bh);
+      hpBar(bx, by, bw, bh, frac, u.side !== "player");
     }
     // تاج ارباب (0.22.0): سه‌دندانه طلایی بالای سر — پس از نوار HP تا زیرش نماند
     if (u.type === "lord") {
@@ -2563,10 +2758,7 @@ export function createRenderer(canvas) {
       const bw = Math.min(26, Math.max(9, rad * 2.6));
       const bh = view.zoom >= 0.7 ? 4 : 3;
       const bx = p.x - bw / 2, by = p.y - 24 * z - 5;
-      ctx.fillStyle = "rgba(0,0,0,0.7)";
-      ctx.fillRect(bx, by, bw, bh);
-      ctx.fillStyle = u.side === "player" ? "#2ecc71" : "#e74c3c";
-      ctx.fillRect(bx, by, bw * frac, bh);
+      hpBar(bx, by, bw, bh, frac, u.side !== "player");
     }
     // فلش اصابت
     const age = tick - u.flashTick;
@@ -2617,10 +2809,7 @@ export function createRenderer(canvas) {
       const bw = Math.min(26, Math.max(9, rad * 2.6));
       const bh = view.zoom >= 0.7 ? 4 : 3;
       const bx = p.x - bw / 2, by = p.y - S * (25 / 32) - 5;
-      ctx.fillStyle = "rgba(0,0,0,0.7)";
-      ctx.fillRect(bx, by, bw, bh);
-      ctx.fillStyle = u.side === "player" ? "#2ecc71" : "#e74c3c";
-      ctx.fillRect(bx, by, bw * frac, bh);
+      hpBar(bx, by, bw, bh, frac, u.side !== "player");
     }
     // فلش اصابت (از flashTick واقعی)
     const age = tick - u.flashTick;
@@ -3014,6 +3203,21 @@ export function createRenderer(canvas) {
         poly(pts, null, gridStroke, 1);
       }
     }
+    // نخل و گز کنار آب (0.288.0): فقط نما روی چمنِ تا دو خانه از آب؛ کوتاه تا بنا را نپوشاند.
+    const palmSeen = new Set();
+    for (let i = 0; i < waterList.length; i += 2) {
+      const wc = waterList[i], wr = waterList[i + 1];
+      for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) {
+        const c = wc + dc, r = wr + dr;
+        if (tileAt(terrain, GW, GH, c, r) !== T_GRASS) continue;
+        const hv = hash2(c * 11 + 5, r * 13 + 7);
+        if (hv > 0.16) continue;
+        const key = r * GW + c;
+        if (palmSeen.has(key)) continue;
+        palmSeen.add(key);
+        drawPalm(diamond(c, r), hv < 0.09, hash2(r, c));
+      }
+    }
     // کف ساحل فقط روی آب‌ها (نه کل ۱۰۲۴ خانه) + نیزار لبه ساحل
     for (let i = 0; i < waterList.length; i += 2) {
       const c = waterList[i], r = waterList[i + 1];
@@ -3139,15 +3343,28 @@ export function createRenderer(canvas) {
       if ((state.mp && state.mp.enabled) || (d.b && ow === CONFIG.AI.owner)) {
         const cols = ["#4d9de0", "#e05c4d", "#58b368", "#e0b44d"];
         const pt = d.b ? cs(d.b.c + d.b.w / 2, d.b.r + d.b.h / 2) : cs(d.u.x, d.u.r);
+        const tcol = (ow === CONFIG.AI.owner) ? "#e05c4d" : (cols[ow] || "#999");
+        if (d.b && !view.flat) { // نوار رنگ تیم پای دو نمای جلو (0.288.0)
+          const b0 = d.b, P = cs(b0.c + b0.w, b0.r), Q = cs(b0.c + b0.w, b0.r + b0.h), R = cs(b0.c, b0.r + b0.h);
+          const lw = Math.max(2, 3 * view.zoom);
+          ctx.save();
+          ctx.lineCap = "round";
+          for (const [m, n] of [[P, Q], [R, Q]]) {
+            line({ x: m.x, y: m.y - lw * 0.5 }, { x: n.x, y: n.y - lw * 0.5 }, "rgba(0,0,0,0.55)", lw + 2);
+            line({ x: m.x, y: m.y - lw * 0.5 }, { x: n.x, y: n.y - lw * 0.5 }, tcol, lw);
+          }
+          ctx.restore();
+        } else {
         ctx.save();
         ctx.beginPath();
         ctx.arc(pt.x, pt.y - Math.max(10, 16 * view.zoom), Math.max(3, 4 * view.zoom), 0, Math.PI * 2);
-        ctx.fillStyle = (ow === CONFIG.AI.owner) ? "#e05c4d" : (cols[ow] || "#999");
+        ctx.fillStyle = tcol;
         ctx.fill();
         ctx.lineWidth = 1.5;
         ctx.strokeStyle = "rgba(0,0,0,0.6)";
         ctx.stroke();
         ctx.restore();
+        }
       }
       // حلقه انتخاب یگان (طلایی چشمک‌زن روی زمین) — یکتا یا مجموعه (0.16.0)
       if (d.u && !d.u.dead && (Array.isArray(selId) ? selId.includes(d.u.id) : d.u.id === selId)) {
