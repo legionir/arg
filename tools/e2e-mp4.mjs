@@ -81,7 +81,7 @@ log("hash logs",logs.map(l=>l.length),"compared",compared,"mismatch",bad.length,
 const fin=await info(); log("final",JSON.stringify(fin.map(x=>({slot:x.slot,tick:x.tick,alive:x.alive,over:x.over,winner:x.winner,desync:x.desync}))));
 log("banners",JSON.stringify(await Promise.all(pages.map(p=>p.evaluate(()=>({victory:!document.getElementById("victoryBanner").hidden,defeat:!document.getElementById("defeatBanner").hidden}))))));
 await pages[0].screenshot({path:S+"/mp-end.png"});
-if(!fin[0].over){ for(const i of [1,2,3]){ await ctxs[i].close(); await sleep(1500);} await sleep(2500);
+if(!fin[0].over){ for(const i of [1,2,3]){ await pages[i].evaluate(()=>window.__slice01.lobby.leave()); await sleep(1500);} /* خروج عمدی = واگذاری اسلات؛ قطع اتصال اسلات را برای اتصال مجدد نگه می‌دارد (0.290.0) */ await sleep(2500);
   log("after others left:",JSON.stringify(await pages[0].evaluate(()=>{const s=window.__slice01.state;return{alive:s.mpres.map(x=>x.alive?1:0).join(""),over:s.mp.over,winner:s.mp.winner,victory:!document.getElementById("victoryBanner").hidden};})));
   await pages[0].screenshot({path:S+"/mp-victory.png"}); }
 log("errors",JSON.stringify([...new Set(errs)]));
