@@ -1,6 +1,13 @@
 // واژگان رابط ایستا (index.html) — فارسی مرجع، انگلیسی ترجمه.
 export default {
   fa: {
+  "ui.welcome.title": "به هفت‌باد خوش آمدی، مرزبان",
+  "ui.welcome.story": "این واحه حالا مال توست: یک ارگ، مشتی مردم و رقیبی که در گوشه‌ی دیگر نقشه نشسته است.",
+  "ui.welcome.s1": "از نوار پایین بنا انتخاب کن و روی زمین بگذار؛ اول چوب‌بری و مزرعه.",
+  "ui.welcome.s2": "خانه خشتی بساز تا مردم بیشتری بیایند و محبوبیت را بالای ۵۰ نگه دار.",
+  "ui.welcome.s3": "سربازخانه و برج بساز؛ رقیب دیر یا زود می‌تازد.",
+  "ui.welcome.controls": "درگ = جابه‌جایی نقشه • چرخ موس یا دو انگشت = زوم • نوار زردِ «هدف بعدی» همیشه قدم بعد را می‌گوید.",
+  "ui.welcome.ok": "بزن بریم",
   "ui.end.menu": "بازگشت به منو",
   "ui.end.time": "زمان نبرد",
   "ui.end.buildings": "بناهای سرپا",
@@ -288,6 +295,13 @@ export default {
   "app.title": "ارگ — Arg"
 },
   en: {
+  "ui.welcome.title": "Welcome to the Seven Winds, warden",
+  "ui.welcome.story": "This oasis is yours now: one citadel, a handful of people, and a rival settled in the far corner of the map.",
+  "ui.welcome.s1": "Pick a building from the bottom bar and place it on the ground; start with a woodcutter and a farm.",
+  "ui.welcome.s2": "Build adobe houses so more people arrive, and keep popularity above 50.",
+  "ui.welcome.s3": "Build a barracks and towers; sooner or later the rival will raid.",
+  "ui.welcome.controls": "Drag = pan the map • mouse wheel or pinch = zoom • the yellow “Next goal” bar always tells you the next step.",
+  "ui.welcome.ok": "Let's go",
   "ui.end.menu": "Back to menu",
   "ui.end.time": "Battle time",
   "ui.end.buildings": "Buildings standing",

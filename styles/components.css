@@ -201,3 +201,12 @@ label.lbl { margin: 0; white-space: nowrap; }
 .end-stats li { display: flex; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-1) var(--sp-2); border-block-end: 1px solid var(--line-1); font-size: var(--fs-sm); color: var(--text-3); }
 .end-stats b { color: var(--text-1); font-variant-numeric: tabular-nums; }
 .end-actions { display: flex; gap: var(--sp-2); justify-content: center; flex-wrap: wrap; }
+
+/* ---- First-battle welcome card (0.284.0) ---- */
+#welcomeCard { position: fixed; inset: 0; z-index: var(--z-banner); display: flex; align-items: center; justify-content: center; background: var(--scrim); padding: var(--sp-4); }
+#welcomeCard[hidden] { display: none; }
+.welcome-box { max-width: 30rem; background: var(--bg-2); border: 1px solid var(--gold-line); border-radius: var(--r-lg); padding: var(--sp-5); box-shadow: var(--shadow-3); animation: rise var(--t-med) var(--ease); }
+.welcome-box h2 { margin: 0 0 var(--sp-3); color: var(--gold-400); font-size: var(--fs-xl); }
+.welcome-box p { margin: 0 0 var(--sp-3); line-height: var(--lh-base); color: var(--text-2); }
+.welcome-box ol { margin: 0 0 var(--sp-3); padding-inline-start: 1.4rem; display: grid; gap: var(--sp-2); color: var(--text-1); line-height: var(--lh-base); }
+.welcome-box .btn-cta { width: 100%; }

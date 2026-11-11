@@ -6,9 +6,10 @@ import { foeKingFor, foePanelData, isCaravanMsg, PERSONALITY_LORD } from "../foe
 import { UNITS } from "../combat.js";
 import { rivalCardData } from "../rivalcard.js";
 import { endSummary, endSummaryHTML } from "../endsummary.js";
+import { shouldWelcome, WELCOME_KEY } from "../welcome.js";
 
 function foeCases() {
-  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary];
+  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary, t_welcome];
 }
 
 // کارت حریف صفحه راه‌اندازی (0.281.0): هر هفت فرمانروا پرتره یکتا + جمله دوزبانه دارند.
@@ -39,6 +40,18 @@ function t_end_summary() {
   must(s.units >= 0 && s.popularity >= 0, "اعداد نامنفی");
   must((endSummaryHTML(state, 0).match(/<li>/g) || []).length === 5, "پنج ردیف");
   return { name: "t_end_summary", pass: true, detail: "ساعت + شمارش خودی + ۵ ردیف" };
+}
+
+// خوش‌آمد نخستین نبرد (0.284.0): فقط بار اول، هرگز در ?test، خطای حافظه = نمایش نده.
+function t_welcome() {
+  must(shouldWelcome(() => null, "") === true, "بار اول نشان بده");
+  must(shouldWelcome((k) => (k === WELCOME_KEY ? "1" : null), "") === false, "دیده‌شده = نه");
+  must(shouldWelcome(() => null, "?lang=fa&test") === false, "در آزمون نه");
+  must(shouldWelcome(() => { throw new Error("x"); }, "") === false, "حافظه خراب = نه");
+  for (const k of ["title", "story", "s1", "s2", "s3", "controls", "ok"]) {
+    must(t("ui.welcome." + k).indexOf("ui.welcome") < 0 && withLang("en", () => t("ui.welcome." + k)) !== t("ui.welcome." + k), "متن دوزبانه " + k);
+  }
+  return { name: "t_welcome", pass: true, detail: "گیت نمایش + ۷ متن دوزبانه" };
 }
 
 function t_foe_ai_king() {

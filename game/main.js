@@ -17,6 +17,7 @@ import { sheetShouldOverlay, setSheetOpen, toggleSheet } from "./mobilesheet.js"
 // سوئیت تست فقط با ?test یا فراخوانی قلاب بار می‌شود (game/testui.js) — بازیکن کد تست را نمی‌گیرد.
 import { showTests, paintTestResults, paintCompat } from "./testui.js";
 import { wireRivalCard } from "./rivalcard.js";
+import { wireWelcome } from "./welcome.js";
 import { createModals } from "./modal.js";
 import { createFlatView } from "./flatview.js";
 import { createPaletteUI } from "./paletteui.js";
@@ -1144,6 +1145,7 @@ function boot() {
 
   // دم بوت (0.272.0 — C-CLN-92): استخراج مکانیکی به game/boottail.js — بدون تغییر منطق.
   for (const eb of document.querySelectorAll(".end-menu")) eb.addEventListener("click", () => { const mb = $("menuBtn"); if (mb) mb.click(); }); // بنر پایان → منو (0.283.0)
+  wireWelcome(); // کارت خوش‌آمد نخستین نبرد (0.284.0)
   const paintRivalCard = wireRivalCard(); // کارت حریف صفحه تک‌نفره (0.281.0)
   createBootTail({ getState: () => state, getProfile: () => profile, getMenuRelabelFns, refreshPanel, setTick, assignStaff, showMenu, getMenuNavApi, $, paintCompat, saveStatus, policy, keyUI, soundUI, flat, renderer, paintSeed, paintReplayStatus, paintReplayBar, paintMp, lobby, paintMarket, paintTrain, getEditor, syncEditorPanel, edCounts, online, frame });
 
