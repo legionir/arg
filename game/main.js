@@ -14,7 +14,7 @@ import { initMpLobby, validRoomPassword, roomRowHTML, liveRowHTML, myGameRowHTML
 import { ensureWakeLock, releaseWakeLock } from "./wakelock.js";
 import { hudShouldCollapse, setHudOpen, toggleHud } from "./mobilehud.js"; // نوار جمع‌شونده موبایل (0.224.0 — C-MOB-4)
 import { sheetShouldOverlay, setSheetOpen, toggleSheet } from "./mobilesheet.js"; // پنل کشویی موبایل (0.224.0 — C-MOB-5) // قفل بیداری موبایل (0.223.0 — C-MOB-3)
-import { runAllTests, runIdbTests } from "./tests.js";
+// سوئیت تست فقط با ?test یا فراخوانی قلاب بار می‌شود (game/testui.js) — بازیکن کد تست را نمی‌گیرد.
 import { showTests, paintTestResults, paintCompat } from "./testui.js";
 import { createModals } from "./modal.js";
 import { createFlatView } from "./flatview.js";

@@ -38,7 +38,7 @@ function t_mission_clock() {
 }
 
 function t_campaign_catalog() {
-  must(Array.isArray(MISSIONS) && MISSIONS.length === 6, "کاتالوگ ۶ مأموریت است");
+  must(Array.isArray(MISSIONS) && MISSIONS.length === 10, "کاتالوگ ۶ مأموریت است");
   must(validateMissionFile({ missions: MISSIONS }).length === 0, "فایل کاتالوگ پاک است");
   const keys = new Set(), seeds = new Set();
   const diffs = Object.keys(CONFIG.AI.difficulties);
@@ -77,7 +77,7 @@ function t_campaign_page() {
     if (hasDOM) {
       window.__slice01.mission.paint();
       const rows = document.querySelectorAll("#campaignList .mrow");
-      must(rows.length === 6, "۶ ردیف مأموریت، شد " + rows.length);
+      must(rows.length === 10, "۱۰ ردیف مأموریت، شد " + rows.length);
       const heads = document.querySelectorAll("#campaignList .mrow-head");
       must(heads.length === 6 && !heads[0].disabled, "اولی باز است");
       for (let i = 1; i < 6; i++) must(heads[i].disabled === true, "ردیف " + i + " قفل است");
@@ -271,7 +271,7 @@ function t_mission_validate() {
   for (let i = 0; i < bads.length; i++) {
     must(validateMission(bads[i]).length > 0, `سند خراب ${i} باید رد شود`);
   }
-  must(MISSIONS.length === 6, "کاتالوگ shipped شش مأموریت است (0.225.0 — فاز ۲)");
+  must(MISSIONS.length === 10, "کاتالوگ shipped شش مأموریت است (0.225.0 — فاز ۲)");
   return { name: "اعتبارسنجی مأموریت", pass: true, detail: `نمونه پاک + ${bads.length} رد + کاتالوگ ۶تایی` };
 }
 

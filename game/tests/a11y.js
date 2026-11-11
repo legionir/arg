@@ -474,7 +474,7 @@ function t_lose_row128() {
   must(r2.unit.dead && !g.state.defeated, "در MP شکست سراسری نیست");
   must(g.state.events.some((e) => typeof e === "string" && e.indexOf("بازیکن 1") >= 0), "رویداد lordDeadMp ثبت شد");
   must(!("timeLimit" in f.state) && !("timeout" in f.state), "میدان زمان در state نیست");
-  must(MISSIONS.length === 6, "کاتالوگ ۶ مأموریت است (0.225.0 — فاز ۲)");
+  must(MISSIONS.length === 10, "کاتالوگ ۶ مأموریت است (0.225.0 — فاز ۲)");
   must(!MISSION_KINDS.some((k) => /time/i.test(k)), "گونه زمان‌دار در مأموریت نیست");
   if (typeof document === "undefined") return { name: "باخت ارباب (128)", pass: true, detail: "سولو/MP + زمان بی‌مصداق؛ بدون DOM رد شد" };
   must(!!document.getElementById("defeatBanner") && !!document.getElementById("defeatRestartBtn"), "بنر و دکمه شکست هستند");
@@ -1328,7 +1328,7 @@ function t_startres_row1107() {
 // هست ولی سیم‌کشی نشده (سند missions.js: محتوا پارک). قانون پایان در بند 126
 // پین شده. خالص + پروب DOM.
 function t_objectives_row124() {
-  must(Array.isArray(MISSIONS) && MISSIONS.length === 6, "کاتالوگ ۶ مأموریت کمپین است");
+  must(Array.isArray(MISSIONS) && MISSIONS.length === 10, "کاتالوگ ۶ مأموریت کمپین است");
   const doc = { key: "k124", name: "ن", objectives: [
     { id: "a", kind: "haveBuilding", type: "hut", count: 1 },
     { id: "b", kind: "tick", at: 10 },
@@ -1936,7 +1936,7 @@ function t_allyorders_row739() {
 // مأموریت و دشواری فزاینده نیست — MISSIONS شش‌تایی skirmish است (0.225.0؛ نه Extreme)؛ نه میدان campaign در
 // state، نه شمار مأموریت/درجه سختی کمپین در sim. خالص و هدلس.
 function t_extcamp_row767() {
-  must(MISSIONS.length === 6, "کاتالوگ ۶ مأموریت skirmish است (نه Extreme)");
+  must(MISSIONS.length === 10, "کاتالوگ ۶ مأموریت skirmish است (نه Extreme)");
   const st = createState();
   for (const k of ["campaign", "extremeCampaign", "campaignMissions", "campaignStep", "missionIndex"]) {
     must(st[k] === undefined, "state نباید " + k + " داشته باشد");
@@ -2013,7 +2013,7 @@ function t_extai8_row771() {
 // MISSIONS شش‌تایی کمپین (0.225.0) + نه میدان trail در state + نه صفحه trail در MENU_PAGES.
 // والد: جزئیات در 81-84 همین نسخه. بدون کد محصول تازه.
 function t_crtrail_row80() {
-  must(MISSIONS.length === 6, "کاتالوگ ۶ مأموریت کمپین است (نه زنجیره Trail)");
+  must(MISSIONS.length === 10, "کاتالوگ ۶ مأموریت کمپین است (نه زنجیره Trail)");
   const st = createState();
   for (const k of ["trail", "trailStep", "trailGames", "trailProgress", "trailIndex"]) {
     must(st[k] === undefined, "state نباید " + k + " داشته باشد");
@@ -2084,7 +2084,7 @@ function t_traildate_row84() {
 // ۴ کمپین دفترچه نیست ولی کمپین ۶مأموریتی shipped است؛ نه میدان campaign در state؛
 // صفحه کمپین در MENU_PAGES هست. والد: جزئیات در 92-95 همین نسخه.
 function t_hcampaign_row91() {
-  must(Array.isArray(MISSIONS) && MISSIONS.length === 6, "کاتالوگ ۶ مأموریت کمپین است");
+  must(Array.isArray(MISSIONS) && MISSIONS.length === 10, "کاتالوگ ۶ مأموریت کمپین است");
   const st = createState();
   for (const k of ["campaign", "campaigns", "historicalCampaign", "campaignMissions", "campaignStep"]) {
     must(st[k] === undefined, "state نباید " + k + " داشته باشد");
@@ -2118,7 +2118,7 @@ function t_calltoarms_row92() {
 function t_saladinconq_row93() {
   must(validIdentity("arab") === "arab", "هویت عرب تک‌بازی هست");
   must(aiPersonality({ personality: "azarm" }) === CONFIG.AI.personalities.azarm, "صلاح‌الدین شخصیت تک‌بازی است");
-  must(MISSIONS.length === 6, "کمپین ۶ مأموریت است (صلاح‌الدین: شخصیت + مأموریت)");
+  must(MISSIONS.length === 10, "کمپین ۶ مأموریت است (صلاح‌الدین: شخصیت + مأموریت)");
   const st = createState();
   for (const k of ["saladinsConquest", "arabCampaign", "commandArabs", "campaign"]) {
     must(st[k] === undefined, "state نباید " + k + " داشته باشد");
@@ -2135,7 +2135,7 @@ function t_kingscrusade_row94() {
   for (const k of ["kingsCrusade", "europeanKings", "kings", "escortKings", "campaign"]) {
     must(st[k] === undefined, "state نباید " + k + " داشته باشد");
   }
-  must(MISSIONS.length === 6, "کمپین ۶ مأموریت است");
+  must(MISSIONS.length === 10, "کمپین ۶ مأموریت است");
   return { name: "جنگ پادشاهان (94)", pass: true, detail: "بی‌پادشاه/کمپین ۶تایی" };
 }
 
@@ -2277,7 +2277,7 @@ function t_roundtable_row88() {
 // ۶ مأموریت زنجیره‌ای با قفل‌گشایی (0.225.0 — نه Trail/Extreme، نه ست تألیفی جدا)؛
 // شمار کمپین در sim نیست. متمایز از 91 (۴ کمپین تاریخی دفترچه). خالص و هدلس.
 function t_campcatalog_row1179() {
-  must(MISSIONS.length === 6, "کاتالوگ ۶ مأموریت زنجیره‌ای است");
+  must(MISSIONS.length === 10, "کاتالوگ ۶ مأموریت زنجیره‌ای است");
   const st = createState();
   for (const k of ["campaigns", "campaignCatalog", "trailCount", "extremeCount", "ecoMissions", "invasionMissions", "skirmishMissions"]) {
     must(st[k] === undefined, "state نباید " + k + " داشته باشد");

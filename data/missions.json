@@ -4,8 +4,10 @@
       "key": "first-steps",
       "name": "نخستین خشت",
       "nameEn": "The First Brick",
-      "brief": "مردم واحه سرپناه می‌خواهند: دو خانه خشتی بساز و تا تیک ۳۰۰ دوام بیاور.",
-      "briefEn": "The oasis folk need shelter: build 2 adobe houses and hold out until tick 300.",
+      "brief": "مردم واحه سرپناه می‌خواهند: دو خانه خشتی بساز و نیم دقیقه دوام بیاور.",
+      "briefEn": "The oasis folk need shelter: build 2 adobe houses and hold out for half a minute.",
+      "outro": "واحه حالا سقف دارد. آرتان از دور سر تکان می‌دهد: «خوب شروع کردی، مرزبان.»",
+      "outroEn": "The oasis has roofs now. Artan nods from afar: \"A fair start, warden.\"",
       "seed": 1101,
       "difficulty": "easy",
       "personality": "artan",
@@ -21,6 +23,8 @@
       "nameEn": "Bread for the Oasis",
       "brief": "کهبُد راه گندم را بسته است. مزرعه، آسیاب و نانوایی بساز و جمعیت را به ۱۵ برسان.",
       "briefEn": "Kahbod has closed the grain road. Build a farm, a mill and a bakery, and reach population 15.",
+      "outro": "بوی نان تازه تا ارگ کهبُد رفت. دیگر کسی برای گندم سراغ او نمی‌رود.",
+      "outroEn": "The smell of fresh bread reached Kahbod's citadel. No one goes begging him for grain now.",
       "seed": 1202,
       "difficulty": "easy",
       "personality": "kahbod",
@@ -33,11 +37,32 @@
       ]
     },
     {
+      "key": "qanat-works",
+      "name": "کارگاه قنات",
+      "nameEn": "The Qanat Works",
+      "brief": "واحه باید روی پای خودش بایستد: چوب‌بری و معدن سنگ بساز و ۲۰۰ چوب و ۸۰ سنگ انبار کن.",
+      "briefEn": "The oasis must stand on its own: build a woodcutter and a quarry, and stockpile 200 wood and 80 stone.",
+      "outro": "انبارها پر است. حالا می‌شود به دیوار فکر کرد.",
+      "outroEn": "The storehouses are full. Now you can think about walls.",
+      "seed": 1707,
+      "difficulty": "easy",
+      "personality": "kahbod",
+      "identity": "none",
+      "objectives": [
+        { "id": "wood", "kind": "haveBuilding", "type": "woodcutter", "count": 1 },
+        { "id": "quarry", "kind": "haveBuilding", "type": "quarry", "count": 1 },
+        { "id": "stockWood", "kind": "resource", "res": "wood", "amount": 200 },
+        { "id": "stockStone", "kind": "resource", "res": "stone", "amount": 80 }
+      ]
+    },
+    {
       "key": "desert-outpost",
       "name": "پاسگاه ریگ",
       "nameEn": "Dune Outpost",
       "brief": "کمانداران تیراژه در راه‌اند: دو برج بساز و چهار سرباز استخدام کن.",
       "briefEn": "Tirazheh's archers are coming: build 2 towers and hire 4 soldiers.",
+      "outro": "تیراژه برج‌ها را دید و کمانش را پایین آورد. فعلاً.",
+      "outroEn": "Tirazheh saw the towers and lowered her bow. For now.",
       "seed": 1303,
       "difficulty": "normal",
       "personality": "tirazheh",
@@ -48,11 +73,30 @@
       ]
     },
     {
+      "key": "caravan-peace",
+      "name": "صلح کاروان",
+      "nameEn": "Caravan Peace",
+      "brief": "کاروان‌ها جایی می‌ایستند که مردمش خوشحال باشند: بازار بساز و محبوبیت را به ۶۰ برسان.",
+      "briefEn": "Caravans stop where people are content: build a market and reach 60 popularity.",
+      "outro": "فرخان نامه فرستاد: «بازارت را دیدم. بهایش را بگو.» پاسخی ندادی.",
+      "outroEn": "Farrokhan sent a letter: \"I have seen your market. Name its price.\" You did not answer.",
+      "seed": 1808,
+      "difficulty": "normal",
+      "personality": "farrokhan",
+      "identity": "none",
+      "objectives": [
+        { "id": "market", "kind": "haveBuilding", "type": "market", "count": 1 },
+        { "id": "love", "kind": "popularity", "amount": 60 }
+      ]
+    },
+    {
       "key": "night-raid",
       "name": "شبیخون آذرم",
       "nameEn": "Azarm's Night Raid",
       "brief": "تازشگران شب سه بار می‌تازند. تا موج سوم زنده بمان و ارباب را زنده نگه دار.",
       "briefEn": "The night raiders strike three times. Survive until wave 3 and keep the lord alive.",
+      "outro": "سپیده زد و ارگ هنوز ایستاده بود. آذرم در تاریکی ناپدید شد.",
+      "outroEn": "Dawn broke and the citadel still stood. Azarm vanished into the dark.",
       "seed": 1404,
       "difficulty": "hard",
       "personality": "azarm",
@@ -63,11 +107,31 @@
       ]
     },
     {
+      "key": "dune-riders",
+      "name": "سواران ریگ",
+      "nameEn": "Riders of the Dunes",
+      "brief": "هامون راه ریگ را می‌خواهد. سربازخانه بساز، شش کماندار بگمار و تا موج دوم دوام بیاور.",
+      "briefEn": "Hamun wants the dune road. Build a barracks, field 6 bowmen and hold until wave 2.",
+      "outro": "هامون خندید: «واحه‌ای که می‌جنگد، ارزش دوستی دارد.»",
+      "outroEn": "Hamun laughed: \"An oasis that fights is worth befriending.\"",
+      "seed": 1909,
+      "difficulty": "normal",
+      "personality": "hamun",
+      "identity": "crusader",
+      "objectives": [
+        { "id": "barracks", "kind": "haveBuilding", "type": "barracks", "count": 1 },
+        { "id": "bows", "kind": "haveUnit", "type": "bowman", "count": 6 },
+        { "id": "wave2", "kind": "wave", "n": 2 }
+      ]
+    },
+    {
       "key": "sovereign-siege",
       "name": "دروازه سپهرداد",
       "nameEn": "Sepehrdad's Gate",
       "brief": "نوبت توست که بتازی: یک منجنیق بساز و دروازه‌ای را تصرف کن.",
       "briefEn": "Your turn to strike: build a catapult and capture a gatehouse.",
+      "outro": "دروازه باز شد. مدعی تاج برای نخستین بار عقب نشست.",
+      "outroEn": "The gate opened. For the first time, the claimant to the crown stepped back.",
       "seed": 1505,
       "difficulty": "normal",
       "personality": "sepehrdad",
@@ -81,8 +145,10 @@
       "key": "seven-winds",
       "name": "ایستادگی در هفت‌باد",
       "nameEn": "Stand of Seven Winds",
-      "brief": "فرخان خزانه‌اش را به میدان آورده. محبوبیت را به ۵۵ برسان، تا تیک ۳۰۰۰ دوام بیاور و ارباب را زنده نگه دار.",
-      "briefEn": "Farrokhan has brought his treasury to the field. Reach 55 popularity, survive until tick 3000 and keep the lord alive.",
+      "brief": "فرخان خزانه‌اش را به میدان آورده. محبوبیت را به ۵۵ برسان، پنج دقیقه دوام بیاور و ارباب را زنده نگه دار.",
+      "briefEn": "Farrokhan has brought his treasury to the field. Reach 55 popularity, hold out for five minutes and keep the lord alive.",
+      "outro": "طلا تمام شد و مردم ماندند. فرخان معامله را باخت.",
+      "outroEn": "The gold ran out and the people stayed. Farrokhan lost the bargain.",
       "seed": 1606,
       "difficulty": "hard",
       "personality": "farrokhan",
@@ -90,6 +156,23 @@
       "objectives": [
         { "id": "love", "kind": "popularity", "amount": 55 },
         { "id": "endure", "kind": "tick", "at": 3000 },
+        { "id": "lord", "kind": "keepLordAlive" }
+      ]
+    },
+    {
+      "key": "crown-of-winds",
+      "name": "تاج بادها",
+      "nameEn": "Crown of the Winds",
+      "brief": "سپهرداد با همه‌ی لشکرش آمده. همه‌ی دشمنان را از میان بردار و ارباب را زنده نگه دار.",
+      "briefEn": "Sepehrdad has come with his whole host. Destroy every enemy and keep the lord alive.",
+      "outro": "هفت باد آرام گرفت. فلات یک نگهبان دارد و نامش را همه می‌دانند.",
+      "outroEn": "The seven winds fell still. The plateau has one keeper, and everyone knows the name.",
+      "seed": 2010,
+      "difficulty": "hard",
+      "personality": "sepehrdad",
+      "identity": "crusader",
+      "objectives": [
+        { "id": "rout", "kind": "killAllEnemies" },
         { "id": "lord", "kind": "keepLordAlive" }
       ]
     }

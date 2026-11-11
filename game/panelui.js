@@ -14,7 +14,8 @@ import { TAX_IDS } from "./data.js";
 import { armyBreakdown, pruneSet, resolveSet } from "./selection.js";
 import { clockText } from "./missions.js";
 import { hintBuilding, nextHint } from "./hints.js";
-import { missionByKey } from "./campaign.js";
+import { missionByKey, missionOutro } from "./campaign.js";
+import { getLang } from "./i18n.js";
 
 function $(id) { return document.getElementById(id); }
 
@@ -240,7 +241,7 @@ export function createPanelUI({ getState, getMpSession, getReplayWatch, getSound
     } else {
       defeatBanner.hidden = !(getState().defeated || getMissionLost()); // بنر شکست (0.19.0) + باخت مأموریت view-side (0.225.0)
       victoryBanner.hidden = !(getState().victorious || getMissionWon()); // بنر پیروزی (0.22.0) + برد مأموریت view-side (0.225.0)
-      if (getMissionWon()) { const vbp = victoryBanner.querySelector("p"); if (vbp) vbp.textContent = t("ui.campaign.won", { name: missionLabel(missionByKey(getLastMissionKey())) }); }
+      if (getMissionWon()) { const vbp = victoryBanner.querySelector("p"); if (vbp) { const mdoc = missionByKey(getLastMissionKey()); const outro = missionOutro(mdoc, getLang()); vbp.textContent = t("ui.campaign.won", { name: missionLabel(mdoc) }) + (outro ? " " + outro : ""); } }
     }
     // بنر تازه‌نمایان: فوکوس روی دکمه‌اش (یک‌بار؛ نه در هر refresh) تا صفحه‌کلید/صفحه‌خوان در بنر بیفتد
     for (const [ban, btn] of [[defeatBanner, defeatRestartBtn], [victoryBanner, victoryRestartBtn]]) {

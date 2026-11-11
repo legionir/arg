@@ -90,3 +90,10 @@ export function missionBrief(doc, lang) {
   if (lang === "en" && typeof doc.briefEn === "string" && doc.briefEn) return doc.briefEn;
   return typeof doc.brief === "string" ? doc.brief : "";
 }
+
+// متن پایان مأموریت (0.280.0 — کمپین داستانی): اختیاری؛ نبودش = رشته خالی.
+export function missionOutro(doc, lang) {
+  if (!doc) return "";
+  if (lang === "en" && typeof doc.outroEn === "string" && doc.outroEn) return doc.outroEn;
+  return typeof doc.outro === "string" ? doc.outro : "";
+}

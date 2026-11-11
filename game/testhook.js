@@ -13,7 +13,7 @@ import { paintSeed } from "./seed.js";
 import { PROFILE_LORDS, saveProfile } from "./profile.js";
 import { runBench } from "./bench.js";
 import { runFirstTen } from "./firstten.js";
-import { runIdbTests } from "./tests.js";
+const runIdbTests = () => import("./tests.js").then((m) => m.runIdbTests());
 import { placeKeepFor, tryPlace, validate } from "./construction.js";
 import { stepSim } from "./sim.js";
 import { syncProfileInput } from "./profileui.js";

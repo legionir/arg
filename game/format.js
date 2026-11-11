@@ -78,7 +78,6 @@ export function unitMeta(def) {
     const parts = [t("main.meta.hp", { n: faNum(def.hp) })];
     parts.push(def.range > 2 ? t("main.meta.range", { n: faNum(def.range) }) : t("main.meta.damage", { n: faNum(def.dmg) }));
     parts.push(t("main.meta.armor", { n: faNum(def.armor || 0) }));
-    parts.push(srcTag(def));
     if (def.requiresWeapon === "swords") parts.push(t("main.meta.sword"));
     else if (def.requiresWeapon === "bows") parts.push(t("main.meta.bow"));
     if (def.trainTicks) parts.push(t("main.meta.train", { n: faNum(Math.ceil(def.trainTicks / 10)) })); // (0.65.0 — صف آموزش)
