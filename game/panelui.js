@@ -377,7 +377,7 @@ export function createPanelUI({ getState, getMpSession, getReplayWatch, getSound
     popEl.textContent = t("main.pop", { p, dir: ec.popDir > 0 ? "▲" : ec.popDir < 0 ? "▼" : "●", target: popTarget(getState(), viewSlotOf(getMpSession())) });
     popEl.className = p >= 55 ? "hi" : p < 40 ? "lo" : "me";
     resEl.innerHTML = CONFIG.RESOURCES.map((r) => {
-      const net = netPerMinute(getState(), r.key, viewSlotOf(getMpSession()));
+      const net = Math.round(netPerMinute(getState(), r.key, viewSlotOf(getMpSession())) * 10) / 10;
       const sign = net > 0 ? "+" : "";
       const have = getMpSession() ? getState().mpres[viewSlotOf(getMpSession())].resources[r.key] : getState().resources[r.key];
       const show = getExactRes() ? String(have) : approxRes(have).text;

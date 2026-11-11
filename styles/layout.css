@@ -141,3 +141,7 @@ body { text-align: start; }
   body.sheet-open #side { position: fixed; inset-inline: 0; bottom: 0; z-index: var(--z-overlay); max-height: 52dvh; overflow-y: auto; background: var(--bg-2); border-top: 1px solid var(--line-2); padding: var(--sp-2) var(--sp-3); }
   body.sheet-open #boardWrap { min-height: 60vh; height: 60vh; }
 }
+
+/* ---- Dev-only HUD (0.279.0): hidden for players, shown with ?dev / ?test ---- */
+body:not(.dev) :is(#tickEl, #waveBtn, #fpsEl, .stat:has(#placedEl), .stat:has(#rejectedEl)) { display: none; }
+#hudMenuBtn .sb-ic, #sheetToggleBtn .sb-ic { width: 1.15rem; height: 1.15rem; vertical-align: middle; }

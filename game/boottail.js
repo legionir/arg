@@ -18,6 +18,9 @@ export function createBootTail({ getState, getProfile, getMenuRelabelFns, refres
     const pni = $("profileNameInput");
     if (pni) pni.focus({ preventScroll: true });
   }
+  window.__argBooted = true; // نگهبان بوت index.html: صفحه «بارگذاری نشد» دیگر لازم نیست
+  // ابزارهای توسعه (شمارنده تیک، موج دستی، fps، شمار ساخته/ردشده) فقط با ?dev یا ?test دیده می‌شوند.
+  if (/[?&](dev|test)(=|&|$)/.test(window.location.search)) document.body.classList.add("dev");
   // نسخه انتشار از تنها منبع (فرایند انتشار را ببین)
   fetch("VERSION").then((r) => r.text()).then((txt) => {
     const v = txt.trim().replace(/^"|"$/g, "");

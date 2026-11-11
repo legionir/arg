@@ -1,0 +1,27 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install server dependency
+        run: npm install --prefix server
+      - name: Server self-test
+        run: node server/selftest.mjs
+      - name: Server mirror in sync
+        run: node tools/sync-server.mjs --check
+      - name: i18n scan
+        run: node tools/i18n-scan.mjs
+      - name: Install Playwright + Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Browser test suite
+        run: node tools/ci-tests.mjs

@@ -1071,6 +1071,10 @@ self.rpc = {
     <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></g></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></symbol>
     <symbol id="i-back" viewBox="0 0 24 24"><path d="m14.5 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-repair" viewBox="0 0 24 24"><path d="M14.5 5.5a4 4 0 0 0 4.9 4.9L21 12l-9 9-3-3 9-9M9 12 4.5 7.5 7.5 4.5 12 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M4 12h10a5 5 0 0 1 0 10h-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -3)"/></symbol>
+    <symbol id="i-panel" viewBox="0 0 24 24"><path d="M4 15l8-7 8 7M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9.5 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-sound" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></g></symbol>
     <symbol id="i-coin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2c-.5-.9-1.5-1.4-2.8-1.4-1.7 0-2.8.9-2.8 2.1 0 3 5.8 1.4 5.8 4.2 0 1.3-1.2 2.2-3 2.2-1.4 0-2.5-.6-3-1.6M12 6v1.8M12 16.4V18"/></g></symbol>
@@ -1091,7 +1095,7 @@ self.rpc = {
   </svg>
   <div id="topbar">
     <h1><span data-i18n="ui.brand">ارگ (Arg)</span><small><span data-i18n="ui.version">نسخه</span> <span id="verEl">…</span></small></h1>
-    <button id="hudMenuBtn" title="نمایش/پنهان نوار ابزار">☰</button>
+    <button id="hudMenuBtn" title="نمایش/پنهان نوار ابزار" data-i18n-title="ui.hud.toggle" aria-label="نمایش/پنهان نوار ابزار" data-i18n-aria-label="ui.hud.toggle"><svg class="sb-ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
     <span id="profileBadgeEl" title="ویرایش نام و لوگو" data-i18n-title="ui.profile.edit">…</span>
     <button id="menuBtn" data-i18n="ui.top.menu">منو</button>
     <span id="tickEl">تیک 0</span>
@@ -1107,7 +1111,7 @@ self.rpc = {
   <div id="resbar"><div id="resEl"></div></div>
 
   <div id="layout">
-    <div id="boardWrap"><canvas id="board" role="img" aria-label="نقشه بازی" data-i18n-aria-label="ui.board.label"></canvas><div id="gameToast" role="status" aria-live="polite" hidden></div><button id="sheetToggleBtn" title="نمایش/پنهان پنل">▲ پنل</button></div>
+    <div id="boardWrap"><canvas id="board" role="img" aria-label="نقشه بازی" data-i18n-aria-label="ui.board.label"></canvas><div id="gameToast" role="status" aria-live="polite" hidden></div><button id="sheetToggleBtn" title="نمایش/پنهان پنل" data-i18n-title="ui.sheet.toggle" aria-label="نمایش/پنهان پنل" data-i18n-aria-label="ui.sheet.toggle"><svg class="sb-ic" aria-hidden="true"><use href="#i-panel"/></svg></button></div>
     <div id="side">
       <div class="card" id="minimapCard">
         <h2 data-i18n="ui.minimap.title">نقشه کوچک</h2>
@@ -1287,7 +1291,7 @@ self.rpc = {
       <button id="taxIconBtn" title="مالیات و جیره" data-i18n-title="ui.tax.title" aria-label="مالیات و جیره" data-i18n-aria-label="ui.tax.title"><svg class="sb-ic" aria-hidden="true"><use href="#i-coin"/></svg></button>
       <button id="alarmBtn" title="زنگ خطر" data-i18n-title="ui.alarm" aria-label="زنگ خطر" data-i18n-aria-label="ui.alarm"><svg class="sb-ic" aria-hidden="true"><use href="#i-bell"/></svg></button>
       <button id="demolishBtn" title="تخریب ساختمان" data-i18n-title="ui.demolish" aria-label="تخریب ساختمان" data-i18n-aria-label="ui.demolish"><svg class="sb-ic" aria-hidden="true"><use href="#i-demolish"/></svg></button>
-      <button id="repairBtn" title="تعمیر ساختمان" data-i18n-title="ui.repair" aria-label="تعمیر ساختمان" data-i18n-aria-label="ui.repair">🛠</button>      <button id="undoBtn" title="برگرداندن آخرین ساخت" data-i18n-title="ui.undo" aria-label="برگرداندن آخرین ساخت" data-i18n-aria-label="ui.undo">↩</button>
+      <button id="repairBtn" title="تعمیر ساختمان" data-i18n-title="ui.repair" aria-label="تعمیر ساختمان" data-i18n-aria-label="ui.repair"><svg class="sb-ic" aria-hidden="true"><use href="#i-repair"/></svg></button>      <button id="undoBtn" title="برگرداندن آخرین ساخت" data-i18n-title="ui.undo" aria-label="برگرداندن آخرین ساخت" data-i18n-aria-label="ui.undo"><svg class="sb-ic" aria-hidden="true"><use href="#i-undo"/></svg></button>
       <button id="saveIconBtn" title="ذخیره" data-i18n-title="ui.save.title" aria-label="ذخیره" data-i18n-aria-label="ui.save.title"><svg class="sb-ic" aria-hidden="true"><use href="#i-save"/></svg></button>
       <button id="soundIconBtn" title="باصدا — کلیک: بی‌صدا" data-i18n-title="ui.sound.onTip" aria-label="صدا" data-i18n-aria-label="ui.sound.label"><svg class="sb-ic" aria-hidden="true"><use href="#i-sound"/></svg></button>
       <button id="helpIconBtn" title="راهنما" data-i18n-title="ui.help.title" aria-label="راهنما" data-i18n-aria-label="ui.help.title"><svg class="sb-ic" aria-hidden="true"><use href="#i-help"/></svg></button>
@@ -1531,7 +1535,20 @@ self.rpc = {
     <div class="lbl" data-i18n="ui.editor.shareNote">نقشه‌ات را می‌توانی برای بازی با دیگران به اشتراک بگذاری — فروش یا استفادهٔ تجاری ممنوع است.</div>
   </div>
 </div>
-<script type="module" src="game/main.js"></script>
+<div id="bootError" role="alert" hidden style="position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:#0a0e13;color:#eef2f7;font-family:system-ui,sans-serif;padding:24px;text-align:center">
+  <div style="max-width:28rem"><h2 style="color:#f0c75e;margin:0 0 12px">بازی بارگذاری نشد · The game failed to load</h2>
+  <p style="line-height:1.8;color:#c3cfdd;margin:0 0 16px">اتصال را بررسی کن و دوباره تلاش کن. ذخیره‌هایت دست‌نخورده‌اند.<br>Check your connection and try again. Your saves are untouched.</p>
+  <button type="button" onclick="location.reload()" style="font:inherit;padding:10px 22px;border-radius:10px;border:1px solid #f0c75e;background:#1b2531;color:#f7dc8f;cursor:pointer">تلاش دوباره · Retry</button></div>
+</div>
+<script>
+// Boot watchdog: if the module graph fails to load (network, missing file), show a retry screen instead of a dead menu.
+(function () {
+  function fail() { if (window.__argBooted) return; var e = document.getElementById("bootError"); if (e) { e.hidden = false; e.style.display = "flex"; } }
+  window.__argBootFail = fail;
+  window.addEventListener("load", function () { setTimeout(fail, 15000); });
+})();
+</script>
+<script type="module" src="game/main.js" onerror="window.__argBootFail()"></script>
 </body>
 </html>
 </body>

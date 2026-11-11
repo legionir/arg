@@ -1,6 +1,8 @@
 // واژگان رابط ایستا (index.html) — فارسی مرجع، انگلیسی ترجمه.
 export default {
   fa: {
+  "ui.hud.toggle": "نمایش/پنهان نوار ابزار",
+  "ui.sheet.toggle": "نمایش/پنهان پنل",
   "ui.top.menu": "منو",
   "ui.top.pause": "توقف",
   "ui.top.restart": "شروع دوباره",
@@ -269,7 +271,7 @@ export default {
   "ui.hint.prefix": "هدف بعدی:",
   "ui.hint.woodcutter": "چوب‌بری بساز — چوب خرج همه‌چیز است.",
   "ui.hint.farm": "مزرعه بساز تا مردم گرسنه نمانند.",
-  "ui.hint.hut": "چند کلبه بساز تا ظرفیت کارگر بالا برود.",
+  "ui.hint.hut": "چند خانه بساز تا ظرفیت کارگر بالا برود.",
   "ui.hint.quarry": "معدن سنگ بساز — برج و سربازخانه سنگ می‌خواهند.",
   "ui.hint.tower": "چند برج بساز؛ یورش حریف دیر یا زود می‌رسد.",
   "ui.hint.barracks": "سربازخانه بساز تا مزدور استخدام کنی.",
@@ -280,6 +282,8 @@ export default {
   "app.title": "ارگ — Arg"
 },
   en: {
+  "ui.hud.toggle": "Show/hide toolbar",
+  "ui.sheet.toggle": "Show/hide panel",
   "ui.top.menu": "Menu",
   "ui.top.pause": "Pause",
   "ui.top.restart": "Restart",
@@ -548,7 +552,7 @@ export default {
   "ui.hint.prefix": "Next goal:",
   "ui.hint.woodcutter": "Build a woodcutter — wood pays for everything.",
   "ui.hint.farm": "Build a farm so your people don’t starve.",
-  "ui.hint.hut": "Build a few hovels to raise the worker cap.",
+  "ui.hint.hut": "Build a few houses to raise the worker cap.",
   "ui.hint.quarry": "Build a quarry — towers and barracks need stone.",
   "ui.hint.tower": "Raise a few towers; a raid is coming sooner or later.",
   "ui.hint.barracks": "Build barracks so you can hire mercenaries.",

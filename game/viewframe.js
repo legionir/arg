@@ -84,7 +84,7 @@ export function createViewFrameUI({ getState, getTerrain, getHover, getSelIds, g
     if (now - lastFpsT >= 500) {
       fps = Math.round((frames * 1000) / (now - lastFpsT));
       frames = 0; lastFpsT = now;
-      fpsEl.textContent = t("main.fps", { fps }) + ` • ${faNum(CONFIG.TICK_HZ)}Hz sim` + (getFidelityAuto() ? ` ${t("main.fps.auto", { f: getFidelity() })}` : "");
+      fpsEl.textContent = t("main.fps", { fps }) + (getFidelityAuto() ? ` ${t("main.fps.auto", { f: getFidelity() })}` : "");
       // افت خودکار کیفیت (0.58.0 — #۲۷): زیر ۲۰fps پله‌ای کم می‌کند (فقط پایین،
       // هرگز بالا)؛ انتخاب دستی کاربر لغوش می‌کند. sim دست‌نخورده می‌ماند.
       // نمونه‌های پیاپی (۴×۵۰۰ms) لازم است: افت لحظه‌ای (تب/مودال/بارگذاری) کیفیت را برای همیشه نمی‌کاهد.
