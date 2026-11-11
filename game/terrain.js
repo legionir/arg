@@ -49,16 +49,25 @@ export function rockParams(seed, w, h) {
   return { qx, qy, sr };
 }
 
-export function makeTerrain(w, h, seed) {
+// مرکز دریاچه‌ی بازی سولو از سید (0.292.0): وسط نقشه نیست؛ در بازه‌ی ۳۸٪..۶۲٪ ابعاد تا دو گوشه‌ی
+// شروع (چمنِ اجباری) همیشه سالم بمانند. فقط سولو؛ چندنفره و سید پیش‌فرض متقارن و دست‌نخورده‌اند.
+export function soloLakeCenter(seed, w, h) {
+  const r = mulberry32(((seed >>> 0) ^ 0x7a3c19) >>> 0);
+  return [Math.round(w * (0.38 + r() * 0.24)), Math.round(h * (0.38 + r() * 0.24))];
+}
+
+export function makeTerrain(w, h, seed, lakeAt) {
   const t = new Uint8Array(w * h);
   const at = (c, r) => r * w + c;
   const s = seed >>> 0;
-  const cx = (w - 1) / 2, cy = (h - 1) / 2;
+  const cx0 = (w - 1) / 2, cy0 = (h - 1) / 2;
+  const cx = lakeAt ? lakeAt[0] : cx0, cy = lakeAt ? lakeAt[1] : cy0; // lakeAt = [c, r] فقط سولو (0.292.0)
   // --- دریاچه مرکزی از سید ---
   const lake = lakeParams(s, w, h);
   const gx = lake.n - 1, gy = lake.n - 1;
   const noiseAt = (c, r) => {
     // مختصات آینه‌ای: هر ۴ همتای آینه‌ای دقیقاً یک نویز می‌بینند → تقارن کامل.
+    if (lakeAt) { c = Math.max(0, Math.min(w - 1, c - (cx - cx0))); r = Math.max(0, Math.min(h - 1, r - (cy - cy0))); } // نویز همراه دریاچه جابه‌جا می‌شود
     const mc = Math.min(c, w - 1 - c) / (w - 1);
     const mr = Math.min(r, h - 1 - r) / (h - 1);
     const fx = mc * gx, fy = mr * gy;

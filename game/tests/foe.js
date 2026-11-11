@@ -9,7 +9,7 @@ import { endSummary, endSummaryHTML } from "../endsummary.js";
 import { shouldWelcome, WELCOME_KEY } from "../welcome.js";
 
 function foeCases() {
-  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary, t_welcome, t_mid_goals, t_rival_lines];
+  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary, t_welcome, t_mid_goals, t_rival_lines, t_free_lake_keep];
 }
 
 // کارت حریف صفحه راه‌اندازی (0.281.0): هر هفت فرمانروا پرتره یکتا + جمله دوزبانه دارند.
@@ -172,4 +172,46 @@ function t_rival_lines() {
   must(rivalLine({ ai: { active: true }, mp: { enabled: true } }, "win") === "", "چندنفره = بی‌جمله");
   must(!!document.getElementById("defeatLord") && !!document.getElementById("victoryLord"), "جای جمله روی بنرها");
   return { name: "t_rival_lines", pass: true, detail: "۷ فرمانروا × ۳ جمله × ۲ زبان" };
+}
+
+// سولوی دریاچه-از-سید + ستاد انتخابی (0.292.0): زمین، ری‌پلی و ذخیره.
+import { makeTerrain, soloLakeCenter, T_WATER, T_GRASS } from "../terrain.js";
+import { runReplay, validateReplayLog } from "../replay.js";
+import { serialize, deserialize } from "../persist.js";
+function t_free_lake_keep() {
+  const W = CONFIG.GRID_W, H = CONFIG.GRID_H;
+  // بدون lake دقیقاً همان زمین قدیم (سید پیش‌فرض و چندنفره)
+  const a = makeTerrain(W, H, 1337), b = makeTerrain(W, H, 1337, null);
+  must(a.length === b.length && a.every((v, i) => v === b[i]), "بدون دریاچه‌ی انتخابی زمین تغییر نکرده");
+  const seen = new Set();
+  for (const seed of [11, 222, 3333, 44444, 555555, 3190575110]) {
+    const lk = soloLakeCenter(seed, W, H);
+    must(lk[0] >= W * 0.37 && lk[0] <= W * 0.63 && lk[1] >= H * 0.37 && lk[1] <= H * 0.63, "مرکز دریاچه در بازه " + seed);
+    must(soloLakeCenter(seed, W, H).join() === lk.join(), "قطعی");
+    seen.add(lk.join());
+    const t = makeTerrain(W, H, seed, lk);
+    must(t[lk[1] * W + lk[0]] === T_WATER, "مرکز دریاچه آب است " + seed);
+    for (const [c, r] of [[3, 3], [W - 4, 3], [3, H - 4], [W - 4, H - 4]]) must(t[r * W + c] === T_GRASS, "گوشه‌ی شروع چمن " + seed);
+  }
+  must(seen.size >= 4, "دریاچه از سید فرق می‌کند");
+  // بازپخش: ستاد انتخابی + دریاچه ضبط‌شده → همان جهان، دوبار هم‌هش
+  const log = { v: 1, seed: 777, lake: soloLakeCenter(777, W, H), keep: [3, 4], cmds: [] };
+  must(validateReplayLog(log).ok, "لاگ معتبر");
+  must(!validateReplayLog({ ...log, keep: [1] }).ok && !validateReplayLog({ ...log, lake: [1, "x"] }).ok, "لاگ بدشکل رد می‌شود");
+  const r1 = runReplay(log, 60), r2 = runReplay(log, 60);
+  must(r1.hash === r2.hash, "بازپخش قطعی");
+  const k = r1.state.buildings.find((x) => x.type === "keep" && (x.owner == null ? 0 : x.owner) === 0);
+  must(k && k.c === 3 && k.r === 4, "ستاد همان جای انتخابی");
+  must(r1.state.ai && r1.state.ai.active && !r1.state.pendingKeep, "حریف فعال و منتظر انتخاب نیست");
+  // ذخیره: دریاچه و انتظار ستاد می‌مانند
+  const pend = runReplay({ v: 1, seed: 777, lake: log.lake, cmds: [] }, 0).state;
+  must(pend.pendingKeep === true, "بی‌ستاد = منتظر");
+  const back = deserialize(JSON.parse(JSON.stringify(serialize(pend))));
+  must(back.pendingKeep === true && back.paused === true && back.mapLake.join() === log.lake.join(), "ذخیره/بارگذاری دریاچه و انتظار");
+  const back2 = deserialize(JSON.parse(JSON.stringify(serialize(r1.state))));
+  must(!back2.pendingKeep && back2.mapLake.join() === log.lake.join(), "ذخیره‌ی بازی جاری");
+  for (const k2 of ["pick", "placed", "reason.HALF", "reason.TERRAIN", "reason.OUT", "reason.OK"]) {
+    for (const lang of ["fa", "en"]) must(withLang(lang, () => t("ui.keep." + k2)).indexOf("ui.keep") < 0, "متن " + lang + " " + k2);
+  }
+  return { name: "t_free_lake_keep", pass: true, detail: "زمین + بازپخش + ذخیره" };
 }

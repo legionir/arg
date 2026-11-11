@@ -3,7 +3,7 @@ import { ensureWakeLock, releaseWakeLock } from "./wakelock.js";
 import { CONFIG } from "./config.js";
 import { t } from "./i18n.js";
 import { A11Y_PALETTES, validPalette, clampScale } from "./a11y.js";
-import { parseSeed } from "./seed.js";
+import { parseSeed, randomSeed } from "./seed.js";
 import { namedMapByKey } from "./mapedit.js";
 import { loadReplaySlot } from "./replay.js";
 import { hudShouldCollapse, setHudOpen, toggleHud } from "./mobilehud.js";
@@ -233,11 +233,11 @@ export function wireMenuUI({ getSoloDiff, setSoloDiff, getSoloMapKey, setSoloMap
       if (typed) {
         const s = parseSeed(typed);
         if (s == null) { menuMsg(t("main.seed.invalid")); return; }
-        newGame(s, diff, undefined, pers, ident); // نام (کاتالوگ/خالی) در newGame حل می‌شود
+        newGame(s, diff, undefined, pers, ident, true); // نام (کاتالوگ/خالی) در newGame حل می‌شود؛ دریاچه از سید و ستاد انتخابی (0.292.0)
       } else if (named) {
         newGame(named.seed, diff, undefined, pers, ident);
       } else {
-        newGame(undefined, diff, undefined, pers, ident);
+        newGame(randomSeed(), diff, undefined, pers, ident, true); // نقشه‌ی تازه‌ی تصادفی (0.292.0)
       }
       getState().paused = false;
       hideMenu();

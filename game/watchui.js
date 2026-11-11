@@ -28,7 +28,8 @@ export function createWatchUI({ getState, setState, setTerrain, getMpPending, ge
     if (!v.ok) return v;
     if (getEditor()) closeEditor(true); // تماشا از داخل ویرایشگر = خروج خاموش (0.51.0)
     const fresh = newSoloFromSeed(log.seed, log.diff,
-      log.map ? log.map.patches : null, log.map ? log.map.name : "", log.pers);
+      log.map ? log.map.patches : null, log.map ? log.map.name : "", log.pers, log.ident,
+      log.lake ? { lake: log.lake, keep: log.keep } : null);
     setMpSession(null);
     getMpPending().clear();
     setMpNextSeq(1);
@@ -88,7 +89,7 @@ export function createWatchUI({ getState, setState, setTerrain, getMpPending, ge
     const ls = (s.mapSeed == null ? CONFIG.MAP_SEED : s.mapSeed) >>> 0 || CONFIG.MAP_SEED;
     setTerrain(s.mapPatches && s.mapPatches.length
       ? customTerrain(ls, s.mapPatches)
-      : makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, ls));
+      : makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, ls, s.mapLake || null));
     online.onNewGame(s.victorious === true); // بردِ قدیمیِ بارگذاری‌شده دوباره جشن گرفته نشود (0.23.0)
     clock.reset();
     setMclockStart(null); setMastersLogged(!!(s.victorious || s.defeated)); // بارگذاری: ثبت‌نشدهِ قدیمی دوباره ثبت نشود (0.182.0)

@@ -50,6 +50,8 @@ export function createState() {
     // null یعنی زمین خالص سیدی. فقط سولو (MP همیشه سید میزبان است) و خارج هش.
     mapName: "",
     mapPatches: null,
+    mapLake: null, // مرکز دریاچه‌ی سولوی ستاد-انتخابی [c, r] (0.292.0؛ null = وسط)
+    pendingKeep: false, // سولو: منتظر انتخاب جای ستاد توسط بازیکن (0.292.0)
     ident: "none", // هویت آغازین (0.153.0 — بند 104): none/crusader/arab؛ خارج هش
     // جریان RNG سریال‌شدنی sim (فاز ۰ بند ۲): عدد صحیح بدون‌علامت ۳۲بیتی که
     // rngNext در rng.js جلو می‌برد؛ null = هنوز مصرف نشده (نخستین draw از

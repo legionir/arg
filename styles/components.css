@@ -218,3 +218,8 @@ label.lbl { margin: 0; white-space: nowrap; }
   padding: 0.45rem 1rem; border-radius: var(--r-md); background: var(--danger-strong); color: #fff; font-size: var(--fs-sm); box-shadow: 0 6px 18px rgb(0 0 0 / 0.4); }
 #netBanner[hidden] { display: none; }
 .end-quote { font-style: italic; color: var(--gold-300); margin-block: 0.4rem; }
+#keepPickEl { position: fixed; inset-block-start: 5.2rem; inset-inline: 0; margin-inline: auto; width: max-content; max-width: 92vw; z-index: var(--z-banner);
+  padding: 0.55rem 1.1rem; border-radius: var(--r-md); background: var(--bg-2); color: var(--gold-300); border: 1px solid var(--gold-line);
+  font-size: var(--fs-sm); box-shadow: 0 6px 18px rgb(0 0 0 / 0.4); pointer-events: none; }
+#keepPickEl[hidden] { display: none; }
+#verEl, #menuVerEl { direction: ltr; unicode-bidi: isolate; display: inline-block; }

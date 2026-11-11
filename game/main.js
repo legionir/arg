@@ -1,6 +1,6 @@
 // نقطه ورود برش اول: سیم‌کشی ساعت، ساخت، رندر و پنل‌ها.
 import { CONFIG, canonPersonality } from "./config.js";
-import { makeTerrain } from "./terrain.js";
+import { makeTerrain, T_GRASS } from "./terrain.js";
 import { createState } from "./state.js";
 import { validate, tryPlace, placeKeep, placeKeepFor, REASON_FA, underConstruction, hasLiveKeep, keepLocked } from "./construction.js";
 import { stepEconomy, assignStaff, netPerMinute, popTarget, campGauge, taxIndex, taxAt, CAPS, capFor, RATES, HUT_HOUSING, INN, RELIGION, RELIGION_TYPES, econOf, TAX, RATIONS, FOOD_TYPES, millSupport, activeEvents, hasOxTether, herdCows } from "./economy.js";
@@ -61,7 +61,7 @@ import { taxInfo, rationInfo, policySummary, advisorWarnings, warnAlarmKeys, app
 import { hasMarket, tradeQuote, applyTrade, TRADE_FA, marketSelected, tradeLocked } from "./market.js";
 import {
   REPLAY_CMD_CAP, createRecorder, recordCmd, validateReplayLog,
-  newSoloFromSeed, verifyReplayAsync, saveReplaySlot, loadReplaySlot,
+  newSoloFromSeed, beginSoloAt, verifyReplayAsync, saveReplaySlot, loadReplaySlot,
 } from "./replay.js";
 import {
   MAP_NAME_MAX, PATCH_CAP, TILE_NAMES, BRUSHES, createMapDoc, patchesList, patchCount,
@@ -443,7 +443,7 @@ function boot() {
       }
     },
   });
-  clock.attach(() => (mpSession ? { paused: state.mp && state.mp.over ? true : false, speed: 1 } : { paused: state.paused, speed: state.speed }));
+  clock.attach(() => (mpSession ? { paused: state.mp && state.mp.over ? true : false, speed: 1 } : { paused: state.paused || !!state.pendingKeep, speed: state.speed }));
 
   // ---- اجرای ورودی‌های نوبتی (ترتیب seq، سر execTick) ----
   function mpDrain() {
@@ -900,7 +900,34 @@ function boot() {
 
   function selectedDef() { return selectedKey ? CONFIG.BUILDINGS[selectedKey] : null; }
 
+  // انتخاب ستاد در سولوی دریاچه‌-از-سید (0.292.0): بازیکن فقط در نیمه‌ی چپِ نقشه (c < W/2) می‌گذارد؛
+  // حریف گوشه‌ی مقابل را می‌گیرد.
+  function keepPickCheck(c, r) {
+    const def = CONFIG.BUILDINGS.keep, W = CONFIG.GRID_W, H = CONFIG.GRID_H;
+    if (c < 0 || r < 0 || c + def.w > W || r + def.h > H) return "OUT";
+    if (c + def.w > W / 2) return "HALF";
+    for (let j = 0; j < def.h; j++) for (let i = 0; i < def.w; i++) if (terrain[(r + j) * W + (c + i)] !== T_GRASS) return "TERRAIN";
+    return "OK";
+  }
+  function pickKeepAt(c, r) {
+    if (!state.pendingKeep) return false;
+    const why = keepPickCheck(c, r);
+    if (why !== "OK") { statusEl.textContent = t("ui.keep.reason." + why); sound.ack("deny"); return false; }
+    const k = beginSoloAt(state, terrain, CONFIG.GRID_W, CONFIG.GRID_H, c, r, soloDiff, soloPersonality, soloIdentity);
+    if (!k.ok) { statusEl.textContent = t("ui.keep.reason.TERRAIN"); sound.ack("deny"); return false; }
+    state.pendingKeep = false;
+    state.paused = false;
+    if (recLog) recLog.keep = [k.building.c, k.building.r]; // بازپخش همین جا را می‌گذارد
+    hover = null;
+    sound.ack("place");
+    statusEl.textContent = t("ui.keep.placed");
+    renderer.markDirty();
+    refreshPanel();
+    return true;
+  }
+
   function ghostDef() {
+    if (state.pendingKeep) return CONFIG.BUILDINGS.keep;
     if (pendingKind === "alarm") return null;
     if (selectedUnit) return { w: 1, h: 1 };
     // گوست ساختمان فقط وقتی هیچ یگانی منتخب نیست — وگرنه حس «ساختمان‌سازی» روی دستور سایه می‌انداخت
@@ -1039,6 +1066,12 @@ function boot() {
       return;
     }
     const inMap = cell.c >= 0 && cell.r >= 0 && cell.c < CONFIG.GRID_W && cell.r < CONFIG.GRID_H;
+    if (state.pendingKeep) {
+      const why = keepPickCheck(cell.c, cell.r);
+      hover = { c: cell.c, r: cell.r, valid: why === "OK", reason: why, ghost: true };
+      statusEl.innerHTML = `${t("main.hover.cell", { c: cell.c, r: cell.r })} — <b class="${why === "OK" ? "ok" : "bad"}">${t("ui.keep.reason." + why)}</b>`;
+      return;
+    }
     if (pendingKind === "alarm") {
       hover = { c: cell.c, r: cell.r, valid: true, reason: "OK", ghost: false };
       statusEl.innerHTML = inMap ? t("main.hover.alarm", { c: cell.c, r: cell.r }) : t("main.hover.outOfMap");
@@ -1103,7 +1136,7 @@ function boot() {
   }
 
   // تعامل: درگ برای جابه‌جایی، کلیک برای ساخت/استخدام/دستور، چرخ برای زوم. (0.265.0 — C-CLN-85): استخراج مکانیکی به game/pointerui.js — بدون تغییر منطق.
-  const pointerUI = createPointerInput({ getState: () => state, getTerrain: () => terrain, getMpSession: () => mpSession, getReplayWatch: () => replayWatch, getBookmarks: () => bookmarks, getLastBookmark: () => lastBookmark, setLastBookmark: (v) => { lastBookmark = v; }, getSelIds: () => selIds, setSelIds: (v) => { selIds = v; }, setSelBldId: (v) => { selBldId = v; }, getSelectedKey: () => selectedKey, setSelectedKey: (v) => { selectedKey = v; }, getSelectedUnit: () => selectedUnit, setSelectedUnit: (v) => { selectedUnit = v; }, getPendingKind: () => pendingKind, setPendingKind: (v) => { pendingKind = v; }, setHover: (v) => { hover = v; }, getSelFoe: () => selFoe, setSelFoe: (v) => { selFoe = v; }, later: () => ({ getEditor, edPaintAt, edCellFromEvent }), canvas, renderer, statusEl, sound, refreshPanel, playerCmd, mpSend, updateHover, paintOrderCursor, buildingAt, unitAt, selectedDef, toggleMercs, toggleMarket, toggleGranary });
+  const pointerUI = createPointerInput({ getState: () => state, getTerrain: () => terrain, getMpSession: () => mpSession, getReplayWatch: () => replayWatch, getBookmarks: () => bookmarks, getLastBookmark: () => lastBookmark, setLastBookmark: (v) => { lastBookmark = v; }, getSelIds: () => selIds, setSelIds: (v) => { selIds = v; }, setSelBldId: (v) => { selBldId = v; }, getSelectedKey: () => selectedKey, setSelectedKey: (v) => { selectedKey = v; }, getSelectedUnit: () => selectedUnit, setSelectedUnit: (v) => { selectedUnit = v; }, getPendingKind: () => pendingKind, setPendingKind: (v) => { pendingKind = v; }, setHover: (v) => { hover = v; }, getSelFoe: () => selFoe, setSelFoe: (v) => { selFoe = v; }, later: () => ({ getEditor, edPaintAt, edCellFromEvent, pickKeepAt }), canvas, renderer, statusEl, sound, refreshPanel, playerCmd, mpSend, updateHover, paintOrderCursor, buildingAt, unitAt, selectedDef, toggleMercs, toggleMarket, toggleGranary });
   const clearWallLine = pointerUI.clearWallLine, hideBox = pointerUI.hideBox, getDownPos = pointerUI.getDownPos, getLastEdgePos = pointerUI.getLastEdgePos, getWallLine = pointerUI.getWallLine;
 
   // هایلایت/پالت/ارتش/یگان/کلیدها (0.266.0 — C-CLN-86): استخراج مکانیکی به game/palettekeys.js — بدون تغییر منطق.

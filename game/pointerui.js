@@ -301,6 +301,7 @@ export function createPointerInput({ getState, getTerrain, getMpSession, getRepl
     if (wasPan) return;
     const rect = canvas.getBoundingClientRect();
     const cell = renderer.screenToCell(e.clientX - rect.left, e.clientY - rect.top);
+    if (getState().pendingKeep) { later().pickKeepAt(cell.c, cell.r); return; } // انتخاب ستاد سولو (0.292.0)
     const bHit = buildingAt(cell.c, cell.r), uHit = unitAt(cell.c, cell.r);
     const ownUnit = (u) => u && u.side === "player" && (!getMpSession() || (u.owner == null ? 0 : u.owner) === getMpSession().slot);
     // خودی در سولو یعنی مالک ۰ (0.42.0: بنای حریف AI خودی نیست — دروازه/سربازخانه/پاسگاهش لمس نمی‌شود).

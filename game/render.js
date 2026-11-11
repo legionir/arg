@@ -3318,6 +3318,11 @@ export function createRenderer(canvas) {
     // در فریم‌های بی‌تغییر یک drawImage می‌شود (به‌جای ~۱۰هزار فراخوانی رسم در هر فریم).
     // تا همه اسپرایت‌ها آماده نشده‌اند (یا fallback وکتوری فعال است) کش ثبت نمی‌شود.
     drawTerrainLayer(state, terrain, gridStroke, det, GW, GH);
+    // انتخاب ستاد سولو (0.292.0): نیمه‌ی مجاز (ستون‌های c < GW/2) سبزِ روشن؛ مرزش خط طلایی.
+    if (state.pendingKeep) {
+      const hl = [cs(0, 0), cs(GW / 2, 0), cs(GW / 2, GH), cs(0, GH)];
+      poly(hl, "rgba(46,204,113,0.13)", "rgba(240,199,94,0.75)", Math.max(1.5, 2 * view.zoom));
+    }
     // اجساد روی زمین (زیر ساختمان‌ها/واحدها)
     drawCorpses(state.tick);
     // اجساد/پاف‌ها از حذف واحدها بین فریم‌ها (قبل از مرتب‌سازی عمق)

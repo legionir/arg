@@ -106,6 +106,8 @@ export function serialize(state) {
     mapName: state.mapName || "",
     ident: validIdentity(state.ident) || "none", // هویت آغازین (0.153.0 — بند 104؛ قدیمی = none)
     mapPatches: Array.isArray(state.mapPatches) && state.mapPatches.length ? state.mapPatches.map((e) => [e[0], e[1]]) : null,
+    mapLake: Array.isArray(state.mapLake) ? [state.mapLake[0], state.mapLake[1]] : null, // دریاچه‌ی سولوی ستاد-انتخابی (0.292.0؛ غایب = وسط)
+    pendingKeep: !!state.pendingKeep, // هنوز ستاد گذاشته نشده (0.292.0)
     // حریف AI (0.42.0؛ غایب در قدیمی = غیرفعال)
     ai: state.ai ? {
       active: !!state.ai.active, seed: state.ai.seed >>> 0,
@@ -279,6 +281,9 @@ function checkCore(data) {
   }
   if (data.ident !== undefined && !validIdentity(data.ident)) {
     throw bad("ident");
+  }
+  if (data.mapLake !== undefined && data.mapLake !== null) {
+    if (!Array.isArray(data.mapLake) || data.mapLake.length !== 2 || !data.mapLake.every((x) => isInt(x) && x >= 0 && x < 256)) throw bad("mapLake");
   }
   if (data.mapPatches !== undefined && data.mapPatches !== null) {
     if (!Array.isArray(data.mapPatches) || data.mapPatches.length > 2048) throw bad("mapPatches");
@@ -646,6 +651,8 @@ function buildState(data, upgradedFromV1) {
   s.mapName = typeof data.mapName === "string" ? data.mapName : "";
   s.ident = validIdentity(data.ident) || "none"; // هویت آغازین (0.153.0؛ قدیمی = none)
   s.mapPatches = Array.isArray(data.mapPatches) ? data.mapPatches.map((e) => [e[0], e[1]]) : null;
+  s.mapLake = Array.isArray(data.mapLake) ? [data.mapLake[0], data.mapLake[1]] : null;
+  if (data.pendingKeep === true) { s.pendingKeep = true; s.paused = true; }
   // حریف AI (0.42.0؛ غایب در قدیمی = غیرفعال با کانتینر صفر)
   s.ai = checkAi(data);
   s.buildings = data.buildings.map((b) => {

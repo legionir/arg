@@ -282,6 +282,8 @@ export function createPanelUI({ getState, getMpSession, getReplayWatch, getSound
         }
       }
     }
+    const kp = $("keepPickEl"); // راهنمای انتخاب ستاد سولو (0.292.0)
+    if (kp) kp.hidden = !getState().pendingKeep || !!getMpSession() || !!getReplayWatch();
     // هشدار یورش نزدیک + شرط برد نبرد آزاد (0.289.0 — T14): فقط سولوی زنده.
     const raidEl = $("raidEl"), winEl = $("winEl");
     const soloLive = !(getMpSession() || getReplayWatch() || getEditor());

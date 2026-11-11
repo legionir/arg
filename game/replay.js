@@ -11,7 +11,7 @@ import { CONFIG, canonPersonality } from "./config.js";
 import { makeTerrain } from "./terrain.js";
 import { createState } from "./state.js";
 import { t } from "./i18n.js";
-import { placeKeep } from "./construction.js";
+import { placeKeep, placeKeepFor } from "./construction.js";
 import { spawnLord, spawnStartingForce, validIdentity, pushEvent } from "./combat.js";
 import { startAI } from "./ai.js";
 import { createQueue, enqueueCmd, stepSim } from "./sim.js";
@@ -23,12 +23,13 @@ export const REPLAY_KEY = "scw.replay";
 export const REPLAY_CMD_CAP = 4096; // سقف فرمان ضبط‌شده (ضد نفخ حافظه)
 const REPLAY_TICK_CAP = 60000; // سقف تیک بازپخش (۱۰۰ دقیقه با ۱۰tps؟ نه: ۲۰tps → ۵۰ دقیقه)
 
-export function createRecorder(seed, diff, map, personality, identity) {
+export function createRecorder(seed, diff, map, personality, identity, free) {
   const rec = { v: REPLAY_V, seed: (seed >>> 0) || CONFIG.MAP_SEED, cmds: [] };
   if (diff) rec.diff = diff;
   if (personality) rec.pers = personality;
   // هویت آغازین (0.153.0 — بند 104): فقط نا-none ضبط می‌شود (لاگ قدیمی = بی‌نیرو).
   { const idv = validIdentity(identity); if (idv && idv !== "none") rec.ident = idv; }
+  if (free && free.lake) rec.lake = [free.lake[0], free.lake[1]]; // سولوی ستاد-انتخابی (0.292.0)
   if (map) rec.map = { name: map.name, patches: map.patches.map((e) => [e[0], e[1]]) };
   return rec;
 }
@@ -71,6 +72,12 @@ export function validateReplayLog(o) {
     const v = validateMapDoc({ v: 1, name: o.map.name, seed: o.seed, patches: o.map.patches });
     if (!v.ok) return { ok: false, reason: "BAD_MAP" };
   }
+  // دریاچه/ستاد انتخابی سولو (0.292.0، اختیاری؛ لاگ قدیمی ندارد).
+  for (const k of ["lake", "keep"]) {
+    if (o[k] === undefined) continue;
+    const a = o[k];
+    if (!Array.isArray(a) || a.length !== 2 || !a.every((x) => Number.isInteger(x) && x >= 0 && x < 256)) return { ok: false, reason: "BAD_" + k.toUpperCase() };
+  }
   for (const e of o.cmds) {
     if (!e || typeof e !== "object" || !Number.isInteger(e.t) || e.t < 0 || e.t > REPLAY_TICK_CAP) {
       return { ok: false, reason: "BAD_CMD" };
@@ -86,12 +93,32 @@ export function validateReplayLog(o) {
 // spawnLord + startAI؛ بدون assignStaff چون newGame هم نمی‌زند).
 // mapPatches وصله‌های نقشه سفارشی است (0.51.0؛ غایب = زمین خالص سیدی).
 // personality کلید پروفایل است (0.56.0؛ غایب = گرگ خنثی).
-export function newSoloFromSeed(seed, diff, mapPatches, mapName, personality, identity) {
+// آغاز سولو با ستاد در نقطه‌ی (c, r) — مشترک بین بازی زنده (انتخاب بازیکن) و بازپخش (0.292.0).
+export function beginSoloAt(state, terrain, W, H, c, r, diff, personality, identity) {
+  const def = CONFIG.BUILDINGS.keep;
+  const k = placeKeepFor(state, terrain, W, H, 0, c + Math.floor(def.w / 2), r + Math.floor(def.h / 2));
+  spawnLord(state, terrain, W, H);
+  state.ident = validIdentity(identity) || "none";
+  spawnStartingForce(state, terrain, W, H, state.ident, 0);
+  startAI(state, terrain, W, H, diff, personality);
+  pushEvent(state, t("game.ev.caravan"));
+  return k;
+}
+
+// free = { lake, keep } برای سولوی ستاد-انتخابی؛ بدون keep = هنوز در انتظار انتخاب (pendingKeep).
+export function newSoloFromSeed(seed, diff, mapPatches, mapName, personality, identity, free) {
   const s = (seed >>> 0) || CONFIG.MAP_SEED;
   const W = CONFIG.GRID_W, H = CONFIG.GRID_H;
-  const terrain = customTerrain(s, mapPatches);
+  const lake = free && free.lake ? free.lake : null;
+  const terrain = lake ? makeTerrain(W, H, s, lake) : customTerrain(s, mapPatches);
   const state = createState();
   state.mapSeed = s;
+  if (lake) {
+    state.mapLake = [lake[0], lake[1]];
+    if (free.keep) beginSoloAt(state, terrain, W, H, free.keep[0], free.keep[1], diff, personality, identity);
+    else { state.pendingKeep = true; state.paused = true; state.ident = validIdentity(identity) || "none"; }
+    return { state, terrain };
+  }
   if (mapPatches && mapPatches.length) {
     state.mapName = String(mapName || "");
     state.mapPatches = mapPatches.map((e) => [e[0], e[1]]);
@@ -112,7 +139,8 @@ export function runReplay(log, uptoTick) {
   if (!v.ok) throw new Error("replay:" + v.reason);
   const upto = Math.max(0, Math.min(uptoTick | 0, REPLAY_TICK_CAP));
   const { state, terrain } = newSoloFromSeed(log.seed, log.diff,
-    log.map ? log.map.patches : null, log.map ? log.map.name : "", log.pers, log.ident);
+    log.map ? log.map.patches : null, log.map ? log.map.name : "", log.pers, log.ident,
+    log.lake ? { lake: log.lake, keep: log.keep } : null);
   const q = createQueue();
   const cmds = log.cmds.slice().sort((a, b) => a.t - b.t); // sort پایدار: ترتیب هم‌تیک حفظ می‌شود
   let i = 0;

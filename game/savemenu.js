@@ -16,7 +16,7 @@ export function createSaveMenuUI({ getMpSession, getState, getRecLog, getSoloDif
   // seed داده شود نقشه همان سید ساخته می‌شود، وگرنه سید فعلی حفظ می‌شود (0.26.0).
   // diff درجه سختی حریف است (0.50.0)؛ داده نشود همان انتخاب ذخیره‌شده می‌ماند.
   // custom نقشه سفارشی است (0.51.0: {name, patches})؛ داده نشود زمین خالص سیدی.
-  const newGame = (seed, diff, custom, personality, identity) => startNewGame({ seed, diff, custom, personality, identity, setMpSession: (v) => { setMpSession(v); }, setMpNextSeq: (v) => { setMpNextSeq(v); }, setMpDesync: (v) => { setMpDesync(v); }, setMpDesyncSent: (v) => { setMpDesyncSent(v); }, setCmdQueue: (v) => { setCmdQueue(v); }, setSoloDiff: (v) => { setSoloDiff(v); }, setSoloPersonality: (v) => { setSoloPersonality(v); }, setSoloIdentity: (v) => { setSoloIdentity(v); }, setState: (v) => { setState(v); }, setTerrain: (v) => { setTerrain(v); }, setRecLog: (v) => { setRecLog(v); }, setReplayWatch: (v) => { setReplayWatch(v); }, setMclockStart: (v) => { setMclockStart(v); }, setMastersLogged: (v) => { setMastersLogged(v); }, setLastAutoTick: (v) => { setLastAutoTick(v); }, setLastSoundSnap: (v) => { setLastSoundSnap(v); }, setHover: (v) => { setHover(v); }, setSelIds: (v) => { setSelIds(v); }, setCtrlGroups: (v) => { setCtrlGroups(v); }, setLastGroupRecall: (v) => { setLastGroupRecall(v); }, setSelBldId: (v) => { setSelBldId(v); }, setBookmarks: (v) => { setBookmarks(v); }, setPendingKind: (v) => { setPendingKind(v); }, getSoloDiff: () => getSoloDiff(), getSoloPersonality: () => getSoloPersonality(), getSoloIdentity: () => getSoloIdentity(), getState: () => getState(), getTerrain: () => getTerrain(), mpPending, mpHashes, hideReplayBar, online, clock, setTick, refreshPanel, paintReplayStatus, later: () => ({ getEditor: (...a) => later().getEditor(...a), closeEditor: (...a) => later().closeEditor(...a), setMissionActive, setMissionWon, setMissionLost }) });
+  const newGame = (seed, diff, custom, personality, identity, pickKeep) => startNewGame({ seed, diff, custom, personality, identity, pickKeep, setMpSession: (v) => { setMpSession(v); }, setMpNextSeq: (v) => { setMpNextSeq(v); }, setMpDesync: (v) => { setMpDesync(v); }, setMpDesyncSent: (v) => { setMpDesyncSent(v); }, setCmdQueue: (v) => { setCmdQueue(v); }, setSoloDiff: (v) => { setSoloDiff(v); }, setSoloPersonality: (v) => { setSoloPersonality(v); }, setSoloIdentity: (v) => { setSoloIdentity(v); }, setState: (v) => { setState(v); }, setTerrain: (v) => { setTerrain(v); }, setRecLog: (v) => { setRecLog(v); }, setReplayWatch: (v) => { setReplayWatch(v); }, setMclockStart: (v) => { setMclockStart(v); }, setMastersLogged: (v) => { setMastersLogged(v); }, setLastAutoTick: (v) => { setLastAutoTick(v); }, setLastSoundSnap: (v) => { setLastSoundSnap(v); }, setHover: (v) => { setHover(v); }, setSelIds: (v) => { setSelIds(v); }, setCtrlGroups: (v) => { setCtrlGroups(v); }, setLastGroupRecall: (v) => { setLastGroupRecall(v); }, setSelBldId: (v) => { setSelBldId(v); }, setBookmarks: (v) => { setBookmarks(v); }, setPendingKind: (v) => { setPendingKind(v); }, getSoloDiff: () => getSoloDiff(), getSoloPersonality: () => getSoloPersonality(), getSoloIdentity: () => getSoloIdentity(), getState: () => getState(), getTerrain: () => getTerrain(), mpPending, mpHashes, hideReplayBar, online, clock, setTick, refreshPanel, paintReplayStatus, later: () => ({ getEditor: (...a) => later().getEditor(...a), closeEditor: (...a) => later().closeEditor(...a), setMissionActive, setMissionWon, setMissionLost }) });
 
 
   (function wireSeedCard() {
@@ -40,14 +40,14 @@ export function createSaveMenuUI({ getMpSession, getState, getRecLog, getSoloDif
       const s = parseSeed(inp && inp.value);
       if (s == null) { say(t("main.seed.invalid")); return; }
       toCustom();
-      newGame(s);
+      newGame(s, undefined, undefined, undefined, undefined, true);
       say(t("main.seed.created", { seed: s }));
     });
     if (rnd) rnd.addEventListener("click", () => {
       if (getMpSession()) { say(t("main.seed.noMp")); return; }
       const s = randomSeed();
       toCustom();
-      newGame(s);
+      newGame(s, undefined, undefined, undefined, undefined, true);
       if (inp) inp.value = "";
       say(t("main.seed.created", { seed: s }));
     });

@@ -82,7 +82,7 @@ export function createEditorUI({ getState, setTerrain, getMpSession, getReplayWa
     const ls = (getState().mapSeed == null ? CONFIG.MAP_SEED : getState().mapSeed) >>> 0 || CONFIG.MAP_SEED;
     setTerrain(getState().mapPatches && getState().mapPatches.length
       ? customTerrain(ls, getState().mapPatches)
-      : makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, ls));
+      : makeTerrain(CONFIG.GRID_W, CONFIG.GRID_H, ls, getState().mapLake || null));
     renderer.markDirty();
     getMinimapUI().paintMinimap();
     refreshPanel();
