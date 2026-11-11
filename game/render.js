@@ -56,17 +56,17 @@ function hash2(c, r) {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
 
-const GRASS = ["#4c7d44", "#527f45", "#46753e", "#4e8348"];
-const GRASS_TUFT = "rgba(30,60,26,0.55)";
-const WATER_A = "#2e6f8e";
-const WATER_B = "#2a657f";
-const WATER_HI = "rgba(150,210,235,0.6)";
+const GRASS = ["#cba66c", "#c69f65", "#d0ab72", "#c8a268"]; // زمین فلات (خاک ریگی) — کلید تاریخی «grass»
+const GRASS_TUFT = "rgba(110,120,60,0.6)";
+const WATER_A = "#2aa6ab";
+const WATER_B = "#1c8c96";
+const WATER_HI = "rgba(190,240,236,0.6)";
 const FOAM_A = [0.45, 0.7, 0.55, 0.6]; // شفافیت کف در ۴ فاز (0.229.0 — C-GFX-3)
 function foamColor(ph) {
   return `rgba(220,240,248,${FOAM_A[(((ph | 0) % 4) + 4) % 4]})`;
 }
-const ROCK_A = "#6e7278";
-const ROCK_B = "#676b71";
+const ROCK_A = "#9c8a76";
+const ROCK_B = "#7f705f";
 
 // سقف DPR به‌ازای کیفیت رسم (0.223.0 — C-MOB-2): lite روی گوشی ضعیف پیکسل‌کمتر می‌کشد. خالص.
 export function dprCapFor(f) {
@@ -369,6 +369,45 @@ export function createRenderer(canvas) {
     }
   }
 
+  // گنبد (0.278.0 — جهت هنری فلات): نیم‌رخ تیزه‌دار روی بیضی پایه، سایه نیمه راست + برق کاشی.
+  // خروجی: y نوک (با میله اگر finial). فقط نما.
+  function drawDome(cx, cy, rx, h, color, finial) {
+    const ry = rx * 0.5, tipY = cy - h * 1.12;
+    ctx.beginPath();
+    ctx.moveTo(cx - rx, cy);
+    ctx.bezierCurveTo(cx - rx * 1.1, cy - h * 0.62, cx - rx * 0.42, cy - h * 0.98, cx, tipY);
+    ctx.bezierCurveTo(cx + rx * 0.42, cy - h * 0.98, cx + rx * 1.1, cy - h * 0.62, cx + rx, cy);
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.save();
+    ctx.clip();
+    ctx.fillStyle = "rgba(0,0,0,0.20)";
+    ctx.fillRect(cx + rx * 0.12, tipY - 2, rx * 1.2, h * 1.2 + ry + 4);
+    ctx.fillStyle = "rgba(255,255,255,0.24)";
+    ctx.beginPath();
+    ctx.ellipse(cx - rx * 0.4, cy - h * 0.6, rx * 0.15, h * 0.26, -0.45, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = "rgba(0,0,0,0.42)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    if (!finial) return tipY;
+    const fh = Math.max(3, 6 * view.zoom);
+    line({ x: cx, y: tipY }, { x: cx, y: tipY - fh }, "#f0c75e", Math.max(1, 1.6 * view.zoom));
+    ctx.beginPath();
+    ctx.arc(cx, tipY - fh, Math.max(1, 1.8 * view.zoom), 0, Math.PI * 2);
+    ctx.fillStyle = "#f0c75e";
+    ctx.fill();
+    return tipY - fh;
+  }
+
+  // نوار کاشی فیروزه‌ای زیر لبه دیوار (امضای بصری بناهای قلعه).
+  function tileBand(P, Pt, Q, Qt, t) {
+    line(lerp(P, Pt, t), lerp(Q, Qt, t), "#2aa6ab", Math.max(1, 2 * view.zoom));
+  }
+
   function drawHut(b, def, det) {
     const A = cs(b.c, b.r);
     const B = cs(b.c + b.w, b.r);
@@ -384,6 +423,20 @@ export function createRenderer(canvas) {
     const d0 = lerp(B, C, 0.36), d1 = lerp(B, C, 0.64);
     const dh = Math.min(11 * view.zoom, (C.y - Ct.y) * 0.8);
     poly([d0, d1, { x: d1.x, y: d1.y - dh }, { x: d0.x, y: d0.y - dh }], "#3a2c1c", null, 0);
+    // خانه خشتی و بناهای آیینی: بام تخت با جان‌پناه + گنبد (بقیه انواع پیش‌فرض همان شیروانی چوبی)
+    if (b.type === "hut" || b.type === "chapel" || b.type === "church" || b.type === "cathedral") {
+      const temple = b.type !== "hut";
+      const roof = temple ? shade(def.base, 16) : def.top;
+      poly([At, Bt, Ct, Dt], roof, "rgba(0,0,0,0.4)", 1);
+      const ins = (u, v) => lerp(lerp(At, Bt, u), lerp(Dt, Ct, u), v);
+      poly([ins(0.13, 0.13), ins(0.87, 0.13), ins(0.87, 0.87), ins(0.13, 0.87)], shade(roof, -16), null, 0);
+      if (temple) { tileBand(D, Dt, C, Ct, 0.86); tileBand(B, Bt, C, Ct, 0.86); }
+      const mc0 = mid(At, Ct);
+      const rx = (Bt.x - At.x) * (temple ? 0.3 : 0.15);
+      const domeTop = drawDome(mc0.x, mc0.y + (temple ? rx * 0.1 : 0), rx, rx * (temple ? 1.3 : 0.75), temple ? def.top : shade(def.top, -10), temple);
+      damageWash([At, Bt, Ct, Dt], 1 - b.hp / b.maxHp, det);
+      return { topY: domeTop };
+    }
     // سقف شیروانی: خط‌الرأس بین وسط یال چپ و راست صفحه بالا
     const roofH = Math.max(5, 13 * view.zoom);
     const L = mid(At, Dt), R = mid(Bt, Ct);
@@ -1023,6 +1076,8 @@ export function createRenderer(canvas) {
         line(lerp(B, Bt, t), lerp(C, Ct, t), "rgba(255,255,255,0.10)", 1);
       }
     }
+    tileBand(D, Dt, C, Ct, 0.88);
+    tileBand(B, Bt, C, Ct, 0.88);
     // شکاف تیراندازی روی نمای راست
     const w0 = lerp(lerp(B, Bt, 0.55), lerp(C, Ct, 0.55), 0.5);
     line({ x: w0.x, y: w0.y - 5 * view.zoom }, { x: w0.x, y: w0.y + 3 * view.zoom }, "rgba(10,10,12,0.85)", Math.max(2, 3 * view.zoom));
@@ -1093,6 +1148,8 @@ export function createRenderer(canvas) {
         line(lerp(B, Bt, t), lerp(C, Ct, t), "rgba(255,255,255,0.10)", 1);
       }
     }
+    tileBand(D, Dt, C, Ct, 0.9);
+    tileBand(B, Bt, C, Ct, 0.9);
     // درِ طاق‌دار روی نمای راست
     const d0 = lerp(B, C, 0.4), d1 = lerp(B, C, 0.6);
     const dh = Math.min(16 * view.zoom, (C.y - Ct.y) * 0.55);
@@ -1122,17 +1179,15 @@ export function createRenderer(canvas) {
     const hCt = { x: hC.x, y: hC.y - hallH }, hDt = { x: hD.x, y: hD.y - hallH };
     poly([hD, hC, hCt, hDt], def.dark, "rgba(0,0,0,0.4)", 1);
     poly([hB, hC, hCt, hBt], shade(def.base, -22), "rgba(0,0,0,0.4)", 1);
-    // سقف شیروانی سرخ تالار
-    const roofH = Math.max(4, 10 * view.zoom);
-    const L = mid(hAt, hDt), R = mid(hBt, hCt);
-    const Lp = { x: L.x, y: L.y - roofH }, Rp = { x: R.x, y: R.y - roofH };
-    poly([hAt, hDt, Lp], shade(def.top, -30), "rgba(0,0,0,0.4)", 1);
-    poly([hBt, hCt, Rp], shade(def.top, -38), "rgba(0,0,0,0.4)", 1);
-    poly([Lp, hAt, hBt, Rp], def.top, "rgba(0,0,0,0.35)", 1);
-    poly([Lp, Rp, hCt, hDt], shade(def.top, -30), "rgba(0,0,0,0.35)", 1);
-    line(Lp, Rp, "rgba(0,0,0,0.45)", 1);
+    // بام تالار + گنبد کاشی (جایگزین شیروانی — 0.278.0)
+    poly([hAt, hBt, hCt, hDt], shade(def.base, 10), "rgba(0,0,0,0.4)", 1);
+    tileBand(hD, hDt, hC, hCt, 0.84);
+    tileBand(hB, hBt, hC, hCt, 0.84);
+    const hc = mid(hAt, hCt);
+    const drx = (hBt.x - hAt.x) * 0.52;
+    const domeTip = drawDome(hc.x, hc.y + drx * 0.1, drx, drx * 1.25, def.top, false);
     // پرچم بر خط‌الرأس
-    const M = mid(Lp, Rp);
+    const M = { x: hc.x, y: domeTip };
     const poleH = 18 * view.zoom;
     const py = M.y - poleH;
     line(M, { x: M.x, y: py }, "#3a2c1c", Math.max(1, 1.6 * view.zoom));
@@ -2851,10 +2906,11 @@ export function createRenderer(canvas) {
         } else if (t === T_OASIS) {
           // واحه (0.154.0 — §1.2/بند 107): چمن + برکه مرکزی + نخل وکتوری؛
           // tileImage نیست → همیشه وکتور (مثل fallback بقیه).
-          tIncomplete = true;
-          drawGrass(pts, c, r, det);
+          const oimg = tileImage("grass", 5);
+          if (oimg) blitTile(oimg, pts); else { tIncomplete = true; drawGrass(pts, c, r, det); }
           const ocx = (pts[0].x + pts[2].x) / 2, ocy = (pts[0].y + pts[2].y) / 2;
           const iw = (pts[1].x - pts[0].x) * 0.30, ih = (pts[2].y - pts[0].y) * 0.30;
+          ctx.beginPath(); ctx.ellipse(ocx, ocy, iw * 1.9, ih * 1.9, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(96,140,70,0.55)"; ctx.fill();
           poly([{ x: ocx, y: ocy - ih }, { x: ocx + iw, y: ocy }, { x: ocx, y: ocy + ih }, { x: ocx - iw, y: ocy }], WATER_B, "rgba(0,0,0,0.12)", 1);
           const oz = view.zoom;
           const tx = ocx + iw * 0.45, ty = ocy + ih * 0.55;

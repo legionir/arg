@@ -555,7 +555,7 @@ function t_minimap_dots() {
   // مرکز نقشه همیشه آب است (هسته دریاچه r≤۲٫۵)
   must(terrain[31 * W + 31] === T_WATER, "مرکز باید آب باشد");
   const [wx, wy] = cellPx(31, 31);
-  must(hex(at(wx, wy)) === "2e6f8e", `پیکسل آب باید آبی دریا باشد، شد ${hex(at(wx, wy))}`);
+  must(hex(at(wx, wy)) === "2aa6ab", `پیکسل آب باید آبی دریا باشد، شد ${hex(at(wx, wy))}`);
   // مهاجم = نقطه قرمز (مختصات آینه فرمول drawMinimap)
   const ux = Math.floor(foe.x * (S / W)), uy = Math.floor(foe.r * (S / H));
   must(hex(at(ux, uy)) === "e74c3c", `پیکسل مهاجم باید قرمز باشد، شد ${hex(at(ux, uy))}`);

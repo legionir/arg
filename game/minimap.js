@@ -9,10 +9,10 @@ export const MINIMAP_W = 150;
 export const MINIMAP_H = 150;
 
 // رنگ‌ها (مات تا getImageData دقیق بخواند):
-export const MM_GRASS = "#33502e";
-export const MM_WATER = "#2e6f8e";
-export const MM_ROCK = "#7a7f85";
-export const MM_OASIS = "#3f8f6f"; // واحه (0.154.0 — بند 107)
+export const MM_GRASS = "#b9975f";
+export const MM_WATER = "#2aa6ab";
+export const MM_ROCK = "#7f705f";
+export const MM_OASIS = "#4f9a6a"; // واحه (0.154.0 — بند 107)
 export const MM_SELF = "#4d9de0";   // آبی مالک ۰ (آینه PLAYER_COLORS[0])
 export const MM_AI = "#e05c4d";     // قرمز حریف (آینه رنگ نقطه بنای AI در render.js)
 export const MM_ME_UNIT = "#2ecc71"; // سبز: یگان خودی
