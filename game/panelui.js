@@ -16,6 +16,7 @@ import { clockText } from "./missions.js";
 import { hintBuilding, nextHint } from "./hints.js";
 import { missionByKey, missionOutro } from "./campaign.js";
 import { getLang } from "./i18n.js";
+import { endSummaryHTML } from "./endsummary.js";
 
 function $(id) { return document.getElementById(id); }
 
@@ -242,6 +243,13 @@ export function createPanelUI({ getState, getMpSession, getReplayWatch, getSound
       defeatBanner.hidden = !(getState().defeated || getMissionLost()); // بنر شکست (0.19.0) + باخت مأموریت view-side (0.225.0)
       victoryBanner.hidden = !(getState().victorious || getMissionWon()); // بنر پیروزی (0.22.0) + برد مأموریت view-side (0.225.0)
       if (getMissionWon()) { const vbp = victoryBanner.querySelector("p"); if (vbp) { const mdoc = missionByKey(getLastMissionKey()); const outro = missionOutro(mdoc, getLang()); vbp.textContent = t("ui.campaign.won", { name: missionLabel(mdoc) }) + (outro ? " " + outro : ""); } }
+    }
+    // خلاصه پایان بازی (0.283.0): یک‌بار هنگام نمایان‌شدن بنر پر می‌شود.
+    for (const [ban, id] of [[defeatBanner, "defeatStats"], [victoryBanner, "victoryStats"]]) {
+      const ul = $(id);
+      if (!ul) continue;
+      if (!ban.hidden && !ban.dataset.stats) { ban.dataset.stats = "1"; ul.innerHTML = endSummaryHTML(getState(), viewSlotOf(getMpSession())); }
+      else if (ban.hidden && ban.dataset.stats) { delete ban.dataset.stats; ul.innerHTML = ""; }
     }
     // بنر تازه‌نمایان: فوکوس روی دکمه‌اش (یک‌بار؛ نه در هر refresh) تا صفحه‌کلید/صفحه‌خوان در بنر بیفتد
     for (const [ban, btn] of [[defeatBanner, defeatRestartBtn], [victoryBanner, victoryRestartBtn]]) {

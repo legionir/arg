@@ -194,4 +194,10 @@ label.lbl { margin: 0; white-space: nowrap; }
 #meritBox button[data-mcol] { background: none; border: none; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; padding: 0 0.3rem; }
 .map-prev { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
 .map-prev canvas { border-radius: 8px; }
-
+
+/* ---- End-of-game summary (0.283.0) ---- */
+#defeatBox, #victoryBox { min-width: min(22rem, 86vw); max-width: 30rem; }
+.end-stats { list-style: none; margin: 0 0 var(--sp-4); padding: 0; display: grid; gap: var(--sp-1); text-align: start; }
+.end-stats li { display: flex; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-1) var(--sp-2); border-block-end: 1px solid var(--line-1); font-size: var(--fs-sm); color: var(--text-3); }
+.end-stats b { color: var(--text-1); font-variant-numeric: tabular-nums; }
+.end-actions { display: flex; gap: var(--sp-2); justify-content: center; flex-wrap: wrap; }

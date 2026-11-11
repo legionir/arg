@@ -1143,6 +1143,7 @@ function boot() {
   const flat = viewFrameUI.flat, frame = viewFrameUI.frame, minimapUI = viewFrameUI.minimapUI;
 
   // دم بوت (0.272.0 — C-CLN-92): استخراج مکانیکی به game/boottail.js — بدون تغییر منطق.
+  for (const eb of document.querySelectorAll(".end-menu")) eb.addEventListener("click", () => { const mb = $("menuBtn"); if (mb) mb.click(); }); // بنر پایان → منو (0.283.0)
   const paintRivalCard = wireRivalCard(); // کارت حریف صفحه تک‌نفره (0.281.0)
   createBootTail({ getState: () => state, getProfile: () => profile, getMenuRelabelFns, refreshPanel, setTick, assignStaff, showMenu, getMenuNavApi, $, paintCompat, saveStatus, policy, keyUI, soundUI, flat, renderer, paintSeed, paintReplayStatus, paintReplayBar, paintMp, lobby, paintMarket, paintTrain, getEditor, syncEditorPanel, edCounts, online, frame });
 

@@ -1,6 +1,12 @@
 // واژگان رابط ایستا (index.html) — فارسی مرجع، انگلیسی ترجمه.
 export default {
   fa: {
+  "ui.end.menu": "بازگشت به منو",
+  "ui.end.time": "زمان نبرد",
+  "ui.end.buildings": "بناهای سرپا",
+  "ui.end.units": "یگان‌های زنده",
+  "ui.end.workers": "مردم واحه",
+  "ui.end.popularity": "محبوبیت",
   "ui.hud.toggle": "نمایش/پنهان نوار ابزار",
   "ui.sheet.toggle": "نمایش/پنهان پنل",
   "ui.top.menu": "منو",
@@ -282,6 +288,12 @@ export default {
   "app.title": "ارگ — Arg"
 },
   en: {
+  "ui.end.menu": "Back to menu",
+  "ui.end.time": "Battle time",
+  "ui.end.buildings": "Buildings standing",
+  "ui.end.units": "Units alive",
+  "ui.end.workers": "Oasis folk",
+  "ui.end.popularity": "Popularity",
   "ui.hud.toggle": "Show/hide toolbar",
   "ui.sheet.toggle": "Show/hide panel",
   "ui.top.menu": "Menu",

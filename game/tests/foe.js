@@ -5,9 +5,10 @@ import { must, fresh, mpFresh, aiFreshPers } from "./fixtures.js";
 import { foeKingFor, foePanelData, isCaravanMsg, PERSONALITY_LORD } from "../foeinfo.js";
 import { UNITS } from "../combat.js";
 import { rivalCardData } from "../rivalcard.js";
+import { endSummary, endSummaryHTML } from "../endsummary.js";
 
 function foeCases() {
-  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card];
+  return [t_foe_ai_king, t_foe_ai_fallback, t_foe_mp_king, t_foe_none, t_foe_panel_unit, t_foe_panel_bld, t_caravan_filter, t_rival_card, t_end_summary];
 }
 
 // کارت حریف صفحه راه‌اندازی (0.281.0): هر هفت فرمانروا پرتره یکتا + جمله دوزبانه دارند.
@@ -25,6 +26,19 @@ function t_rival_card() {
   must(faces.size === 7, "هفت پرتره یکتا");
   must(rivalCardData("nope").key === CONFIG.AI.defaultPersonality, "شناسه نامعتبر = پیش‌فرض");
   return { name: "t_rival_card", pass: true, detail: "۷ فرمانروا × (نام/منش/جمله fa+en/پرتره)" };
+}
+
+// خلاصه پایان بازی (0.283.0): شمارش خودی‌ها (نه بنای حریف) + ساعت + HTML پنج‌ردیفه.
+function t_end_summary() {
+  const { state } = aiFreshPers("artan");
+  state.tick = 1250;
+  const s = endSummary(state, 0);
+  must(s.time === "02:05", "ساعت ۱۲۵ ثانیه = 02:05، شد " + s.time);
+  const all = state.buildings.filter((b) => !b.destroyed).length;
+  must(all >= 1 && s.buildings < all, "بنای حریف شمرده نمی‌شود: " + s.buildings + "/" + all);
+  must(s.units >= 0 && s.popularity >= 0, "اعداد نامنفی");
+  must((endSummaryHTML(state, 0).match(/<li>/g) || []).length === 5, "پنج ردیف");
+  return { name: "t_end_summary", pass: true, detail: "ساعت + شمارش خودی + ۵ ردیف" };
 }
 
 function t_foe_ai_king() {

@@ -1318,14 +1318,16 @@ self.rpc = {
     <div id="defeatBox">
       <h2 id="defeatTitle" data-i18n="ui.defeat.title">شکست!</h2>
       <p data-i18n="ui.defeat.text">ارگ سقوط کرد — قلعه از دست رفت.</p>
-      <button id="defeatRestartBtn" data-i18n="ui.top.restart">شروع دوباره</button>
+      <ul class="end-stats" id="defeatStats"></ul>
+      <div class="end-actions"><button id="defeatRestartBtn" data-i18n="ui.top.restart">شروع دوباره</button><button type="button" class="end-menu" data-i18n="ui.end.menu">بازگشت به منو</button></div>
     </div>
   </div>
   <div id="victoryBanner" role="alertdialog" aria-modal="true" aria-labelledby="victoryTitle" hidden>
     <div id="victoryBox">
       <h2 id="victoryTitle" data-i18n="ui.victory.title">پیروزی!</h2>
       <p data-i18n="ui.victory.text">آخرین موج در هم شکست — قلعه پابرجاست.</p>
-      <button id="victoryRestartBtn" data-i18n="ui.victory.again">بازی دوباره</button>
+      <ul class="end-stats" id="victoryStats"></ul>
+      <div class="end-actions"><button id="victoryRestartBtn" data-i18n="ui.victory.again">بازی دوباره</button><button type="button" class="end-menu" data-i18n="ui.end.menu">بازگشت به منو</button></div>
     </div>
   </div>
   <div id="menuScreen">
