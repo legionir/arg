@@ -408,6 +408,87 @@ export function createRenderer(canvas) {
     line(lerp(P, Pt, t), lerp(Q, Qt, t), "#2aa6ab", Math.max(1, 2 * view.zoom));
   }
 
+  // بادگیر: منشور باریک با سه شکاف روی هر نما، پشتِ بام (گوشه دور از دوربین).
+  function drawBadgir(b, def) {
+    const z = view.zoom;
+    const base = cs(b.c + b.w * 0.28, b.r + b.h * 0.28);
+    const y0 = base.y - def.height * z, w = Math.max(3, 5.5 * z), h = Math.max(8, 20 * z);
+    const L = { x: base.x - w, y: y0 }, M = { x: base.x, y: y0 + w * 0.5 }, R = { x: base.x + w, y: y0 };
+    const up = (p) => ({ x: p.x, y: p.y - h });
+    poly([L, M, up(M), up(L)], shade(def.base, -6), "rgba(0,0,0,0.4)", 1);
+    poly([M, R, up(R), up(M)], shade(def.base, -26), "rgba(0,0,0,0.4)", 1);
+    poly([up(L), up(M), up(R), { x: base.x, y: y0 - h - w * 0.5 }], shade(def.base, 14), "rgba(0,0,0,0.4)", 1);
+    for (const t of [0.3, 0.5, 0.7]) {
+      const a = lerp(L, M, t), c = lerp(M, R, t);
+      line({ x: a.x, y: a.y - h * 0.55 }, { x: a.x, y: a.y - h * 0.9 }, "rgba(20,14,8,0.8)", Math.max(1, 1.1 * z));
+      line({ x: c.x, y: c.y - h * 0.55 }, { x: c.x, y: c.y - h * 0.9 }, "rgba(20,14,8,0.8)", Math.max(1, 1.1 * z));
+    }
+  }
+
+  // باغ و بوستان (0.285.0): زمین سبز با دیوارک خشتی و درخت — به‌جای کلبه پیش‌فرض.
+  function drawGrove(b, def, det) {
+    const z = view.zoom;
+    const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
+    poly([A, B, C, D], def.base, "rgba(0,0,0,0.35)", 1);
+    const wall = Math.max(2, 4 * z), up = (p) => ({ x: p.x, y: p.y - wall });
+    poly([D, C, up(C), up(D)], "#b8946a", "rgba(0,0,0,0.35)", 1);
+    poly([B, C, up(C), up(B)], "#a8845a", "rgba(0,0,0,0.35)", 1);
+    const q = (u, v) => lerp(lerp(A, B, u), lerp(D, C, u), v);
+    let top = A.y;
+    const fruit = b.type === "orchard";
+    if (!fruit) { // حوض میانی
+      const m = q(0.5, 0.5), rw = (B.x - A.x) * 0.16;
+      poly([{ x: m.x, y: m.y - rw * 0.5 }, { x: m.x + rw, y: m.y }, { x: m.x, y: m.y + rw * 0.5 }, { x: m.x - rw, y: m.y }], "#2aa6ab", "rgba(0,0,0,0.3)", 1);
+    }
+    const spots = fruit ? [[0.25, 0.25], [0.7, 0.22], [0.22, 0.7], [0.5, 0.5], [0.75, 0.7]] : [[0.22, 0.22], [0.78, 0.22], [0.22, 0.78], [0.78, 0.78]];
+    for (const [u, v] of spots) {
+      const p = q(u, v), th = Math.max(4, 9 * z), cr = Math.max(3, (fruit ? 7 : 5.5) * z);
+      line(p, { x: p.x, y: p.y - th }, "#6b4a2a", Math.max(1, 1.8 * z));
+      ctx.beginPath();
+      if (fruit) ctx.arc(p.x, p.y - th - cr * 0.6, cr, 0, Math.PI * 2);
+      else ctx.ellipse(p.x, p.y - th - cr, cr * 0.55, cr * 1.5, 0, 0, Math.PI * 2); // سرو
+      ctx.fillStyle = fruit ? def.top : shade(def.dark, 6);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,0.35)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      if (fruit && det) for (const [dx, dy] of [[-0.4, -0.2], [0.35, 0.1], [0, -0.55]]) {
+        ctx.beginPath();
+        ctx.arc(p.x + dx * cr, p.y - th - cr * 0.6 + dy * cr, Math.max(1, 1.3 * z), 0, Math.PI * 2);
+        ctx.fillStyle = "#c0392b";
+        ctx.fill();
+      }
+      top = Math.min(top, p.y - th - cr * 2.5);
+    }
+    damageWash([A, B, C, D], 1 - b.hp / b.maxHp, det);
+    return { topY: top };
+  }
+
+  // تندیس (0.285.0): سکوی سنگی + ستون + سرستون طلایی.
+  function drawStatue(b, def, det) {
+    const z = view.zoom;
+    const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
+    groundShadow(A, B, C, D, 0.25);
+    const q = (u, v) => lerp(lerp(A, B, u), lerp(D, C, u), v);
+    const a = q(0.2, 0.2), b2 = q(0.8, 0.2), c = q(0.8, 0.8), d = q(0.2, 0.8), ph = Math.max(3, 6 * z);
+    const up = (p, h) => ({ x: p.x, y: p.y - h });
+    poly([d, c, up(c, ph), up(d, ph)], def.dark, "rgba(0,0,0,0.4)", 1);
+    poly([b2, c, up(c, ph), up(b2, ph)], shade(def.base, -20), "rgba(0,0,0,0.4)", 1);
+    poly([up(a, ph), up(b2, ph), up(c, ph), up(d, ph)], def.top, "rgba(0,0,0,0.4)", 1);
+    const m = up(mid(a, c), ph), colH = Math.max(8, def.height * z);
+    line(m, up(m, colH), def.base, Math.max(2, 4 * z));
+    line(m, up(m, colH), "rgba(0,0,0,0.18)", Math.max(1, 1.2 * z));
+    ctx.beginPath();
+    ctx.arc(m.x, m.y - colH - Math.max(2, 3 * z), Math.max(2, 3.4 * z), 0, Math.PI * 2);
+    ctx.fillStyle = "#f0c75e";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.45)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    damageWash([up(a, ph), up(b2, ph), up(c, ph), up(d, ph)], 1 - b.hp / b.maxHp, det);
+    return { topY: m.y - colH - 7 * z };
+  }
+
   function drawHut(b, def, det) {
     const A = cs(b.c, b.r);
     const B = cs(b.c + b.w, b.r);
@@ -2102,7 +2183,9 @@ export function createRenderer(canvas) {
       damageWash([A, B, C, D], 1 - b.hp / b.maxHp, det);
       topY = A.y;
     } else if (b.type === "tower" || b.type === "lookout" || b.type === "perimeter" || b.type === "defence" || b.type === "squaretower" || b.type === "roundtower") topY = drawTower(b, def, tick, det).topY;
-    else if (b.type === "keep") topY = drawKeep(b, def, tick, det).topY;
+    else if (b.type === "keep" || b.type === "stonekeep") topY = drawKeep(b, def, tick, det).topY;
+    else if (b.type === "orchard" || b.type === "garden") topY = drawGrove(b, def, det).topY;
+    else if (b.type === "statue") topY = drawStatue(b, def, det).topY;
     else if (b.type === "woodcutter") topY = drawWoodcutter(b, def, det).topY;
     else if (b.type === "quarry") topY = drawQuarry(b, def, det, oxAt(b, state)).topY;
     else if (b.type === "oxtether") topY = drawOxtether(b, def, det).topY;
@@ -2134,6 +2217,8 @@ export function createRenderer(canvas) {
     else if (b.type === "well") topY = drawWell(b, def, det).topY;
     else if (b.type === "waterpot") topY = drawWaterpot(b, def, det).topY;
     else topY = drawHut(b, def, det).topY;
+    // بادگیر (0.285.0): برجک تهویه روی بام بناهای پخت‌وپز و پذیرایی — امضای بصری فلات.
+    if (!view.flat && !(b.buildLeft > 0) && (b.type === "inn" || b.type === "bakery" || b.type === "brewery")) drawBadgir(b, def);
     // داربست ساخت‌وساز (0.39.0): تیرک‌های چوبی دور ردپا + تخته افقی بالا —
     // نیمه‌کاره در یک نگاه از تکمیل‌شده جدا می‌شود (در نمای تخت فقط ردپا).
     if ((b.buildLeft || 0) > 0 && !view.flat) {
