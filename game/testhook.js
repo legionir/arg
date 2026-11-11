@@ -27,6 +27,7 @@ export function createTestHookUI({ getState, getTerrain, getMpSession, getMpDesy
       pan: () => ({ x: renderer.view.panX, y: renderer.view.panY }),
     },
     config: CONFIG,
+    focus: (c, r, mul) => { renderer.focus(c, r, mul); renderer.markDirty(); }, // دوربین روی خانه — قلاب تست/اسکرین‌شات
     online,
     lobby,
     mp: {

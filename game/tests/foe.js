@@ -21,7 +21,7 @@ function t_rival_card() {
     must(c.quote.length > 8 && c.quote.indexOf("game.personality") < 0, "جمله فارسی " + k);
     const en = withLang("en", () => rivalCardData(k));
     must(en.quote.length > 8 && en.quote !== c.quote && en.quote.indexOf("game.personality") < 0, "جمله انگلیسی " + k);
-    must(c.face.indexOf("assets/portraits/" + k + ".svg") === 0, "پرتره " + k);
+    must(new RegExp("^assets/portraits/" + k + "\\.(svg|jpg)$").test(c.face), "پرتره " + k);
     faces.add(c.face);
   }
   must(faces.size === 7, "هفت پرتره یکتا");

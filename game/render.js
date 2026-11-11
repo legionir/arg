@@ -5,6 +5,7 @@
 // می‌آیند — صفر اثر روی منطق بازی.
 import { CONFIG } from "./config.js";
 import { T_GRASS, T_WATER, T_ROCK, T_OASIS } from "./terrain.js";
+import { BUILDING_ART, ART_K } from "./buildingart.js";
 import { UNITS, ATTACKPOS_SPLASH, signDir, stableHorses, HORSES_PER_STABLE } from "./combat.js";
 import { TUNING } from "./data.js";
 import { getSprite } from "./sprites.js";
@@ -671,6 +672,27 @@ export function createRenderer(canvas) {
     }
     damageWash([At, Bt, Ct, Dt], 1 - b.hp / b.maxHp, det);
     return { topY: At.y };
+  }
+
+  // نگاره‌ی نقاشی‌شده (پایلوت): تصویر روی ردپا؛ مراکز لوزی = مرکز تصویر، پایین تصویر = رأس پایینی ردپا.
+  function artFor(b) {
+    const e = BUILDING_ART[b.type];
+    if (!e) return null;
+    const img = getSprite(`assets/buildings/${b.type}.png`);
+    return img ? { img, e } : null;
+  }
+  function drawArt(b, def, art, det) {
+    const z = view.zoom;
+    const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
+    groundShadow(A, B, C, D, 0.22);
+    const w = (art.img.naturalWidth / ART_K) * z, h = (art.img.naturalHeight / ART_K) * z;
+    const cx = (A.x + C.x) / 2, by = C.y + (art.e.dy || 0) * z + 2 * z;
+    const gray = b.staffed === false && CONFIG.BUILDINGS[b.type].prod;
+    ctx.save();
+    if (gray) { try { ctx.filter = "grayscale(1) brightness(0.8)"; } catch (e) { /* مرورگر بی‌فیلتر */ } }
+    ctx.drawImage(art.img, cx - w / 2, by - h, w, h);
+    ctx.restore();
+    return { topY: by - h };
   }
 
   function drawHut(b, def, det) {
@@ -2369,7 +2391,8 @@ export function createRenderer(canvas) {
       poly([A, B, C, D], def.top, "rgba(0,0,0,0.55)", Math.max(1.2, 1.6 * view.zoom));
       damageWash([A, B, C, D], 1 - b.hp / b.maxHp, det);
       topY = A.y;
-    } else if (b.type === "tower" || b.type === "lookout" || b.type === "perimeter" || b.type === "defence" || b.type === "squaretower" || b.type === "roundtower") topY = drawTower(b, def, tick, det).topY;
+    } else if (artFor(b)) topY = drawArt(b, palFor(b), artFor(b), det).topY;
+    else if (b.type === "tower" || b.type === "lookout" || b.type === "perimeter" || b.type === "defence" || b.type === "squaretower" || b.type === "roundtower") topY = drawTower(b, def, tick, det).topY;
     else if (b.type === "keep" || b.type === "stonekeep") topY = drawKeep(b, def, tick, det).topY;
     else if (b.type === "orchard" || b.type === "garden") topY = drawGrove(b, def, det).topY;
     else if (b.type === "statue") topY = drawStatue(b, def, det).topY;

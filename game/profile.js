@@ -8,9 +8,9 @@
 // فرمانروایان حریف‌اند (game/foeinfo.js). مسیر نسبت به index.html است.
 export const LORD_PORTRAIT_BASE = "assets/portraits/";
 export const PROFILE_LORDS = [
-  { file: "artan.svg", name: "Artan" },
+  { file: "artan.jpg", name: "Artan" },
   { file: "kahbod.svg", name: "Kahbod" },
-  { file: "tirazheh.svg", name: "Tirazheh" },
+  { file: "tirazheh.jpg", name: "Tirazheh" },
   { file: "farrokhan.svg", name: "Farrokhan" },
   { file: "sepehrdad.svg", name: "Sepehrdad" },
   { file: "hamun.svg", name: "Hamun" },

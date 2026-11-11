@@ -229,7 +229,7 @@ function t_profile_lords() {
   const files = PROFILE_LORDS.map((l) => l.file);
   must(new Set(files).size === 29, "فایل‌های پرتره یکتا هستند");
   for (const l of PROFILE_LORDS) {
-    must(/^[a-z]+\.svg$/.test(l.file), "فایل پرتره انگلیسی است: " + l.file);
+    must(/^[a-z]+\.(svg|jpg)$/.test(l.file), "فایل پرتره انگلیسی است: " + l.file);
     must(validProfileName(l.name) !== null, "نام لرد باید نام معتبر باشد: " + l.name);
   }
   must(lordName(0) === PROFILE_LORDS[0].name && lordName(99) === "", "نام لرد/نامعتبر");
