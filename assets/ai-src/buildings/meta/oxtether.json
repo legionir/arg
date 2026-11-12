@@ -1,0 +1,39 @@
+{
+ "key": "oxtether",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "an ox pen, a wooden fenced yard with hay, a feeding trough and two oxen. square footprint, very low profile, nearly flat, mostly at ground level. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  2,
+  2
+ ],
+ "at": "2026-11-12T11:27:21.025Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "oxtether_1.webp",
+   "rank": 1,
+   "bytes": 203570,
+   "score": 1.42,
+   "flat": 0.46,
+   "asp": 1.33,
+   "margin": 0.066,
+   "areaFrac": 0.29,
+   "w": 1312,
+   "h": 1199
+  },
+  {
+   "file": "oxtether_2.webp",
+   "rank": 2,
+   "bytes": 182404,
+   "score": 1.321,
+   "flat": 0.33,
+   "asp": 1.55,
+   "margin": 0.141,
+   "areaFrac": 0.18,
+   "w": 1536,
+   "h": 1024
+  }
+ ]
+}
