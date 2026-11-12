@@ -1,0 +1,39 @@
+{
+ "key": "dairy",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "a dairy farm, a low open adobe cowshed with a wooden fence pen, milk churns and a cow. rectangular footprint with 3:2 proportions, very low profile, nearly flat, mostly at ground level. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  3,
+  2
+ ],
+ "at": "2026-11-12T10:51:46.196Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "dairy_1.webp",
+   "rank": 1,
+   "bytes": 195108,
+   "score": 1.243,
+   "flat": 0.33,
+   "asp": 1.8,
+   "margin": 0.113,
+   "areaFrac": 0.2,
+   "w": 1536,
+   "h": 1024
+  },
+  {
+   "file": "dairy_2.webp",
+   "rank": 2,
+   "bytes": 168478,
+   "score": 0.509,
+   "flat": 0.33,
+   "asp": 1.51,
+   "margin": 0.16,
+   "areaFrac": 0.18,
+   "w": 1536,
+   "h": 1024
+  }
+ ]
+}
