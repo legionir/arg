@@ -1,0 +1,42 @@
+{
+ "key": "hut",
+ "set": "buildings",
+ "prompt": "a small adobe mud-brick house with a flat roof and low parapet, a wooden door and one arched window. square footprint, single storey with a roof feature. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people. The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and background treatment exactly, but do NOT copy its subject, shape, person or objects; draw only the subject described above.",
+ "reference": "assets/ai-src/buildings/bakery_1.webp",
+ "aspect": "1:1",
+ "footprint": [
+  2,
+  2
+ ],
+ "project": "https://www.designarena.ai/chat/ddcd48dd-f0e5-4dbc-8f1f-f938bcd6406e",
+ "at": "2026-11-12T01:21:48.402Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "hut_1.webp",
+   "rank": 1,
+   "bytes": 120320,
+   "score": 2.654,
+   "flat": 1,
+   "asp": 0.98,
+   "margin": 0.133,
+   "areaFrac": 0.34,
+   "w": 1024,
+   "h": 1024,
+   "source": "1794446354330_n9i9gb.jpg"
+  },
+  {
+   "file": "hut_2.webp",
+   "rank": 2,
+   "bytes": 523864,
+   "score": 2.66,
+   "flat": 1,
+   "asp": 1.07,
+   "margin": 0.121,
+   "areaFrac": 0.34,
+   "w": 2048,
+   "h": 2048,
+   "source": "1794446495119_4saz5z.png"
+  }
+ ]
+}

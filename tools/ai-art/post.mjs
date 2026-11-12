@@ -20,7 +20,7 @@ const browser = await pw.chromium.launch({ args: ["--no-sandbox"] });
 const page = await browser.newPage();
 for (const it of list) {
   const b64 = fs.readFileSync(it.src).toString("base64");
-  const mime = it.src.endsWith(".png") ? "png" : "jpeg";
+  const mime = it.src.endsWith(".png") ? "png" : it.src.endsWith(".webp") ? "webp" : "jpeg";
   const base = (it.w + it.h) * TILE_W / 2;              // width of the footprint diamond at zoom 1
   const res = await page.evaluate(async ({ b64, mime, target }) => {
     const img = new Image(); img.src = `data:image/${mime};base64,${b64}`; await img.decode();
