@@ -1,29 +1,33 @@
 #!/usr/bin/env node
-// Generate building art through DesignArena ("Image" type) in the user's browser, vote each of the 5 rounds with an
-// automatic fit score, download every distinct result (ranked), store them in the repo as WebP, and stop cleanly on a limit.
-//   DA_TUNNEL=https://<worker>.workers.dev DA_OTP=<token> node tools/ai-art/designarena/run.mjs [--keys hut,tower] [--max 5]
-// Resumable: a building with assets/ai-src/buildings/meta/<key>.json is skipped.  Exit code 3 = limit reached (continue later).
+// Generate art through DesignArena ("Image" type) in the user's browser: submit a prompt, vote the 5 rounds with an
+// automatic score, download every distinct ranked result, store it in the repo as WebP, commit/push in batches, and stop
+// cleanly (exit 3) on a usage limit. Resumable: an item with <out>/meta/<key>.json is skipped.
+//   DA_TUNNEL=https://<worker>.workers.dev DA_OTP=<token> node tools/ai-art/designarena/run.mjs
+//        [--set buildings|units|portraits|extras]  (default: all, in order)   [--keys a,b] [--max N]
+//        [--ref <image>]  style reference attached to every prompt             [--out <dir>] experiment output
+//        [--collect key=<chat url>,...]  harvest a finished project without generating
+//        [--commit-every 3]  git add/commit/push every N saved items (0 = never)
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { BUILDINGS, promptFor, expectedAspect } from "../buildings.mjs";
-import { connect, withRetry, checkLimit, dismissModals, resultUrls, download, LimitError } from "./lib.mjs";
+import { SETS, SET_ORDER } from "../sets.mjs";
+import { connect, withRetry, checkLimit, dismissModals, resultUrls, download } from "./lib.mjs";
 import { scoreImage, toWebp, toJpegSmall, closeScorer } from "./score.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url)), root = path.resolve(here, "../../..");
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i < 0 ? null : process.argv[i + 1]; };
-// --out <dir> keeps experiments apart from the production set; --ref <image> attaches a style reference to every prompt
-const SRC = arg("out") ? path.resolve(root, arg("out")) : path.join(root, "assets/ai-src/buildings"), META = path.join(SRC, "meta");
-fs.mkdirSync(META, { recursive: true });
+const only = arg("keys") ? new Set(arg("keys").split(",")) : null, MAX = +arg("max") || 1e9, COMMIT_EVERY = arg("commit-every") != null ? +arg("commit-every") : 3;
 const REF = arg("ref") ? path.resolve(root, arg("ref")) : null;
 const REF_SENTENCE = " Match the art style, palette, camera angle, lighting and level of detail of the attached reference image exactly; same hand-painted look, same outline weight.";
-const promptWith = (b) => promptFor(b) + (REF ? REF_SENTENCE : "");
-const only = arg("keys") ? new Set(arg("keys").split(",")) : null, MAX = +arg("max") || 1e9;
 const WORK = path.join(os.tmpdir(), "da-work"); fs.mkdirSync(WORK, { recursive: true });
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const stripTok = (u) => u.split("?")[0];
+const promptWith = (it) => it.prompt + (REF ? REF_SENTENCE : "");
+const RESULTS_PRED = () => /(fresh designs|All set|unique takes|Here you go|Add to Drive)/i.test(document.body.innerText) && !/Round \d of \d/.test(document.body.innerText);
+const roundOf = (page) => page.evaluate(() => { const m = document.body.innerText.match(/Round (\d) of (\d)/); return m ? [+m[1], +m[2]] : null; });
 
 async function waitFor(page, pred, ms, label, shot) {
   const t0 = Date.now();
@@ -33,11 +37,32 @@ async function waitFor(page, pred, ms, label, shot) {
   }
   throw new Error("timeout waiting for " + label);
 }
-const RESULTS_PRED = () => /(fresh designs|All set|unique takes|Here you go|Add to Drive)/i.test(document.body.innerText) && !/Round \d of \d/.test(document.body.innerText);
-const roundOf = (page) => page.evaluate(() => { const m = document.body.innerText.match(/Round (\d) of (\d)/); return m ? [+m[1], +m[2]] : null; });
 
-async function generate(browser, b) {
-  const dir = path.join(WORK, b.key); fs.mkdirSync(dir, { recursive: true });
+// Results page → every distinct image (ranked) → WebP in the repo + meta (shared by generate() and --collect)
+async function harvest(page, ctx, dir, votes) {
+  const { set, it, SRC, META } = ctx;
+  const all = await resultUrls(page, 0), seen = new Map();
+  for (const u of all) if (!seen.has(stripTok(u))) seen.set(stripTok(u), u);
+  const files = []; let rank = 0;
+  for (const [, u] of seen) {
+    const tmp = path.join(dir, `res_${rank + 1}.img`); download(u, tmp);
+    const sc = await scoreImage(tmp, it.expected).catch(() => null);
+    if (!sc || sc.w < 900) continue;                       // skip thumbnails / icons
+    rank++;
+    const out = path.join(SRC, `${it.key}_${rank}.webp`);
+    const bytes = await toWebp(tmp, out);
+    files.push({ file: `${it.key}_${rank}.webp`, rank, bytes, ...sc, source: stripTok(u).split("/").pop() });
+  }
+  if (!files.length) throw new Error("no result images found");
+  const meta = { key: it.key, set: set.dir, prompt: promptWith(it), reference: REF ? path.relative(root, REF) : null, aspect: it.aspect || set.aspect, footprint: it.b ? [it.b.w, it.b.h] : null, project: page.url(), at: new Date().toISOString(), votes, files };
+  fs.writeFileSync(path.join(META, it.key + ".json"), JSON.stringify(meta, null, 1) + "\n");
+  log(it.key, "saved", files.length, "images,", Math.round(files.reduce((n, f) => n + f.bytes, 0) / 1024) + " KB");
+  return meta;
+}
+
+async function generate(browser, ctx) {
+  const { set, it } = ctx;
+  const dir = path.join(WORK, it.key); fs.mkdirSync(dir, { recursive: true });
   const shot = path.join(dir, "limit.jpg");
   const page = await browser.contexts()[0].newPage();
   try {
@@ -45,99 +70,110 @@ async function generate(browser, b) {
     await page.goto("https://www.designarena.ai/", { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForTimeout(3500); await dismissModals(page);
     await page.getByRole("button", { name: "Image", exact: true }).first().click();
-    if (REF) {   // reference image: small JPEG so the tunnel is not overloaded
+    await page.waitForTimeout(800);
+    const ratio = it.aspect || set.aspect;                   // "Auto" is the aspect-ratio menu: 1:1 avoids letterboxed outputs
+    if (ratio) { await page.getByRole("button", { name: /^Auto/ }).click(); await page.waitForTimeout(500); await page.getByText(ratio, { exact: true }).first().click(); await page.waitForTimeout(500); }
+    if (REF) {                                               // small JPEG so the tunnel is not overloaded
       const buf = await toJpegSmall(REF, 768);
-      const [chooser] = await Promise.all([page.waitForEvent("filechooser", { timeout: 20000 }), page.getByRole("button", { name: /Add photos and files/ }).click()]);
-      await chooser.setFiles({ name: "reference.jpg", mimeType: "image/jpeg", buffer: buf });
+      await page.locator("input[type=file]").first().setInputFiles({ name: "reference.jpg", mimeType: "image/jpeg", buffer: buf });
       await page.waitForTimeout(5000);
     }
     const box = page.getByRole("textbox").first();
-    await box.click(); await box.fill(promptWith(b));
+    await box.click(); await box.fill(promptWith(it));
     await page.getByRole("button", { name: "Submit prompt" }).click();
-    log(b.key, "submitted");
-    // generation can take minutes; Round UI appears when candidates are ready
-    await waitFor(page, async () => (await roundOf(page)) || null, 12 * 60000, "round 1", shot);
-    const votes = [], expected = expectedAspect(b);
+    log(it.key, "submitted");
+    await waitFor(page, async () => (await roundOf(page)) || (await page.evaluate(RESULTS_PRED)) || null, 12 * 60000, "round 1", shot);
+    const votes = [];
     for (let guard = 0; guard < 8; guard++) {
       const r = await roundOf(page); if (!r) break;
-      // two candidate images + the letters of the options, in left-to-right order
       const urls = await waitFor(page, async () => { const u = await resultUrls(page, 600); return u.length >= 2 ? u.slice(-2) : null; }, 180000, "round images", shot);
       await sleep(1500);
       const letters = await page.evaluate(() => [...document.body.innerText.matchAll(/^Option ([A-F])$/gm)].map((m) => m[1]).slice(0, 2));
       const sc = [];
-      for (let i = 0; i < 2; i++) { const f = path.join(dir, `r${r[0]}_${letters[i]}.png`); download(urls[i], f); sc.push({ letter: letters[i], file: f, ...(await scoreImage(f, expected)) }); }
+      for (let i = 0; i < 2; i++) {
+        const f = path.join(dir, `r${r[0]}_${letters[i]}.png`); download(urls[i], f);
+        const s = await scoreImage(f, it.expected);
+        if (set.kind === "art") s.score = +(fs.statSync(f).size / 1e6 - Math.abs(Math.log(s.w / s.h / it.expected)) * 2).toFixed(3); // detail, not letterboxed
+        sc.push({ letter: letters[i], file: f, ...s });
+      }
       const pick = sc[0].score >= sc[1].score ? sc[0] : sc[1];
       votes.push({ round: r[0], options: sc.map(({ letter, score, flat, asp, margin, areaFrac, w, h }) => ({ letter, score, flat, asp, margin, areaFrac, w, h })), chosen: pick.letter });
-      log(b.key, `round ${r[0]}: ${sc.map((s) => s.letter + "=" + s.score).join(" ")} → ${pick.letter}`);
+      log(it.key, `round ${r[0]}: ${sc.map((s) => s.letter + "=" + s.score).join(" ")} → ${pick.letter}`);
       const before = JSON.stringify(urls);
       await page.getByRole("button", { name: `I prefer ${pick.letter}` }).click();
       await waitFor(page, async () => {
         const rr = await roundOf(page), u = await resultUrls(page, 600);
-        const done = await page.evaluate(RESULTS_PRED);
-        return done || !rr || rr[0] !== r[0] || JSON.stringify(u.slice(-2)) !== before;
+        return (await page.evaluate(RESULTS_PRED)) || !rr || rr[0] !== r[0] || JSON.stringify(u.slice(-2)) !== before;
       }, 120000, "next round", shot);
       await page.waitForTimeout(2500); await dismissModals(page);
     }
     await waitFor(page, async () => page.evaluate(RESULTS_PRED), 120000, "results", shot);
     await dismissModals(page); await page.waitForTimeout(2500);
-    return harvest(page, b, dir, votes, expected);
+    return await harvest(page, ctx, dir, votes);
   } finally { await page.close().catch(() => {}); }
 }
 
-// Results page → every distinct image (ranked) → WebP in the repo + meta. Also used for a finished project (--collect).
-async function harvest(page, b, dir, votes, expected, note) {
-  {
-    // every distinct result image on the results page, in display order (1st = best ranked)
-    const all = await resultUrls(page, 0), seen = new Map();
-    for (const u of all) if (!seen.has(stripTok(u))) seen.set(stripTok(u), u);
-    fs.mkdirSync(SRC, { recursive: true });
-    const files = []; let rank = 0;
-    for (const [, u] of seen) {
-      const tmp = path.join(dir, `res_${rank + 1}.img`); download(u, tmp);
-      const sc = await scoreImage(tmp, expected).catch(() => null);
-      if (!sc || sc.w < 900) continue;                       // skip thumbnails / icons
-      rank++;
-      const out = path.join(SRC, `${b.key}_${rank}.webp`);
-      const bytes = await toWebp(tmp, out);
-      files.push({ file: `${b.key}_${rank}.webp`, rank, bytes, ...sc, source: stripTok(u).split("/").pop() });
-    }
-    if (!files.length) throw new Error("no result images found");
-    const meta = { key: b.key, prompt: promptWith(b), reference: REF ? path.relative(root, REF) : null, footprint: [b.w, b.h], height: b.height, project: page.url(), at: new Date().toISOString(), votes, files };
-    fs.writeFileSync(path.join(META, b.key + ".json"), JSON.stringify(meta, null, 1) + "\n");
-    log(b.key, "saved", files.length, "images,", Math.round(files.reduce((n, f) => n + f.bytes, 0) / 1024) + " KB");
-    return meta;
-  }
-}
-
-// --collect key=https://www.designarena.ai/chat/<id> : harvest an already finished project (no new generation)
-async function collect(browser, b, url) {
-  const dir = path.join(WORK, b.key); fs.mkdirSync(dir, { recursive: true });
+async function collect(browser, ctx, url) {
+  const dir = path.join(WORK, ctx.it.key); fs.mkdirSync(dir, { recursive: true });
   const page = await browser.contexts()[0].newPage();
   try {
     await page.setViewportSize({ width: 1200, height: 850 });
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 }); await page.waitForTimeout(4000);
     await waitFor(page, async () => page.evaluate(RESULTS_PRED), 60000, "results", path.join(dir, "limit.jpg"));
     await dismissModals(page); await page.waitForTimeout(2500);
-    return await harvest(page, b, dir, [], expectedAspect(b));
+    return await harvest(page, ctx, dir, []);
   } finally { await page.close().catch(() => {}); }
 }
 
-let done = 0, fails = 0;
-const browser = await withRetry(() => connect(), 3);
-if (arg("collect")) {                                // --collect hut=<chat url>[,key=url]
-  for (const kv of arg("collect").split(",")) { const [k, ...u] = kv.split("="); const b = BUILDINGS.find((x) => x.key === k); await collect(browser, b, u.join("=")); }
+function gitCommit(msg) {
+  try {
+    const g = (...a) => execFileSync("git", a, { cwd: root, stdio: "pipe" }).toString();
+    g("add", "-A", "assets/ai-src");
+    if (!g("status", "--porcelain", "assets/ai-src").trim()) return;
+    g("commit", "-q", "-m", `${msg}\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TD8oH8D4dJEQ8TdDDWHkcv`);
+    for (let i = 0; i < 4; i++) { try { g("push", "-q", "-u", "origin", "HEAD"); log("pushed:", msg); return; } catch (e) { execFileSync("sleep", [String(2 ** (i + 1))]); } }
+  } catch (e) { log("git skipped:", String(e.message).split("\n")[0]); }
+}
+
+const ctxFor = (set, it) => {
+  const base = arg("out") ? path.resolve(root, arg("out")) : path.join(root, "assets/ai-src", set.dir);
+  const META = path.join(base, "meta"); fs.mkdirSync(META, { recursive: true });
+  return { set, it, SRC: base, META };
+};
+const isDone = (set, it) => fs.existsSync(path.join(ctxFor(set, it).META, it.key + ".json"));
+
+let browser = await withRetry(() => connect(), 3);
+if (arg("collect")) {                                         // --collect hut=<chat url>[,key=url]
+  for (const kv of arg("collect").split(",")) {
+    const [k, ...u] = kv.split("="); const sn = arg("set") || "buildings", set = SETS[sn], it = set.items.find((x) => x.key === k);
+    await collect(browser, ctxFor(set, it), u.join("="));
+  }
   await closeScorer(); await browser.close().catch(() => {}); process.exit(0);
 }
-try {
-  for (const b of BUILDINGS) {
-    if (only && !only.has(b.key)) continue;
-    if (fs.existsSync(path.join(META, b.key + ".json"))) continue;
-    if (done >= MAX) break;
-    try { await withRetry(() => generate(browser, b), 2); done++; fails = 0; }
-    catch (e) {
-      if (e.name === "LimitError") { log("LIMIT:", e.message, e.shot || ""); await closeScorer(); await browser.close().catch(() => {}); process.exit(3); }
-      log(b.key, "FAILED:", String(e.message).split("\n")[0]); if (++fails >= 3) { log("3 failures in a row — stopping"); break; }
+let done = 0, sinceCommit = 0, fails = 0, pauses = 0, exitCode = 0;
+outer: for (const sn of (arg("set") ? [arg("set")] : SET_ORDER)) {
+  const set = SETS[sn]; if (!set) throw new Error("unknown set " + sn);
+  for (const it of set.items) {
+    if (only && !only.has(it.key)) continue;
+    if (isDone(set, it)) continue;
+    if (done >= MAX) break outer;
+    try {
+      await withRetry(() => generate(browser, ctxFor(set, it)), 2);
+      done++; sinceCommit++; fails = 0;
+      if (COMMIT_EVERY && sinceCommit >= COMMIT_EVERY) { gitCommit(`AI art: ${sn} source images (${done} this run)`); sinceCommit = 0; }
+    } catch (e) {
+      if (e.name === "LimitError") { log("LIMIT:", e.message, e.shot || ""); exitCode = 3; break outer; }
+      log(it.key, "FAILED:", String(e.message).split("\n")[0]);
+      if (++fails >= 3) {                                     // tunnel/browser trouble: wait and reconnect instead of giving up at once
+        if (++pauses > 6) { log("too many failures — stopping"); exitCode = 4; break outer; }
+        log(`3 failures in a row — pausing 10 min (pause ${pauses}/6)`); await browser.close().catch(() => {}); await sleep(600000);
+        try { browser = await withRetry(() => connect(), 3); fails = 0; } catch (e2) { log("reconnect failed:", e2.message.split("\n")[0]); }
+      }
     }
   }
-} finally { await closeScorer(); await browser.close().catch(() => {}); }
-log("done this run:", done, "| remaining:", BUILDINGS.filter((b) => !fs.existsSync(path.join(META, b.key + ".json"))).length);
+}
+if (COMMIT_EVERY && sinceCommit) gitCommit(`AI art: source images (${done} this run)`);
+await closeScorer(); await browser.close().catch(() => {});
+const left = Object.entries(SETS).map(([n, s]) => `${n}:${s.items.filter((it) => !isDone(s, it)).length}`).join(" ");
+log("done this run:", done, "| remaining", left);
+process.exit(exitCode);

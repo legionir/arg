@@ -1,0 +1,198 @@
+{
+ "key": "barracks",
+ "prompt": "a long fortified adobe barracks hall with a wide arched entrance, a crossed-swords emblem above the door and a red banner. rectangular footprint with 4:3 proportions, single storey with a roof feature. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "reference": null,
+ "footprint": [
+  4,
+  3
+ ],
+ "height": 30,
+ "project": "https://www.designarena.ai/chat/0858d28b-ba52-462a-a8f0-a8595f578eaa",
+ "at": "2026-11-12T00:47:16.741Z",
+ "votes": [
+  {
+   "round": 1,
+   "options": [
+    {
+     "letter": "A",
+     "score": 1.28,
+     "flat": 0.38,
+     "asp": 1.42,
+     "margin": 0.148,
+     "areaFrac": 0.23,
+     "w": 1200,
+     "h": 896
+    },
+    {
+     "letter": "B",
+     "score": -0.709,
+     "flat": 0,
+     "asp": 1.33,
+     "margin": 0,
+     "areaFrac": 0.75,
+     "w": 1024,
+     "h": 768
+    }
+   ],
+   "chosen": "A"
+  },
+  {
+   "round": 2,
+   "options": [
+    {
+     "letter": "C",
+     "score": 1.201,
+     "flat": 0.38,
+     "asp": 1.53,
+     "margin": 0.043,
+     "areaFrac": 0.35,
+     "w": 1792,
+     "h": 1344
+    },
+    {
+     "letter": "D",
+     "score": 1.278,
+     "flat": 0.38,
+     "asp": 1.42,
+     "margin": 0.121,
+     "areaFrac": 0.24,
+     "w": 2048,
+     "h": 1536
+    }
+   ],
+   "chosen": "D"
+  },
+  {
+   "round": 3,
+   "options": [
+    {
+     "letter": "A",
+     "score": 1.28,
+     "flat": 0.38,
+     "asp": 1.42,
+     "margin": 0.148,
+     "areaFrac": 0.23,
+     "w": 1200,
+     "h": 896
+    },
+    {
+     "letter": "D",
+     "score": 1.278,
+     "flat": 0.38,
+     "asp": 1.42,
+     "margin": 0.121,
+     "areaFrac": 0.24,
+     "w": 2048,
+     "h": 1536
+    }
+   ],
+   "chosen": "A"
+  },
+  {
+   "round": 4,
+   "options": [
+    {
+     "letter": "B",
+     "score": -0.709,
+     "flat": 0,
+     "asp": 1.33,
+     "margin": 0,
+     "areaFrac": 0.75,
+     "w": 1024,
+     "h": 768
+    },
+    {
+     "letter": "C",
+     "score": 1.201,
+     "flat": 0.38,
+     "asp": 1.53,
+     "margin": 0.043,
+     "areaFrac": 0.35,
+     "w": 1792,
+     "h": 1344
+    }
+   ],
+   "chosen": "C"
+  },
+  {
+   "round": 5,
+   "options": [
+    {
+     "letter": "D",
+     "score": 1.278,
+     "flat": 0.38,
+     "asp": 1.42,
+     "margin": 0.121,
+     "areaFrac": 0.24,
+     "w": 2048,
+     "h": 1536
+    },
+    {
+     "letter": "C",
+     "score": 1.201,
+     "flat": 0.38,
+     "asp": 1.53,
+     "margin": 0.043,
+     "areaFrac": 0.35,
+     "w": 1792,
+     "h": 1344
+    }
+   ],
+   "chosen": "D"
+  }
+ ],
+ "files": [
+  {
+   "file": "barracks_1.webp",
+   "rank": 1,
+   "bytes": 131652,
+   "score": 1.28,
+   "flat": 0.38,
+   "asp": 1.42,
+   "margin": 0.148,
+   "areaFrac": 0.23,
+   "w": 1200,
+   "h": 896,
+   "source": "1794444341726_0iuglk.png"
+  },
+  {
+   "file": "barracks_2.webp",
+   "rank": 2,
+   "bytes": 415620,
+   "score": 1.278,
+   "flat": 0.38,
+   "asp": 1.42,
+   "margin": 0.121,
+   "areaFrac": 0.24,
+   "w": 2048,
+   "h": 1536,
+   "source": "1794444375090_gtb2dd.png"
+  },
+  {
+   "file": "barracks_3.webp",
+   "rank": 3,
+   "bytes": 233368,
+   "score": 1.201,
+   "flat": 0.38,
+   "asp": 1.53,
+   "margin": 0.043,
+   "areaFrac": 0.35,
+   "w": 1792,
+   "h": 1344,
+   "source": "1794444347418_qtve4f.png"
+  },
+  {
+   "file": "barracks_4.webp",
+   "rank": 4,
+   "bytes": 95234,
+   "score": -0.709,
+   "flat": 0,
+   "asp": 1.33,
+   "margin": 0,
+   "areaFrac": 0.75,
+   "w": 1024,
+   "h": 768,
+   "source": "1794444344200_5kno7l.png"
+  }
+ ]
+}
