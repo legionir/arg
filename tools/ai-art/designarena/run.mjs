@@ -68,6 +68,8 @@ async function harvest(page, ctx, dir, votes) {
 // The CDP tunnel can drop during long waits: reconnect when the browser object is dead.
 async function liveBrowser() {
   if (!browser || !browser.isConnected() || !browser.contexts().length) { log("reconnecting to browser…"); await browser?.close().catch(() => {}); browser = await withRetry(() => connect(), 4, "connect"); }
+  // leftover bare home-page tabs (from interrupted attempts) pile up and make the next CDP handshake hang: close them
+  for (const pg of browser.contexts()[0].pages()) if (/^https:\/\/www\.designarena\.ai\/?$/.test(pg.url())) await pg.close().catch(() => {});
   return browser;
 }
 
