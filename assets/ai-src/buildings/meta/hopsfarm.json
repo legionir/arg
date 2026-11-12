@@ -1,0 +1,39 @@
+{
+ "key": "hopsfarm",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "a pomegranate orchard, small trees full of red pomegranates inside a low mud wall. rectangular footprint with 3:2 proportions, very low profile, nearly flat, mostly at ground level. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  3,
+  2
+ ],
+ "at": "2026-11-12T11:14:30.997Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "hopsfarm_1.webp",
+   "rank": 1,
+   "bytes": 211284,
+   "score": 1.308,
+   "flat": 0.33,
+   "asp": 1.69,
+   "margin": 0.137,
+   "areaFrac": 0.18,
+   "w": 1536,
+   "h": 1024
+  },
+  {
+   "file": "hopsfarm_2.webp",
+   "rank": 2,
+   "bytes": 182826,
+   "score": 0.539,
+   "flat": 0.33,
+   "asp": 1.64,
+   "margin": 0.16,
+   "areaFrac": 0.15,
+   "w": 1536,
+   "h": 1024
+  }
+ ]
+}
