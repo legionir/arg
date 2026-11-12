@@ -58,7 +58,7 @@ export async function withRetry(fn, tries = 3, label = "") {
   throw last;
 }
 
-const LIMIT_RE = /(rate limit|too many (requests|generations)|daily limit|limit reached|out of (credits|generations)|insufficient credits|upgrade (to|your)|come back (later|tomorrow)|usage limit|quota)/i;
+const LIMIT_RE = /(hit the [^.]{0,60}limit|daily [^.]{0,40}limit|(?:rate|usage|generation|image edit) limit|too many (requests|generations)|limit reached|out of (credits|generations)|insufficient credits|upgrade (to|your)|come back (later|tomorrow)|wait for more tomorrow|add credits|quota)/i;
 export async function checkLimit(page, shotPath) {
   const t = await page.evaluate(() => document.body.innerText).catch(() => "");
   const m = t.match(LIMIT_RE);
