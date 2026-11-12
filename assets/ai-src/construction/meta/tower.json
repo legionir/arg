@@ -1,0 +1,32 @@
+{
+ "key": "tower",
+ "reference": "assets/ai-src/buildings/tower_1.webp",
+ "footprint": [
+  3,
+  3
+ ],
+ "at": "2026-11-12T12:28:26.749Z",
+ "phases": {
+  "0": {
+   "prompt": "a mud-brick watchtower with a crenellated top platform and arrow slits, shown under construction. Construction state: the very beginning of the build. Only a bare stone foundation and the first low courses of mud-brick walls (knee height) exist; wooden scaffolding poles, stacks of bricks, planks, a rope and a few tools lie around. No roof, no doors, no windows, no decoration. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "tower_p0_1.webp",
+    "tower_p0_2.webp"
+   ]
+  },
+  "1": {
+   "prompt": "a mud-brick watchtower with a crenellated top platform and arrow slits, shown under construction. Construction state: half built. The walls are raised to about half or two thirds of the final height, a wooden scaffold with planks surrounds them, ladders and brick piles stand beside it. No roof yet, no final decoration, openings are rough. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "tower_p1_1.webp",
+    "tower_p1_2.webp"
+   ]
+  },
+  "2": {
+   "prompt": "a mud-brick watchtower with a crenellated top platform and arrow slits, shown under construction. Construction state: nearly finished. The whole structure and roof are in place but a light wooden scaffold and a ladder still lean on it, some plaster and decoration are still missing, a few tools and sacks stand around. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "tower_p2_1.webp",
+    "tower_p2_2.webp"
+   ]
+  }
+ }
+}

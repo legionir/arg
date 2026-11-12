@@ -1,0 +1,32 @@
+{
+ "key": "hut",
+ "reference": "assets/ai-src/buildings/hut_2.webp",
+ "footprint": [
+  2,
+  2
+ ],
+ "at": "2026-11-12T12:22:27.493Z",
+ "phases": {
+  "0": {
+   "prompt": "a small adobe mud-brick house with a flat roof and low parapet, a wooden door and one arched window, shown under construction. Construction state: the very beginning of the build. Only a bare stone foundation and the first low courses of mud-brick walls (knee height) exist; wooden scaffolding poles, stacks of bricks, planks, a rope and a few tools lie around. No roof, no doors, no windows, no decoration. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "hut_p0_1.webp",
+    "hut_p0_2.webp"
+   ]
+  },
+  "1": {
+   "prompt": "a small adobe mud-brick house with a flat roof and low parapet, a wooden door and one arched window, shown under construction. Construction state: half built. The walls are raised to about half or two thirds of the final height, a wooden scaffold with planks surrounds them, ladders and brick piles stand beside it. No roof yet, no final decoration, openings are rough. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "hut_p1_1.webp",
+    "hut_p1_2.webp"
+   ]
+  },
+  "2": {
+   "prompt": "a small adobe mud-brick house with a flat roof and low parapet, a wooden door and one arched window, shown under construction. Construction state: nearly finished. The whole structure and roof are in place but a light wooden scaffold and a ladder still lean on it, some plaster and decoration are still missing, a few tools and sacks stand around. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "hut_p2_1.webp",
+    "hut_p2_2.webp"
+   ]
+  }
+ }
+}

@@ -6,6 +6,7 @@
 import { CONFIG } from "./config.js";
 import { T_GRASS, T_WATER, T_ROCK, T_OASIS } from "./terrain.js";
 import { BUILDING_ART, ART_K } from "./buildingart.js";
+import { CONSTRUCTION_ART } from "./constructionart.js";
 import { UNITS, ATTACKPOS_SPLASH, signDir, stableHorses, HORSES_PER_STABLE } from "./combat.js";
 import { TUNING } from "./data.js";
 import { getSprite } from "./sprites.js";
@@ -678,6 +679,12 @@ export function createRenderer(canvas) {
   function artFor(b) {
     const e = BUILDING_ART[b.type];
     if (!e) return null;
+    // مرحله‌ی ساخت (نقاشی‌شده، هم‌قاب با تصویر نهایی)؛ تا بارگذاری نشده همان تصویر نهایی + داربست وکتوری
+    if ((b.buildLeft || 0) > 0 && CONSTRUCTION_ART[b.type]) {
+      const ph = buildPhase(b, CONFIG.BUILDINGS[b.type]);
+      const ci = ph < 3 ? getSprite(`assets/buildings/${b.type}_c${ph}.png`) : null;
+      if (ci) return { img: ci, e, pb: CONSTRUCTION_ART[b.type].pb[ph] || 0, cons: true };
+    }
     const img = getSprite(`assets/buildings/${b.type}.png`);
     return img ? { img, e } : null;
   }
@@ -686,7 +693,7 @@ export function createRenderer(canvas) {
     const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
     groundShadow(A, B, C, D, 0.22);
     const w = (art.img.naturalWidth / ART_K) * z, h = (art.img.naturalHeight / ART_K) * z;
-    const cx = (A.x + C.x) / 2, by = C.y + (art.e.dy || 0) * z + 2 * z;
+    const cx = (A.x + C.x) / 2, by = C.y + (art.e.dy || 0) * z + 2 * z + ((art.pb || 0) / ART_K) * z;
     const gray = b.staffed === false && CONFIG.BUILDINGS[b.type].prod;
     ctx.save();
     if (gray) { try { ctx.filter = "grayscale(1) brightness(0.8)"; } catch (e) { /* مرورگر بی‌فیلتر */ } }
@@ -2435,7 +2442,7 @@ export function createRenderer(canvas) {
     if (!view.flat && !(b.buildLeft > 0) && (b.type === "inn" || b.type === "bakery" || b.type === "brewery")) drawBadgir(b, def);
     // داربست ساخت‌وساز (0.39.0): تیرک‌های چوبی دور ردپا + تخته افقی بالا —
     // نیمه‌کاره در یک نگاه از تکمیل‌شده جدا می‌شود (در نمای تخت فقط ردپا).
-    if ((b.buildLeft || 0) > 0 && !view.flat) {
+    if ((b.buildLeft || 0) > 0 && !view.flat && !(artFor(b) || {}).cons) {
       const A = cs(b.c, b.r);
       const B = cs(b.c + b.w, b.r);
       const C = cs(b.c + b.w, b.r + b.h);

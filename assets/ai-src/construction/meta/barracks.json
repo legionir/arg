@@ -1,0 +1,32 @@
+{
+ "key": "barracks",
+ "reference": "assets/ai-src/buildings/barracks_2.webp",
+ "footprint": [
+  4,
+  3
+ ],
+ "at": "2026-11-12T12:25:31.811Z",
+ "phases": {
+  "0": {
+   "prompt": "a long fortified adobe barracks hall with a wide arched entrance, a crossed-swords emblem above the door and a red banner, shown under construction. Construction state: the very beginning of the build. Only a bare stone foundation and the first low courses of mud-brick walls (knee height) exist; wooden scaffolding poles, stacks of bricks, planks, a rope and a few tools lie around. No roof, no doors, no windows, no decoration. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "barracks_p0_1.webp",
+    "barracks_p0_2.webp"
+   ]
+  },
+  "1": {
+   "prompt": "a long fortified adobe barracks hall with a wide arched entrance, a crossed-swords emblem above the door and a red banner, shown under construction. Construction state: half built. The walls are raised to about half or two thirds of the final height, a wooden scaffold with planks surrounds them, ladders and brick piles stand beside it. No roof yet, no final decoration, openings are rough. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "barracks_p1_1.webp",
+    "barracks_p1_2.webp"
+   ]
+  },
+  "2": {
+   "prompt": "a long fortified adobe barracks hall with a wide arched entrance, a crossed-swords emblem above the door and a red banner, shown under construction. Construction state: nearly finished. The whole structure and roof are in place but a light wooden scaffold and a ladder still lean on it, some plaster and decoration are still missing, a few tools and sacks stand around. Hand-painted stylized isometric game building sprite, same style as the reference. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+   "files": [
+    "barracks_p2_1.webp",
+    "barracks_p2_2.webp"
+   ]
+  }
+ }
+}
