@@ -22,6 +22,11 @@ const only = arg("keys") ? new Set(arg("keys").split(",")) : null, MAX = +arg("m
 const REF = arg("ref") ? path.resolve(root, arg("ref")) : null;
 const REF_SENTENCE = " The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and flat magenta background exactly, but do NOT copy its shape, tower, awning, pots or any objects; draw only the subject described above.";
 const WORK = path.join(os.tmpdir(), "da-work"); fs.mkdirSync(WORK, { recursive: true });
+// A submitted-but-unfinished project is remembered so a dropped connection RESUMES it instead of generating again.
+const INFLIGHT = path.join(WORK, "inflight.json");
+const inflight = () => { try { return JSON.parse(fs.readFileSync(INFLIGHT, "utf8")); } catch { return {}; } };
+const setInflight = (k, v) => { const o = inflight(); if (v) o[k] = v; else delete o[k]; fs.writeFileSync(INFLIGHT, JSON.stringify(o)); };
+const inflightKey = (ctx) => `${ctx.SRC}::${ctx.it.key}::${REF ? "ref" : "noref"}`;
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const stripTok = (u) => u.split("?")[0];
@@ -74,6 +79,11 @@ async function generate(_unused, ctx) {
   const page = await browser.contexts()[0].newPage();
   try {
     await page.setViewportSize({ width: 1200, height: 850 });
+    const resumeUrl = inflight()[inflightKey(ctx)];
+    if (resumeUrl) {                                         // continue the project that was already submitted
+      log(it.key, "resuming", resumeUrl);
+      await page.goto(resumeUrl, { waitUntil: "domcontentloaded", timeout: 60000 }); await page.waitForTimeout(4000); await dismissModals(page);
+    } else {
     await page.goto("https://www.designarena.ai/", { waitUntil: "domcontentloaded", timeout: 60000 });
     await page.waitForTimeout(3500); await dismissModals(page);
     await page.getByRole("button", { name: "Image", exact: true }).first().click();
@@ -89,6 +99,9 @@ async function generate(_unused, ctx) {
     await box.click(); await box.fill(promptWith(it));
     await page.getByRole("button", { name: "Submit prompt" }).click();
     log(it.key, "submitted");
+    for (let i = 0; i < 30 && !/\/chat\//.test(page.url()); i++) await page.waitForTimeout(1000);
+    if (/\/chat\//.test(page.url())) setInflight(inflightKey(ctx), page.url());
+    }
     await waitFor(page, async () => (await roundOf(page)) || (await page.evaluate(RESULTS_PRED)) || null, 12 * 60000, "round 1", shot);
     const votes = [];
     for (let guard = 0; guard < 8; guard++) {
@@ -116,7 +129,9 @@ async function generate(_unused, ctx) {
     }
     await waitFor(page, async () => page.evaluate(RESULTS_PRED), 120000, "results", shot);
     await dismissModals(page); await page.waitForTimeout(2500);
-    return await harvest(page, ctx, dir, votes);
+    const res = await harvest(page, ctx, dir, votes);
+    setInflight(inflightKey(ctx), null);
+    return res;
   } finally { await page.close().catch(() => {}); }
 }
 
@@ -151,6 +166,7 @@ const ctxFor = (set, it) => {
 const isDone = (set, it) => fs.existsSync(path.join(ctxFor(set, it).META, it.key + ".json"));
 
 let browser = await withRetry(() => connect(), 3);
+setInterval(() => { browser?.version?.(); }, 15000).unref();   // CDP traffic keeps the tunnel websocket from idling out
 if (arg("collect")) {                                         // --collect hut=<chat url>[,key=url]
   for (const kv of arg("collect").split(",")) {
     const [k, ...u] = kv.split("="); const sn = arg("set") || "buildings", set = SETS[sn], it = set.items.find((x) => x.key === k);
