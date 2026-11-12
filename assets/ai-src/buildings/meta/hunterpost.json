@@ -1,0 +1,39 @@
+{
+ "key": "hunterpost",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "a hunter's camp with a hide tent, a drying rack with pelts and a small fire pit. square footprint, very low profile, nearly flat, mostly at ground level. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  2,
+  2
+ ],
+ "at": "2026-11-12T10:51:10.861Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "hunterpost_1.webp",
+   "rank": 1,
+   "bytes": 148090,
+   "score": 0.536,
+   "flat": 0.33,
+   "asp": 1.61,
+   "margin": 0.164,
+   "areaFrac": 0.15,
+   "w": 1536,
+   "h": 1024
+  },
+  {
+   "file": "hunterpost_2.webp",
+   "rank": 2,
+   "bytes": 177814,
+   "score": 0.44,
+   "flat": 0.33,
+   "asp": 1.78,
+   "margin": 0.129,
+   "areaFrac": 0.17,
+   "w": 1536,
+   "h": 1024
+  }
+ ]
+}

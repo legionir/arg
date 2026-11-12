@@ -1,0 +1,39 @@
+{
+ "key": "woodcutter",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "a woodcutter's workshop, a small timber-and-adobe hut with stacked logs, a chopping block with an axe. square footprint, low single storey. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  2,
+  2
+ ],
+ "at": "2026-11-12T10:49:32.151Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "woodcutter_1.webp",
+   "rank": 1,
+   "bytes": 160280,
+   "score": 2.681,
+   "flat": 1,
+   "asp": 1.14,
+   "margin": 0.133,
+   "areaFrac": 0.3,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "woodcutter_2.webp",
+   "rank": 2,
+   "bytes": 185164,
+   "score": 2.587,
+   "flat": 1,
+   "asp": 1,
+   "margin": 0.105,
+   "areaFrac": 0.38,
+   "w": 1254,
+   "h": 1254
+  }
+ ]
+}
