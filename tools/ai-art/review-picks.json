@@ -1,0 +1,19 @@
+{
+ "_note": "Footprint review of assets/ai-src/buildings (sheets: assets/ai-src/review/footprint_*.jpg). pick = candidate rank to use; redo = no candidate is acceptable. Use: node tools/ai-art/select.mjs <workDir> --raw assets/ai-src/buildings --pick key=rank,...",
+ "pick": {
+  "hut": 2, "tower": 1, "lookout": 1, "perimeter": 2, "defence": 2, "squaretower": 1, "roundtower": 2, "barracks": 2,
+  "mercpost": 1, "market": 1, "woodcutter": 1, "hunterpost": 3, "dairy": 2, "tannery": 1, "orchard": 1, "farm": 1,
+  "wheatfarm": 3, "mill": 1, "bakery": 1, "armoury": 1, "fletcher": 1, "hopsfarm": 1, "brewery": 1, "inn": 1,
+  "chapel": 1, "church": 1, "cathedral": 1, "apothecary": 1, "quarry": 1, "oxtether": 2, "ironmine": 1, "keep": 2,
+  "stonekeep": 1, "garden": 2, "statue": 1, "gallows": 1, "dungeon": 2, "signpost": 1, "well": 1, "waterpot": 1,
+  "engineerguild": 1, "tunnelerguild": 1, "stable": 1
+ },
+ "redo": {
+  "roundtower": "slender: aspect 0.38/0.56 of expected; base far smaller than the 3x3 footprint. Ask for a thick, squat round tower.",
+  "signpost": "drawn as a tiny house, not a signpost; also flat (1.27).",
+  "perimeter": "flat (1.3x expected) and wider than tall; acceptable only if redo is skipped.",
+  "stable": "flat (1.3x); acceptable only if redo is skipped.",
+  "barracks": "4x3: candidate 1 has the long axis against the grid; #2 chosen but 1.32x flat."
+ },
+ "orientation_check": ["barracks", "mercpost", "stable", "dairy", "farm", "wheatfarm", "hopsfarm", "engineerguild", "tunnelerguild"]
+}
