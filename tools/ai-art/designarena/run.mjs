@@ -33,6 +33,7 @@ async function waitFor(page, pred, ms, label, shot) {
   }
   throw new Error("timeout waiting for " + label);
 }
+const RESULTS_PRED = () => /(fresh designs|All set|unique takes|Here you go|Add to Drive)/i.test(document.body.innerText) && !/Round \d of \d/.test(document.body.innerText);
 const roundOf = (page) => page.evaluate(() => { const m = document.body.innerText.match(/Round (\d) of (\d)/); return m ? [+m[1], +m[2]] : null; });
 
 async function generate(browser, b) {
@@ -72,13 +73,20 @@ async function generate(browser, b) {
       await page.getByRole("button", { name: `I prefer ${pick.letter}` }).click();
       await waitFor(page, async () => {
         const rr = await roundOf(page), u = await resultUrls(page, 600);
-        const done = await page.evaluate(() => /fresh designs|All set/i.test(document.body.innerText));
+        const done = await page.evaluate(RESULTS_PRED);
         return done || !rr || rr[0] !== r[0] || JSON.stringify(u.slice(-2)) !== before;
       }, 120000, "next round", shot);
       await page.waitForTimeout(2500); await dismissModals(page);
     }
-    await waitFor(page, async () => page.evaluate(() => /fresh designs|All set/i.test(document.body.innerText)), 90000, "results", shot);
+    await waitFor(page, async () => page.evaluate(RESULTS_PRED), 120000, "results", shot);
     await dismissModals(page); await page.waitForTimeout(2500);
+    return harvest(page, b, dir, votes, expected);
+  } finally { await page.close().catch(() => {}); }
+}
+
+// Results page → every distinct image (ranked) → WebP in the repo + meta. Also used for a finished project (--collect).
+async function harvest(page, b, dir, votes, expected, note) {
+  {
     // every distinct result image on the results page, in display order (1st = best ranked)
     const all = await resultUrls(page, 0), seen = new Map();
     for (const u of all) if (!seen.has(stripTok(u))) seen.set(stripTok(u), u);
@@ -98,11 +106,28 @@ async function generate(browser, b) {
     fs.writeFileSync(path.join(META, b.key + ".json"), JSON.stringify(meta, null, 1) + "\n");
     log(b.key, "saved", files.length, "images,", Math.round(files.reduce((n, f) => n + f.bytes, 0) / 1024) + " KB");
     return meta;
+  }
+}
+
+// --collect key=https://www.designarena.ai/chat/<id> : harvest an already finished project (no new generation)
+async function collect(browser, b, url) {
+  const dir = path.join(WORK, b.key); fs.mkdirSync(dir, { recursive: true });
+  const page = await browser.contexts()[0].newPage();
+  try {
+    await page.setViewportSize({ width: 1200, height: 850 });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 }); await page.waitForTimeout(4000);
+    await waitFor(page, async () => page.evaluate(RESULTS_PRED), 60000, "results", path.join(dir, "limit.jpg"));
+    await dismissModals(page); await page.waitForTimeout(2500);
+    return await harvest(page, b, dir, [], expectedAspect(b));
   } finally { await page.close().catch(() => {}); }
 }
 
 let done = 0, fails = 0;
 const browser = await withRetry(() => connect(), 3);
+if (arg("collect")) {                                // --collect hut=<chat url>[,key=url]
+  for (const kv of arg("collect").split(",")) { const [k, ...u] = kv.split("="); const b = BUILDINGS.find((x) => x.key === k); await collect(browser, b, u.join("=")); }
+  await closeScorer(); await browser.close().catch(() => {}); process.exit(0);
+}
 try {
   for (const b of BUILDINGS) {
     if (only && !only.has(b.key)) continue;

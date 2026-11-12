@@ -1,0 +1,67 @@
+{
+ "key": "hut",
+ "prompt": "a small adobe mud-brick house with a flat roof and low parapet, a wooden door and one arched window. square footprint, single storey with a roof feature. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "reference": null,
+ "footprint": [
+  2,
+  2
+ ],
+ "height": 24,
+ "project": "https://www.designarena.ai/chat/44a58b8d-d087-408d-b3f7-1a140032415b",
+ "at": "2026-11-12T00:45:01.362Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "hut_1.webp",
+   "rank": 1,
+   "bytes": 99482,
+   "score": 2.691,
+   "flat": 1,
+   "asp": 1.04,
+   "margin": 0.18,
+   "areaFrac": 0.24,
+   "w": 1024,
+   "h": 1024,
+   "source": "1794444171430_w1hi55.png"
+  },
+  {
+   "file": "hut_2.webp",
+   "rank": 2,
+   "bytes": 377778,
+   "score": 2.636,
+   "flat": 1,
+   "asp": 0.97,
+   "margin": 0.156,
+   "areaFrac": 0.32,
+   "w": 2048,
+   "h": 2048,
+   "source": "1794444203833_6w78un.png"
+  },
+  {
+   "file": "hut_3.webp",
+   "rank": 3,
+   "bytes": 92350,
+   "score": 1.384,
+   "flat": 0.38,
+   "asp": 1.1,
+   "margin": 0.176,
+   "areaFrac": 0.28,
+   "w": 1024,
+   "h": 768,
+   "source": "1794444205276_evu7xr.jpg"
+  },
+  {
+   "file": "hut_4.webp",
+   "rank": 4,
+   "bytes": 92222,
+   "score": 1.377,
+   "flat": 0.38,
+   "asp": 1.11,
+   "margin": 0.211,
+   "areaFrac": 0.2,
+   "w": 1024,
+   "h": 768,
+   "source": "1794444170054_folm4g.png"
+  }
+ ]
+}
