@@ -1,0 +1,303 @@
+{
+ "hut": {
+  "candidate": 2,
+  "aspect": 1.07,
+  "expected": 1.03,
+  "score": -0.076,
+  "forced": true
+ },
+ "tower": {
+  "candidate": 1,
+  "aspect": 0.85,
+  "expected": 0.83,
+  "score": -0.024,
+  "forced": true
+ },
+ "lookout": {
+  "candidate": 1,
+  "aspect": 0.5,
+  "expected": 0.53,
+  "score": -0.063,
+  "forced": true
+ },
+ "perimeter": {
+  "candidate": 1,
+  "aspect": 0.56,
+  "expected": 0.71,
+  "score": -0.238,
+  "forced": true
+ },
+ "defence": {
+  "candidate": 2,
+  "aspect": 0.93,
+  "expected": 0.78,
+  "score": -0.218,
+  "forced": true
+ },
+ "squaretower": {
+  "candidate": 1,
+  "aspect": 0.7,
+  "expected": 0.73,
+  "score": -0.049,
+  "forced": true
+ },
+ "roundtower": {
+  "candidate": 1,
+  "aspect": 0.68,
+  "expected": 0.73,
+  "score": -0.077,
+  "forced": true
+ },
+ "barracks": {
+  "candidate": 2,
+  "aspect": 1.58,
+  "expected": 1.2,
+  "score": -0.32,
+  "forced": true
+ },
+ "mercpost": {
+  "candidate": 1,
+  "aspect": 1.25,
+  "expected": 1.06,
+  "score": -0.16,
+  "forced": true
+ },
+ "market": {
+  "candidate": 1,
+  "aspect": 1.16,
+  "expected": 1.12,
+  "score": -0.031,
+  "forced": true
+ },
+ "woodcutter": {
+  "candidate": 1,
+  "aspect": 1.14,
+  "expected": 1.12,
+  "score": -0.018,
+  "forced": true
+ },
+ "hunterpost": {
+  "candidate": 3,
+  "aspect": 1.56,
+  "expected": 1.57,
+  "score": -0.084,
+  "forced": true
+ },
+ "dairy": {
+  "candidate": 2,
+  "aspect": 1.52,
+  "expected": 1.6,
+  "score": -0.091,
+  "forced": true
+ },
+ "tannery": {
+  "candidate": 1,
+  "aspect": 1.56,
+  "expected": 1.44,
+  "score": -0.083,
+  "forced": true
+ },
+ "orchard": {
+  "candidate": 1,
+  "aspect": 1.38,
+  "expected": 1.69,
+  "score": -0.199,
+  "forced": true
+ },
+ "farm": {
+  "candidate": 1,
+  "aspect": 1.74,
+  "expected": 1.6,
+  "score": -0.083,
+  "forced": true
+ },
+ "wheatfarm": {
+  "candidate": 3,
+  "aspect": 1.56,
+  "expected": 1.6,
+  "score": -0.103,
+  "forced": true
+ },
+ "mill": {
+  "candidate": 1,
+  "aspect": 0.79,
+  "expected": 0.86,
+  "score": -0.084,
+  "forced": true
+ },
+ "bakery": {
+  "candidate": 1,
+  "aspect": 1.08,
+  "expected": 1.07,
+  "score": -0.005,
+  "forced": true
+ },
+ "armoury": {
+  "candidate": 1,
+  "aspect": 1.06,
+  "expected": 1.07,
+  "score": -0.012,
+  "forced": true
+ },
+ "fletcher": {
+  "candidate": 1,
+  "aspect": 1.03,
+  "expected": 1.07,
+  "score": -0.038,
+  "forced": true
+ },
+ "hopsfarm": {
+  "candidate": 1,
+  "aspect": 1.68,
+  "expected": 1.6,
+  "score": -0.049,
+  "forced": true
+ },
+ "brewery": {
+  "candidate": 1,
+  "aspect": 0.91,
+  "expected": 1.07,
+  "score": -0.162,
+  "forced": true
+ },
+ "inn": {
+  "candidate": 1,
+  "aspect": 1.07,
+  "expected": 0.99,
+  "score": -0.08,
+  "forced": true
+ },
+ "chapel": {
+  "candidate": 1,
+  "aspect": 0.84,
+  "expected": 1.07,
+  "score": -0.245,
+  "forced": true
+ },
+ "church": {
+  "candidate": 1,
+  "aspect": 0.88,
+  "expected": 0.92,
+  "score": -0.048,
+  "forced": true
+ },
+ "cathedral": {
+  "candidate": 1,
+  "aspect": 0.82,
+  "expected": 0.8,
+  "score": -0.025,
+  "forced": true
+ },
+ "apothecary": {
+  "candidate": 1,
+  "aspect": 1.09,
+  "expected": 1.23,
+  "score": -0.118,
+  "forced": true
+ },
+ "quarry": {
+  "candidate": 1,
+  "aspect": 1.12,
+  "expected": 1.29,
+  "score": -0.145,
+  "forced": true
+ },
+ "oxtether": {
+  "candidate": 2,
+  "aspect": 1.56,
+  "expected": 1.62,
+  "score": -0.08,
+  "forced": true
+ },
+ "ironmine": {
+  "candidate": 1,
+  "aspect": 1.11,
+  "expected": 1.29,
+  "score": -0.154,
+  "forced": true
+ },
+ "keep": {
+  "candidate": 2,
+  "aspect": 0.85,
+  "expected": 0.89,
+  "score": -0.082,
+  "forced": true
+ },
+ "stonekeep": {
+  "candidate": 1,
+  "aspect": 0.8,
+  "expected": 0.83,
+  "score": -0.036,
+  "forced": true
+ },
+ "garden": {
+  "candidate": 2,
+  "aspect": 1.45,
+  "expected": 1.52,
+  "score": -0.085,
+  "forced": true
+ },
+ "statue": {
+  "candidate": 1,
+  "aspect": 0.76,
+  "expected": 0.89,
+  "score": -0.157,
+  "forced": true
+ },
+ "gallows": {
+  "candidate": 1,
+  "aspect": 0.83,
+  "expected": 0.83,
+  "score": -0.002,
+  "forced": true
+ },
+ "dungeon": {
+  "candidate": 2,
+  "aspect": 1.06,
+  "expected": 1.36,
+  "score": -0.291,
+  "forced": true
+ },
+ "signpost": {
+  "candidate": 1,
+  "aspect": 0.65,
+  "expected": 0.78,
+  "score": -0.182,
+  "forced": true
+ },
+ "well": {
+  "candidate": 1,
+  "aspect": 0.73,
+  "expected": 0.95,
+  "score": -0.266,
+  "forced": true
+ },
+ "waterpot": {
+  "candidate": 1,
+  "aspect": 1.12,
+  "expected": 1.36,
+  "score": -0.192,
+  "forced": true
+ },
+ "engineerguild": {
+  "candidate": 1,
+  "aspect": 1.19,
+  "expected": 1.1,
+  "score": -0.077,
+  "forced": true
+ },
+ "tunnelerguild": {
+  "candidate": 1,
+  "aspect": 1.18,
+  "expected": 1.1,
+  "score": -0.072,
+  "forced": true
+ },
+ "stable": {
+  "candidate": 1,
+  "aspect": 1.22,
+  "expected": 1.1,
+  "score": -0.106,
+  "forced": true
+ }
+}

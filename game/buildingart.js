@@ -1,9 +1,49 @@
-// نگاره‌ی ساختمان‌ها (پایلوت، 1.0.0-rc.4): تصویر نقاشی‌شده به‌جای رسم وکتوری.
-// هر کلید = نوع ساختمان؛ فایل assets/buildings/<نوع>.png (ساخته‌ی tools/ai-art/post.mjs؛ K برابر اندازه‌ی زوم ۱).
-// تصویر نبود/نیامده = همان رسم وکتوری قبلی (fallback خودکار).
+// نگاره‌ی ساختمان‌ها (1.0.0-rc.5): تصویر نقاشی‌شده به‌جای رسم وکتوری.
+// هر کلید = نوع ساختمان؛ فایل assets/buildings/<نوع>.png (ساخته‌ی tools/ai-art/select.mjs؛ K برابر اندازه‌ی زوم ۱).
+// تصویر نبود/نیامده = همان رسم وکتوری قبلی (fallback خودکار). ساخته‌شده توسط ابزار — دستی ویرایش نشود.
 export const ART_K = 3;
 export const BUILDING_ART = {
-  keep: { dy: 0 },
   hut: { dy: 0 },
+  tower: { dy: 0 },
+  lookout: { dy: 0 },
+  perimeter: { dy: 0 },
+  defence: { dy: 0 },
+  squaretower: { dy: 0 },
+  roundtower: { dy: 0 },
+  barracks: { dy: 0 },
+  mercpost: { dy: 0 },
+  market: { dy: 0 },
+  woodcutter: { dy: 0 },
+  hunterpost: { dy: 0 },
+  dairy: { dy: 0 },
+  tannery: { dy: 0 },
+  orchard: { dy: 0 },
+  farm: { dy: 0 },
+  wheatfarm: { dy: 0 },
+  mill: { dy: 0 },
   bakery: { dy: 0 },
+  armoury: { dy: 0 },
+  fletcher: { dy: 0 },
+  hopsfarm: { dy: 0 },
+  brewery: { dy: 0 },
+  inn: { dy: 0 },
+  chapel: { dy: 0 },
+  church: { dy: 0 },
+  cathedral: { dy: 0 },
+  apothecary: { dy: 0 },
+  quarry: { dy: 0 },
+  oxtether: { dy: 0 },
+  ironmine: { dy: 0 },
+  keep: { dy: 0 },
+  stonekeep: { dy: 0 },
+  garden: { dy: 0 },
+  statue: { dy: 0 },
+  gallows: { dy: 0 },
+  dungeon: { dy: 0 },
+  signpost: { dy: 0 },
+  well: { dy: 0 },
+  waterpot: { dy: 0 },
+  engineerguild: { dy: 0 },
+  tunnelerguild: { dy: 0 },
+  stable: { dy: 0 },
 };
