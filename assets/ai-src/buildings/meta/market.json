@@ -1,0 +1,39 @@
+{
+ "key": "market",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "an open bazaar market stall with striped teal and cream awnings, wooden crates and sacks of goods. square footprint, low single storey. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  2,
+  2
+ ],
+ "at": "2026-11-12T10:48:57.865Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "market_1.webp",
+   "rank": 1,
+   "bytes": 218216,
+   "score": 2.671,
+   "flat": 1,
+   "asp": 1.15,
+   "margin": 0.094,
+   "areaFrac": 0.37,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "market_2.webp",
+   "rank": 2,
+   "bytes": 212708,
+   "score": 2.671,
+   "flat": 1,
+   "asp": 1.15,
+   "margin": 0.102,
+   "areaFrac": 0.39,
+   "w": 1254,
+   "h": 1254
+  }
+ ]
+}

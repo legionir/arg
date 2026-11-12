@@ -1,0 +1,39 @@
+{
+ "key": "barracks",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "a long fortified adobe barracks hall with a wide arched entrance, a crossed-swords emblem above the door and a red banner. rectangular footprint with 4:3 proportions, single storey with a roof feature. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  4,
+  3
+ ],
+ "at": "2026-11-12T10:47:17.458Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "barracks_1.webp",
+   "rank": 1,
+   "bytes": 211924,
+   "score": 1.285,
+   "flat": 0.38,
+   "asp": 1.41,
+   "margin": 0.059,
+   "areaFrac": 0.31,
+   "w": 1448,
+   "h": 1086
+  },
+  {
+   "file": "barracks_2.webp",
+   "rank": 2,
+   "bytes": 236402,
+   "score": 1.082,
+   "flat": 0.33,
+   "asp": 1.58,
+   "margin": 0.098,
+   "areaFrac": 0.24,
+   "w": 1536,
+   "h": 1024
+  }
+ ]
+}
