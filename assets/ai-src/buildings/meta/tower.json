@@ -1,0 +1,69 @@
+{
+ "key": "tower",
+ "set": "buildings",
+ "prompt": "a mud-brick watchtower with a crenellated top platform and arrow slits. square footprint, tall. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people. The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and background treatment exactly, but do NOT copy its subject, shape, person or objects; draw only the subject described above.",
+ "reference": "assets/ai-src/buildings/bakery_1.webp",
+ "aspect": "1:1",
+ "footprint": [
+  3,
+  3
+ ],
+ "project": "https://www.designarena.ai/chat/47774a2f-f919-491b-8953-9451200dbdd9",
+ "at": "2026-11-12T01:50:29.075Z",
+ "votes": [
+  {
+   "round": 0,
+   "options": [
+    {
+     "letter": "A",
+     "score": 2.36,
+     "flat": 1,
+     "asp": 0.59,
+     "margin": 0.074,
+     "areaFrac": 0.29,
+     "w": 1024,
+     "h": 1024
+    },
+    {
+     "letter": "B",
+     "score": 2.681,
+     "flat": 1,
+     "asp": 0.84,
+     "margin": 0.086,
+     "areaFrac": 0.37,
+     "w": 1024,
+     "h": 1024
+    }
+   ],
+   "chosen": "B"
+  }
+ ],
+ "files": [
+  {
+   "file": "tower_1.webp",
+   "rank": 1,
+   "bytes": 201368,
+   "score": 2.681,
+   "flat": 1,
+   "asp": 0.84,
+   "margin": 0.086,
+   "areaFrac": 0.37,
+   "w": 1024,
+   "h": 1024,
+   "source": "1794446566059_jgzrv4.png"
+  },
+  {
+   "file": "tower_2.webp",
+   "rank": 2,
+   "bytes": 171338,
+   "score": 2.36,
+   "flat": 1,
+   "asp": 0.59,
+   "margin": 0.074,
+   "areaFrac": 0.29,
+   "w": 1024,
+   "h": 1024,
+   "source": "1794446558733_pvqdx7.png"
+  }
+ ]
+}

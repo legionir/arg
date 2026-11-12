@@ -33,7 +33,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const stripTok = (u) => u.split("?")[0];
 const promptWith = (it) => it.prompt + (REF ? REF_SENTENCE : "");
 const RESULTS_PRED = () => /(fresh designs|All set|unique takes|Here you go|Add to Drive)/i.test(document.body.innerText) && !/Round \d of \d/.test(document.body.innerText);
-const roundOf = (page) => page.evaluate(() => { const m = document.body.innerText.match(/Round (\d) of (\d)/); return m ? [+m[1], +m[2]] : null; });
+// "Round n of N" (normal flow) or a single A/B vote step without a counter (seen in reference mode: "Here are 2 design takes…") → [n, N]; null = no vote pending
+const roundOf = (page) => page.evaluate(() => {
+  const t = document.body.innerText, m = t.match(/Round (\d) of (\d)/);
+  if (m) return [+m[1], +m[2]];
+  return /I prefer [A-F]/.test(t) ? [0, 1] : null;
+});
 
 async function waitFor(page, pred, ms, label, shot) {
   const t0 = Date.now();
