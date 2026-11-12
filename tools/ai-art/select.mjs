@@ -40,12 +40,13 @@ for (const b of BUILDINGS) {
 }
 fs.writeFileSync(path.join(here, "buildings-chosen.json"), JSON.stringify(chosen, null, 1) + "\n");
 const keys = Object.keys(chosen);
+const fitFile = path.join(here, "footprint-fit.json"), fit = fs.existsSync(fitFile) ? JSON.parse(fs.readFileSync(fitFile, "utf8")) : {};   // s from fit_footprint.py
 fs.writeFileSync(path.join(root, "game/buildingart.js"), `// نگاره‌ی ساختمان‌ها (1.0.0-rc.5): تصویر نقاشی‌شده به‌جای رسم وکتوری.
 // هر کلید = نوع ساختمان؛ فایل assets/buildings/<نوع>.png (ساخته‌ی tools/ai-art/select.mjs؛ K برابر اندازه‌ی زوم ۱).
 // تصویر نبود/نیامده = همان رسم وکتوری قبلی (fallback خودکار). ساخته‌شده توسط ابزار — دستی ویرایش نشود.
 export const ART_K = 3;
 export const BUILDING_ART = {
-${keys.map((k) => `  ${k}: { dy: 0 },`).join("\n")}
+${keys.map((k) => `  ${k}: { dy: 0${fit[k] && Math.abs(fit[k] - 1) > 0.004 ? `, s: ${fit[k]}` : ""} },`).join("\n")}
 };
 `);
 console.log(report.join("\n"));
