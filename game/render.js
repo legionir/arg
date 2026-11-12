@@ -683,8 +683,10 @@ export function createRenderer(canvas) {
     if ((b.buildLeft || 0) > 0 && CONSTRUCTION_ART[b.type]) {
       const ph = buildPhase(b, CONFIG.BUILDINGS[b.type]);
       const ci = ph < 3 ? getSprite(`assets/buildings/${b.type}_c${ph}.png`) : null;
-      if (ci) const ca = CONSTRUCTION_ART[b.type];
-      return { img: ci, e: ca.ph && ca.ph[ph] ? Object.assign({}, e, ca.ph[ph]) : e, pb: ca.pb[ph] || 0, cons: true };   // ca.ph[ph]: تنظیم جدای همین مرحله (fit-editor)
+      if (ci) {
+        const ca = CONSTRUCTION_ART[b.type];
+        return { img: ci, e: ca.ph && ca.ph[ph] ? Object.assign({}, e, ca.ph[ph]) : e, pb: ca.pb[ph] || 0, cons: true };   // ca.ph[ph]: تنظیم جدای همین مرحله (fit-editor)
+      }
     }
     const img = getSprite(`assets/buildings/${b.type}.png`);
     return img ? { img, e } : null;
