@@ -77,6 +77,7 @@ textarea { width: 100%; min-height: 120px; font-family: var(--mono); font-size: 
 <script>
 const BASE = "__BASE__";
 const DATA = /*DATA*/null;
+const EMBED = /*EMBED*/null;      // path -> data: URI when the page is published standalone (relative URLs do not resolve there)
 const items = DATA.items, auto = DATA.auto, pbs = DATA.pb;
 const $ = (id) => document.getElementById(id);
 const K = 3;                        // stored sprite px per game px at zoom 1
@@ -87,7 +88,7 @@ const cur = (k) => Object.assign(base(k), edits[k] || {});
 const isEdited = (k) => { const a = base(k), c = cur(k); return ["s", "sy", "dx", "dy", "f"].some((n) => Math.abs(a[n] - c[n]) > 1e-9); };
 const imgs = new Map();
 let needZoom = false;
-const load = (url) => { if (!imgs.has(url)) { const i = new Image(); i.onload = () => { if (needZoom) { needZoom = false; autoZoom(); } draw(); }; i.src = url; imgs.set(url, i); } return imgs.get(url); };
+const load = (url) => { if (!imgs.has(url)) { const i = new Image(); i.onload = () => { if (needZoom) { needZoom = false; autoZoom(); } draw(); }; i.src = (EMBED && EMBED[url]) || url; imgs.set(url, i); } return imgs.get(url); };
 
 let idx = 0, phase = -1, E = 1.5, drag = null;
 const cv = $("cv"), g = cv.getContext("2d"), W = cv.width, H = cv.height;
@@ -104,7 +105,7 @@ function autoZoom() {            // pick E once per building so footprint and sp
   const it = items[idx], c = cur(it.key), img = load(BASE + "assets/buildings/" + it.key + ".png");
   const nw = img.naturalWidth || 300, nh = img.naturalHeight || 300;
   const needW = Math.max(nw / K * c.s, (it.w + it.h) * 14) * 1.15, needH = (nh / K * c.s * c.sy + (it.w + it.h) * 3.5) * 1.1;
-  E = Math.min((W * 0.92) / needW, (H - 110) / needH, 4);
+  E = Math.min((W * 0.92) / needW, (H - 110) / needH, 7);
 }
 function draw() {
   const { it, c, img, cx, byF, w, h, sx, by } = geom();
