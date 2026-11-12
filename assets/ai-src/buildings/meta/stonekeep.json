@@ -1,0 +1,39 @@
+{
+ "key": "stonekeep",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "a mighty grey-ochre stone citadel with tall corner towers, a deep-blue dome and banners. square footprint, very tall, tower-like. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  4,
+  4
+ ],
+ "at": "2026-11-12T11:29:50.674Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "stonekeep_1.webp",
+   "rank": 1,
+   "bytes": 267200,
+   "score": 2.671,
+   "flat": 1,
+   "asp": 0.8,
+   "margin": 0.043,
+   "areaFrac": 0.47,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "stonekeep_2.webp",
+   "rank": 2,
+   "bytes": 233524,
+   "score": 2.613,
+   "flat": 1,
+   "asp": 0.76,
+   "margin": 0.066,
+   "areaFrac": 0.39,
+   "w": 1254,
+   "h": 1254
+  }
+ ]
+}
