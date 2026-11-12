@@ -41,12 +41,14 @@ for b in B:
     out[k] = ent; rep.append((k, ent, round(a.shape[1] * sx / W, 3)))
 for k, e, bb in rep: print(f"{k:14} {e}")
 fit = os.path.join(root, "tools/ai-art/footprint-fit.json")
-old = {}
-old.update(out); json.dump(old, open(fit, "w"), indent=1)
+old = json.load(open(fit)) if os.path.exists(fit) else {}
+for k, e in out.items():
+    if not old.get(k, {}).get("manual"): old[k] = e          # hand-tuned entries (from the editor) are never overwritten
+    else: print("kept manual:", k); json.dump(old, open(fit, "w"), indent=1)
 if "--apply" in sys.argv:
     p = os.path.join(root, "game/buildingart.js"); t = open(p, encoding="utf8").read()
     for k, e in old.items():
         e = e if isinstance(e, dict) else {"s": e}
-        extra = "".join(f", {n}: {e[n]}" for n in ("s", "sy", "dx", "f") if n in e and (e[n] not in (1, 1.0, 0, 0.0) or n == "f"))
-        t = re.sub(r"(  %s: \{ dy: [-\d.]+)[^}]*\}" % k, lambda m: m.group(1) + extra + " }", t)
+        extra = "".join(f", {n}: {e[n]}" for n in ("s", "sy", "dx") if n in e and e[n] not in (1, 1.0, 0, 0.0)) + (", f: 1" if e.get("f") else "")
+        t = re.sub(r"  %s: \{ dy: [-\d.]+[^}]*\}" % k, lambda m: "  %s: { dy: %s%s }" % (k, e.get("dy", 0), extra), t)
     open(p, "w", encoding="utf8").write(t)

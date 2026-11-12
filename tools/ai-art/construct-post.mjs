@@ -57,7 +57,7 @@ for (const key of keys) {
     fs.writeFileSync(path.join(root, "assets/buildings", `${key}_c${ph}.png`), Buffer.from(url.split(",")[1], "base64"));
     pb.push(+(mb * k).toFixed(1));
   }
-  existing[key] = { pb }; console.log(key, "scale", k.toFixed(3), "pad", pb.join(","));
+  existing[key] = { ...(existing[key] || {}), pb }; console.log(key, "scale", k.toFixed(3), "pad", pb.join(","));
 }
 fs.writeFileSync(artFile, `// نگاره‌ی مرحله‌های ساخت (ساخته‌ی tools/ai-art/construct-post.mjs — دستی ویرایش نشود).
 // assets/buildings/<نوع>_c<۰|۱|۲>.png هم‌قاب با تصویر نهایی؛ pb = حاشیه‌ی پایین (پیکسل ذخیره‌شده) که تصویر زیر رأس پایینی ردپا می‌رود.

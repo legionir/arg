@@ -39,6 +39,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 button.b { font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; }
 button.b:hover { border-color: var(--accent); } button.b.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button.b.ed::after { content: " •"; color: var(--warn); }
 button.b[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .hint { color: var(--muted); font-size: 13px; max-width: 80ch; }
@@ -47,7 +48,7 @@ textarea { width: 100%; min-height: 120px; font-family: var(--mono); font-size: 
 </style>
 
 <h1>ویرایشگر ردپای ساختمان</h1>
-<p class="sub">هر ساختمان روی شبکه‌ی واقعی کاشی‌هایش دیده می‌شود. تصویر را بکش تا جابه‌جا شود، گوشه‌ی بالا-راست را بکش تا اندازه عوض شود (لنگر: رأس پایینی ردپا). وقتی تمام شد، «کپی تغییرات» را بزن و متن را برای من بفرست.</p>
+<p class="sub">هر ساختمان روی شبکه‌ی واقعی کاشی‌هایش دیده می‌شود. تصویر را بکش تا جابه‌جا شود، گوشه‌ی بالا-راست را بکش تا اندازه عوض شود (لنگر: رأس پایینی ردپا). برای ساختمان‌هایی که مرحله‌ی ساخت دارند، هر مرحله جدا ثبت می‌شود (نقطه‌ی نارنجی کنار دکمه یعنی تغییر جدا دارد؛ بدون تغییر، مرحله هم‌اندازه‌ی نهایی می‌ماند). وقتی تمام شد، «کپی تغییرات» را بزن و متن را برای من بفرست.</p>
 
 <div class="app">
   <div class="list" id="list" role="listbox" aria-label="ساختمان‌ها"></div>
@@ -65,7 +66,7 @@ textarea { width: 100%; min-height: 120px; font-family: var(--mono); font-size: 
     <div class="row">
       <button class="b" id="flip" aria-pressed="false">آینه (جهت ضلع بلند)</button>
       <button class="b" id="lock" aria-pressed="true">قفل نسبت ابعاد هنگام کشیدن گوشه</button>
-      <button class="b" id="reset">برگرداندن به حالت خودکار</button>
+      <button class="b" id="reset">برگرداندن این حالت (نهایی: خودکار، ساخت: هم‌اندازه‌ی نهایی)</button>
       <button class="b" id="prev">قبلی</button><button class="b" id="next">بعدی</button>
     </div>
     <p class="hint">فلش‌ها: جابه‌جایی نیم‌پیکسلی (Shift = ۲ پیکسل). «+» و «−»: اندازه. شبکه‌ی فیروزه‌ای ردپای واقعی بازی است (هر کاشی ۲۸×۱۴). هدف: چهار گوشه‌ی پایه‌ی ساختمان روی چهار گوشه‌ی شبکه بنشیند و دیوارها از لبه‌های آن بالا بروند.</p>
@@ -84,8 +85,12 @@ const K = 3;                        // stored sprite px per game px at zoom 1
 let edits = {}; try { edits = JSON.parse(localStorage.getItem("fitEdits.v1") || "{}"); } catch (e) { edits = {}; }
 const save = () => { try { localStorage.setItem("fitEdits.v1", JSON.stringify(edits)); } catch (e) { /* storage blocked */ } };
 const base = (k) => Object.assign({ s: 1, sy: 1, dx: 0, dy: 0, f: 0 }, auto[k] || {}, { f: (auto[k] && auto[k].f) ? 1 : 0 });
-const cur = (k) => Object.assign(base(k), edits[k] || {});
-const isEdited = (k) => { const a = base(k), c = cur(k); return ["s", "sy", "dx", "dy", "f"].some((n) => Math.abs(a[n] - c[n]) > 1e-9); };
+const ek = (k, ph) => (ph >= 0 ? k + "@" + ph : k);
+const curFinal = (k) => Object.assign(base(k), edits[k] || {});
+const cur = (k, ph = -1) => (ph >= 0 && edits[ek(k, ph)] ? Object.assign(curFinal(k), edits[ek(k, ph)]) : curFinal(k));
+const differs = (a, c) => ["s", "sy", "dx", "dy", "f"].some((n) => Math.abs(a[n] - c[n]) > 1e-9);
+const isEdited = (k, ph = -1) => (ph >= 0 ? !!edits[ek(k, ph)] && differs(curFinal(k), cur(k, ph)) : differs(base(k), curFinal(k)));
+const anyEdited = (k) => isEdited(k) || [0, 1, 2].some((p) => isEdited(k, p));
 const imgs = new Map();
 let needZoom = false;
 const load = (url) => { if (!imgs.has(url)) { const i = new Image(); i.onload = () => { if (needZoom) { needZoom = false; autoZoom(); } draw(); }; i.src = (EMBED && EMBED[url]) || url; imgs.set(url, i); } return imgs.get(url); };
@@ -94,7 +99,7 @@ let idx = 0, phase = -1, E = 1.5, drag = null;
 const cv = $("cv"), g = cv.getContext("2d"), W = cv.width, H = cv.height;
 
 function geom() {
-  const it = items[idx], c = cur(it.key), img = load(BASE + "assets/buildings/" + it.key + (phase >= 0 ? "_c" + phase : "") + ".png");
+  const it = items[idx], c = cur(it.key, phase), img = load(BASE + "assets/buildings/" + it.key + (phase >= 0 ? "_c" + phase : "") + ".png");
   const cx = W / 2, byF = H - 120;                                    // footprint centre x and bottom vertex y (canvas px)
   const pb = phase >= 0 && pbs[it.key] ? pbs[it.key][phase] || 0 : 0;
   const w = img.naturalWidth / K * E * c.s, h = img.naturalHeight / K * E * c.s * c.sy;
@@ -130,27 +135,28 @@ function draw() {
   cv._handle = { x: hx, y: hy };
 }
 function ui() {
-  const it = items[idx], c = cur(it.key);
-  $("title").textContent = it.key; $("meta").textContent = `${it.w}×${it.h} tiles · height ${it.height} · ${isEdited(it.key) ? "edited" : "auto"}`;
+  const it = items[idx], c = cur(it.key, phase);
+  $("title").textContent = it.key; $("meta").textContent = `${it.w}×${it.h} tiles · height ${it.height} · ${phase >= 0 ? "phase " + phase : "final"} · ${isEdited(it.key, phase) ? "edited" : (phase >= 0 ? "inherits final" : "auto")}`;
   for (const [id, v, d] of [["s", c.s, 3], ["sy", c.sy, 3], ["dx", c.dx, 1], ["dy", c.dy, 1]]) { $(id).value = v; $(id + "o").textContent = (+v).toFixed(d); }
   $("opo").textContent = (+$("op").value).toFixed(2);
   $("flip").setAttribute("aria-pressed", c.f ? "true" : "false");
   const ph = $("phases"), has = !!pbs[it.key]; ph.hidden = !has;
   if (ph.dataset.k !== it.key) { ph.dataset.k = it.key; ph.innerHTML = ""; if (has) for (const [p, label] of [[-1, "نهایی"], [0, "ساخت ۰"], [1, "ساخت ۱"], [2, "ساخت ۲"]]) { const b = document.createElement("button"); b.className = "b"; b.textContent = label; b.dataset.p = p; b.onclick = () => { phase = p; ui(); draw(); }; ph.appendChild(b); } }
+  for (const b of ph.children) b.classList.toggle("ed", +b.dataset.p >= 0 ? isEdited(it.key, +b.dataset.p) : isEdited(it.key));
   for (const b of ph.children) b.setAttribute("aria-pressed", +b.dataset.p === phase ? "true" : "false");
-  document.querySelectorAll(".item").forEach((el, i) => { el.setAttribute("aria-current", i === idx ? "true" : "false"); el.querySelector(".dot").classList.toggle("on", isEdited(items[i].key)); });
-  const out = {}; for (const k of Object.keys(edits)) if (isEdited(k)) { const c2 = cur(k); out[k] = { s: +c2.s.toFixed(3), sy: +c2.sy.toFixed(3), dx: +c2.dx.toFixed(1), dy: +c2.dy.toFixed(1), f: c2.f ? 1 : 0 }; }
+  document.querySelectorAll(".item").forEach((el, i) => { el.setAttribute("aria-current", i === idx ? "true" : "false"); el.querySelector(".dot").classList.toggle("on", anyEdited(items[i].key)); });
+  const out = {}; for (const k of Object.keys(edits)) { const [kk, pp] = k.split("@"), ph2 = pp === undefined ? -1 : +pp; if (!isEdited(kk, ph2)) continue; const c2 = cur(kk, ph2); out[k] = { s: +c2.s.toFixed(3), sy: +c2.sy.toFixed(3), dx: +c2.dx.toFixed(1), dy: +c2.dy.toFixed(1), f: c2.f ? 1 : 0 }; }
   $("out").value = JSON.stringify(out);
 }
-function set(patch) { const k = items[idx].key; edits[k] = Object.assign(cur(k), patch); save(); ui(); draw(); }
+function set(patch) { const k = items[idx].key, key = ek(k, phase); edits[key] = Object.assign(cur(k, phase), patch); save(); ui(); draw(); }
 function select(i) { idx = (i + items.length) % items.length; phase = -1; needZoom = !load(BASE + "assets/buildings/" + items[idx].key + ".png").complete; autoZoom(); ui(); draw(); const el = document.querySelectorAll(".item")[idx]; if (el && el.scrollIntoView) el.scrollIntoView({ block: "nearest" }); }
 
 for (const [i, it] of items.entries()) { const b = document.createElement("button"); b.className = "item"; b.setAttribute("role", "option"); b.innerHTML = `<span class="dot"></span><span>${it.key}</span><span class="fp">${it.w}×${it.h}</span>`; b.onclick = () => select(i); $("list").appendChild(b); }
 for (const id of ["s", "sy", "dx", "dy"]) $(id).oninput = (e) => set({ [id]: +e.target.value });
 $("op").oninput = () => { ui(); draw(); };
-$("flip").onclick = () => set({ f: cur(items[idx].key).f ? 0 : 1 });
+$("flip").onclick = () => set({ f: cur(items[idx].key, phase).f ? 0 : 1 });
 $("lock").onclick = (e) => e.currentTarget.setAttribute("aria-pressed", e.currentTarget.getAttribute("aria-pressed") === "true" ? "false" : "true");
-$("reset").onclick = () => { delete edits[items[idx].key]; save(); ui(); draw(); };
+$("reset").onclick = () => { delete edits[ek(items[idx].key, phase)]; save(); ui(); draw(); };
 $("prev").onclick = () => select(idx - 1); $("next").onclick = () => select(idx + 1);
 $("copy").onclick = async () => { const t = $("out").value; try { await navigator.clipboard.writeText(t); $("status").textContent = "کپی شد. متن را برای من بفرست."; } catch (e) { $("out").select(); $("status").textContent = "متن انتخاب شد؛ با Ctrl+C کپی کن."; } };
 
@@ -171,7 +177,7 @@ cv.addEventListener("pointermove", (e) => {
 const end = () => { drag = null; cv.classList.remove("drag"); }; cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
 addEventListener("keydown", (e) => {
   if (/INPUT|TEXTAREA/.test(document.activeElement.tagName) && document.activeElement.type !== "range") return;
-  const c = cur(items[idx].key), st = e.shiftKey ? 2 : 0.5;
+  const c = cur(items[idx].key, phase), st = e.shiftKey ? 2 : 0.5;
   const m = { ArrowLeft: { dx: c.dx - st }, ArrowRight: { dx: c.dx + st }, ArrowUp: { dy: c.dy - st }, ArrowDown: { dy: c.dy + st }, "+": { s: c.s + 0.005 }, "=": { s: c.s + 0.005 }, "-": { s: c.s - 0.005 } }[e.key];
   if (m) { e.preventDefault(); set(m); }
 });

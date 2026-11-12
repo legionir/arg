@@ -46,7 +46,7 @@ fs.writeFileSync(path.join(root, "game/buildingart.js"), `// نگاره‌ی س�
 // تصویر نبود/نیامده = همان رسم وکتوری قبلی (fallback خودکار). ساخته‌شده توسط ابزار — دستی ویرایش نشود.
 export const ART_K = 3;
 export const BUILDING_ART = {
-${keys.map((k) => `  ${k}: { dy: 0${["s", "sy", "dx", "f"].map((n) => (fit[k] && fit[k][n] != null && (n === "f" || ![0, 1].includes(fit[k][n])) ? `, ${n}: ${fit[k][n]}` : "")).join("")} },`).join("\n")}
+${keys.map((k) => `  ${k}: { dy: ${(fit[k] && fit[k].dy) || 0}${["s", "sy", "dx", "f"].map((n) => (fit[k] && fit[k][n] != null && (n === "f" || ![0, 1].includes(fit[k][n])) ? `, ${n}: ${fit[k][n]}` : "")).join("")} },`).join("\n")}
 };
 `);
 console.log(report.join("\n"));
