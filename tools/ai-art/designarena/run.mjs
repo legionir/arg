@@ -20,7 +20,7 @@ const here = path.dirname(fileURLToPath(import.meta.url)), root = path.resolve(h
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i < 0 ? null : process.argv[i + 1]; };
 const only = arg("keys") ? new Set(arg("keys").split(",")) : null, MAX = +arg("max") || 1e9, COMMIT_EVERY = arg("commit-every") != null ? +arg("commit-every") : 3;
 const REF = arg("ref") ? path.resolve(root, arg("ref")) : null;
-const REF_SENTENCE = " Match the art style, palette, camera angle, lighting and level of detail of the attached reference image exactly; same hand-painted look, same outline weight.";
+const REF_SENTENCE = " The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and flat magenta background exactly, but do NOT copy its shape, tower, awning, pots or any objects; draw only the subject described above.";
 const WORK = path.join(os.tmpdir(), "da-work"); fs.mkdirSync(WORK, { recursive: true });
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -60,8 +60,15 @@ async function harvest(page, ctx, dir, votes) {
   return meta;
 }
 
-async function generate(browser, ctx) {
+// The CDP tunnel can drop during long waits: reconnect when the browser object is dead.
+async function liveBrowser() {
+  if (!browser || !browser.isConnected() || !browser.contexts().length) { log("reconnecting to browser…"); await browser?.close().catch(() => {}); browser = await withRetry(() => connect(), 4, "connect"); }
+  return browser;
+}
+
+async function generate(_unused, ctx) {
   const { set, it } = ctx;
+  const browser = await liveBrowser();
   const dir = path.join(WORK, it.key); fs.mkdirSync(dir, { recursive: true });
   const shot = path.join(dir, "limit.jpg");
   const page = await browser.contexts()[0].newPage();
@@ -113,7 +120,8 @@ async function generate(browser, ctx) {
   } finally { await page.close().catch(() => {}); }
 }
 
-async function collect(browser, ctx, url) {
+async function collect(_unused, ctx, url) {
+  const browser = await liveBrowser();
   const dir = path.join(WORK, ctx.it.key); fs.mkdirSync(dir, { recursive: true });
   const page = await browser.contexts()[0].newPage();
   try {
@@ -158,7 +166,7 @@ outer: for (const sn of (arg("set") ? [arg("set")] : SET_ORDER)) {
     if (isDone(set, it)) continue;
     if (done >= MAX) break outer;
     try {
-      await withRetry(() => generate(browser, ctxFor(set, it)), 2);
+      await withRetry(() => generate(null, ctxFor(set, it)), 3, it.key);
       done++; sinceCommit++; fails = 0;
       if (COMMIT_EVERY && sinceCommit >= COMMIT_EVERY) { gitCommit(`AI art: ${sn} source images (${done} this run)`); sinceCommit = 0; }
     } catch (e) {

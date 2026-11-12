@@ -33,7 +33,7 @@ export async function connect() {
 
 export async function withRetry(fn, tries = 3, label = "") {
   let last;
-  for (let i = 0; i < tries; i++) { try { return await fn(); } catch (e) { if (e.name === "LimitError") throw e; last = e; await new Promise((r) => setTimeout(r, 4000 * (i + 1))); } }
+  for (let i = 0; i < tries; i++) { try { return await fn(); } catch (e) { if (e.name === "LimitError") throw e; last = e; console.log(`  [retry ${i + 1}/${tries}${label ? " " + label : ""}] ${String(e.message).split("\n")[0].slice(0, 160)}`); await new Promise((r) => setTimeout(r, 4000 * (i + 1))); } }
   throw last;
 }
 
