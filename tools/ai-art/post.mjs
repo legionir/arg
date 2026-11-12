@@ -31,8 +31,8 @@ for (const it of list) {
     for (let i = 0; i < p.length; i += 4) {
       const r = p[i], g = p[i + 1], b = p[i + 2], m = Math.min(r, b);
       const pinkness = (m - g) / Math.max(1, m);       // 0 = neutral, →1 = pure magenta
-      if (m > 70 && pinkness > 0.32) { p[i + 3] = 0; }
-      else if (m > 70 && pinkness > 0.22) { p[i + 3] = Math.round(255 * (0.32 - pinkness) / 0.10); // soft edge + despill
+      if (m > 45 && pinkness > 0.32) { p[i + 3] = 0; }
+      else if (m > 45 && pinkness > 0.22) { p[i + 3] = Math.round(255 * (0.32 - pinkness) / 0.10); // soft edge + despill
         p[i + 2] = Math.min(b, g + 20); p[i] = Math.min(r, g + 40); }
     }
     // largest connected opaque blob only (drops stray specks)
