@@ -1,0 +1,69 @@
+{
+ "key": "squaretower",
+ "set": "buildings",
+ "prompt": "a tall square stone-and-adobe tower with corner buttresses, crenellated parapet and a turquoise banner. square footprint, very tall, tower-like. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people. The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and background treatment exactly, but do NOT copy its subject, shape, person or objects; draw only the subject described above.",
+ "reference": "assets/ai-src/buildings/bakery_1.webp",
+ "aspect": "1:1",
+ "footprint": [
+  3,
+  3
+ ],
+ "project": "https://www.designarena.ai/chat/2297ce02-15db-4423-9b07-b10447217099",
+ "at": "2026-11-12T02:02:05.167Z",
+ "votes": [
+  {
+   "round": 0,
+   "options": [
+    {
+     "letter": "A",
+     "score": 2.652,
+     "flat": 1,
+     "asp": 0.7,
+     "margin": 0.082,
+     "areaFrac": 0.33,
+     "w": 2048,
+     "h": 2048
+    },
+    {
+     "letter": "B",
+     "score": 2.618,
+     "flat": 1,
+     "asp": 0.8,
+     "margin": 0.07,
+     "areaFrac": 0.33,
+     "w": 1024,
+     "h": 1024
+    }
+   ],
+   "chosen": "A"
+  }
+ ],
+ "files": [
+  {
+   "file": "squaretower_1.webp",
+   "rank": 1,
+   "bytes": 591088,
+   "score": 2.652,
+   "flat": 1,
+   "asp": 0.7,
+   "margin": 0.082,
+   "areaFrac": 0.33,
+   "w": 2048,
+   "h": 2048,
+   "source": "1794448764330_yr948q.png"
+  },
+  {
+   "file": "squaretower_2.webp",
+   "rank": 2,
+   "bytes": 121992,
+   "score": 2.618,
+   "flat": 1,
+   "asp": 0.8,
+   "margin": 0.07,
+   "areaFrac": 0.33,
+   "w": 1024,
+   "h": 1024,
+   "source": "1794448901978_1k9785.png"
+  }
+ ]
+}

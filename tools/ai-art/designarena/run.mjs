@@ -23,6 +23,11 @@ const CLI_REF = arg("ref") ? path.resolve(root, arg("ref")) : null, NO_REF = pro
 let REF = null;      // style reference of the item being generated (set per item by refFor)
 const REF_SENTENCE = " The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and background treatment exactly, but do NOT copy its subject, shape, person or objects; draw only the subject described above.";
 const WORK = path.join(os.tmpdir(), "da-work"); fs.mkdirSync(WORK, { recursive: true });
+// single instance: two runners on one browser close each other's tabs
+const LOCK = path.join(WORK, "run.lock");
+try { const pid = +fs.readFileSync(LOCK, "utf8"); if (pid && pid !== process.pid) { try { process.kill(pid, 0); console.error("another runner is active (pid " + pid + ") — exiting"); process.exit(5); } catch { /* stale lock */ } } } catch { /* no lock */ }
+fs.writeFileSync(LOCK, String(process.pid));
+process.on("exit", () => { try { if (+fs.readFileSync(LOCK, "utf8") === process.pid) fs.unlinkSync(LOCK); } catch {} });
 // A submitted-but-unfinished project is remembered so a dropped connection RESUMES it instead of generating again.
 const INFLIGHT = path.join(WORK, "inflight.json");
 const inflight = () => { try { return JSON.parse(fs.readFileSync(INFLIGHT, "utf8")); } catch { return {}; } };
