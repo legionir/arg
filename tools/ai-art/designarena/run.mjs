@@ -19,14 +19,15 @@ import { scoreImage, toWebp, toJpegSmall, closeScorer } from "./score.mjs";
 const here = path.dirname(fileURLToPath(import.meta.url)), root = path.resolve(here, "../../..");
 const arg = (k) => { const i = process.argv.indexOf("--" + k); return i < 0 ? null : process.argv[i + 1]; };
 const only = arg("keys") ? new Set(arg("keys").split(",")) : null, MAX = +arg("max") || 1e9, COMMIT_EVERY = arg("commit-every") != null ? +arg("commit-every") : 3;
-const REF = arg("ref") ? path.resolve(root, arg("ref")) : null;
-const REF_SENTENCE = " The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and flat magenta background exactly, but do NOT copy its shape, tower, awning, pots or any objects; draw only the subject described above.";
+const CLI_REF = arg("ref") ? path.resolve(root, arg("ref")) : null, NO_REF = process.argv.includes("--no-ref");
+let REF = null;      // style reference of the item being generated (set per item by refFor)
+const REF_SENTENCE = " The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and background treatment exactly, but do NOT copy its subject, shape, person or objects; draw only the subject described above.";
 const WORK = path.join(os.tmpdir(), "da-work"); fs.mkdirSync(WORK, { recursive: true });
 // A submitted-but-unfinished project is remembered so a dropped connection RESUMES it instead of generating again.
 const INFLIGHT = path.join(WORK, "inflight.json");
 const inflight = () => { try { return JSON.parse(fs.readFileSync(INFLIGHT, "utf8")); } catch { return {}; } };
 const setInflight = (k, v) => { const o = inflight(); if (v) o[k] = v; else delete o[k]; fs.writeFileSync(INFLIGHT, JSON.stringify(o)); };
-const inflightKey = (ctx) => `${ctx.SRC}::${ctx.it.key}::${REF ? "ref" : "noref"}`;
+const inflightKey = (ctx) => `${ctx.SRC}::${ctx.it.key}`;
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const stripTok = (u) => u.split("?")[0];
@@ -75,6 +76,7 @@ async function liveBrowser() {
 
 async function generate(_unused, ctx) {
   const { set, it } = ctx;
+  REF = refFor(set, it);
   const browser = await liveBrowser();
   const dir = path.join(WORK, it.key); fs.mkdirSync(dir, { recursive: true });
   const shot = path.join(dir, "limit.jpg");
@@ -160,6 +162,14 @@ function gitCommit(msg) {
   } catch (e) { log("git skipped:", String(e.message).split("\n")[0]); }
 }
 
+// Which reference image (if any) goes with this item. set.ref "first" = the first saved item of the set (made without one).
+function refFor(set, it) {
+  if (NO_REF) return null;
+  if (CLI_REF) return CLI_REF;
+  if (!set.ref) return null;
+  if (set.ref === "first") { const f = set.items[0]; if (f.key === it.key) return null; const p = path.join(ctxFor(set, f).SRC, `${f.key}_1.webp`); return fs.existsSync(p) ? p : null; }
+  const p = path.resolve(root, set.ref); return fs.existsSync(p) ? p : null;
+}
 const ctxFor = (set, it) => {
   const base = arg("out") ? path.resolve(root, arg("out")) : path.join(root, "assets/ai-src", set.dir);
   const META = path.join(base, "meta"); fs.mkdirSync(META, { recursive: true });
@@ -190,9 +200,9 @@ outer: for (const sn of (arg("set") ? [arg("set")] : SET_ORDER)) {
     } catch (e) {
       if (e.name === "LimitError") { log("LIMIT:", e.message, e.shot || ""); exitCode = 3; break outer; }
       log(it.key, "FAILED:", String(e.message).split("\n")[0]);
-      if (++fails >= 3) {                                     // tunnel/browser trouble: wait and reconnect instead of giving up at once
-        if (++pauses > 6) { log("too many failures — stopping"); exitCode = 4; break outer; }
-        log(`3 failures in a row — pausing 10 min (pause ${pauses}/6)`); await browser.close().catch(() => {}); await sleep(600000);
+      if (++fails >= 3) {                                     // tunnel/browser/network trouble: wait and reconnect instead of giving up
+        if (++pauses > 36) { log("too many failures — stopping"); exitCode = 4; break outer; }
+        log(`3 failures in a row — pausing 5 min (pause ${pauses}/36)`); await browser.close().catch(() => {}); await sleep(300000);
         try { browser = await withRetry(() => connect(), 3); fails = 0; } catch (e2) { log("reconnect failed:", e2.message.split("\n")[0]); }
       }
     }

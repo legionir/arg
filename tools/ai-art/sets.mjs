@@ -87,10 +87,11 @@ const EXTRAS = [
 
 // aspect = value of the site's ratio menu ("1:1", "3:2", "2:3", "16:9", "9:16"); a per-item aspect overrides the set's.
 const WIDE = new Set(["ram", "catapult", "trebuchet", "ballista", "knight", "horseArcher", "wardog"]);
+// set.ref: a style-reference image attached to every prompt of the set ("first" = the set's first generated item, which itself is made without one)
 export const SETS = {
-  buildings: { dir: "buildings", kind: "sprite", aspect: "1:1", items: BUILDINGS.map((b) => ({ key: b.key, prompt: bPrompt(b), expected: expectedAspect(b), b })) },
-  units: { dir: "units", kind: "sprite", aspect: "2:3", items: UNITS.map((u) => ({ key: u.key, prompt: `${u.subject}. ${USTYLE}`, expected: WIDE.has(u.key) ? 1 : 0.55, aspect: WIDE.has(u.key) ? "1:1" : "2:3" })) },
-  portraits: { dir: "portraits", kind: "art", aspect: "1:1", items: LORDS.map((l) => ({ key: l.key, prompt: `${l.subject}. ${PSTYLE}`, expected: 1 })) },
+  buildings: { dir: "buildings", kind: "sprite", aspect: "1:1", ref: "assets/ai-src/buildings/bakery_1.webp", items: BUILDINGS.map((b) => ({ key: b.key, prompt: bPrompt(b), expected: expectedAspect(b), b })) },
+  units: { dir: "units", kind: "sprite", aspect: "2:3", ref: "first", items: UNITS.map((u) => ({ key: u.key, prompt: `${u.subject}. ${USTYLE}`, expected: WIDE.has(u.key) ? 1 : 0.55, aspect: WIDE.has(u.key) ? "1:1" : "2:3" })) },
+  portraits: { dir: "portraits", kind: "art", aspect: "1:1", ref: "assets/portraits/artan.jpg", items: LORDS.map((l) => ({ key: l.key, prompt: `${l.subject}. ${PSTYLE}`, expected: 1 })) },
   extras: { dir: "extras", kind: "art", aspect: "1:1", items: EXTRAS.map((e) => ({ key: e.key, prompt: e.prompt, expected: e.key === "app-icon" ? 1 : 1.78, aspect: e.key === "app-icon" ? "1:1" : "16:9" })) },
 };
 export const SET_ORDER = ["buildings", "units", "portraits", "extras"];
