@@ -1,0 +1,39 @@
+{
+ "key": "signpost",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "a wooden signpost with two arrow-shaped boards. square footprint, low single storey. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  1,
+  1
+ ],
+ "at": "2026-11-12T11:37:42.968Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "signpost_1.webp",
+   "rank": 1,
+   "bytes": 181122,
+   "score": 2.243,
+   "flat": 1,
+   "asp": 1.23,
+   "margin": 0.102,
+   "areaFrac": 0.34,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "signpost_2.webp",
+   "rank": 2,
+   "bytes": 165690,
+   "score": 0.899,
+   "flat": 0.33,
+   "asp": 1.24,
+   "margin": 0.172,
+   "areaFrac": 0.18,
+   "w": 1536,
+   "h": 1024
+  }
+ ]
+}
