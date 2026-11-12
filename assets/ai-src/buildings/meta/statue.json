@@ -1,0 +1,39 @@
+{
+ "key": "statue",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "a stone statue of a king on a carved plinth with a golden crown. square footprint, low single storey. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  1,
+  1
+ ],
+ "at": "2026-11-12T11:31:05.160Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "statue_1.webp",
+   "rank": 1,
+   "bytes": 213998,
+   "score": 2.543,
+   "flat": 1,
+   "asp": 0.76,
+   "margin": 0.055,
+   "areaFrac": 0.31,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "statue_2.webp",
+   "rank": 2,
+   "bytes": 150040,
+   "score": 2.425,
+   "flat": 1,
+   "asp": 0.67,
+   "margin": 0.086,
+   "areaFrac": 0.23,
+   "w": 1254,
+   "h": 1254
+  }
+ ]
+}
