@@ -134,7 +134,8 @@ async function generate(_unused, ctx) {
     for (let i = 0; i < 30 && !/\/chat\//.test(page.url()); i++) await page.waitForTimeout(1000);
     if (/\/chat\//.test(page.url())) setInflight(inflightKey(ctx), page.url());
     }
-    await waitFor(page, async () => (await roundOf(page)) || (await page.evaluate(RESULTS_PRED)) || null, 12 * 60000, "round 1", shot);
+    try { await waitFor(page, async () => (await roundOf(page)) || (await page.evaluate(RESULTS_PRED)) || null, 8 * 60000, "round 1", shot); }
+    catch (e) { setInflight(inflightKey(ctx), null); throw e; }   // a project stuck in "generating" is abandoned; the retry submits a fresh one
     const votes = [];
     for (let guard = 0; guard < 8; guard++) {
       const r = await roundOf(page); if (!r) break;
