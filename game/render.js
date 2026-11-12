@@ -693,12 +693,13 @@ export function createRenderer(canvas) {
     const A = cs(b.c, b.r), B = cs(b.c + b.w, b.r), C = cs(b.c + b.w, b.r + b.h), D = cs(b.c, b.r + b.h);
     groundShadow(A, B, C, D, 0.22);
     const fit = art.e.s || 1;   // مقیاس تطبیق ردپا (tools/ai-art/fit_footprint.py): نسبت ابعاد ثابت، لنگر = رأس پایینی ردپا
-    const w = (art.img.naturalWidth / ART_K) * z * fit, h = (art.img.naturalHeight / ART_K) * z * fit;
-    const cx = (A.x + C.x) / 2, by = C.y + (art.e.dy || 0) * z + 2 * z + ((art.pb || 0) / ART_K) * z * fit;
+    const w = (art.img.naturalWidth / ART_K) * z * fit, h = (art.img.naturalHeight / ART_K) * z * fit * (art.e.sy || 1);
+    const cx = (A.x + C.x) / 2 + (art.e.dx || 0) * z, by = C.y + (art.e.dy || 0) * z + 2 * z + ((art.pb || 0) / ART_K) * z * fit * (art.e.sy || 1);
     const gray = b.staffed === false && CONFIG.BUILDINGS[b.type].prod;
     ctx.save();
     if (gray) { try { ctx.filter = "grayscale(1) brightness(0.8)"; } catch (e) { /* مرورگر بی‌فیلتر */ } }
-    ctx.drawImage(art.img, cx - w / 2, by - h, w, h);
+    if (art.e.f) { ctx.translate(cx, 0); ctx.scale(-1, 1); ctx.drawImage(art.img, -w / 2, by - h, w, h); }   // آینه: جهت ضلع بلند خلاف شبکه بود
+    else ctx.drawImage(art.img, cx - w / 2, by - h, w, h);
     ctx.restore();
     return { topY: by - h };
   }

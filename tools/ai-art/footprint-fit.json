@@ -1,45 +1,218 @@
 {
- "hut": 0.933,
- "tower": 0.981,
- "lookout": 0.994,
- "perimeter": 0.977,
- "defence": 0.926,
- "squaretower": 0.926,
- "roundtower": 0.926,
- "barracks": 0.925,
- "mercpost": 1.0,
- "market": 1.0,
- "woodcutter": 0.949,
- "hunterpost": 0.928,
- "dairy": 0.925,
- "tannery": 0.928,
- "orchard": 1.004,
- "farm": 0.933,
- "wheatfarm": 0.925,
- "mill": 1.07,
- "bakery": 0.928,
- "armoury": 0.96,
- "fletcher": 0.988,
- "hopsfarm": 0.942,
- "brewery": 0.982,
- "inn": 0.928,
- "chapel": 0.928,
- "church": 0.949,
- "cathedral": 0.939,
- "apothecary": 0.96,
- "quarry": 0.971,
- "oxtether": 0.928,
- "ironmine": 0.928,
- "keep": 0.926,
- "stonekeep": 0.926,
- "garden": 0.939,
- "statue": 0.923,
- "gallows": 0.923,
- "dungeon": 0.928,
- "signpost": 1.15,
- "well": 0.977,
- "waterpot": 0.928,
- "engineerguild": 0.968,
- "tunnelerguild": 0.933,
- "stable": 0.95
+ "hut": {
+  "s": 0.933,
+  "sy": 1.15,
+  "dx": 0.0
+ },
+ "tower": {
+  "s": 0.981,
+  "sy": 0.88,
+  "dx": 0.7
+ },
+ "lookout": {
+  "s": 0.994,
+  "sy": 0.914,
+  "dx": -0.5
+ },
+ "perimeter": {
+  "s": 0.977,
+  "sy": 1.055,
+  "dx": 0.3
+ },
+ "defence": {
+  "s": 0.926,
+  "sy": 1.15,
+  "dx": 0.2
+ },
+ "squaretower": {
+  "s": 0.926,
+  "sy": 1.004,
+  "dx": 0.2
+ },
+ "roundtower": {
+  "s": 0.926,
+  "sy": 1.15,
+  "dx": 0.2
+ },
+ "barracks": {
+  "s": 0.925,
+  "sy": 1.15,
+  "dx": 0.2
+ },
+ "mercpost": {
+  "s": 1.0,
+  "sy": 0.89,
+  "dx": 1.3
+ },
+ "market": {
+  "s": 1.0,
+  "sy": 1.128,
+  "dx": 0.3
+ },
+ "woodcutter": {
+  "s": 0.949,
+  "sy": 1.011,
+  "dx": 0.2
+ },
+ "hunterpost": {
+  "s": 0.928,
+  "sy": 1.15,
+  "dx": 0.2
+ },
+ "dairy": {
+  "s": 0.925,
+  "sy": 1.15,
+  "dx": 0.2
+ },
+ "tannery": {
+  "s": 0.928,
+  "sy": 1.028,
+  "dx": 0.2
+ },
+ "orchard": {
+  "s": 1.004,
+  "sy": 0.85,
+  "dx": -1.3
+ },
+ "farm": {
+  "s": 0.933,
+  "sy": 1.051,
+  "dx": -0.2
+ },
+ "wheatfarm": {
+  "s": 0.925,
+  "sy": 0.978,
+  "dx": 0.2
+ },
+ "mill": {
+  "s": 1.07,
+  "sy": 1.068,
+  "dx": -3.4
+ },
+ "bakery": {
+  "s": 0.928,
+  "sy": 1.09,
+  "dx": 0.2
+ },
+ "armoury": {
+  "s": 0.96,
+  "sy": 1.094,
+  "dx": 0.2
+ },
+ "fletcher": {
+  "s": 0.988,
+  "sy": 1.056,
+  "dx": 0.7
+ },
+ "hopsfarm": {
+  "s": 0.942,
+  "sy": 1.005,
+  "dx": -0.5
+ },
+ "brewery": {
+  "s": 0.982,
+  "sy": 1.103,
+  "dx": -1.5
+ },
+ "inn": {
+  "s": 0.928,
+  "sy": 1.15,
+  "dx": 0.2
+ },
+ "chapel": {
+  "s": 0.928,
+  "sy": 1.034,
+  "dx": 0.2
+ },
+ "church": {
+  "s": 0.949,
+  "sy": 1.106,
+  "dx": 0.5
+ },
+ "cathedral": {
+  "s": 0.939,
+  "sy": 1.0,
+  "dx": -0.2
+ },
+ "apothecary": {
+  "s": 0.96,
+  "sy": 1.15,
+  "dx": -0.8
+ },
+ "quarry": {
+  "s": 0.971,
+  "sy": 0.865,
+  "dx": -0.2
+ },
+ "oxtether": {
+  "s": 0.928,
+  "sy": 0.919,
+  "dx": 0.2
+ },
+ "ironmine": {
+  "s": 0.928,
+  "sy": 1.131,
+  "dx": 0.2
+ },
+ "keep": {
+  "s": 0.926,
+  "sy": 0.892,
+  "dx": 0.2
+ },
+ "stonekeep": {
+  "s": 0.926,
+  "sy": 1.034,
+  "dx": 0.2
+ },
+ "garden": {
+  "s": 0.939,
+  "sy": 0.957,
+  "dx": -0.2
+ },
+ "statue": {
+  "s": 0.923,
+  "sy": 1.137,
+  "dx": 0.2
+ },
+ "gallows": {
+  "s": 0.923,
+  "sy": 1.034,
+  "dx": 0.2
+ },
+ "dungeon": {
+  "s": 0.928,
+  "sy": 1.0,
+  "dx": 0.2
+ },
+ "signpost": {
+  "s": 1.15,
+  "sy": 1.047,
+  "dx": 0.2
+ },
+ "well": {
+  "s": 0.977,
+  "sy": 0.977,
+  "dx": 1.0
+ },
+ "waterpot": {
+  "s": 0.928,
+  "sy": 1.131,
+  "dx": 0.2
+ },
+ "engineerguild": {
+  "s": 0.968,
+  "sy": 1.15,
+  "dx": -1.5
+ },
+ "tunnelerguild": {
+  "s": 0.933,
+  "sy": 1.071,
+  "dx": 0.5,
+  "f": 1
+ },
+ "stable": {
+  "s": 0.95,
+  "sy": 1.15,
+  "dx": 0.8
+ }
 }
