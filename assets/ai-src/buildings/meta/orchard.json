@@ -1,0 +1,39 @@
+{
+ "key": "orchard",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "an apple orchard, a small walled garden plot with rows of apple trees full of red fruit. square footprint, very low profile, nearly flat, mostly at ground level. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  3,
+  3
+ ],
+ "at": "2026-11-12T10:53:51.285Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "orchard_1.webp",
+   "rank": 1,
+   "bytes": 195696,
+   "score": 2.502,
+   "flat": 1,
+   "asp": 1.39,
+   "margin": 0.07,
+   "areaFrac": 0.29,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "orchard_2.webp",
+   "rank": 2,
+   "bytes": 187306,
+   "score": 2.498,
+   "flat": 1,
+   "asp": 1.38,
+   "margin": 0.09,
+   "areaFrac": 0.27,
+   "w": 1254,
+   "h": 1254
+  }
+ ]
+}
