@@ -1,0 +1,69 @@
+{
+ "key": "lookout",
+ "set": "buildings",
+ "prompt": "a tall slender mud-brick lookout tower with an open timber observation platform under a small tiled roof. square footprint, very tall, tower-like. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people. The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and background treatment exactly, but do NOT copy its subject, shape, person or objects; draw only the subject described above.",
+ "reference": "assets/ai-src/buildings/bakery_1.webp",
+ "aspect": "1:1",
+ "footprint": [
+  2,
+  2
+ ],
+ "project": "https://www.designarena.ai/chat/0143f30a-888f-4563-ade0-117c3d2adc55",
+ "at": "2026-11-12T01:53:28.890Z",
+ "votes": [
+  {
+   "round": 0,
+   "options": [
+    {
+     "letter": "A",
+     "score": 2.443,
+     "flat": 1,
+     "asp": 0.41,
+     "margin": 0.059,
+     "areaFrac": 0.25,
+     "w": 1024,
+     "h": 1024
+    },
+    {
+     "letter": "B",
+     "score": 2.626,
+     "flat": 1,
+     "asp": 0.5,
+     "margin": 0.066,
+     "areaFrac": 0.23,
+     "w": 2048,
+     "h": 2048
+    }
+   ],
+   "chosen": "B"
+  }
+ ],
+ "files": [
+  {
+   "file": "lookout_1.webp",
+   "rank": 1,
+   "bytes": 438046,
+   "score": 2.626,
+   "flat": 1,
+   "asp": 0.5,
+   "margin": 0.066,
+   "areaFrac": 0.23,
+   "w": 2048,
+   "h": 2048,
+   "source": "1794448385702_ak1qtc.png"
+  },
+  {
+   "file": "lookout_2.webp",
+   "rank": 2,
+   "bytes": 137690,
+   "score": 2.443,
+   "flat": 1,
+   "asp": 0.41,
+   "margin": 0.059,
+   "areaFrac": 0.25,
+   "w": 1024,
+   "h": 1024,
+   "source": "1794448288493_py36v6.jpg"
+  }
+ ]
+}
