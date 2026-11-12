@@ -23,8 +23,29 @@ export function cookieHeader() {
   return { cookie: rows.map((c) => `${c[5]}=${c[6]}`).join("; "), jar };
 }
 
+// Close leftover bare home-page tabs through RAW CDP (works even while Playwright's own handshake is blocked by a hung tab).
+export async function rawCloseStrays() {
+  const WebSocket = createRequire(import.meta.url)("/home/user/arg/server/node_modules/ws");
+  const base = process.env.DA_TUNNEL, { cookie, jar } = cookieHeader();
+  const id = JSON.parse(curl(["-b", jar, `${base}/json/version`])).webSocketDebuggerUrl.split("/").pop();
+  return new Promise((resolve) => {
+    const ws = new WebSocket(`${base.replace(/^http/, "ws")}/devtools/browser/${id}`, { headers: { Cookie: cookie } });
+    let n = 0, seq = 0; const pend = new Map();
+    const call = (method, params) => new Promise((res) => { const i = ++seq; pend.set(i, res); ws.send(JSON.stringify({ id: i, method, params })); });
+    ws.on("message", (m) => { const o = JSON.parse(m); if (o.id && pend.has(o.id)) { pend.get(o.id)(o); pend.delete(o.id); } });
+    ws.on("open", async () => {
+      const t = (await call("Target.getTargets")).result.targetInfos.filter((x) => x.type === "page");
+      for (const x of t) if (/^https:\/\/www\.designarena\.ai\/?$/.test(x.url)) { await call("Target.closeTarget", { targetId: x.targetId }); n++; }
+      ws.close(); resolve(n);
+    });
+    ws.on("error", () => resolve(-1));
+    setTimeout(() => { try { ws.terminate(); } catch {} resolve(-2); }, 20000);
+  });
+}
+
 // Browser ids change on every Chrome restart, so ask /json/version each time.
 export async function connect() {
+  await rawCloseStrays().catch(() => {});
   const base = process.env.DA_TUNNEL, { cookie, jar } = cookieHeader();
   const v = JSON.parse(curl(["-b", jar, `${base}/json/version`]));
   const id = v.webSocketDebuggerUrl.split("/").pop();

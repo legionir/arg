@@ -13,7 +13,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { SETS, SET_ORDER } from "../sets.mjs";
-import { connect, withRetry, checkLimit, dismissModals, resultUrls, download } from "./lib.mjs";
+import { connect, rawCloseStrays, withRetry, checkLimit, dismissModals, resultUrls, download } from "./lib.mjs";
 import { scoreImage, toWebp, toJpegSmall, closeScorer } from "./score.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url)), root = path.resolve(here, "../../..");
@@ -82,6 +82,24 @@ async function liveBrowser() {
   // leftover bare home-page tabs (from interrupted attempts) pile up and make the next CDP handshake hang: close them
   for (const pg of browser.contexts()[0].pages()) if (/^https:\/\/www\.designarena\.ai\/?$/.test(pg.url())) await pg.close().catch(() => {});
   return browser;
+}
+
+// The remote browser sometimes has no internet at all (even example.com fails) while the tunnel stays up. Probe before each
+// generation and wait — without counting it as an item failure — until a page can load again (up to ~6 h).
+async function waitForNetwork() {
+  for (let i = 0; i < 180; i++) {
+    let ok = false;
+    try {
+      const b = await liveBrowser(); const pg = await b.contexts()[0].newPage();
+      try { await pg.goto("https://www.designarena.ai/", { waitUntil: "commit", timeout: 40000 }); ok = true; } finally { await pg.close().catch(() => {}); }
+    } catch (e) { /* offline or tunnel hiccup */ }
+    if (ok) { if (i) log("network is back"); return; }
+    if (i % 5 === 0) log(`browser has no network — waiting (${i})`);
+    await rawCloseStrays().catch(() => {});
+    try { await browser?.close(); } catch {} browser = null;
+    await sleep(120000);
+  }
+  throw new Error("network never came back");
 }
 
 async function generate(_unused, ctx) {
@@ -187,14 +205,14 @@ const ctxFor = (set, it) => {
 };
 const isDone = (set, it) => fs.existsSync(path.join(ctxFor(set, it).META, it.key + ".json"));
 
-let browser = await withRetry(() => connect(), 3);
+let browser = null;                     // connected lazily by liveBrowser() so a hung tab / offline browser cannot crash start-up
 setInterval(() => { browser?.version?.(); }, 15000).unref();   // CDP traffic keeps the tunnel websocket from idling out
 if (arg("collect")) {                                         // --collect hut=<chat url>[,key=url]
   for (const kv of arg("collect").split(",")) {
     const [k, ...u] = kv.split("="); const sn = arg("set") || "buildings", set = SETS[sn], it = set.items.find((x) => x.key === k);
     await collect(browser, ctxFor(set, it), u.join("="));
   }
-  await closeScorer(); await browser.close().catch(() => {}); process.exit(0);
+  await closeScorer(); await browser?.close().catch(() => {}); process.exit(0);
 }
 let done = 0, sinceCommit = 0, fails = 0, pauses = 0, exitCode = 0;
 outer: for (const sn of (arg("set") ? [arg("set")] : SET_ORDER)) {
@@ -204,12 +222,14 @@ outer: for (const sn of (arg("set") ? [arg("set")] : SET_ORDER)) {
     if (isDone(set, it)) continue;
     if (done >= MAX) break outer;
     try {
+      await waitForNetwork();
       await withRetry(() => generate(null, ctxFor(set, it)), 3, it.key);
       done++; sinceCommit++; fails = 0;
       if (COMMIT_EVERY && sinceCommit >= COMMIT_EVERY) { gitCommit(`AI art: ${sn} source images (${done} this run)`); sinceCommit = 0; }
     } catch (e) {
       if (e.name === "LimitError") { log("LIMIT:", e.message, e.shot || ""); exitCode = 3; break outer; }
       log(it.key, "FAILED:", String(e.message).split("\n")[0]);
+      await rawCloseStrays().catch(() => {});
       if (++fails >= 3) {                                     // tunnel/browser/network trouble: wait and reconnect instead of giving up
         if (++pauses > 36) { log("too many failures — stopping"); exitCode = 4; break outer; }
         log(`3 failures in a row — pausing 5 min (pause ${pauses}/36)`); await browser.close().catch(() => {}); await sleep(300000);
@@ -219,7 +239,7 @@ outer: for (const sn of (arg("set") ? [arg("set")] : SET_ORDER)) {
   }
 }
 if (COMMIT_EVERY && sinceCommit) gitCommit(`AI art: source images (${done} this run)`);
-await closeScorer(); await browser.close().catch(() => {});
+await closeScorer(); await browser?.close().catch(() => {});
 const left = Object.entries(SETS).map(([n, s]) => `${n}:${s.items.filter((it) => !isDone(s, it)).length}`).join(" ");
 log("done this run:", done, "| remaining", left);
 process.exit(exitCode);
