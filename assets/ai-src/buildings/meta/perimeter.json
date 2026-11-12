@@ -1,69 +1,52 @@
 {
  "key": "perimeter",
  "set": "buildings",
- "prompt": "a sturdy square mud-brick perimeter tower with battlements and a wooden door at the base. square footprint, tall. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people. The attached image is a STYLE reference only: copy its rendering style, color palette, camera angle, lighting, outline weight and background treatment exactly, but do NOT copy its subject, shape, person or objects; draw only the subject described above.",
- "reference": "assets/ai-src/buildings/bakery_1.webp",
+ "source": "duckai",
+ "prompt": "a tall sturdy square mud-brick perimeter tower, clearly taller than it is wide, with battlements on top and a wooden door at the base. square footprint, tall. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
  "aspect": "1:1",
+ "reference": "assets/ai-src/buildings/bakery_1.webp",
  "footprint": [
   2,
   2
  ],
- "project": "https://www.designarena.ai/chat/d13cbb47-2549-4771-8f12-5d53e41b82a6",
- "at": "2026-11-12T01:55:03.946Z",
- "votes": [
-  {
-   "round": 0,
-   "options": [
-    {
-     "letter": "A",
-     "score": 2.391,
-     "flat": 1,
-     "asp": 0.97,
-     "margin": 0.078,
-     "areaFrac": 0.39,
-     "w": 1024,
-     "h": 1024
-    },
-    {
-     "letter": "B",
-     "score": 2.421,
-     "flat": 1,
-     "asp": 0.94,
-     "margin": 0.094,
-     "areaFrac": 0.38,
-     "w": 1920,
-     "h": 1920
-    }
-   ],
-   "chosen": "B"
-  }
- ],
+ "at": "2026-11-12T11:56:56.326Z",
+ "votes": [],
  "files": [
   {
    "file": "perimeter_1.webp",
    "rank": 1,
-   "bytes": 321118,
-   "score": 2.421,
+   "bytes": 197130,
+   "score": 2.488,
    "flat": 1,
-   "asp": 0.94,
-   "margin": 0.094,
-   "areaFrac": 0.38,
-   "w": 1920,
-   "h": 1920,
-   "source": "1794448483797_crsnsq.jpg"
+   "asp": 0.58,
+   "margin": 0.047,
+   "areaFrac": 0.32,
+   "w": 1254,
+   "h": 1254
   },
   {
    "file": "perimeter_2.webp",
    "rank": 2,
-   "bytes": 217794,
-   "score": 2.391,
+   "bytes": 186430,
+   "score": 2.31,
    "flat": 1,
-   "asp": 0.97,
-   "margin": 0.078,
-   "areaFrac": 0.39,
-   "w": 1024,
-   "h": 1024,
-   "source": "1794448462320_aihqen.png"
+   "asp": 0.48,
+   "margin": 0.051,
+   "areaFrac": 0.29,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "perimeter_3.webp",
+   "rank": 3,
+   "bytes": 150414,
+   "score": 2.226,
+   "flat": 1,
+   "asp": 0.44,
+   "margin": 0.059,
+   "areaFrac": 0.25,
+   "w": 1254,
+   "h": 1254
   }
  ]
 }

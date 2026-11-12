@@ -2,38 +2,51 @@
  "key": "signpost",
  "set": "buildings",
  "source": "duckai",
- "prompt": "a wooden signpost with two arrow-shaped boards. square footprint, low single storey. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "prompt": "a wooden signpost: one thick wooden post standing on a small square stone base, with two large arrow-shaped boards pointing in different directions, no building, no house. square footprint, low single storey. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
  "aspect": "1:1",
+ "reference": "assets/ai-src/buildings/bakery_1.webp",
  "footprint": [
   1,
   1
  ],
- "at": "2026-11-12T11:37:42.968Z",
+ "at": "2026-11-12T12:02:16.353Z",
  "votes": [],
  "files": [
   {
    "file": "signpost_1.webp",
    "rank": 1,
-   "bytes": 181122,
-   "score": 2.243,
+   "bytes": 97892,
+   "score": 1.713,
    "flat": 1,
-   "asp": 1.23,
-   "margin": 0.102,
-   "areaFrac": 0.34,
+   "asp": 0.64,
+   "margin": 0.125,
+   "areaFrac": 0.16,
    "w": 1254,
    "h": 1254
   },
   {
    "file": "signpost_2.webp",
    "rank": 2,
-   "bytes": 165690,
-   "score": 0.899,
-   "flat": 0.33,
-   "asp": 1.24,
-   "margin": 0.172,
-   "areaFrac": 0.18,
-   "w": 1536,
-   "h": 1024
+   "bytes": 95268,
+   "score": 1.509,
+   "flat": 1,
+   "asp": 0.53,
+   "margin": 0.117,
+   "areaFrac": 0.16,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "signpost_3.webp",
+   "rank": 3,
+   "bytes": 115976,
+   "score": 1.325,
+   "flat": 1,
+   "asp": 0.65,
+   "margin": 0.125,
+   "areaFrac": 0.16,
+   "w": 1254,
+   "h": 1254
   }
  ]
 }

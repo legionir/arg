@@ -2,38 +2,39 @@
  "key": "roundtower",
  "set": "buildings",
  "source": "duckai",
- "prompt": "a tall round stone tower with a conical turquoise-tiled roof and arrow slits. square footprint, very tall, tower-like. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "prompt": "a stout round stone tower on a wide square stone base, about as wide as two thirds of its height, with a conical turquoise-tiled roof and arrow slits. square footprint, very tall, tower-like. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
  "aspect": "1:1",
+ "reference": "assets/ai-src/buildings/bakery_1.webp",
  "footprint": [
   3,
   3
  ],
- "at": "2026-11-12T10:46:23.235Z",
+ "at": "2026-11-12T12:01:02.364Z",
  "votes": [],
  "files": [
   {
    "file": "roundtower_1.webp",
    "rank": 1,
-   "bytes": 112532,
-   "score": 0.939,
+   "bytes": 192898,
+   "score": 2.627,
    "flat": 1,
-   "asp": 0.28,
-   "margin": 0.027,
-   "areaFrac": 0.16,
+   "asp": 0.68,
+   "margin": 0.039,
+   "areaFrac": 0.28,
    "w": 1254,
    "h": 1254
   },
   {
    "file": "roundtower_2.webp",
    "rank": 2,
-   "bytes": 94152,
-   "score": -0.016,
-   "flat": 0.33,
-   "asp": 0.41,
-   "margin": 0.184,
-   "areaFrac": 0.1,
-   "w": 1536,
-   "h": 1024
+   "bytes": 162246,
+   "score": 2.416,
+   "flat": 1,
+   "asp": 0.55,
+   "margin": 0.039,
+   "areaFrac": 0.25,
+   "w": 1254,
+   "h": 1254
   }
  ]
 }
