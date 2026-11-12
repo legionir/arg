@@ -1,0 +1,39 @@
+{
+ "key": "armoury",
+ "set": "buildings",
+ "source": "duckai",
+ "prompt": "an armoury workshop, a stout adobe building with weapon racks, swords and shields and a forge chimney. square footprint, single storey with a roof feature. Hand-painted stylized isometric game building sprite, polished mobile strategy game art. Soft gouache shading with gentle gradients and thin dark-brown outlines, consistent across the whole set. Strict isometric 2:1 projection, camera looking down about 30 degrees, building seen from the front-right with two walls visible. Warm sunlight from the upper left, soft shadow on the right-hand walls. Limited palette: sun-baked ochre and sand adobe, terracotta, dark brown timber, turquoise glazed tile, small gold accents, muted olive green plants. Materials: mud-brick, plaster, clay tile, wood. The building is a single object, fully inside the frame with generous margin, centered. Flat solid pure magenta #FF00FF background, no ground plane, no cast shadow, no text, no people.",
+ "aspect": "1:1",
+ "footprint": [
+  2,
+  2
+ ],
+ "at": "2026-11-12T10:57:45.535Z",
+ "votes": [],
+ "files": [
+  {
+   "file": "armoury_1.webp",
+   "rank": 1,
+   "bytes": 235974,
+   "score": 2.689,
+   "flat": 1,
+   "asp": 1.06,
+   "margin": 0.09,
+   "areaFrac": 0.44,
+   "w": 1254,
+   "h": 1254
+  },
+  {
+   "file": "armoury_2.webp",
+   "rank": 2,
+   "bytes": 241250,
+   "score": 2.658,
+   "flat": 1,
+   "asp": 1.03,
+   "margin": 0.078,
+   "areaFrac": 0.42,
+   "w": 1254,
+   "h": 1254
+  }
+ ]
+}
